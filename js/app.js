@@ -562,6 +562,18 @@ const App = {
     document.documentElement.setAttribute('data-theme', theme);
     const icon = document.querySelector('#theme-toggle i');
     if (icon) icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+
+    // Auto dark mode on Friday evening (Shabbat)
+    const now = new Date();
+    const day = now.getDay(); // 5=Friday, 6=Saturday
+    const hour = now.getHours();
+    if ((day === 5 && hour >= 16) || day === 6 || (day === 0 && hour < 1)) {
+      // It's Shabbat time - suggest dark mode
+      if (localStorage.getItem(this.THEME_KEY) !== 'dark' && !sessionStorage.getItem('bht_shabbat_dark')) {
+        sessionStorage.setItem('bht_shabbat_dark', '1');
+        // Don't auto-switch, just add a note
+      }
+    }
   },
 
   toggleTheme() {
@@ -692,6 +704,18 @@ const App = {
         this.updateSyncStatus();
       }
     }, 120000);
+
+    // Weekly backup reminder (check once per session)
+    if (!sessionStorage.getItem('bht_backup_reminded')) {
+      const lastBackup = localStorage.getItem('bht_last_backup') || '2000-01-01';
+      const daysSince = Math.round((Date.now() - new Date(lastBackup).getTime()) / 86400000);
+      if (daysSince > 7) {
+        setTimeout(() => {
+          Utils.toast('💾 לא בוצע גיבוי מזה ' + daysSince + ' ימים. מומלץ לגבות!', 'warning');
+        }, 5000);
+      }
+      sessionStorage.setItem('bht_backup_reminded', '1');
+    }
 
     // Online/offline events
     window.addEventListener('online', () => {

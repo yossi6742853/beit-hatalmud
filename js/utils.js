@@ -398,6 +398,14 @@ const Utils = {
     });
   },
 
+  /* ---- Export all tables on page as CSV ---- */
+  exportAllTablesCSV() {
+    document.querySelectorAll('.table-bht').forEach((table, idx) => {
+      const page = App.currentPage || 'data';
+      this.exportTableCSV(table, page + '_' + (idx+1));
+    });
+  },
+
   /* ---- Relative time ---- */
   relativeTime(date) {
     if (!date) return '';
