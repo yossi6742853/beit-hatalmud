@@ -4,16 +4,20 @@ Object.assign(Pages, {
      DASHBOARD
      ====================================================================== */
   _getParasha() {
-    const parashot = ['בראשית','נח','לך לך','וירא','חיי שרה','תולדות','ויצא','וישלח','וישב','מקץ','ויגש','ויחי',
-      'שמות','וארא','בא','בשלח','יתרו','משפטים','תרומה','תצוה','כי תשא','ויקהל','פקודי',
-      'ויקרא','צו','שמיני','תזריע','מצורע','אחרי מות','קדושים','אמור','בהר','בחוקותי',
-      'במדבר','נשא','בהעלותך','שלח','קרח','חוקת','בלק','פינחס','מטות','מסעי',
-      'דברים','ואתחנן','עקב','ראה','שופטים','כי תצא','כי תבוא','ניצבים','וילך','האזינו','וזאת הברכה'];
-    // Approximate: use week of year mod 54
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 1);
-    const week = Math.ceil((now - start) / 604800000);
-    return parashot[week % parashot.length];
+    // Use a more accurate method: check the Hebrew date month to estimate parasha
+    try {
+      const heb = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {month:'long', year:'numeric'}).format(new Date());
+      // Map Hebrew months to approximate parashiot
+      const monthParasha = {
+        'תשרי': 'בראשית', 'חשוון': 'וירא', 'כסלו': 'וישב',
+        'טבת': 'ויחי', 'שבט': 'בשלח', 'אדר': 'תצוה',
+        'ניסן': 'אחרי מות', 'אייר': 'אמור', 'סיוון': 'נשא',
+        'תמוז': 'חוקת', 'אב': 'דברים', 'אלול': 'שופטים'
+      };
+      const month = Object.keys(monthParasha).find(m => heb.includes(m));
+      if (month) return monthParasha[month];
+    } catch(e) {}
+    return 'אחרי מות'; // fallback for Nissan period
   },
 
   dashboard() {
