@@ -394,7 +394,7 @@ const Pages = {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div><h1><i class="bi bi-people-fill me-2"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h1><p id="students-count"></p></div>
-        <div class="d-flex gap-2"><button class="btn btn-primary" onclick="Pages.showStudentForm()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportStudentsCSV()"><i class="bi bi-download me-1"></i>CSV</button></div>
+        <div class="d-flex gap-2"><button class="btn btn-primary" onclick="Pages.showStudentForm()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3</button><button class="btn btn-outline-primary btn-sm" onclick="Pages.showBulkAddStudents()"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportStudentsCSV()"><i class="bi bi-download me-1"></i>CSV</button></div>
       </div>
       <div class="card p-3 mb-3"><div class="row g-2 align-items-center">
         <div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="students-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div>
@@ -481,6 +481,33 @@ const Pages = {
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'students_'+Utils.todayISO()+'.csv'; link.click();
     Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0');
+  },
+  showBulkAddStudents() {
+    const html = `<div class="modal fade" id="bulk-student-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <p class="text-muted small">\u05D4\u05D3\u05D1\u05E7 \u05E9\u05DE\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05D0\u05D7\u05D3 \u05D1\u05DB\u05DC \u05E9\u05D5\u05E8\u05D4. \u05E4\u05D5\u05E8\u05DE\u05D8: \u05E9\u05DD \u05E4\u05E8\u05D8\u05D9 \u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4, \u05DB\u05D9\u05EA\u05D4</p>
+    <textarea class="form-control" id="bulk-students-text" rows="10" placeholder="\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF, \u05D0\n\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9, \u05D1\n\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF, \u05D0"></textarea>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveBulkStudents()">\u05D4\u05D5\u05E1\u05E3 \u05D4\u05DB\u05DC</button></div></div></div></div>`;
+    document.getElementById('bulk-student-modal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('bulk-student-modal')).show();
+  },
+  async saveBulkStudents() {
+    const text = document.getElementById('bulk-students-text')?.value?.trim();
+    if (!text) { Utils.toast('\u05D4\u05D3\u05D1\u05E7 \u05E9\u05DE\u05D5\u05EA','warning'); return; }
+    const lines = text.split('\n').filter(l => l.trim());
+    let added = 0;
+    for (const line of lines) {
+      const parts = line.split(',');
+      const nameParts = (parts[0]||'').trim().split(/\s+/);
+      const cls = (parts[1]||'').trim();
+      const row = {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': nameParts[0]||'', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': nameParts.slice(1).join(' ')||'', '\u05DB\u05D9\u05EA\u05D4': cls, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC'};
+      if (row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']) {
+        try { await App.apiCall('add','\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD',{row}); added++; } catch(e) {}
+      }
+    }
+    bootstrap.Modal.getInstance(document.getElementById('bulk-student-modal'))?.hide();
+    Utils.toast(added + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D5');
+    this.studentsInit();
   },
 
   /* ======================================================================
@@ -719,8 +746,9 @@ const Pages = {
         <button class="btn btn-success" onclick="Pages.saveAttendance()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</button>
       </div>
       <div class="card p-3 mb-3"><div class="row g-2 align-items-center">
-        <div class="col-md-4"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="att-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..."></div></div>
-        <div class="col-md-3"><input type="date" class="form-control" id="att-date" value="${Utils.todayISO()}"></div>
+        <div class="col-md-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="att-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..."></div></div>
+        <div class="col-md-2"><input type="date" class="form-control" id="att-date" value="${Utils.todayISO()}"></div>
+        <div class="col-md-2"><select class="form-select" id="att-class-filter"><option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option></select></div>
         <div class="col-md-5 d-flex gap-2 flex-wrap">
           <button class="btn btn-outline-success btn-sm" onclick="Pages.markAll('present')"><i class="bi bi-check-all me-1"></i>\u05D4\u05DB\u05DC \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD</button>
           <button class="btn btn-outline-danger btn-sm" onclick="Pages.markAll('absent')"><i class="bi bi-x-circle me-1"></i>\u05D4\u05DB\u05DC \u05D7\u05E1\u05E8\u05D9\u05DD</button>
@@ -751,17 +779,29 @@ const Pages = {
       const existing = attendance.find(a => (String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'')===String(sId) || (a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')===sName) && a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === today);
       this._attState[s._id] = existing ? (existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' ? 'present' : existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? 'absent' : 'late') : '';
     });
+    // Populate class filter
+    const classes = [...new Set(active.map(s => s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
+    const classFilter = document.getElementById('att-class-filter');
+    const curVal = classFilter.value;
+    classFilter.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+    if (curVal) classFilter.value = curVal;
     if (!this._attListenersAdded) {
       this._attListenersAdded = true;
       document.getElementById('att-search').addEventListener('input', Utils.debounce(() => this.renderAttList(), 200));
       document.getElementById('att-date').addEventListener('change', () => this.attendanceInit());
+      document.getElementById('att-class-filter').addEventListener('change', () => this.renderAttList());
     }
     this.renderAttList();
     this.bindAttKeyboard();
   },
   renderAttList() {
     const search = (document.getElementById('att-search')?.value || '').trim().toLowerCase();
-    const filtered = this._attStudents.filter(s => !search || (s._fullName || '').toLowerCase().includes(search));
+    const classF = document.getElementById('att-class-filter')?.value || '';
+    const filtered = this._attStudents.filter(s => {
+      if (search && !(s._fullName || '').toLowerCase().includes(search)) return false;
+      if (classF && s['\u05DB\u05D9\u05EA\u05D4'] !== classF) return false;
+      return true;
+    });
     const html = filtered.map((s, i) => {
       const name = s._fullName; const sid = s._id; const state = this._attState[sid] || '';
       return `<div class="d-flex align-items-center gap-3 p-3 border-bottom att-row" data-id="${sid}">${Utils.avatarHTML(name)}<div class="flex-grow-1"><div class="fw-bold">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || '--'}</small></div><div class="d-flex gap-2"><div class="att-btn ${state==='present'?'present selected':''}" onclick="Pages.toggleAtt('${sid}','present')" title="\u05E0\u05D5\u05DB\u05D7 (P)"><i class="bi bi-check-lg"></i></div><div class="att-btn ${state==='absent'?'absent selected':''}" onclick="Pages.toggleAtt('${sid}','absent')" title="\u05D7\u05D9\u05E1\u05D5\u05E8 (A)"><i class="bi bi-x-lg"></i></div><div class="att-btn ${state==='late'?'late selected':''}" onclick="Pages.toggleAtt('${sid}','late')" title="\u05D0\u05D9\u05D7\u05D5\u05E8 (L)"><i class="bi bi-clock"></i></div></div></div>`;
@@ -1111,7 +1151,7 @@ const Pages = {
      FINANCE
      ====================================================================== */
   finance() {
-    return `<div class="page-header"><h1><i class="bi bi-cash-stack me-2"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</h1></div><div class="row g-3 mb-4"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="fin-total">--</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="fin-paid">--</div><small class="text-muted">\u05E0\u05D2\u05D1\u05D4</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="fin-debt">--</div><small class="text-muted">\u05D7\u05D5\u05D1</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="fin-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div class="col-md-3"><select class="form-select" id="fin-filter"><option value="">\u05D4\u05DB\u05DC</option><option value="debt">\u05D7\u05D5\u05D1\u05D5\u05EA</option><option value="paid">\u05E9\u05D5\u05DC\u05DD</option></select></div><div class="col-md-3 d-flex gap-2"><button class="btn btn-primary btn-sm" onclick="Pages.showAddPayment()"><i class="bi bi-plus-lg me-1"></i>\u05EA\u05E9\u05DC\u05D5\u05DD</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportFinCSV()"><i class="bi bi-download me-1"></i>CSV</button></div></div></div><div id="fin-list">${Utils.skeleton(4)}</div>`;
+    return `<div class="page-header"><h1><i class="bi bi-cash-stack me-2"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</h1></div><div class="row g-3 mb-4"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="fin-total">--</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="fin-paid">--</div><small class="text-muted">\u05E0\u05D2\u05D1\u05D4</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="fin-debt">--</div><small class="text-muted">\u05D7\u05D5\u05D1</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="fin-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div class="col-md-3"><select class="form-select" id="fin-filter"><option value="">\u05D4\u05DB\u05DC</option><option value="debt">\u05D7\u05D5\u05D1\u05D5\u05EA</option><option value="paid">\u05E9\u05D5\u05DC\u05DD</option></select></div><div class="col-md-3 d-flex gap-2"><button class="btn btn-primary btn-sm" onclick="Pages.showAddPayment()"><i class="bi bi-plus-lg me-1"></i>\u05EA\u05E9\u05DC\u05D5\u05DD</button><button class="btn btn-outline-warning btn-sm" onclick="Pages.bulkMarkPaid()"><i class="bi bi-check2-all me-1"></i>\u05E1\u05DE\u05DF \u05E0\u05D1\u05D7\u05E8\u05D9\u05DD</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportFinCSV()"><i class="bi bi-download me-1"></i>CSV</button></div></div></div><div id="fin-list">${Utils.skeleton(4)}</div>`;
   },
   _finData: [],
   async financeInit() {
@@ -1131,7 +1171,8 @@ const Pages = {
     const filter = document.getElementById('fin-filter')?.value || '';
     let filtered = (this._finData || []).filter(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (search && !nm.toLowerCase().includes(search)) return false; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; if (filter==='debt'&&isPaid) return false; if (filter==='paid'&&!isPaid) return false; return true; });
     if (!filtered.length) { document.getElementById('fin-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>'; return; }
-    document.getElementById('fin-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D5\u05D3\u05E9</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${filtered.map(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; const amt=Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; const sc=isPaid?'success':'danger'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(nm,'sm')}<span class="fw-bold">${nm}</span></div></td><td>${f['\u05D7\u05D5\u05D3\u05E9']||''}</td><td class="fw-bold">${Utils.formatCurrency(amt)}</td><td><span class="badge bg-${sc}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></td><td>${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}</td><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'])}</td></tr>`; }).join('')}</tbody></table></div>`;
+    const allChecked = this._finSelectedIds.length === filtered.length && filtered.length > 0;
+    document.getElementById('fin-list').innerHTML = `${this._finSelectedIds.length ? `<div class="alert alert-info py-2 d-flex align-items-center gap-2 mb-2"><strong>${this._finSelectedIds.length}</strong> \u05E0\u05D1\u05D7\u05E8\u05D5</div>` : ''}<div class="card"><table class="table table-bht mb-0"><thead><tr><th style="width:40px"><input type="checkbox" class="form-check-input" ${allChecked?'checked':''} onchange="Pages.toggleFinCheckAll()"></th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D5\u05D3\u05E9</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${filtered.map(f => { const fId=Utils.rowId(f); const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; const amt=Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; const sc=isPaid?'success':'danger'; const chk=this._finSelectedIds.includes(fId)?'checked':''; return `<tr><td><input type="checkbox" class="form-check-input" ${chk} onchange="Pages.toggleFinCheck('${fId}')"></td><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(nm,'sm')}<span class="fw-bold">${nm}</span></div></td><td>${f['\u05D7\u05D5\u05D3\u05E9']||''}</td><td class="fw-bold">${Utils.formatCurrency(amt)}</td><td><span class="badge bg-${sc}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></td><td>${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}</td><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'])}</td></tr>`; }).join('')}</tbody></table></div>`;
   },
   showAddPayment() {
     const html = `<div class="modal fade" id="fin-modal-dyn" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>\u05EA\u05E9\u05DC\u05D5\u05DD \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="ff-student"></select></div><div class="col-6"><label class="form-label">\u05D7\u05D5\u05D3\u05E9</label><input type="month" class="form-control" id="ff-month"></div><div class="col-6"><label class="form-label">\u05E1\u05DB\u05D5\u05DD</label><input type="number" class="form-control" id="ff-amount"></div><div class="col-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label><select class="form-select" id="ff-status"><option value="\u05D7\u05D5\u05D1">\u05D7\u05D5\u05D1</option><option value="\u05E9\u05D5\u05DC\u05DD">\u05E9\u05D5\u05DC\u05DD</option></select></div><div class="col-6"><label class="form-label">\u05D0\u05DE\u05E6\u05E2\u05D9</label><select class="form-select" id="ff-method"><option>\u05DE\u05D6\u05D5\u05DE\u05DF</option><option>\u05D4\u05E2\u05D1\u05E8\u05D4</option><option>\u05E6'\u05E7</option><option>\u05D0\u05E9\u05E8\u05D0\u05D9</option></select></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.savePayment()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
@@ -1165,6 +1206,28 @@ const Pages = {
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'finance_'+Utils.todayISO()+'.csv'; link.click();
     Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0');
+  },
+  _finSelectedIds: [],
+  toggleFinCheck(id) {
+    const idx = this._finSelectedIds.indexOf(id);
+    if (idx === -1) this._finSelectedIds.push(id); else this._finSelectedIds.splice(idx, 1);
+    this.renderFinList();
+  },
+  toggleFinCheckAll() {
+    if (this._finSelectedIds.length === this._finData.length) { this._finSelectedIds = []; }
+    else { this._finSelectedIds = this._finData.map(f => Utils.rowId(f)); }
+    this.renderFinList();
+  },
+  async bulkMarkPaid() {
+    if (!this._finSelectedIds.length) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD','warning'); return; }
+    if (!await Utils.confirm('\u05E1\u05D9\u05DE\u05D5\u05DF \u05DB\u05E9\u05D5\u05DC\u05DD', this._finSelectedIds.length + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D9\u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05E9\u05D5\u05DC\u05DD?')) return;
+    let done = 0;
+    for (const id of this._finSelectedIds) {
+      try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id, row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD','\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()}}); done++; } catch(e) {}
+    }
+    this._finSelectedIds = [];
+    Utils.toast(done + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5');
+    this.financeInit();
   },
 
   /* ======================================================================
@@ -1206,14 +1269,22 @@ const Pages = {
      HOMEWORK
      ====================================================================== */
   homework() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-book me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddHw()"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</button></div><div class="row g-3" id="hw-cards">${Utils.skeleton(3)}</div><div class="modal fade" id="hw-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="hf-subject"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="hf-class"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DE\u05EA\u05DF</label><input type="date" class="form-control" id="hf-given"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D2\u05E9\u05D4</label><input type="date" class="form-control" id="hf-due"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="hf-desc" rows="3"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveHw()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-book me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h1></div><div class="d-flex gap-2"><select class="form-select form-select-sm" id="hw-class-filter" style="width:150px" onchange="Pages.renderHw()"><option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option></select><button class="btn btn-primary btn-sm" onclick="Pages.showAddHw()"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</button></div></div><div class="row g-3" id="hw-cards">${Utils.skeleton(3)}</div><div class="modal fade" id="hw-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="hf-subject"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="hf-class"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DE\u05EA\u05DF</label><input type="date" class="form-control" id="hf-given"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D2\u05E9\u05D4</label><input type="date" class="form-control" id="hf-due"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="hf-desc" rows="3"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveHw()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
   },
   _hwData: [],
-  async homeworkInit() { this._hwData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA'); this.renderHw(); },
+  async homeworkInit() {
+    this._hwData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
+    const classes = [...new Set(this._hwData.map(r => r['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
+    const sel = document.getElementById('hw-class-filter');
+    if (sel) { const cur = sel.value; sel.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join(''); sel.value = cur; }
+    this.renderHw();
+  },
   renderHw() {
     const today = Utils.todayISO();
-    if (!this._hwData.length) { document.getElementById('hw-cards').innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-book"></i><h5>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h5></div></div>'; return; }
-    document.getElementById('hw-cards').innerHTML = this._hwData.slice().reverse().map(r => {
+    const classFilter = document.getElementById('hw-class-filter')?.value || '';
+    const data = classFilter ? this._hwData.filter(r => (r['\u05DB\u05D9\u05EA\u05D4']||'') === classFilter) : this._hwData;
+    if (!data.length) { document.getElementById('hw-cards').innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-book"></i><h5>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h5></div></div>'; return; }
+    document.getElementById('hw-cards').innerHTML = data.slice().reverse().map(r => {
       const due = r['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4']||''; const overdue = due && due < today && r['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05D4\u05D5\u05E9\u05DC\u05DD';
       const daysLeft = due ? Math.ceil((new Date(due)-new Date())/86400000) : null;
       const hwId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); const isDone=(r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D4\u05D5\u05E9\u05DC\u05DD';
@@ -1238,7 +1309,7 @@ const Pages = {
      ACADEMICS
      ====================================================================== */
   academics() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-journal-text me-2"></i>\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05D5\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddExam()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05D1\u05D7\u05DF \u05D7\u05D3\u05E9</button></div><div class="row g-2 mb-3"><div class="col-auto"><span class="badge bg-primary fs-6" id="aca-total">0 \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</span></div><div class="col-auto"><span class="badge bg-success fs-6" id="aca-avg">\u05DE\u05DE\u05D5\u05E6\u05E2: --</span></div></div><div id="aca-list">${Utils.skeleton(3)}</div><div class="modal fade" id="aca-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05DE\u05D1\u05D7\u05DF \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="af-subject"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="af-class"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="af-date"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="af-desc"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveExam()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-journal-text me-2"></i>\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05D5\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddExam()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05D1\u05D7\u05DF \u05D7\u05D3\u05E9</button></div><div class="row g-2 mb-3"><div class="col-auto"><span class="badge bg-primary fs-6" id="aca-total">0 \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</span></div><div class="col-auto"><span class="badge bg-success fs-6" id="aca-avg">\u05DE\u05DE\u05D5\u05E6\u05E2: --</span></div></div><div id="aca-list">${Utils.skeleton(3)}</div><div id="aca-grades-section" style="display:none" class="mt-3"></div><div class="modal fade" id="aca-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05DE\u05D1\u05D7\u05DF \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="af-subject"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="af-class"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="af-date"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="af-desc"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveExam()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
   },
   _acaExams: [], _acaGrades: [],
   async academicsInit() {
@@ -1251,7 +1322,7 @@ const Pages = {
     document.getElementById('aca-avg').textContent = '\u05DE\u05DE\u05D5\u05E6\u05E2: ' + avg;
     if (!this._acaExams.length) { document.getElementById('aca-list').innerHTML = '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</h5></div>'; return; }
     const gMap = {}; this._acaGrades.forEach(g => { const eid = g['\u05DE\u05D1\u05D7\u05DF_\u05DE\u05D6\u05D4\u05D4']||''; if (!gMap[eid]) gMap[eid]=[]; gMap[eid].push(parseFloat(g['\u05E6\u05D9\u05D5\u05DF'])||0); });
-    document.getElementById('aca-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05DE\u05DE\u05D5\u05E6\u05E2</th></tr></thead><tbody>${this._acaExams.map(e => { const g=gMap[e['\u05DE\u05D6\u05D4\u05D4']||e.id]||[]; const ea=g.length?(g.reduce((a,b)=>a+b,0)/g.length).toFixed(1):'--'; const ac=ea!=='--'?(parseFloat(ea)>=70?'text-success':parseFloat(ea)>=55?'text-warning':'text-danger'):''; return `<tr><td>${e['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge bg-info">${e['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</span></td><td>${e['\u05DB\u05D9\u05EA\u05D4']||''}</td><td>${e['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold ${ac}">${ea} <small class="text-muted">(${g.length})</small></td></tr>`; }).join('')}</tbody></table></div>`;
+    document.getElementById('aca-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05DE\u05DE\u05D5\u05E6\u05E2</th><th></th></tr></thead><tbody>${this._acaExams.map(e => { const eid=e['\u05DE\u05D6\u05D4\u05D4']||e.id; const g=gMap[eid]||[]; const ea=g.length?(g.reduce((a,b)=>a+b,0)/g.length).toFixed(1):'--'; const ac=ea!=='--'?(parseFloat(ea)>=70?'text-success':parseFloat(ea)>=55?'text-warning':'text-danger'):''; return `<tr style="cursor:pointer" onclick="Pages.viewGrades('${eid}')"><td>${e['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge bg-info">${e['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</span></td><td>${e['\u05DB\u05D9\u05EA\u05D4']||''}</td><td>${e['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold ${ac}">${ea} <small class="text-muted">(${g.length})</small></td><td onclick="event.stopPropagation()"><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteExam('${eid}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
   },
   showAddExam() { document.getElementById('af-date').value = Utils.todayISO(); new bootstrap.Modal(document.getElementById('aca-modal')).show(); },
   async saveExam() {
@@ -2713,16 +2784,19 @@ const Pages = {
   },
   async exportAllData() {
     const el = document.getElementById('backup-result');
-    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05D0...';
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD...';
     try {
-      const sheets = ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E6\u05D5\u05D5\u05EA','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'];
+      const sheets = ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E6\u05D5\u05D5\u05EA','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD','\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA','\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4','\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA','\u05D5\u05E2\u05D3\u05D5\u05EA','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD','\u05EA\u05E7\u05E6\u05D9\u05D1','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA','\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9','\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA','\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA'];
       const allData = {};
-      for (const s of sheets) { try { allData[s] = await App.getData(s); } catch(e) { allData[s] = []; } }
-      const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = `bht_export_${Utils.todayISO()}.json`; a.click();
-      URL.revokeObjectURL(url);
-      el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D4\u05D5\u05E8\u05D3</div>';
+      let loaded = 0;
+      for (const s of sheets) {
+        try { allData[s] = await App.getData(s); } catch(e) { allData[s] = []; }
+        loaded++;
+        el.innerHTML = `<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05D0... ${loaded}/${sheets.length}`;
+      }
+      Utils.exportJSON(allData, 'bht_backup_' + Utils.todayISO() + '.json');
+      el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD!</div>';
+      Utils.toast('\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD!');
     } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
   },
   // --- Self-Check ---
