@@ -25,7 +25,7 @@ const App = {
     if (this.isLoggedIn()) {
       this.showApp();
     } else {
-      this.showLogin();
+      this.showLanding();
     }
   },
 
@@ -36,7 +36,14 @@ const App = {
     return !!localStorage.getItem(this.PIN_KEY);
   },
 
+  showLanding() {
+    document.getElementById('landing-page').classList.remove('d-none');
+    document.getElementById('login-screen').classList.add('d-none');
+    document.getElementById('app-shell').classList.add('d-none');
+  },
+
   showLogin() {
+    document.getElementById('landing-page').classList.add('d-none');
     document.getElementById('login-screen').classList.remove('d-none');
     document.getElementById('app-shell').classList.add('d-none');
     const pinInput = document.getElementById('pin-input');
@@ -46,6 +53,7 @@ const App = {
   },
 
   showApp() {
+    document.getElementById('landing-page').classList.add('d-none');
     document.getElementById('login-screen').classList.add('d-none');
     document.getElementById('app-shell').classList.remove('d-none');
     this.handleRoute();
@@ -70,7 +78,7 @@ const App = {
     Object.keys(localStorage).forEach(k => {
       if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
     });
-    this.showLogin();
+    this.showLanding();
   },
 
   showLoginError(msg) {

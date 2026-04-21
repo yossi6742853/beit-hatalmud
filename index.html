@@ -16,6 +16,54 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
+  <!-- Landing Page -->
+  <div id="landing-page" class="d-none">
+    <div class="landing-hero">
+      <div class="container text-center py-5">
+        <div class="landing-logo mb-4">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <h1 class="landing-title">בית התלמוד</h1>
+        <p class="landing-subtitle">מערכת ניהול מוסד חינוכי מתקדמת</p>
+        <p class="landing-desc">ניהול תלמידים, נוכחות, כספים, צוות, תקשורת עם הורים ועוד - הכל במקום אחד</p>
+        <button class="btn btn-lg btn-primary mt-3 px-5" onclick="document.getElementById('landing-page').classList.add('d-none');document.getElementById('login-screen').classList.remove('d-none');setTimeout(()=>document.getElementById('pin-input').focus(),100)">
+          <i class="bi bi-box-arrow-in-left me-2"></i>כניסה למערכת
+        </button>
+      </div>
+    </div>
+
+    <div class="container py-5">
+      <div class="row g-4 mb-5">
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-people-fill fs-1 text-primary"></i><h5 class="mt-3 fw-bold">ניהול תלמידים</h5><p class="text-muted">כרטיס תלמיד מלא עם 10 טאבים, נוכחות, התנהגות, ציונים ומסמכים</p></div></div>
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-graph-up-arrow fs-1 text-success"></i><h5 class="mt-3 fw-bold">דוחות חכמים</h5><p class="text-muted">גרפים אינטראקטיביים, KPI, זיהוי תלמידים בסיכון, מגמות</p></div></div>
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-whatsapp fs-1 text-success"></i><h5 class="mt-3 fw-bold">תקשורת מתקדמת</h5><p class="text-muted">7 תבניות WhatsApp, שליחה קבוצתית לפי כיתה, התראות אוטומטיות</p></div></div>
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-robot fs-1 text-info"></i><h5 class="mt-3 fw-bold">עוזר AI חכם</h5><p class="text-muted">שאל שאלות על המוסד וקבל תשובות מבוססות נתונים בזמן אמת</p></div></div>
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-cash-stack fs-1 text-warning"></i><h5 class="mt-3 fw-bold">ניהול כספי</h5><p class="text-muted">מעקב תשלומים, קופה קטנה, תקציב, חשבוניות והדפסת קבלות</p></div></div>
+        <div class="col-md-4"><div class="card p-4 text-center hover-lift"><i class="bi bi-ui-checks fs-1 text-danger"></i><h5 class="mt-3 fw-bold">בונה טפסים</h5><p class="text-muted">צור טפסים מותאמים אישית עם 10 סוגי שדות, אסוף תשובות וייצא</p></div></div>
+      </div>
+
+      <div class="text-center mb-5">
+        <h3 class="fw-bold mb-3">36 מודולים | 300+ פונקציות | PWA מותקן</h3>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <span class="badge bg-primary p-2">תלמידים</span><span class="badge bg-success p-2">נוכחות</span>
+          <span class="badge bg-info p-2">ציונים</span><span class="badge bg-warning p-2">כספים</span>
+          <span class="badge bg-danger p-2">התנהגות</span><span class="badge bg-secondary p-2">לוח שנה</span>
+          <span class="badge bg-dark p-2">דוחות</span><span class="badge bg-primary p-2">טפסים</span>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button class="btn btn-primary btn-lg px-5" onclick="document.getElementById('landing-page').classList.add('d-none');document.getElementById('login-screen').classList.remove('d-none');setTimeout(()=>document.getElementById('pin-input').focus(),100)">
+          <i class="bi bi-rocket-takeoff me-2"></i>התחל עכשיו
+        </button>
+      </div>
+    </div>
+
+    <footer class="text-center py-4 border-top">
+      <small class="text-muted">בית התלמוד &copy; 2026 | גרסה 5.3 | נבנה עם &#10084;&#65039;</small>
+    </footer>
+  </div>
+
   <!-- Login Screen -->
   <div id="login-screen" class="d-none">
     <div class="login-container">
