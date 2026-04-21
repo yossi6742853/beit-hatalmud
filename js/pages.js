@@ -925,5 +925,187 @@ const Pages = {
   settingsInit() { document.getElementById('set-dark').addEventListener('change', (e) => { localStorage.setItem(App.THEME_KEY, e.target.checked ? 'dark' : 'light'); App.applyTheme(); }); },
   saveApiUrl() { const url=document.getElementById('set-api').value.trim(); if (!url) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05EA\u05D5\u05D1\u05EA','warning'); return; } localStorage.setItem('bht_api_url',url); App.API_URL=url; Utils.toast('API \u05E2\u05D5\u05D3\u05DB\u05DF'); },
   clearCache() { Object.keys(localStorage).forEach(k => { if (k.startsWith(App.CACHE_PREFIX)) localStorage.removeItem(k); }); Utils.toast('\u05DE\u05D8\u05DE\u05D5\u05DF \u05E0\u05D5\u05E7\u05D4'); },
-  changePin() { const pin=document.getElementById('set-pin').value.trim(); if (pin.length<4) { Utils.toast('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA','warning'); return; } localStorage.setItem(App.PIN_KEY, Utils.hashPin(pin)); document.getElementById('set-pin').value=''; Utils.toast('PIN \u05E2\u05D5\u05D3\u05DB\u05DF'); }
+  changePin() { const pin=document.getElementById('set-pin').value.trim(); if (pin.length<4) { Utils.toast('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA','warning'); return; } localStorage.setItem(App.PIN_KEY, Utils.hashPin(pin)); document.getElementById('set-pin').value=''; Utils.toast('PIN \u05E2\u05D5\u05D3\u05DB\u05DF'); },
+
+  /* ======================================================================
+     STAFF SALARY
+     ====================================================================== */
+  staff_salary() {
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-cash-stack me-2"></i>\u05E9\u05DB\u05E8 \u05E6\u05D5\u05D5\u05EA</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddSalary()"><i class="bi bi-plus-lg me-1"></i>\u05EA\u05E9\u05DC\u05D5\u05DD \u05D7\u05D3\u05E9</button></div><div class="row g-3 mb-3"><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="sal-total">\u20AA0</div><small class="text-muted">\u05E1\u05D4"\u05DB \u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="sal-paid">\u20AA0</div><small class="text-muted">\u05E9\u05D5\u05DC\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="sal-pending">\u20AA0</div><small class="text-muted">\u05DC\u05EA\u05E9\u05DC\u05D5\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="sal-count">0</div><small class="text-muted">\u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-4"><input type="month" class="form-control" id="sal-month"></div><div class="col-md-4"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="sal-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05E2\u05D5\u05D1\u05D3..."></div></div></div></div><div id="sal-list">${Utils.skeleton(4)}</div><div class="modal fade" id="sal-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05EA\u05E9\u05DC\u05D5\u05DD \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05E2\u05D5\u05D1\u05D3</label><select class="form-select" id="salf-staff"></select></div><div class="col-6"><label class="form-label">\u05D7\u05D5\u05D3\u05E9</label><input type="month" class="form-control" id="salf-month"></div><div class="col-6"><label class="form-label">\u05E1\u05DB\u05D5\u05DD</label><input type="number" class="form-control" id="salf-amount"></div><div class="col-12"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input class="form-control" id="salf-notes"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveSalary()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+  },
+  _salData: [],
+  async staff_salaryInit() {
+    this._salData = await App.getData('\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA');
+    const d = new Date(); document.getElementById('sal-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    document.getElementById('sal-month').addEventListener('change', () => this.renderSalary());
+    document.getElementById('sal-search').addEventListener('input', Utils.debounce(() => this.renderSalary(), 200));
+    this.renderSalary();
+  },
+  renderSalary() {
+    const month = document.getElementById('sal-month')?.value||'';
+    const search = (document.getElementById('sal-search')?.value||'').trim().toLowerCase();
+    let filtered = (this._salData||[]).filter(r => {
+      if (month && !(r['\u05D7\u05D5\u05D3\u05E9']||'').startsWith(month)) return false;
+      if (search && !(r['\u05E9\u05DD']||'').toLowerCase().includes(search)) return false;
+      return true;
+    });
+    const total = filtered.reduce((s,r)=>s+(parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    const paid = filtered.filter(r=>(r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,r)=>s+(parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    document.getElementById('sal-total').textContent = Utils.formatCurrency(total);
+    document.getElementById('sal-paid').textContent = Utils.formatCurrency(paid);
+    document.getElementById('sal-pending').textContent = Utils.formatCurrency(total-paid);
+    document.getElementById('sal-count').textContent = filtered.length;
+    if (!filtered.length) { document.getElementById('sal-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-stack"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA</h5></div>'; return; }
+    document.getElementById('sal-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E2\u05D5\u05D1\u05D3</th><th>\u05D7\u05D5\u05D3\u05E9</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D4\u05E2\u05E8\u05D5\u05EA</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${filtered.map(r => {const isPaid=(r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(r['\u05E9\u05DD']||'','sm')}<span class="fw-bold">${r['\u05E9\u05DD']||''}</span></div></td><td>${r['\u05D7\u05D5\u05D3\u05E9']||''}</td><td class="fw-bold">${Utils.formatCurrency(parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0)}</td><td><span class="badge bg-${isPaid?'success':'warning'}">${r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05DC\u05EA\u05E9\u05DC\u05D5\u05DD'}</span></td><td class="small">${r['\u05D4\u05E2\u05E8\u05D5\u05EA']||''}</td><td>${!isPaid?`<button class="btn btn-sm btn-outline-success" onclick="Pages.markSalPaid('${Utils.rowId(r)}')"><i class="bi bi-check-lg"></i></button>`:''}</td></tr>`}).join('')}</tbody></table></div>`;
+  },
+  async showAddSalary() {
+    const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
+    document.getElementById('salf-staff').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + staff.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
+    const d=new Date(); document.getElementById('salf-month').value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    new bootstrap.Modal(document.getElementById('sal-modal')).show();
+  },
+  async saveSalary() {
+    const sel=document.getElementById('salf-staff');
+    const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05D7\u05D5\u05D3\u05E9':document.getElementById('salf-month').value,'\u05E1\u05DB\u05D5\u05DD':document.getElementById('salf-amount').value,'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DC\u05EA\u05E9\u05DC\u05D5\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':document.getElementById('salf-notes').value.trim()};
+    if (!row['\u05E9\u05DD']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; }
+    try { await App.apiCall('add','\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('sal-modal')).hide(); Utils.toast('\u05DE\u05E9\u05DB\u05D5\u05E8\u05EA \u05E0\u05D5\u05E1\u05E4\u05D4'); this.staff_salaryInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async markSalPaid(id) { try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD'}}); Utils.toast('\u05E1\u05D5\u05DE\u05DF \u05DB\u05E9\u05D5\u05DC\u05DD'); this.staff_salaryInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  /* ======================================================================
+     MEDICAL
+     ====================================================================== */
+  medical() {
+    return `<div class="page-header"><h1><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h1></div><div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="med-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div id="med-list">${Utils.skeleton(3)}</div>`;
+  },
+  _medData: [],
+  async medicalInit() {
+    const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const medical = await App.getData('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+    this._medData = students.filter(s=>(s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC').map(s => {
+      const name = Utils.fullName(s); const sid = Utils.rowId(s);
+      const med = medical.find(m => String(m['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === String(sid));
+      return { name, id: sid, cls: s['\u05DB\u05D9\u05EA\u05D4']||'', med };
+    });
+    document.getElementById('med-search').addEventListener('input', Utils.debounce(() => this.renderMedical(), 200));
+    this.renderMedical();
+  },
+  renderMedical() {
+    const search = (document.getElementById('med-search')?.value||'').trim().toLowerCase();
+    const filtered = this._medData.filter(r => !search || r.name.toLowerCase().includes(search));
+    if (!filtered.length) { document.getElementById('med-list').innerHTML = '<div class="empty-state"><i class="bi bi-heart-pulse"></i><h5>\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>'; return; }
+    document.getElementById('med-list').innerHTML = `<div class="row g-3">${filtered.map(r => {
+      const m = r.med;
+      const hasMed = m && (m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']||m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']);
+      return `<div class="col-md-6"><div class="card p-3 ${hasMed?'medical-card':''}"><div class="d-flex align-items-center gap-3 mb-2">${Utils.avatarHTML(r.name)}<div><div class="fw-bold">${r.name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${r.cls}</small></div>${hasMed?'<span class="badge bg-danger ms-auto">\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</span>':'<span class="badge bg-success ms-auto">\u05EA\u05E7\u05D9\u05DF</span>'}</div>${hasMed?`<div class="small">${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']?`<div><i class="bi bi-exclamation-triangle text-warning me-1"></i><strong>\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA:</strong> ${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']}</div>`:''}${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']?`<div><i class="bi bi-capsule text-primary me-1"></i><strong>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA:</strong> ${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']}</div>`:''}${m['\u05D4\u05E2\u05E8\u05D5\u05EA']?`<div><i class="bi bi-info-circle text-info me-1"></i>${m['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div>`:''}</div>`:''}</div></div>`;
+    }).join('')}</div>`;
+  },
+
+  /* ======================================================================
+     SCHEDULE (WEEKLY GRID)
+     ====================================================================== */
+  schedule() {
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-table me-2"></i>\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA</h1></div><div class="d-flex gap-2"><select class="form-select form-select-sm" id="sch-class" style="width:150px"><option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option></select><button class="btn btn-primary btn-sm" onclick="Pages.showAddLesson()"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05E2\u05D5\u05E8</button></div></div><div id="sch-grid" class="card p-0 overflow-auto">${Utils.skeleton(3)}</div><div class="modal fade" id="sch-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05D9\u05D5\u05DD</label><select class="form-select" id="schf-day"><option>\u05E8\u05D0\u05E9\u05D5\u05DF</option><option>\u05E9\u05E0\u05D9</option><option>\u05E9\u05DC\u05D9\u05E9\u05D9</option><option>\u05E8\u05D1\u05D9\u05E2\u05D9</option><option>\u05D7\u05DE\u05D9\u05E9\u05D9</option><option>\u05E9\u05D9\u05E9\u05D9</option></select></div><div class="col-6"><label class="form-label">\u05E9\u05E2\u05D4</label><select class="form-select" id="schf-hour">${[1,2,3,4,5,6,7,8].map(h=>`<option>\u05E9\u05E2\u05D4 ${h}</option>`).join('')}</select></div><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="schf-subject"></div><div class="col-6"><label class="form-label">\u05DE\u05DC\u05DE\u05D3</label><input class="form-control" id="schf-teacher"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="schf-class"></div><div class="col-6"><label class="form-label">\u05D7\u05D3\u05E8</label><input class="form-control" id="schf-room"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveLesson()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+  },
+  _schData: [],
+  async scheduleInit() {
+    this._schData = await App.getData('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
+    const classes = [...new Set(this._schData.map(l=>l['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
+    const sel = document.getElementById('sch-class');
+    classes.forEach(c => sel.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
+    sel.addEventListener('change', () => this.renderSchedule());
+    this.renderSchedule();
+  },
+  renderSchedule() {
+    const clsF = document.getElementById('sch-class')?.value||'';
+    const filtered = clsF ? this._schData.filter(l=>(l['\u05DB\u05D9\u05EA\u05D4']||'')===clsF) : this._schData;
+    const days = ['\u05E8\u05D0\u05E9\u05D5\u05DF','\u05E9\u05E0\u05D9','\u05E9\u05DC\u05D9\u05E9\u05D9','\u05E8\u05D1\u05D9\u05E2\u05D9','\u05D7\u05DE\u05D9\u05E9\u05D9','\u05E9\u05D9\u05E9\u05D9'];
+    const hours = ['\u05E9\u05E2\u05D4 1','\u05E9\u05E2\u05D4 2','\u05E9\u05E2\u05D4 3','\u05E9\u05E2\u05D4 4','\u05E9\u05E2\u05D4 5','\u05E9\u05E2\u05D4 6','\u05E9\u05E2\u05D4 7','\u05E9\u05E2\u05D4 8'];
+    let html = '<table class="table table-sm table-bordered mb-0" style="font-size:.8rem"><thead><tr><th class="text-center" style="width:80px">\u05E9\u05E2\u05D4</th>';
+    days.forEach(d => html+=`<th class="text-center">${d}</th>`);
+    html += '</tr></thead><tbody>';
+    hours.forEach(h => {
+      html += `<tr><td class="fw-bold text-center bg-light">${h}</td>`;
+      days.forEach(d => {
+        const lesson = filtered.find(l => (l['\u05D9\u05D5\u05DD']||'')===d && (l['\u05E9\u05E2\u05D4']||'')===h);
+        if (lesson) {
+          const colors = ['#e3f2fd','#e8f5e9','#fff3e0','#fce4ec','#f3e5f5','#e0f2f1'];
+          const bg = colors[Math.abs((lesson['\u05DE\u05E7\u05E6\u05D5\u05E2']||'').charCodeAt(0))%colors.length];
+          html += `<td class="schedule-cell" style="background:${bg}"><div class="fw-bold">${lesson['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</div><div class="text-muted" style="font-size:.7rem">${lesson['\u05DE\u05DC\u05DE\u05D3']||''}</div>${lesson['\u05D7\u05D3\u05E8']?`<span class="badge bg-secondary">${lesson['\u05D7\u05D3\u05E8']}</span>`:''}</td>`;
+        } else {
+          html += '<td class="schedule-cell text-center text-muted">-</td>';
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('sch-grid').innerHTML = html;
+  },
+  showAddLesson() { new bootstrap.Modal(document.getElementById('sch-modal')).show(); },
+  async saveLesson() {
+    const row = {'\u05D9\u05D5\u05DD':document.getElementById('schf-day').value,'\u05E9\u05E2\u05D4':document.getElementById('schf-hour').value,'\u05DE\u05E7\u05E6\u05D5\u05E2':document.getElementById('schf-subject').value.trim(),'\u05DE\u05DC\u05DE\u05D3':document.getElementById('schf-teacher').value.trim(),'\u05DB\u05D9\u05EA\u05D4':document.getElementById('schf-class').value.trim(),'\u05D7\u05D3\u05E8':document.getElementById('schf-room').value.trim()};
+    if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2','warning'); return; }
+    try { await App.apiCall('add','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('sch-modal')).hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3'); this.scheduleInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+
+  /* ======================================================================
+     USER MANAGEMENT
+     ====================================================================== */
+  user_management() {
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-shield-lock me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddUser()"><i class="bi bi-person-plus me-1"></i>\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</button></div><div class="row g-3 mb-3"><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="um-total">0</div><small>\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="um-admin">0</div><small>\u05DE\u05E0\u05D4\u05DC\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="um-teacher">0</div><small>\u05DE\u05DC\u05DE\u05D3\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-warning" id="um-parent">0</div><small>\u05D4\u05D5\u05E8\u05D9\u05DD</small></div></div></div><div id="um-list">${Utils.skeleton(3)}</div><div class="modal fade" id="um-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="um-modal-title">\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input type="email" class="form-control" id="umf-email" dir="ltr"></div><div class="col-6"><label class="form-label">\u05EA\u05E4\u05E7\u05D9\u05D3</label><select class="form-select" id="umf-role"><option value="admin">\u05DE\u05E0\u05D4\u05DC</option><option value="secretary">\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA</option><option value="teacher" selected>\u05DE\u05DC\u05DE\u05D3</option><option value="parent">\u05D4\u05D5\u05E8\u05D4</option></select></div><div class="col-6"><label class="form-label">\u05E1\u05D9\u05E1\u05DE\u05D4</label><input type="password" class="form-control" id="umf-password"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveUser()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+  },
+  _umData: [],
+  async user_managementInit() {
+    this._umData = await App.getData('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
+    this.renderUsers();
+  },
+  renderUsers() {
+    const data = this._umData||[];
+    document.getElementById('um-total').textContent = data.length;
+    document.getElementById('um-admin').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('admin')).length;
+    document.getElementById('um-teacher').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('teacher')).length;
+    document.getElementById('um-parent').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('parent')).length;
+    const roleLabels = {admin:'\u05DE\u05E0\u05D4\u05DC',secretary:'\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA',teacher:'\u05DE\u05DC\u05DE\u05D3',parent:'\u05D4\u05D5\u05E8\u05D4'};
+    const roleColors = {admin:'danger',secretary:'primary',teacher:'success',parent:'warning'};
+    if (!data.length) { document.getElementById('um-list').innerHTML = '<div class="empty-state"><i class="bi bi-shield-lock"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h5></div>'; return; }
+    document.getElementById('um-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05DB\u05E0\u05D9\u05E1\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${data.map(u => {const role=u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'teacher'; return `<tr><td class="fw-bold">${u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||u['\u05E9\u05DD']||''}</td><td><span class="badge bg-${roleColors[role]||'secondary'}">${roleLabels[role]||role}</span></td><td class="small text-muted">${u['\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4']||'--'}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.removeUser('${Utils.rowId(u)}')"><i class="bi bi-trash"></i></button></td></tr>`}).join('')}</tbody></table></div>`;
+  },
+  showAddUser() { document.getElementById('um-modal-title').textContent = '\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9'; new bootstrap.Modal(document.getElementById('um-modal')).show(); },
+  async saveUser() {
+    const row = {'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':document.getElementById('umf-email').value.trim(),'\u05EA\u05E4\u05E7\u05D9\u05D3':document.getElementById('umf-role').value,'\u05E1\u05D9\u05E1\u05DE\u05D4':document.getElementById('umf-password').value};
+    if (!row['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC','warning'); return; }
+    try { await App.apiCall('add','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{row}); bootstrap.Modal.getInstance(document.getElementById('um-modal')).hide(); Utils.toast('\u05DE\u05E9\u05EA\u05DE\u05E9 \u05E0\u05D5\u05E1\u05E3'); this.user_managementInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async removeUser(id) { if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05EA\u05DE\u05E9 \u05D6\u05D4?')) return; try { await App.apiCall('delete','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.user_managementInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  /* ======================================================================
+     ACTIVITY LOG
+     ====================================================================== */
+  activity_log() {
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h1></div><div class="d-flex gap-2"><input type="date" class="form-control form-control-sm" id="log-date" style="width:160px"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" id="log-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." style="width:180px"></div></div></div><div id="log-list">${Utils.skeleton(5)}</div>`;
+  },
+  _logData: [],
+  async activity_logInit() {
+    this._logData = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
+    document.getElementById('log-date').value = Utils.todayISO();
+    document.getElementById('log-date').addEventListener('change', () => this.renderLog());
+    document.getElementById('log-search').addEventListener('input', Utils.debounce(() => this.renderLog(), 200));
+    this.renderLog();
+  },
+  renderLog() {
+    const dateF = document.getElementById('log-date')?.value||'';
+    const search = (document.getElementById('log-search')?.value||'').trim().toLowerCase();
+    let filtered = (this._logData||[]).filter(r => {
+      if (dateF && !(r['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(dateF)) return false;
+      if (search && !(r['\u05E4\u05E2\u05D5\u05DC\u05D4']||'').toLowerCase().includes(search) && !(r['\u05D9\u05E9\u05D5\u05EA']||'').toLowerCase().includes(search)) return false;
+      return true;
+    }).slice().reverse();
+    if (!filtered.length) { document.getElementById('log-list').innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h5></div>'; return; }
+    const typeIcons = {'\u05D4\u05D5\u05E1\u05E4\u05D4':'plus-circle','\u05E2\u05D3\u05DB\u05D5\u05DF':'pencil','\u05DE\u05D7\u05D9\u05E7\u05D4':'trash','\u05DB\u05E0\u05D9\u05E1\u05D4':'box-arrow-in-right'};
+    const typeColors = {'\u05D4\u05D5\u05E1\u05E4\u05D4':'success','\u05E2\u05D3\u05DB\u05D5\u05DF':'primary','\u05DE\u05D7\u05D9\u05E7\u05D4':'danger','\u05DB\u05E0\u05D9\u05E1\u05D4':'info'};
+    document.getElementById('log-list').innerHTML = `<div class="card p-3">${filtered.slice(0,100).map(r => {
+      const t=r['\u05E1\u05D5\u05D2']||''; const ic=typeIcons[t]||'activity'; const cl=typeColors[t]||'secondary';
+      return `<div class="activity-item d-flex align-items-start gap-3 py-2 border-bottom"><div class="avatar avatar-sm" style="background:var(--bht-${cl},#6c757d)"><i class="bi bi-${ic}" style="font-size:.7rem"></i></div><div class="flex-grow-1"><div class="small"><strong>${r['\u05D9\u05E9\u05D5\u05EA']||''}</strong> <span class="badge bg-${cl}" style="font-size:.65rem">${t}</span></div><div class="small text-muted">${r['\u05E4\u05E2\u05D5\u05DC\u05D4']||''}</div></div><small class="text-muted">${r['\u05E9\u05E2\u05D4']||Utils.formatDateShort(r['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</small></div>`;
+    }).join('')}</div>`;
+  }
 };
