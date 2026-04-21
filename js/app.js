@@ -50,6 +50,7 @@ const App = {
     document.getElementById('app-shell').classList.remove('d-none');
     this.handleRoute();
     this.loadNotifications();
+    this.updateSyncStatus();
   },
 
   handleLogin() {
@@ -128,6 +129,7 @@ const App = {
     this.charts = {};
 
     this.currentPage = page;
+    this.trackRecentPage(page);
     const content = document.getElementById('main-content');
 
     // Render page
@@ -448,6 +450,7 @@ const App = {
         });
         // Refresh notifications
         this.loadNotifications();
+        this.updateSyncStatus();
       }
     }, 120000);
 
@@ -584,6 +587,59 @@ const App = {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { results.classList.remove('show'); input.value = ''; }
     });
+  },
+
+  /* ==============================
+     RECENT PAGES TRACKER
+     ============================== */
+  trackRecentPage(page) {
+    if (['student','staff_card','parent_card'].includes(page)) return; // skip sub-pages
+    const key = 'bht_recent_pages';
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){}
+    recent = recent.filter(p => p !== page);
+    recent.unshift(page);
+    recent = recent.slice(0, 5);
+    localStorage.setItem(key, JSON.stringify(recent));
+    this.renderRecentPages(recent);
+  },
+
+  renderRecentPages(recent) {
+    const container = document.getElementById('recent-pages');
+    if (!container || !recent.length) return;
+    const labels = {
+      dashboard:'\u05DC\u05D5\u05D7 \u05D1\u05E7\u05E8\u05D4', students:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', attendance:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', staff:'\u05E6\u05D5\u05D5\u05EA',
+      parents:'\u05D4\u05D5\u05E8\u05D9\u05DD', finance:'\u05DB\u05E1\u05E4\u05D9\u05DD', behavior:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', homework:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA',
+      academics:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD', tasks:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA', calendar:'\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4', communications:'\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA',
+      reports:'\u05D3\u05D5\u05D7\u05D5\u05EA', settings:'\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA', pettycash:'\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4', budget:'\u05EA\u05E7\u05E6\u05D9\u05D1',
+      trips:'\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', mivtza:'\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3', rankings:'\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD', schedule:'\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA',
+      documents:'\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD', medical:'\u05E8\u05E4\u05D5\u05D0\u05D9', committees:'\u05D5\u05E2\u05D3\u05D5\u05EA', institutions:'\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA',
+      staff_salary:'\u05E9\u05DB\u05E8 \u05E6\u05D5\u05D5\u05EA', attendance_monthly:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA', forms:'\u05D8\u05E4\u05E1\u05D9\u05DD',
+      ai_assistant:'\u05E2\u05D5\u05D6\u05E8 AI', user_management:'\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD', activity_log:'\u05D9\u05D5\u05DE\u05DF', hub:'\u05DE\u05E8\u05DB\u05D6',
+      help:'\u05E2\u05D6\u05E8\u05D4', phone:'\u05D8\u05DC\u05E4\u05D5\u05DF', cameras:'\u05DE\u05E6\u05DC\u05DE\u05D5\u05EA'
+    };
+    container.innerHTML = recent.map(p =>
+      `<a href="#${p}" class="badge bg-light text-dark text-decoration-none me-1 px-2 py-1" style="font-size:.75rem">${labels[p]||p}</a>`
+    ).join('');
+  },
+
+  /* ==============================
+     DATA FRESHNESS INDICATOR
+     ============================== */
+  updateSyncStatus() {
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+    // Find most recent cache timestamp
+    let latest = 0;
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith(this.CACHE_PREFIX)) {
+        try { const {ts} = JSON.parse(localStorage.getItem(k)); if (ts > latest) latest = ts; } catch(e){}
+      }
+    });
+    if (latest) {
+      const mins = Math.round((Date.now() - latest) / 60000);
+      el.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i>${mins < 1 ? '\u05E2\u05D5\u05D3\u05DB\u05DF \u05E2\u05DB\u05E9\u05D9\u05D5' : '\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ' + mins + ' \u05D3\u05E7\''}`;
+    }
   }
 };
 
