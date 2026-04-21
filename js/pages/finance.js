@@ -18,6 +18,34 @@ Object.assign(Pages, {
     document.getElementById('fin-search').addEventListener('input', Utils.debounce(() => this.renderFinList(), 200));
     document.getElementById('fin-filter').addEventListener('change', () => this.renderFinList());
     this.renderFinList();
+    // Remove previous projection if exists
+    document.getElementById('fin-projection')?.remove();
+    document.getElementById('fin-list').insertAdjacentHTML('afterend', this._renderFinProjection(this._finData));
+  },
+  _renderFinProjection(data) {
+    const months = {};
+    data.forEach(f => {
+      const m = f['\u05D7\u05D5\u05D3\u05E9']||'';
+      if (!m) return;
+      if (!months[m]) months[m] = {charged:0, paid:0};
+      months[m].charged += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0;
+      if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD') months[m].paid += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0;
+    });
+    const mKeys = Object.keys(months).sort().slice(-6);
+    if (mKeys.length < 2) return '';
+
+    const avgRate = mKeys.reduce((s,m) => s + (months[m].charged ? months[m].paid/months[m].charged : 0), 0) / mKeys.length;
+    const avgCharge = mKeys.reduce((s,m) => s + months[m].charged, 0) / mKeys.length;
+    const projected3 = Math.round(avgCharge * 3 * (1 - avgRate));
+
+    return `<div class="card p-3 mt-3" id="fin-projection">
+      <h6 class="fw-bold"><i class="bi bi-graph-up me-2 text-info"></i>\u05EA\u05D7\u05D6\u05D9\u05EA \u05DB\u05E1\u05E4\u05D9\u05EA</h6>
+      <div class="row g-3 text-center">
+        <div class="col-md-4"><div class="fs-5 fw-bold text-primary">${Math.round(avgRate*100)}%</div><small class="text-muted">\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D2\u05D1\u05D9\u05D4 \u05DE\u05DE\u05D5\u05E6\u05E2</small></div>
+        <div class="col-md-4"><div class="fs-5 fw-bold">${Utils.formatCurrency(Math.round(avgCharge))}</div><small class="text-muted">\u05D7\u05D9\u05D5\u05D1 \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DE\u05DE\u05D5\u05E6\u05E2</small></div>
+        <div class="col-md-4"><div class="fs-5 fw-bold text-danger">${Utils.formatCurrency(projected3)}</div><small class="text-muted">\u05D7\u05D5\u05D1 \u05E6\u05E4\u05D5\u05D9 \u05D1-3 \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD</small></div>
+      </div>
+    </div>`;
   },
   renderFinList() {
     const search = (document.getElementById('fin-search')?.value || '').trim().toLowerCase();

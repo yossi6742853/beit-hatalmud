@@ -191,9 +191,35 @@ Object.assign(Pages, {
         {page:'help',icon:'bi-question-circle',color:'secondary',label:'\u05E2\u05D6\u05E8\u05D4'},
       ]}
     ];
-    return `<div class="page-header"><h1><i class="bi bi-grid-fill me-2"></i>\u05DE\u05E8\u05DB\u05D6 \u05DE\u05D9\u05D3\u05E2</h1><p class="text-muted">\u05D2\u05D9\u05E9\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4 \u05DC\u05DB\u05DC \u05D4\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD</p></div>${sections.map(sec => `<h6 class="fw-bold mt-3 mb-2 text-muted"><i class="bi bi-chevron-left me-1"></i>${sec.title}</h6><div class="row g-3 mb-2">${sec.items.map(p => `<div class="col-6 col-md-4 col-lg-3"><a href="#${p.page}" class="card p-3 text-center text-decoration-none card-clickable"><i class="bi ${p.icon} fs-1 text-${p.color}"></i><div class="fw-bold mt-2">${p.label}</div></a></div>`).join('')}</div>`).join('')}`;
+    return `<div class="page-header"><h1><i class="bi bi-grid-fill me-2"></i>\u05DE\u05E8\u05DB\u05D6 \u05DE\u05D9\u05D3\u05E2</h1><p class="text-muted">\u05D2\u05D9\u05E9\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4 \u05DC\u05DB\u05DC \u05D4\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD</p></div><div class="row g-3 mb-3"><div class="col-6 col-md-4 col-lg-3"><div class="card p-3 text-center"><i class="bi bi-stopwatch fs-1 text-primary"></i><div class="fw-bold mt-2">\u05D8\u05D9\u05D9\u05DE\u05E8 \u05E9\u05D9\u05E2\u05D5\u05E8</div><div class="fs-2 fw-bold mt-2" id="lesson-timer">45:00</div><div class="btn-group btn-group-sm mt-2"><button class="btn btn-success" onclick="Pages.startTimer()"><i class="bi bi-play-fill"></i></button><button class="btn btn-warning" onclick="Pages.pauseTimer()"><i class="bi bi-pause-fill"></i></button><button class="btn btn-danger" onclick="Pages.resetTimer()"><i class="bi bi-stop-fill"></i></button></div><div class="btn-group btn-group-sm mt-1"><button class="btn btn-outline-secondary" onclick="Pages.setTimer(30)">30</button><button class="btn btn-outline-secondary" onclick="Pages.setTimer(45)">45</button><button class="btn btn-outline-secondary" onclick="Pages.setTimer(60)">60</button></div></div></div></div>${sections.map(sec => `<h6 class="fw-bold mt-3 mb-2 text-muted"><i class="bi bi-chevron-left me-1"></i>${sec.title}</h6><div class="row g-3 mb-2">${sec.items.map(p => `<div class="col-6 col-md-4 col-lg-3"><a href="#${p.page}" class="card p-3 text-center text-decoration-none card-clickable"><i class="bi ${p.icon} fs-1 text-${p.color}"></i><div class="fw-bold mt-2">${p.label}</div></a></div>`).join('')}</div>`).join('')}`;
   },
   hubInit() {},
+
+  /* ======================================================================
+     LESSON TIMER
+     ====================================================================== */
+  _timerInterval: null,
+  _timerSeconds: 2700,
+  startTimer() {
+    if (this._timerInterval) return;
+    this._timerInterval = setInterval(() => {
+      this._timerSeconds--;
+      if (this._timerSeconds <= 0) {
+        clearInterval(this._timerInterval);
+        this._timerInterval = null;
+        this._timerSeconds = 0;
+        Utils.toast('\u23F0 \u05D4\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D4\u05E1\u05EA\u05D9\u05D9\u05DD!','warning');
+        try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAABBBAABACIWAAAiVgAEABAAAABkYXRhO28T/w==').play(); } catch(e){}
+      }
+      const m = Math.floor(this._timerSeconds/60);
+      const s = this._timerSeconds%60;
+      const el = document.getElementById('lesson-timer');
+      if (el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    }, 1000);
+  },
+  pauseTimer() { clearInterval(this._timerInterval); this._timerInterval = null; },
+  resetTimer(min) { this.pauseTimer(); this._timerSeconds = (min||45)*60; const el = document.getElementById('lesson-timer'); if (el) el.textContent = String(min||45).padStart(2,'0')+':00'; },
+  setTimer(min) { this.resetTimer(min); },
 
 
   /* ======================================================================
