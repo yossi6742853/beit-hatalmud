@@ -865,7 +865,18 @@ const Pages = {
      STAFF
      ====================================================================== */
   staff() {
-    return `<div class="page-header"><h1><i class="bi bi-person-badge-fill me-2"></i>\u05E6\u05D5\u05D5\u05EA</h1><p id="staff-count"></p></div><div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="staff-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D9\u05E9 \u05E6\u05D5\u05D5\u05EA..."></div></div><div id="staff-list">${Utils.skeleton(3)}</div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-person-badge-fill me-2"></i>\u05E6\u05D5\u05D5\u05EA</h1><p id="staff-count"></p></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddStaff()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E2\u05D5\u05D1\u05D3</button>
+        <button class="btn btn-outline-info btn-sm" onclick="Pages.showStaffAttendance()"><i class="bi bi-calendar-check me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E6\u05D5\u05D5\u05EA</button>
+        <button class="btn btn-outline-warning btn-sm" onclick="Pages.showStaffMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD</button>
+      </div>
+    </div>
+    <div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="staff-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D9\u05E9 \u05E6\u05D5\u05D5\u05EA..."></div></div>
+    <div id="staff-att-section" class="mb-3" style="display:none"></div>
+    <div id="staff-missing-docs" class="mb-3" style="display:none"></div>
+    <div id="staff-list">${Utils.skeleton(3)}</div>`;
   },
   _staffData: [],
   async staffInit() {
@@ -901,6 +912,73 @@ const Pages = {
   async deleteStaff(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E2\u05D5\u05D1\u05D3','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05E2\u05D5\u05D1\u05D3 \u05D6\u05D4?')) return;
     try { await App.apiCall('delete','\u05E6\u05D5\u05D5\u05EA',{id}); Utils.toast('\u05E2\u05D5\u05D1\u05D3 \u05E0\u05DE\u05D7\u05E7'); this.staffInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  // --- Staff Attendance ---
+  async showStaffAttendance() {
+    const section = document.getElementById('staff-att-section');
+    if (section.style.display !== 'none') { section.style.display = 'none'; return; }
+    section.style.display = '';
+    section.innerHTML = '<div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2 text-info"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E6\u05D5\u05D5\u05EA \u05DC\u05D4\u05D9\u05D5\u05DD</h6><div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> \u05D8\u05D5\u05E2\u05DF...</div></div>';
+    const staff = this._staffData || [];
+    const todayISO = Utils.todayISO();
+    let attData = [];
+    try { attData = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA_\u05E6\u05D5\u05D5\u05EA'); } catch(e) { /* sheet may not exist */ }
+    const todayAtt = attData.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === todayISO);
+    const attMap = {};
+    todayAtt.forEach(a => { attMap[a['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] || a['\u05DE\u05D6\u05D4\u05D4_\u05E2\u05D5\u05D1\u05D3'] || ''] = a['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E0\u05D5\u05DB\u05D7'; });
+    this._stfAttData = {};
+    section.innerHTML = `<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-info"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E6\u05D5\u05D5\u05EA - ${todayISO}</h6><button class="btn btn-success btn-sm" onclick="Pages.saveStaffAtt()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div><div class="table-responsive"><table class="table table-bht mb-0"><thead><tr><th>\u05E2\u05D5\u05D1\u05D3</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</th></tr></thead><tbody>${staff.map(s => {
+      const name = Utils.fullName(s); const sid = Utils.rowId(s);
+      const status = attMap[name] || '';
+      this._stfAttData[sid] = status;
+      return `<tr><td class="fw-bold">${name}</td><td class="text-muted">${s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}</td><td><div class="btn-group btn-group-sm" role="group"><button class="btn btn-outline-success ${status==='\u05E0\u05D5\u05DB\u05D7'?'active':''}" onclick="Pages.setStfAtt('${sid}','\u05E0\u05D5\u05DB\u05D7',this)"><i class="bi bi-check-circle"></i></button><button class="btn btn-outline-danger ${status==='\u05D7\u05D9\u05E1\u05D5\u05E8'?'active':''}" onclick="Pages.setStfAtt('${sid}','\u05D7\u05D9\u05E1\u05D5\u05E8',this)"><i class="bi bi-x-circle"></i></button><button class="btn btn-outline-warning ${status==='\u05D0\u05D9\u05D7\u05D5\u05E8'?'active':''}" onclick="Pages.setStfAtt('${sid}','\u05D0\u05D9\u05D7\u05D5\u05E8',this)"><i class="bi bi-clock"></i></button></div></td></tr>`;
+    }).join('')}</tbody></table></div></div>`;
+  },
+  _stfAttData: {},
+  setStfAtt(sid, status, btn) {
+    this._stfAttData[sid] = status;
+    const grp = btn.closest('.btn-group');
+    grp.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  },
+  async saveStaffAtt() {
+    const todayISO = Utils.todayISO();
+    const staff = this._staffData || [];
+    const records = [];
+    for (const s of staff) {
+      const sid = Utils.rowId(s);
+      const status = this._stfAttData[sid];
+      if (status) records.push({ '\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3': Utils.fullName(s), '\u05DE\u05D6\u05D4\u05D4_\u05E2\u05D5\u05D1\u05D3': sid, '\u05EA\u05D0\u05E8\u05D9\u05DA': todayISO, '\u05E1\u05D8\u05D8\u05D5\u05E1': status });
+    }
+    if (!records.length) { Utils.toast('\u05DC\u05D0 \u05E1\u05D5\u05DE\u05DF \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', 'warning'); return; }
+    try {
+      for (const rec of records) await App.apiCall('add', '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA_\u05E6\u05D5\u05D5\u05EA', { row: rec });
+      Utils.toast(`${records.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D5`);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  // --- Staff Missing Docs ---
+  async showStaffMissingDocs() {
+    const section = document.getElementById('staff-missing-docs');
+    if (section.style.display !== 'none') { section.style.display = 'none'; return; }
+    section.style.display = '';
+    section.innerHTML = '<div class="card p-3"><div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> \u05D1\u05D5\u05D3\u05E7...</div></div>';
+    const staff = this._staffData || [];
+    let staffDocs = [];
+    try { staffDocs = await App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA'); } catch(e) {}
+    const requiredDocs = ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', '\u05EA\u05E2\u05D5\u05D3\u05EA \u05DE\u05E9\u05D8\u05E8\u05D4', '\u05EA\u05DC\u05D5\u05E9 \u05DE\u05E9\u05DB\u05D5\u05E8\u05EA', '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4'];
+    const missing = [];
+    staff.forEach(s => {
+      const name = Utils.fullName(s); const sid = Utils.rowId(s);
+      const hasDocs = staffDocs.filter(d => d['\u05DE\u05D6\u05D4\u05D4_\u05E2\u05D5\u05D1\u05D3'] === sid || d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] === name);
+      const hasDocTypes = hasDocs.map(d => d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA'] || '');
+      const missingTypes = requiredDocs.filter(r => !hasDocTypes.includes(r));
+      if (missingTypes.length > 0) missing.push({ name, role: s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || '', missing: missingTypes });
+    });
+    if (!missing.length) {
+      section.innerHTML = '<div class="card p-3"><div class="text-center text-success py-3"><i class="bi bi-check-circle fs-3"></i><p class="mt-2">\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05E7\u05D9\u05D9\u05DE\u05D9\u05DD</p></div></div>';
+      return;
+    }
+    section.innerHTML = `<div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD (${missing.length} \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD)</h6><div class="table-responsive"><table class="table table-bht mb-0"><thead><tr><th>\u05E2\u05D5\u05D1\u05D3</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD</th></tr></thead><tbody>${missing.map(m => `<tr><td class="fw-bold">${m.name}</td><td class="text-muted">${m.role}</td><td>${m.missing.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div></div>`;
   },
 
   /* ======================================================================
@@ -951,6 +1029,7 @@ const Pages = {
     `;
   },
   _parData: [],
+  _parEditId: null,
   async parentsInit() {
     this._parData = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
     document.getElementById('par-search').addEventListener('input', Utils.debounce(() => this.renderParents(), 200));
@@ -961,13 +1040,34 @@ const Pages = {
     const filtered = this._parData.filter(p => !search || (p['\u05E9\u05DD']||'').toLowerCase().includes(search) || (p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(search));
     document.getElementById('par-count').textContent = `${filtered.length} \u05D4\u05D5\u05E8\u05D9\u05DD`;
     if (!filtered.length) { document.getElementById('par-list').innerHTML = '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('par-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E7\u05E9\u05E8</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${filtered.map(p => `<tr><td class="fw-bold">${p['\u05E9\u05DD']||''}</td><td>${p['\u05E7\u05E9\u05E8']||''}</td><td dir="ltr">${Utils.formatPhone(p['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</td><td>${p['\u05D8\u05DC\u05E4\u05D5\u05DF'] ? `<a href="https://wa.me/972${(p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').replace(/^0/,'')}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i></a>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+    document.getElementById('par-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E7\u05E9\u05E8</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${filtered.map(p => {
+      const pid = Utils.rowId(p);
+      return `<tr><td class="fw-bold"><a href="#parent_card/${pid}" class="text-decoration-none">${p['\u05E9\u05DD']||''}</a></td><td>${p['\u05E7\u05E9\u05E8']||''}</td><td dir="ltr">${Utils.formatPhone(p['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</td><td>${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td><td class="text-nowrap">${p['\u05D8\u05DC\u05E4\u05D5\u05DF'] ? `<a href="https://wa.me/972${(p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').replace(/^0/,'')}" target="_blank" class="btn btn-sm btn-outline-success me-1"><i class="bi bi-whatsapp"></i></a>` : ''}<button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteParent('${pid}')"><i class="bi bi-trash"></i></button></td></tr>`;
+    }).join('')}</tbody></table></div>`;
   },
-  showAddParent() { new bootstrap.Modal(document.getElementById('par-modal')).show(); },
+  showAddParent() { this._parEditId = null; document.getElementById('pf-name').value = ''; document.getElementById('pf-relation').value = '\u05D0\u05D1'; document.getElementById('pf-phone').value = ''; document.getElementById('pf-email').value = ''; document.querySelector('#par-modal .modal-title').textContent = '\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4'; new bootstrap.Modal(document.getElementById('par-modal')).show(); },
+  editParent(id) {
+    const p = this._parData.find(x => String(Utils.rowId(x)) === String(id));
+    if (!p) return;
+    this._parEditId = id;
+    document.getElementById('pf-name').value = p['\u05E9\u05DD'] || '';
+    document.getElementById('pf-relation').value = p['\u05E7\u05E9\u05E8'] || '\u05D0\u05D1';
+    document.getElementById('pf-phone').value = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+    document.getElementById('pf-email').value = p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '';
+    document.querySelector('#par-modal .modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05D4\u05D5\u05E8\u05D4';
+    new bootstrap.Modal(document.getElementById('par-modal')).show();
+  },
   async saveParent() {
     const row = { '\u05E9\u05DD': document.getElementById('pf-name').value.trim(), '\u05E7\u05E9\u05E8': document.getElementById('pf-relation').value, '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('pf-phone').value.trim(), '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('pf-email').value.trim() };
     if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); return; }
-    try { await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row }); bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide(); Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3'); this.parentsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    try {
+      if (this._parEditId) { await App.apiCall('update', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id: this._parEditId, row }); } else { await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row }); }
+      bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide(); Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3'); this._parEditId = null; this.parentsInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async deleteParent(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05D5\u05E8\u05D4', '\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D4\u05D5\u05E8\u05D4 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id }); Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05DE\u05D7\u05E7'); this.parentsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
   bulkWhatsApp() { const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:'); if (!msg) return; let sent=0; this._parData.forEach(p => { if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return; window.open(`https://wa.me/972${p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/^0/,'')}?text=${encodeURIComponent(msg)}`,'_blank'); sent++; }); Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`); },
 
@@ -1443,12 +1543,113 @@ const Pages = {
      DOCUMENTS
      ====================================================================== */
   documents() {
-    return `<div class="page-header"><h1><i class="bi bi-folder-fill me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1></div><div id="docs-list">${Utils.skeleton(3)}</div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-folder-fill me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-warning btn-sm" onclick="Pages.showMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05D3\u05D5\u05D7 \u05D7\u05E1\u05E8\u05D9\u05DD</button>
+        <button class="btn btn-outline-success btn-sm" onclick="Pages.bulkMarkReceived()"><i class="bi bi-check-all me-1"></i>\u05E1\u05DE\u05DF \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5</button>
+      </div>
+    </div>
+    <ul class="nav nav-tabs mb-3" id="doc-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" onclick="Pages.switchDocTab('students',event)">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages.switchDocTab('staff',event)">\u05E6\u05D5\u05D5\u05EA</a></li>
+    </ul>
+    <div id="docs-missing-report" class="mb-3" style="display:none"></div>
+    <div id="docs-list">${Utils.skeleton(3)}</div>`;
   },
+  _docTab: 'students',
+  _studentDocs: [],
+  _staffDocData: [],
   async documentsInit() {
-    const docs = await App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3');
-    if (!docs.length) { document.getElementById('docs-list').innerHTML = '<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('docs-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E1\u05D5\u05D2</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${docs.map(d => `<tr><td>${d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||''}</td><td>${d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||''}</td><td><span class="badge bg-${d['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D4\u05EA\u05E7\u05D1\u05DC'?'success':'warning'}">${d['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></td><td>${Utils.formatDateShort(d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4'])}</td></tr>`).join('')}</tbody></table></div>`;
+    this._docTab = 'students';
+    const [sDocs, stDocs] = await Promise.all([
+      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(() => []),
+      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA').catch(() => [])
+    ]);
+    this._studentDocs = sDocs;
+    this._staffDocData = stDocs;
+    this.renderDocs();
+  },
+  switchDocTab(tab, e) {
+    if (e) e.preventDefault();
+    this._docTab = tab;
+    document.querySelectorAll('#doc-tabs .nav-link').forEach(a => a.classList.remove('active'));
+    if (e) e.target.classList.add('active');
+    else document.querySelector(`#doc-tabs .nav-link:${tab==='students'?'first':'last'}-child`)?.classList.add('active');
+    this.renderDocs();
+  },
+  renderDocs() {
+    const docs = this._docTab === 'students' ? this._studentDocs : this._staffDocData;
+    const nameField = this._docTab === 'students' ? '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3';
+    if (!docs.length) { document.getElementById('docs-list').innerHTML = `<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>`; return; }
+    document.getElementById('docs-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th><input type="checkbox" id="doc-check-all" onchange="Pages.toggleDocCheckAll(this)"></th><th>${this._docTab === 'students' ? '\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05E2\u05D5\u05D1\u05D3'}</th><th>\u05E1\u05D5\u05D2</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${docs.map(d => {
+      const did = Utils.rowId(d);
+      const isReceived = d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC';
+      return `<tr><td><input type="checkbox" class="doc-chk" value="${did}" ${isReceived ? 'disabled' : ''}></td><td>${d[nameField]||''}</td><td>${d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||''}</td><td><span class="badge bg-${isReceived?'success':'warning'} cursor-pointer" onclick="Pages.updateDocStatus('${did}','${this._docTab}')">${d['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D7\u05E1\u05E8'}</span></td><td>${Utils.formatDateShort(d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4'])}</td><td><button class="btn btn-sm btn-outline-success" onclick="Pages.updateDocStatus('${did}','${this._docTab}')"><i class="bi bi-check"></i></button></td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  },
+  toggleDocCheckAll(el) {
+    document.querySelectorAll('.doc-chk:not(:disabled)').forEach(cb => cb.checked = el.checked);
+  },
+  async bulkMarkReceived() {
+    const checked = [...document.querySelectorAll('.doc-chk:checked')].map(cb => cb.value);
+    if (!checked.length) { Utils.toast('\u05E1\u05DE\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05DC\u05E1\u05D9\u05DE\u05D5\u05DF', 'warning'); return; }
+    const sheet = this._docTab === 'students' ? '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA';
+    try {
+      for (const id of checked) await App.apiCall('update', sheet, { id, row: { '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO() } });
+      Utils.toast(`${checked.length} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5`);
+      this.documentsInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async updateDocStatus(id, tab) {
+    const sheet = tab === 'students' ? '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA';
+    try {
+      await App.apiCall('update', sheet, { id, row: { '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO() } });
+      Utils.toast('\u05E1\u05D8\u05D8\u05D5\u05E1 \u05E2\u05D5\u05D3\u05DB\u05DF');
+      this.documentsInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async showMissingDocs() {
+    const section = document.getElementById('docs-missing-report');
+    if (section.style.display !== 'none') { section.style.display = 'none'; return; }
+    section.style.display = '';
+    section.innerHTML = '<div class="card p-3"><div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> \u05D1\u05D5\u05D3\u05E7...</div></div>';
+    const [students, staff] = await Promise.all([
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
+      App.getData('\u05E6\u05D5\u05D5\u05EA').catch(() => [])
+    ]);
+    const reqStudentDocs = ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', '\u05E6\u05D9\u05DC\u05D5\u05DD', '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9'];
+    const reqStaffDocs = ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', '\u05EA\u05E2\u05D5\u05D3\u05EA \u05DE\u05E9\u05D8\u05E8\u05D4', '\u05EA\u05DC\u05D5\u05E9 \u05DE\u05E9\u05DB\u05D5\u05E8\u05EA'];
+    const missingStudents = [];
+    students.forEach(s => {
+      const name = Utils.fullName(s);
+      const hasDocs = this._studentDocs.filter(d => d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] === name || d['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] === Utils.rowId(s));
+      const hasTypes = hasDocs.filter(d => d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC').map(d => d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||'');
+      const miss = reqStudentDocs.filter(r => !hasTypes.includes(r));
+      if (miss.length) missingStudents.push({ name, missing: miss });
+    });
+    const missingStaff = [];
+    staff.forEach(s => {
+      const name = Utils.fullName(s);
+      const hasDocs = this._staffDocData.filter(d => d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] === name || d['\u05DE\u05D6\u05D4\u05D4_\u05E2\u05D5\u05D1\u05D3'] === Utils.rowId(s));
+      const hasTypes = hasDocs.filter(d => d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC').map(d => d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||'');
+      const miss = reqStaffDocs.filter(r => !hasTypes.includes(r));
+      if (miss.length) missingStaff.push({ name, missing: miss });
+    });
+    const total = missingStudents.length + missingStaff.length;
+    if (!total) {
+      section.innerHTML = '<div class="card p-3 text-center text-success"><i class="bi bi-check-circle fs-3"></i><p class="mt-2">\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05E7\u05D9\u05D9\u05DE\u05D9\u05DD!</p></div>';
+      return;
+    }
+    let html = '<div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>\u05D3\u05D5\u05D7 \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD</h6>';
+    if (missingStudents.length) {
+      html += `<h6 class="text-primary mt-3"><i class="bi bi-people me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD (${missingStudents.length})</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E9\u05DD</th><th>\u05D7\u05E1\u05E8</th></tr></thead><tbody>${missingStudents.map(m => `<tr><td class="fw-bold">${m.name}</td><td>${m.missing.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`;
+    }
+    if (missingStaff.length) {
+      html += `<h6 class="text-success mt-3"><i class="bi bi-person-badge me-1"></i>\u05E6\u05D5\u05D5\u05EA (${missingStaff.length})</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E9\u05DD</th><th>\u05D7\u05E1\u05E8</th></tr></thead><tbody>${missingStaff.map(m => `<tr><td class="fw-bold">${m.name}</td><td>${m.missing.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`;
+    }
+    html += '</div>';
+    section.innerHTML = html;
   },
 
   /* ======================================================================
@@ -1708,12 +1909,81 @@ const Pages = {
      INSTITUTIONS
      ====================================================================== */
   institutions() {
-    return `<div class="page-header"><h1><i class="bi bi-building me-2"></i>\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</h1></div><div id="inst-list">${Utils.skeleton(3)}</div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-building me-2"></i>\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</h1><p id="inst-count"></p></div>
+      <button class="btn btn-primary btn-sm" onclick="Pages.showAddInst()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4</button>
+    </div>
+    <div id="inst-list">${Utils.skeleton(3)}</div>
+    <div class="modal fade" id="inst-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div class="row g-3">
+        <div class="col-12"><label class="form-label">\u05E9\u05DD</label><input class="form-control" id="instf-name"></div>
+        <div class="col-6"><label class="form-label">\u05E7\u05D5\u05D3</label><input class="form-control" id="instf-code"></div>
+        <div class="col-6"><label class="form-label">\u05E6\u05D1\u05E2</label><input type="color" class="form-control form-control-color" id="instf-color" value="#2563eb"></div>
+        <div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="instf-desc" rows="2"></textarea></div>
+        <div class="col-12"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label><select class="form-select" id="instf-status"><option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option><option value="\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option></select></div>
+      </div></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveInst()">\u05E9\u05DE\u05D5\u05E8</button></div>
+    </div></div></div>`;
   },
+  _instData: [],
+  _instEditId: null,
   async institutionsInit() {
-    const data = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
+    this._instData = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
+    this.renderInst();
+  },
+  renderInst() {
+    const data = this._instData;
+    document.getElementById('inst-count').textContent = `${data.length} \u05DE\u05E1\u05D2\u05E8\u05D5\u05EA`;
     if (!data.length) { document.getElementById('inst-list').innerHTML = '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</h5></div>'; return; }
-    document.getElementById('inst-list').innerHTML = `<div class="row g-3">${data.map(i => `<div class="col-md-6 col-lg-4"><div class="card p-3"><div class="d-flex align-items-center gap-3"><div class="avatar" style="background:${i['\u05E6\u05D1\u05E2']||'#2563eb'}">${(i['\u05E9\u05DD']||'')[0]||'?'}</div><div><h6 class="fw-bold mb-0">${i['\u05E9\u05DD']||''}</h6><small class="text-muted">${i['\u05E7\u05D5\u05D3']||''}</small></div>${Utils.statusBadge(i['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div>${i['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mt-2 mb-0">${i['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}</div></div>`).join('')}</div>`;
+    document.getElementById('inst-list').innerHTML = `<div class="row g-3">${data.map(i => {
+      const iid = Utils.rowId(i);
+      return `<div class="col-md-6 col-lg-4"><div class="card p-3"><div class="d-flex align-items-center gap-3"><div class="avatar" style="background:${i['\u05E6\u05D1\u05E2']||'#2563eb'}">${(i['\u05E9\u05DD']||'')[0]||'?'}</div><div class="flex-grow-1"><h6 class="fw-bold mb-0">${i['\u05E9\u05DD']||''}</h6><small class="text-muted">${i['\u05E7\u05D5\u05D3']||''}</small></div>${Utils.statusBadge(i['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div>${i['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mt-2 mb-1">${i['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}<div class="d-flex gap-1 mt-2"><button class="btn btn-sm btn-outline-primary" onclick="Pages.editInst('${iid}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteInst('${iid}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button></div></div></div>`;
+    }).join('')}</div>`;
+  },
+  showAddInst() {
+    this._instEditId = null;
+    document.getElementById('instf-name').value = '';
+    document.getElementById('instf-code').value = '';
+    document.getElementById('instf-color').value = '#2563eb';
+    document.getElementById('instf-desc').value = '';
+    document.getElementById('instf-status').value = '\u05E4\u05E2\u05D9\u05DC';
+    document.querySelector('#inst-modal .modal-title').textContent = '\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4';
+    new bootstrap.Modal(document.getElementById('inst-modal')).show();
+  },
+  editInst(id) {
+    const i = this._instData.find(x => String(Utils.rowId(x)) === String(id));
+    if (!i) return;
+    this._instEditId = id;
+    document.getElementById('instf-name').value = i['\u05E9\u05DD'] || '';
+    document.getElementById('instf-code').value = i['\u05E7\u05D5\u05D3'] || '';
+    document.getElementById('instf-color').value = i['\u05E6\u05D1\u05E2'] || '#2563eb';
+    document.getElementById('instf-desc').value = i['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+    document.getElementById('instf-status').value = i['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC';
+    document.querySelector('#inst-modal .modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05DE\u05E1\u05D2\u05E8\u05EA';
+    new bootstrap.Modal(document.getElementById('inst-modal')).show();
+  },
+  async saveInst() {
+    const row = {
+      '\u05E9\u05DD': document.getElementById('instf-name').value.trim(),
+      '\u05E7\u05D5\u05D3': document.getElementById('instf-code').value.trim(),
+      '\u05E6\u05D1\u05E2': document.getElementById('instf-color').value,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('instf-desc').value.trim(),
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('instf-status').value
+    };
+    if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); return; }
+    try {
+      if (this._instEditId) { await App.apiCall('update', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id: this._instEditId, row }); }
+      else { await App.apiCall('add', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { row }); }
+      bootstrap.Modal.getInstance(document.getElementById('inst-modal')).hide();
+      Utils.toast(this._instEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05DE\u05E1\u05D2\u05E8\u05EA \u05E0\u05D5\u05E1\u05E4\u05D4');
+      this._instEditId = null;
+      this.institutionsInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async deleteInst(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E1\u05D2\u05E8\u05EA \u05D6\u05D5?')) return;
+    try { await App.apiCall('delete', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id }); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.institutionsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 
   /* ======================================================================
