@@ -75,108 +75,195 @@
         </div>
         <div class="offcanvas-body d-flex flex-column p-0">
           <nav class="sidebar-nav flex-grow-1">
+
+            <!-- Dashboard — always visible top link -->
             <a href="#dashboard" class="sidebar-link active" data-page="dashboard">
               <i class="bi bi-speedometer2"></i><span>לוח בקרה</span>
             </a>
-            <a href="#students" class="sidebar-link" data-page="students">
-              <i class="bi bi-people-fill"></i><span>תלמידים</span>
-            </a>
-            <a href="#attendance" class="sidebar-link" data-page="attendance">
-              <i class="bi bi-calendar-check-fill"></i><span>נוכחות</span>
-            </a>
-            <a href="#attendance_monthly" class="sidebar-link" data-page="attendance_monthly">
-              <i class="bi bi-calendar-month"></i><span>נוכחות חודשית</span>
-            </a>
-            <a href="#staff" class="sidebar-link" data-page="staff">
-              <i class="bi bi-person-badge-fill"></i><span>צוות</span>
-            </a>
-            <a href="#staff_salary" class="sidebar-link" data-page="staff_salary">
-              <i class="bi bi-cash-stack"></i><span>שכר צוות</span>
-            </a>
-            <a href="#parents" class="sidebar-link" data-page="parents">
-              <i class="bi bi-house-heart-fill"></i><span>הורים</span>
-            </a>
-            <a href="#finance" class="sidebar-link" data-page="finance">
-              <i class="bi bi-cash-stack"></i><span>כספים</span>
-            </a>
-            <a href="#behavior" class="sidebar-link" data-page="behavior">
-              <i class="bi bi-star-half"></i><span>התנהגות</span>
-            </a>
-            <a href="#homework" class="sidebar-link" data-page="homework">
-              <i class="bi bi-book"></i><span>שיעורי בית</span>
-            </a>
-            <a href="#academics" class="sidebar-link" data-page="academics">
-              <i class="bi bi-journal-text"></i><span>מבחנים</span>
-            </a>
-            <a href="#tasks" class="sidebar-link" data-page="tasks">
-              <i class="bi bi-kanban"></i><span>משימות</span>
-            </a>
-            <a href="#calendar" class="sidebar-link" data-page="calendar">
-              <i class="bi bi-calendar3"></i><span>לוח שנה</span>
-            </a>
-            <a href="#rankings" class="sidebar-link" data-page="rankings">
-              <i class="bi bi-trophy-fill"></i><span>דירוגים</span>
-            </a>
-            <a href="#communications" class="sidebar-link" data-page="communications">
-              <i class="bi bi-chat-dots"></i><span>תקשורת</span>
-            </a>
-            <a href="#pettycash" class="sidebar-link" data-page="pettycash">
-              <i class="bi bi-cash-coin"></i><span>קופה קטנה</span>
-            </a>
-            <a href="#budget" class="sidebar-link" data-page="budget">
-              <i class="bi bi-wallet2"></i><span>תקציב</span>
-            </a>
-            <a href="#trips" class="sidebar-link" data-page="trips">
-              <i class="bi bi-geo-alt-fill"></i><span>טיולים</span>
-            </a>
-            <a href="#mivtza" class="sidebar-link" data-page="mivtza">
-              <i class="bi bi-award-fill"></i><span>מבצע לימוד</span>
-            </a>
-            <a href="#schedule" class="sidebar-link" data-page="schedule">
-              <i class="bi bi-table"></i><span>מערכת שעות</span>
-            </a>
-            <a href="#documents" class="sidebar-link" data-page="documents">
-              <i class="bi bi-folder-fill"></i><span>מסמכים</span>
-            </a>
-            <a href="#medical" class="sidebar-link" data-page="medical">
-              <i class="bi bi-heart-pulse"></i><span>מידע רפואי</span>
-            </a>
-            <a href="#committees" class="sidebar-link" data-page="committees">
-              <i class="bi bi-people"></i><span>ועדות</span>
-            </a>
-            <a href="#institutions" class="sidebar-link" data-page="institutions">
-              <i class="bi bi-building"></i><span>מסגרות</span>
-            </a>
-            <a href="#reports" class="sidebar-link" data-page="reports">
-              <i class="bi bi-file-earmark-bar-graph"></i><span>דוחות</span>
-            </a>
-            <a href="#ai_assistant" class="sidebar-link" data-page="ai_assistant">
-              <i class="bi bi-robot"></i><span>עוזר AI</span>
-            </a>
-            <a href="#forms" class="sidebar-link" data-page="forms">
-              <i class="bi bi-ui-checks"></i><span>טפסים</span>
-            </a>
-            <a href="#phone" class="sidebar-link" data-page="phone">
-              <i class="bi bi-telephone-fill"></i><span>טלפון</span>
-            </a>
-            <a href="#cameras" class="sidebar-link" data-page="cameras">
-              <i class="bi bi-camera-video-fill"></i><span>מצלמות</span>
-            </a>
-            <a href="#hub" class="sidebar-link" data-page="hub">
-              <i class="bi bi-grid-fill"></i><span>מרכז מידע</span>
-            </a>
-            <a href="#help" class="sidebar-link" data-page="help">
-              <i class="bi bi-question-circle"></i><span>עזרה</span>
-            </a>
-            <a href="#user_management" class="sidebar-link" data-page="user_management">
-              <i class="bi bi-shield-lock"></i><span>משתמשים</span>
-            </a>
-            <a href="#activity_log" class="sidebar-link" data-page="activity_log">
-              <i class="bi bi-clock-history"></i><span>יומן פעילות</span>
-            </a>
-            <a href="#settings" class="sidebar-link" data-page="settings">
-              <i class="bi bi-gear-fill"></i><span>הגדרות</span>
-            </a>
+
+            <!-- Category: תלמידים -->
+            <div class="sidebar-category" data-cat="students">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-people-fill sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">תלמידים</span>
+                <span class="sidebar-cat-badge">8</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#students" class="sidebar-link" data-page="students">
+                  <i class="bi bi-people-fill"></i><span>תלמידים</span>
+                </a>
+                <a href="#attendance" class="sidebar-link" data-page="attendance">
+                  <i class="bi bi-calendar-check-fill"></i><span>נוכחות</span>
+                </a>
+                <a href="#attendance_monthly" class="sidebar-link" data-page="attendance_monthly">
+                  <i class="bi bi-calendar-month"></i><span>נוכחות חודשית</span>
+                </a>
+                <a href="#behavior" class="sidebar-link" data-page="behavior">
+                  <i class="bi bi-star-half"></i><span>התנהגות</span>
+                </a>
+                <a href="#homework" class="sidebar-link" data-page="homework">
+                  <i class="bi bi-book"></i><span>שיעורי בית</span>
+                </a>
+                <a href="#academics" class="sidebar-link" data-page="academics">
+                  <i class="bi bi-journal-text"></i><span>מבחנים</span>
+                </a>
+                <a href="#rankings" class="sidebar-link" data-page="rankings">
+                  <i class="bi bi-trophy-fill"></i><span>דירוגים</span>
+                </a>
+                <a href="#mivtza" class="sidebar-link" data-page="mivtza">
+                  <i class="bi bi-award-fill"></i><span>מבצע לימוד</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: צוות -->
+            <div class="sidebar-category" data-cat="staff">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-person-badge-fill sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">צוות</span>
+                <span class="sidebar-cat-badge">3</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#staff" class="sidebar-link" data-page="staff">
+                  <i class="bi bi-person-badge-fill"></i><span>צוות</span>
+                </a>
+                <a href="#staff_salary" class="sidebar-link" data-page="staff_salary">
+                  <i class="bi bi-cash-stack"></i><span>שכר צוות</span>
+                </a>
+                <a href="#schedule" class="sidebar-link" data-page="schedule">
+                  <i class="bi bi-table"></i><span>מערכת שעות</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: הורים -->
+            <div class="sidebar-category" data-cat="parents">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-house-heart-fill sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">הורים</span>
+                <span class="sidebar-cat-badge">3</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#parents" class="sidebar-link" data-page="parents">
+                  <i class="bi bi-house-heart-fill"></i><span>הורים</span>
+                </a>
+                <a href="#communications" class="sidebar-link" data-page="communications">
+                  <i class="bi bi-chat-dots"></i><span>תקשורת</span>
+                </a>
+                <a href="#forms" class="sidebar-link" data-page="forms">
+                  <i class="bi bi-ui-checks"></i><span>טפסים</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: כספים -->
+            <div class="sidebar-category" data-cat="finance">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-cash-stack sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">כספים</span>
+                <span class="sidebar-cat-badge">3</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#finance" class="sidebar-link" data-page="finance">
+                  <i class="bi bi-cash-stack"></i><span>כספים</span>
+                </a>
+                <a href="#pettycash" class="sidebar-link" data-page="pettycash">
+                  <i class="bi bi-cash-coin"></i><span>קופה קטנה</span>
+                </a>
+                <a href="#budget" class="sidebar-link" data-page="budget">
+                  <i class="bi bi-wallet2"></i><span>תקציב</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: מוסד -->
+            <div class="sidebar-category" data-cat="institution">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-building sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">מוסד</span>
+                <span class="sidebar-cat-badge">6</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#institutions" class="sidebar-link" data-page="institutions">
+                  <i class="bi bi-building"></i><span>מסגרות</span>
+                </a>
+                <a href="#committees" class="sidebar-link" data-page="committees">
+                  <i class="bi bi-people"></i><span>ועדות</span>
+                </a>
+                <a href="#trips" class="sidebar-link" data-page="trips">
+                  <i class="bi bi-geo-alt-fill"></i><span>טיולים</span>
+                </a>
+                <a href="#calendar" class="sidebar-link" data-page="calendar">
+                  <i class="bi bi-calendar3"></i><span>לוח שנה</span>
+                </a>
+                <a href="#documents" class="sidebar-link" data-page="documents">
+                  <i class="bi bi-folder-fill"></i><span>מסמכים</span>
+                </a>
+                <a href="#medical" class="sidebar-link" data-page="medical">
+                  <i class="bi bi-heart-pulse"></i><span>מידע רפואי</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: מערכת -->
+            <div class="sidebar-category" data-cat="system">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-gear sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">מערכת</span>
+                <span class="sidebar-cat-badge">7</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#tasks" class="sidebar-link" data-page="tasks">
+                  <i class="bi bi-kanban"></i><span>משימות</span>
+                </a>
+                <a href="#reports" class="sidebar-link" data-page="reports">
+                  <i class="bi bi-file-earmark-bar-graph"></i><span>דוחות</span>
+                </a>
+                <a href="#ai_assistant" class="sidebar-link" data-page="ai_assistant">
+                  <i class="bi bi-robot"></i><span>עוזר AI</span>
+                </a>
+                <a href="#hub" class="sidebar-link" data-page="hub">
+                  <i class="bi bi-grid-fill"></i><span>מרכז מידע</span>
+                </a>
+                <a href="#help" class="sidebar-link" data-page="help">
+                  <i class="bi bi-question-circle"></i><span>עזרה</span>
+                </a>
+                <a href="#phone" class="sidebar-link" data-page="phone">
+                  <i class="bi bi-telephone-fill"></i><span>טלפון</span>
+                </a>
+                <a href="#cameras" class="sidebar-link" data-page="cameras">
+                  <i class="bi bi-camera-video-fill"></i><span>מצלמות</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category: ניהול -->
+            <div class="sidebar-category" data-cat="admin">
+              <button class="sidebar-cat-header" type="button" aria-expanded="true">
+                <i class="bi bi-shield-lock sidebar-cat-icon"></i>
+                <span class="sidebar-cat-title">ניהול</span>
+                <span class="sidebar-cat-badge">3</span>
+                <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
+              </button>
+              <div class="sidebar-cat-body">
+                <a href="#user_management" class="sidebar-link" data-page="user_management">
+                  <i class="bi bi-shield-lock"></i><span>משתמשים</span>
+                </a>
+                <a href="#activity_log" class="sidebar-link" data-page="activity_log">
+                  <i class="bi bi-clock-history"></i><span>יומן פעילות</span>
+                </a>
+                <a href="#settings" class="sidebar-link" data-page="settings">
+                  <i class="bi bi-gear-fill"></i><span>הגדרות</span>
+                </a>
+              </div>
+            </div>
+
           </nav>
           <div class="sidebar-footer">
             <small>v5.0 &bull; בית התלמוד</small>

@@ -94,9 +94,26 @@ const App = {
     const page = parts[0];
     const param = parts[1] || null;
 
-    // Update sidebar active
+    // Update sidebar active + auto-expand category
     document.querySelectorAll('.sidebar-link').forEach(el => {
-      el.classList.toggle('active', el.dataset.page === page);
+      const isActive = el.dataset.page === page;
+      el.classList.toggle('active', isActive);
+      if (isActive) {
+        const cat = el.closest('.sidebar-category');
+        if (cat) {
+          const body = cat.querySelector('.sidebar-cat-body');
+          const btn = cat.querySelector('.sidebar-cat-header');
+          if (body && body.classList.contains('collapsed')) {
+            body.classList.remove('collapsed');
+            btn.setAttribute('aria-expanded', 'true');
+            try {
+              const saved = JSON.parse(localStorage.getItem('bht_sidebar_cats') || '{}');
+              saved[cat.dataset.cat] = true;
+              localStorage.setItem('bht_sidebar_cats', JSON.stringify(saved));
+            } catch(e){}
+          }
+        }
+      }
     });
 
     // Close mobile sidebar
@@ -334,6 +351,46 @@ const App = {
     // Hash routing
     window.addEventListener('hashchange', () => {
       if (this.isLoggedIn()) this.handleRoute();
+    });
+
+    // Sidebar collapsible categories
+    this.initSidebarCategories();
+  },
+
+  /* ==============================
+     SIDEBAR CATEGORIES
+     ============================== */
+  initSidebarCategories() {
+    const STORAGE_KEY = 'bht_sidebar_cats';
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
+
+    document.querySelectorAll('.sidebar-category').forEach(cat => {
+      const key = cat.dataset.cat;
+      const btn = cat.querySelector('.sidebar-cat-header');
+      const body = cat.querySelector('.sidebar-cat-body');
+      if (!btn || !body) return;
+
+      // Restore state (default: open)
+      const isOpen = saved[key] !== false;
+      if (!isOpen) {
+        body.classList.add('collapsed');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+
+      btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') !== 'false';
+        if (expanded) {
+          body.classList.add('collapsed');
+          btn.setAttribute('aria-expanded', 'false');
+          saved[key] = false;
+        } else {
+          body.classList.remove('collapsed');
+          btn.setAttribute('aria-expanded', 'true');
+          saved[key] = true;
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      });
     });
   }
 };

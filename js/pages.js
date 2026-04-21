@@ -77,7 +77,7 @@ const Pages = {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div><h1><i class="bi bi-people-fill me-2"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h1><p id="students-count"></p></div>
-        <button class="btn btn-primary" onclick="Pages.showStudentForm()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3</button>
+        <div class="d-flex gap-2"><button class="btn btn-primary" onclick="Pages.showStudentForm()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportStudentsCSV()"><i class="bi bi-download me-1"></i>CSV</button></div>
       </div>
       <div class="card p-3 mb-3"><div class="row g-2 align-items-center">
         <div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="students-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div>
@@ -126,7 +126,7 @@ const Pages = {
     if (filtered.length === 0) { document.getElementById('students-list').innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>`; return; }
     document.getElementById('students-list').innerHTML = `<div class="row g-3">${filtered.map(s => {
       const name = s._fullName || ''; const cls = s['\u05DB\u05D9\u05EA\u05D4'] || ''; const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
-      return `<div class="col-md-6 col-lg-4"><div class="card card-clickable p-3" onclick="location.hash='student/${s._id}'""><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name)}<div class="flex-grow-1 min-width-0"><div class="fw-bold text-truncate">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${cls}${age ? ' | \u05D2\u05D9\u05DC ' + age : ''}</small></div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
+      return `<div class="col-md-6 col-lg-4"><div class="card card-clickable p-3" onclick="location.hash='student/${s._id}'""><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name)}<div class="flex-grow-1 min-width-0"><div class="fw-bold text-truncate">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${cls}${age ? ' | \u05D2\u05D9\u05DC ' + age : ''}</small></div><div class="d-flex align-items-center gap-2">${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}<button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation();Pages.deleteStudent('${s._id}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div></div></div>`;
     }).join('')}</div>`;
   },
   showStudentForm(student = null) {
@@ -151,6 +151,19 @@ const Pages = {
       Utils.toast(id ? '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentsInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+  async deleteStudent(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3?')) return;
+    try { await App.apiCall('delete','\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD',{id}); Utils.toast('\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05DE\u05D7\u05E7'); this.studentsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  exportStudentsCSV() {
+    const rows = this._studentsData || [];
+    if (!rows.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; }
+    let csv = '\uFEFF' + '\u05E9\u05DD,\u05DB\u05D9\u05EA\u05D4,\u05D8\u05DC\u05E4\u05D5\u05DF,\u05E1\u05D8\u05D8\u05D5\u05E1,\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4,\u05DB\u05EA\u05D5\u05D1\u05EA\n';
+    rows.forEach(s => { csv += `"${Utils.fullName(s)}","${s['\u05DB\u05D9\u05EA\u05D4']||''}","${s['\u05D8\u05DC\u05E4\u05D5\u05DF']||''}","${s['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}","${s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']||''}","${s['\u05DB\u05EA\u05D5\u05D1\u05EA']||''}"\n`; });
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'students_'+Utils.todayISO()+'.csv'; link.click();
+    Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0');
   },
 
   /* ======================================================================
@@ -229,6 +242,8 @@ const Pages = {
         <div class="col-md-5 d-flex gap-2 flex-wrap">
           <button class="btn btn-outline-success btn-sm" onclick="Pages.markAll('present')"><i class="bi bi-check-all me-1"></i>\u05D4\u05DB\u05DC \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD</button>
           <button class="btn btn-outline-danger btn-sm" onclick="Pages.markAll('absent')"><i class="bi bi-x-circle me-1"></i>\u05D4\u05DB\u05DC \u05D7\u05E1\u05E8\u05D9\u05DD</button>
+          <button class="btn btn-outline-info btn-sm" onclick="Pages.copyAttSummary()"><i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printAttendance()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1</button>
           <span class="badge bg-secondary align-self-center" title="\u05E7\u05D9\u05E6\u05D5\u05E8\u05D9 \u05DE\u05E7\u05DC\u05D3\u05EA">P/A/L</span>
         </div>
       </div></div>
@@ -257,6 +272,7 @@ const Pages = {
     document.getElementById('att-search').addEventListener('input', Utils.debounce(() => this.renderAttList(), 200));
     document.getElementById('att-date').addEventListener('change', () => this.attendanceInit());
     this.renderAttList();
+    this.bindAttKeyboard();
   },
   renderAttList() {
     const search = (document.getElementById('att-search')?.value || '').trim().toLowerCase();
@@ -283,6 +299,46 @@ const Pages = {
     this._attStudents.forEach(s => { const st = this._attState[s._id]; if (st) rows.push({ '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': s._id, '\u05E9\u05DD': s._fullName, '\u05DB\u05D9\u05EA\u05D4': s['\u05DB\u05D9\u05EA\u05D4']||'', '\u05EA\u05D0\u05E8\u05D9\u05DA': date, '\u05E1\u05D8\u05D8\u05D5\u05E1': statusMap[st] }); });
     if (rows.length === 0) { Utils.toast('\u05DC\u05D0 \u05E1\u05D5\u05DE\u05E0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', 'warning'); return; }
     try { await App.apiCall('bulkAdd', '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', { rows }); Utils.toast(`\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D4: ${rows.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`, 'success'); } catch(e) { localStorage.setItem('bht_att_' + date, JSON.stringify(rows)); Utils.toast('\u05E0\u05E9\u05DE\u05E8 \u05DE\u05E7\u05D5\u05DE\u05D9\u05EA', 'info'); }
+  },
+  _attKeyListener: null,
+  bindAttKeyboard() {
+    if (this._attKeyListener) document.removeEventListener('keydown', this._attKeyListener);
+    this._attKeyListener = (e) => {
+      if (App.currentPage !== 'attendance') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      const rows = document.querySelectorAll('.att-row');
+      const hovered = document.querySelector('.att-row:hover');
+      if (!hovered) return;
+      const id = hovered.dataset.id;
+      if (!id) return;
+      if (e.key === 'p' || e.key === 'P' || e.key === '\u05E0') this.toggleAtt(id, 'present');
+      if (e.key === 'a' || e.key === 'A' || e.key === '\u05D7') this.toggleAtt(id, 'absent');
+      if (e.key === 'l' || e.key === 'L' || e.key === '\u05D0') this.toggleAtt(id, 'late');
+    };
+    document.addEventListener('keydown', this._attKeyListener);
+  },
+  copyAttSummary() {
+    const vals = Object.values(this._attState);
+    const p = vals.filter(v => v === 'present').length;
+    const a = vals.filter(v => v === 'absent').length;
+    const l = vals.filter(v => v === 'late').length;
+    const date = document.getElementById('att-date').value;
+    const absentNames = this._attStudents.filter(s => this._attState[s._id] === 'absent').map(s => s._fullName);
+    let text = `\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA ${date}\n\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD: ${p} | \u05D7\u05E1\u05E8\u05D9\u05DD: ${a} | \u05D0\u05D9\u05D7\u05D5\u05E8: ${l}`;
+    if (absentNames.length) text += '\n\u05D7\u05E1\u05E8\u05D9\u05DD: ' + absentNames.join(', ');
+    navigator.clipboard.writeText(text).then(() => Utils.toast('\u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7')).catch(() => Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D4\u05E2\u05EA\u05E7\u05D4','danger'));
+  },
+  printAttendance() {
+    const win = window.open('','','width=800,height=600');
+    const date = document.getElementById('att-date').value;
+    const rows = this._attStudents.map(s => {
+      const st = this._attState[s._id] || '';
+      const label = st === 'present' ? '\u05E0\u05D5\u05DB\u05D7' : st === 'absent' ? '\u05D7\u05E1\u05E8' : st === 'late' ? '\u05D0\u05D9\u05D7\u05D5\u05E8' : '--';
+      return `<tr><td>${s._fullName}</td><td>${s['\u05DB\u05D9\u05EA\u05D4']||''}</td><td>${label}</td></tr>`;
+    }).join('');
+    win.document.write(`<html dir="rtl"><head><title>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA ${date}</title><style>body{font-family:Heebo,sans-serif}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px;text-align:right}th{background:#f5f5f5}</style></head><body><h2>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA - ${date}</h2><table><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead><tbody>${rows}</tbody></table></body></html>`);
+    win.document.close();
+    win.print();
   },
 
   /* ======================================================================
@@ -362,6 +418,25 @@ const Pages = {
       const name = Utils.fullName(s); const role = s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || ''; const phone = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''; const sid = Utils.rowId(s);
       return `<div class="col-md-6 col-lg-4"><div class="card p-3 card-clickable" onclick="location.hash='staff_card/${sid}'"><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name, 'lg')}<div class="flex-grow-1"><div class="fw-bold fs-6">${name}</div><div class="text-muted small">${role}</div>${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
     }).join('')}</div>`;
+  },
+  showAddStaff(staff = null) {
+    const title = staff ? '\u05E2\u05E8\u05D9\u05DB\u05EA \u05E2\u05D5\u05D1\u05D3' : '\u05D4\u05D5\u05E1\u05E4\u05EA \u05E2\u05D5\u05D1\u05D3 \u05E6\u05D5\u05D5\u05EA';
+    const name = staff ? Utils.fullName(staff) : '';
+    const html = `<div class="modal fade" id="staff-modal-dyn" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>${title}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05E9\u05DD</label><input class="form-control" id="stf-name" value="${name}"></div><div class="col-6"><label class="form-label">\u05EA\u05E4\u05E7\u05D9\u05D3</label><input class="form-control" id="stf-role" value="${staff?.['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}"></div><div class="col-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF</label><input class="form-control" id="stf-phone" value="${staff?.['\u05D8\u05DC\u05E4\u05D5\u05DF']||''}"></div><div class="col-12"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input class="form-control" id="stf-email" value="${staff?.['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveStaff('${staff?Utils.rowId(staff):''}')">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div></div></div></div>`;
+    document.getElementById('staff-modal-dyn')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('staff-modal-dyn')).show();
+  },
+  async saveStaff(existingId) {
+    const fullName = document.getElementById('stf-name').value.trim();
+    const parts = fullName.split(/\s+/);
+    const row = {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':parts[0]||'','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':parts.slice(1).join(' ')||'','\u05EA\u05E4\u05E7\u05D9\u05D3':document.getElementById('stf-role').value.trim(),'\u05D8\u05DC\u05E4\u05D5\u05DF':document.getElementById('stf-phone').value.trim(),'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':document.getElementById('stf-email').value.trim(),'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'};
+    if (!row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD','warning'); return; }
+    try { if (existingId) { await App.apiCall('update','\u05E6\u05D5\u05D5\u05EA',{id:existingId,row}); } else { await App.apiCall('add','\u05E6\u05D5\u05D5\u05EA',{row}); } bootstrap.Modal.getInstance(document.getElementById('staff-modal-dyn')).hide(); Utils.toast(existingId?'\u05E2\u05D5\u05D3\u05DB\u05DF':'\u05E0\u05D5\u05E1\u05E3'); this.staffInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async deleteStaff(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E2\u05D5\u05D1\u05D3','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05E2\u05D5\u05D1\u05D3 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05E6\u05D5\u05D5\u05EA',{id}); Utils.toast('\u05E2\u05D5\u05D1\u05D3 \u05E0\u05DE\u05D7\u05E7'); this.staffInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
 
   /* ======================================================================
@@ -447,7 +522,7 @@ const Pages = {
      FINANCE
      ====================================================================== */
   finance() {
-    return `<div class="page-header"><h1><i class="bi bi-cash-stack me-2"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</h1></div><div class="row g-3 mb-4"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="fin-total">--</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="fin-paid">--</div><small class="text-muted">\u05E0\u05D2\u05D1\u05D4</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="fin-debt">--</div><small class="text-muted">\u05D7\u05D5\u05D1</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="fin-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div class="col-md-3"><select class="form-select" id="fin-filter"><option value="">\u05D4\u05DB\u05DC</option><option value="debt">\u05D7\u05D5\u05D1\u05D5\u05EA</option><option value="paid">\u05E9\u05D5\u05DC\u05DD</option></select></div></div></div><div id="fin-list">${Utils.skeleton(4)}</div>`;
+    return `<div class="page-header"><h1><i class="bi bi-cash-stack me-2"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</h1></div><div class="row g-3 mb-4"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="fin-total">--</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="fin-paid">--</div><small class="text-muted">\u05E0\u05D2\u05D1\u05D4</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="fin-debt">--</div><small class="text-muted">\u05D7\u05D5\u05D1</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="fin-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div class="col-md-3"><select class="form-select" id="fin-filter"><option value="">\u05D4\u05DB\u05DC</option><option value="debt">\u05D7\u05D5\u05D1\u05D5\u05EA</option><option value="paid">\u05E9\u05D5\u05DC\u05DD</option></select></div><div class="col-md-3 d-flex gap-2"><button class="btn btn-primary btn-sm" onclick="Pages.showAddPayment()"><i class="bi bi-plus-lg me-1"></i>\u05EA\u05E9\u05DC\u05D5\u05DD</button><button class="btn btn-outline-success btn-sm" onclick="Pages.exportFinCSV()"><i class="bi bi-download me-1"></i>CSV</button></div></div></div><div id="fin-list">${Utils.skeleton(4)}</div>`;
   },
   _finData: [],
   async financeInit() {
@@ -468,6 +543,39 @@ const Pages = {
     let filtered = (this._finData || []).filter(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (search && !nm.toLowerCase().includes(search)) return false; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; if (filter==='debt'&&isPaid) return false; if (filter==='paid'&&!isPaid) return false; return true; });
     if (!filtered.length) { document.getElementById('fin-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>'; return; }
     document.getElementById('fin-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D5\u05D3\u05E9</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${filtered.map(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; const amt=Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; const sc=isPaid?'success':'danger'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(nm,'sm')}<span class="fw-bold">${nm}</span></div></td><td>${f['\u05D7\u05D5\u05D3\u05E9']||''}</td><td class="fw-bold">${Utils.formatCurrency(amt)}</td><td><span class="badge bg-${sc}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></td><td>${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}</td><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'])}</td></tr>`; }).join('')}</tbody></table></div>`;
+  },
+  showAddPayment() {
+    const html = `<div class="modal fade" id="fin-modal-dyn" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>\u05EA\u05E9\u05DC\u05D5\u05DD \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="ff-student"></select></div><div class="col-6"><label class="form-label">\u05D7\u05D5\u05D3\u05E9</label><input type="month" class="form-control" id="ff-month"></div><div class="col-6"><label class="form-label">\u05E1\u05DB\u05D5\u05DD</label><input type="number" class="form-control" id="ff-amount"></div><div class="col-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label><select class="form-select" id="ff-status"><option value="\u05D7\u05D5\u05D1">\u05D7\u05D5\u05D1</option><option value="\u05E9\u05D5\u05DC\u05DD">\u05E9\u05D5\u05DC\u05DD</option></select></div><div class="col-6"><label class="form-label">\u05D0\u05DE\u05E6\u05E2\u05D9</label><select class="form-select" id="ff-method"><option>\u05DE\u05D6\u05D5\u05DE\u05DF</option><option>\u05D4\u05E2\u05D1\u05E8\u05D4</option><option>\u05E6'\u05E7</option><option>\u05D0\u05E9\u05E8\u05D0\u05D9</option></select></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.savePayment()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    document.getElementById('fin-modal-dyn')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
+      const sel = document.getElementById('ff-student');
+      sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
+    });
+    const d = new Date(); document.getElementById('ff-month').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    new bootstrap.Modal(document.getElementById('fin-modal-dyn')).show();
+  },
+  async savePayment() {
+    const sel = document.getElementById('ff-student');
+    const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4':sel.value,'\u05D7\u05D5\u05D3\u05E9':document.getElementById('ff-month').value,'\u05E1\u05DB\u05D5\u05DD':document.getElementById('ff-amount').value,'\u05E1\u05D8\u05D8\u05D5\u05E1':document.getElementById('ff-status').value,'\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD':document.getElementById('ff-method').value,'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()};
+    if (!row['\u05E9\u05DD']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; }
+    try { await App.apiCall('add','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{row}); bootstrap.Modal.getInstance(document.getElementById('fin-modal-dyn')).hide(); Utils.toast('\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05D5\u05E1\u05E3'); this.financeInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async deletePayment(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05EA\u05E9\u05DC\u05D5\u05DD \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.financeInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async markPaymentPaid(id) {
+    try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD','\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()}}); Utils.toast('\u05E1\u05D5\u05DE\u05DF \u05DB\u05E9\u05D5\u05DC\u05DD'); this.financeInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  exportFinCSV() {
+    const rows = this._finData || [];
+    if (!rows.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; }
+    let csv = '\uFEFF' + '\u05EA\u05DC\u05DE\u05D9\u05D3,\u05D7\u05D5\u05D3\u05E9,\u05E1\u05DB\u05D5\u05DD,\u05E1\u05D8\u05D8\u05D5\u05E1,\u05D0\u05DE\u05E6\u05E2\u05D9,\u05EA\u05D0\u05E8\u05D9\u05DA\n';
+    rows.forEach(f => { csv += `"${f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''}","${f['\u05D7\u05D5\u05D3\u05E9']||''}","${f['\u05E1\u05DB\u05D5\u05DD']||''}","${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}","${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}","${f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}"\n`; });
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'finance_'+Utils.todayISO()+'.csv'; link.click();
+    Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0');
   },
 
   /* ======================================================================
@@ -500,6 +608,10 @@ const Pages = {
     const row = { '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': document.getElementById('bf-student').value, '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': document.getElementById('bf-student').selectedOptions[0]?.text || '', '\u05E1\u05D5\u05D2': document.getElementById('bf-type').value, '\u05D7\u05D5\u05DE\u05E8\u05D4': document.getElementById('bf-severity').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('bf-desc').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO() };
     try { await App.apiCall('add', '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', { row }); bootstrap.Modal.getInstance(document.getElementById('beh-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.behaviorInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
+  async deleteBeh(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.behaviorInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      HOMEWORK
@@ -523,6 +635,13 @@ const Pages = {
     const row = { '\u05DE\u05E7\u05E6\u05D5\u05E2': document.getElementById('hf-subject').value.trim(), '\u05DB\u05D9\u05EA\u05D4': document.getElementById('hf-class').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DE\u05EA\u05DF': document.getElementById('hf-given').value, '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4': document.getElementById('hf-due').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('hf-desc').value.trim(), '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' };
     if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2', 'warning'); return; }
     try { await App.apiCall('add', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA', { row }); bootstrap.Modal.getInstance(document.getElementById('hw-modal')).hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async deleteHw(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async markHwDone(id) {
+    try { await App.apiCall('update','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'}}); Utils.toast('\u05E1\u05D5\u05DE\u05DF \u05DB\u05D4\u05D5\u05E9\u05DC\u05DD'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
 
   /* ======================================================================
@@ -549,6 +668,10 @@ const Pages = {
     const row = { '\u05DE\u05E7\u05E6\u05D5\u05E2': document.getElementById('af-subject').value.trim(), '\u05DB\u05D9\u05EA\u05D4': document.getElementById('af-class').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('af-date').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('af-desc').value.trim() };
     if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2', 'warning'); return; }
     try { await App.apiCall('add', '\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD', { row }); bootstrap.Modal.getInstance(document.getElementById('aca-modal')).hide(); Utils.toast('\u05DE\u05D1\u05D7\u05DF \u05E0\u05E9\u05DE\u05E8'); this.academicsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+  },
+  async deleteExam(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05D1\u05D7\u05DF \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.academicsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
 
   /* ======================================================================
@@ -609,6 +732,10 @@ const Pages = {
   },
   async quickAddTask() { const inp=document.getElementById('quick-task'); const title=(inp?inp.value:'').trim(); if (!title) return; try { await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row:{'\u05DB\u05D5\u05EA\u05E8\u05EA':title,'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9','\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC','\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}}); if (inp) inp.value=''; Utils.toast('\u05DE\u05E9\u05D9\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
   async moveTask(id, status) { try { await App.apiCall('update','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':status}}); Utils.toast('\u05E2\u05D5\u05D3\u05DB\u05DF'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteTask(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05D9\u05DE\u05D4 \u05D6\u05D5?')) return;
+    try { await App.apiCall('delete','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      CALENDAR
@@ -634,6 +761,10 @@ const Pages = {
   },
   showAddEvent() { document.getElementById('cf-date').value = Utils.todayISO(); new bootstrap.Modal(document.getElementById('cal-modal')).show(); },
   async saveCalEvent() { const row = {'\u05DB\u05D5\u05EA\u05E8\u05EA':document.getElementById('cf-title').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('cf-date').value,'\u05E1\u05D5\u05D2':document.getElementById('cf-type').value,'\u05D4\u05E2\u05E8\u05D5\u05EA':document.getElementById('cf-notes').value.trim()}; if (!row['\u05DB\u05D5\u05EA\u05E8\u05EA']) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05D5\u05EA\u05E8\u05EA','warning'); return; } try { await App.apiCall('add','\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4',{row}); bootstrap.Modal.getInstance(document.getElementById('cal-modal')).hide(); Utils.toast('\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E0\u05D5\u05E1\u05E3'); this.loadCalendar(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteCalEvent(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.loadCalendar(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      COMMUNICATIONS
@@ -679,6 +810,10 @@ const Pages = {
   },
   showAddComm() { new bootstrap.Modal(document.getElementById('committee-modal')).show(); },
   async saveCommittee() { const row = {'\u05E9\u05DD':document.getElementById('cmf-name').value.trim(),'\u05D7\u05D1\u05E8\u05D9\u05DD':document.getElementById('cmf-members').value.trim(),'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('cmf-desc').value.trim()}; if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD','warning'); return; } try { await App.apiCall('add','\u05D5\u05E2\u05D3\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('committee-modal')).hide(); Utils.toast('\u05D5\u05E2\u05D3\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.committeesInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteCommittee(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D5\u05E2\u05D3\u05D4 \u05D6\u05D5?')) return;
+    try { await App.apiCall('delete','\u05D5\u05E2\u05D3\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.committeesInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      PETTY CASH
@@ -699,6 +834,10 @@ const Pages = {
   },
   showAddPc() { new bootstrap.Modal(document.getElementById('pc-modal')).show(); },
   async savePc() { const row = {'\u05E1\u05D5\u05D2':document.getElementById('pcf-type').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('pcf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('pcf-amount').value,'\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}; if (!row['\u05EA\u05D9\u05D0\u05D5\u05E8']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; } try { await App.apiCall('add','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{row}); bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide(); Utils.toast('\u05E4\u05E2\u05D5\u05DC\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deletePc(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5?')) return;
+    try { await App.apiCall('delete','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      TRIPS
@@ -715,6 +854,10 @@ const Pages = {
   },
   showAddTrip() { new bootstrap.Modal(document.getElementById('trip-modal')).show(); },
   async saveTrip() { const row = {'\u05D9\u05E2\u05D3':document.getElementById('tf-dest').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':document.getElementById('tf-start').value,'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':document.getElementById('tf-end').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('tf-desc').value.trim(),'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}; if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3','warning'); return; } try { await App.apiCall('add','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{row}); bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide(); Utils.toast('\u05D8\u05D9\u05D5\u05DC \u05E0\u05D5\u05E1\u05E3'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteTrip(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D9\u05D5\u05DC \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      BUDGET
@@ -737,6 +880,10 @@ const Pages = {
   },
   showAddBudget() { document.getElementById('bgf-date').value=Utils.todayISO(); new bootstrap.Modal(document.getElementById('budg-modal')).show(); },
   async saveBudget() { const row={'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('bgf-date').value,'\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4':document.getElementById('bgf-cat').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('bgf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('bgf-amount').value,'\u05E1\u05E4\u05E7':document.getElementById('bgf-vendor').value.trim()}; try { await App.apiCall('add','\u05EA\u05E7\u05E6\u05D9\u05D1',{row}); bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide(); Utils.toast('\u05D4\u05D5\u05E6\u05D0\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteBudgetItem(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
+    try { await App.apiCall('delete','\u05EA\u05E7\u05E6\u05D9\u05D1',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      MIVTZA (LEARNING CAMPAIGN)
@@ -755,6 +902,10 @@ const Pages = {
   },
   async showAddMvz() { const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); document.getElementById('mvf-student').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); new bootstrap.Modal(document.getElementById('mvz-modal')).show(); },
   async saveMvz() { const sel=document.getElementById('mvf-student'); const sh=parseInt(document.getElementById('mvf-shacharit').value)||0; const mn=parseInt(document.getElementById('mvf-mincha').value)||0; const ma=parseInt(document.getElementById('mvf-maariv').value)||0; const se=parseInt(document.getElementById('mvf-self').value)||0; const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05E9\u05D7\u05E8\u05D9\u05EA':sh,'\u05DE\u05E0\u05D7\u05D4':mn,'\u05DE\u05E2\u05E8\u05D9\u05D1':ma,'\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9':se,'\u05E1\u05D4_\u05DB':sh+mn+ma+se}; try { await App.apiCall('add','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{row}); bootstrap.Modal.getInstance(document.getElementById('mvz-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteMvz(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
 
   /* ======================================================================
      REPORTS
