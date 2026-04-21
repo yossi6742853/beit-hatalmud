@@ -2138,21 +2138,137 @@ const Pages = {
      AI ASSISTANT
      ====================================================================== */
   ai_assistant() {
-    return `<div class="page-header"><h1><i class="bi bi-robot me-2"></i>\u05E2\u05D5\u05D6\u05E8 \u05D7\u05DB\u05DD</h1></div><div class="card p-3"><div class="mb-3" id="ai-chat" style="height:400px;overflow-y:auto;border:1px solid var(--bs-border-color);border-radius:8px;padding:1rem;background:var(--bs-body-bg)"><div class="text-muted text-center py-5"><i class="bi bi-robot fs-1"></i><p>\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05E9\u05D0\u05DC\u05D4 \u05E2\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3</p></div></div><div class="input-group"><input type="text" class="form-control" id="ai-input" placeholder="\u05E9\u05D0\u05DC \u05E9\u05D0\u05DC\u05D4..." onkeydown="if(event.key==='Enter')Pages.sendAi()"><button class="btn btn-primary" onclick="Pages.sendAi()"><i class="bi bi-send"></i></button></div></div>`;
+    return `
+    <div class="page-header"><h1><i class="bi bi-robot me-2"></i>\u05E2\u05D5\u05D6\u05E8 \u05D7\u05DB\u05DD</h1><p>\u05E9\u05D0\u05DC \u05E9\u05D0\u05DC\u05D5\u05EA \u05E2\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3, \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p></div>
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <div class="card p-3">
+          <div id="ai-chat" style="height:450px;overflow-y:auto;border:1px solid var(--bht-border);border-radius:12px;padding:1rem;background:var(--bht-body-bg)">
+            <div class="text-center py-4">
+              <i class="bi bi-robot fs-1 text-primary"></i>
+              <h5 class="mt-2">\u05E9\u05DC\u05D5\u05DD! \u05D0\u05E0\u05D9 \u05D4\u05E2\u05D5\u05D6\u05E8 \u05D4\u05D7\u05DB\u05DD \u05E9\u05DC \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h5>
+              <p class="text-muted small">\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05E2\u05DC \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD, \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p>
+            </div>
+          </div>
+          <div class="input-group mt-3">
+            <input type="text" class="form-control form-control-lg" id="ai-input" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05E9\u05D0\u05DC\u05D4..." onkeydown="if(event.key==='Enter')Pages.sendAi()">
+            <button class="btn btn-primary px-4" onclick="Pages.sendAi()"><i class="bi bi-send-fill"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2 text-warning"></i>\u05E9\u05D0\u05DC\u05D5\u05EA \u05DC\u05D3\u05D5\u05D2\u05DE\u05D4</h6>
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary btn-sm text-start" onclick="Pages.askSample('\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9 \u05D1\u05DE\u05D5\u05E1\u05D3?')"><i class="bi bi-people me-2"></i>\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9 \u05D1\u05DE\u05D5\u05E1\u05D3?</button>
+            <button class="btn btn-outline-success btn-sm text-start" onclick="Pages.askSample('\u05DE\u05D4 \u05DE\u05E6\u05D1 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E9\u05D1\u05D5\u05E2?')"><i class="bi bi-calendar-check me-2"></i>\u05DE\u05D4 \u05DE\u05E6\u05D1 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E9\u05D1\u05D5\u05E2?</button>
+            <button class="btn btn-outline-danger btn-sm text-start" onclick="Pages.askSample('\u05DB\u05DE\u05D4 \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D9\u05E9?')"><i class="bi bi-cash me-2"></i>\u05DB\u05DE\u05D4 \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D9\u05E9?</button>
+            <button class="btn btn-outline-warning btn-sm text-start" onclick="Pages.askSample('\u05EA\u05DF \u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05DC\u05DC\u05D9 \u05E9\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3')"><i class="bi bi-bar-chart me-2"></i>\u05EA\u05DF \u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05DC\u05DC\u05D9</button>
+            <button class="btn btn-outline-info btn-sm text-start" onclick="Pages.askSample('\u05DE\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E0\u05DE\u05D5\u05DB\u05D4?')"><i class="bi bi-exclamation-triangle me-2"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF</button>
+            <button class="btn btn-outline-secondary btn-sm text-start" onclick="Pages.askSample('\u05EA\u05DB\u05D9\u05DF \u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA')"><i class="bi bi-star me-2"></i>\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</button>
+          </div>
+        </div>
+        <div class="card p-3 mt-3">
+          <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-2"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</h6>
+          <button class="btn btn-outline-danger btn-sm" onclick="Pages.clearAiChat()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05E9\u05D9\u05D7\u05D4</button>
+        </div>
+      </div>
+    </div>`;
   },
-  ai_assistantInit() { document.getElementById('ai-input')?.focus(); },
-  async sendAi() {
-    const input = document.getElementById('ai-input'); const q = input?.value?.trim(); if (!q) return; input.value = '';
-    const chat = document.getElementById('ai-chat');
-    chat.innerHTML += `<div class="d-flex justify-content-start mb-2"><div class="badge bg-primary text-wrap p-2" style="max-width:80%">${q}</div></div>`;
-    chat.innerHTML += `<div class="d-flex justify-content-end mb-2"><div class="badge bg-secondary text-wrap p-2"><div class="spinner-border spinner-border-sm"></div> \u05D7\u05D5\u05E9\u05D1...</div></div>`;
-    chat.scrollTop = chat.scrollHeight;
-    // Simulate AI response with summary data
+  _aiHistory: [],
+  ai_assistantInit() {
+    document.getElementById('ai-input')?.focus();
     try {
-      const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-      const response = `\u05D1\u05DE\u05D5\u05E1\u05D3 ${students.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD. \u05D0\u05E0\u05D9 \u05E2\u05D5\u05D6\u05E8 AI \u05DE\u05E7\u05D5\u05DE\u05D9 \u2014 \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05E9\u05E8\u05EA \u05E0\u05D3\u05E8\u05E9 \u05DC\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05DE\u05DC\u05D0\u05D5\u05EA.`;
-      chat.lastElementChild.innerHTML = `<div class="badge bg-secondary text-wrap p-2" style="max-width:80%">${response}</div>`;
-    } catch(e) { chat.lastElementChild.innerHTML = `<div class="badge bg-danger text-wrap p-2">\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E7\u05D1\u05DC\u05EA \u05EA\u05E9\u05D5\u05D1\u05D4</div>`; }
+      this._aiHistory = JSON.parse(sessionStorage.getItem('bht_ai_history') || '[]');
+      if (this._aiHistory.length) {
+        const chat = document.getElementById('ai-chat');
+        chat.innerHTML = this._aiHistory.map(m =>
+          m.role === 'user'
+            ? `<div class="d-flex justify-content-start mb-3"><div class="bg-primary text-white rounded-3 p-2 px-3" style="max-width:80%">${m.text}</div></div>`
+            : `<div class="d-flex justify-content-end mb-3"><div class="bg-light rounded-3 p-2 px-3 border" style="max-width:85%">${m.text}</div></div>`
+        ).join('');
+        chat.scrollTop = chat.scrollHeight;
+      }
+    } catch(e) {}
+  },
+  askSample(q) { document.getElementById('ai-input').value = q; this.sendAi(); },
+  clearAiChat() { this._aiHistory = []; sessionStorage.removeItem('bht_ai_history'); document.getElementById('ai-chat').innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-robot fs-1"></i><p>\u05E9\u05D9\u05D7\u05D4 \u05E0\u05D5\u05E7\u05EA\u05D4</p></div>'; },
+  async sendAi() {
+    const input = document.getElementById('ai-input');
+    const q = input?.value?.trim();
+    if (!q) return;
+    input.value = '';
+    const chat = document.getElementById('ai-chat');
+
+    // Remove welcome message
+    const welcome = chat.querySelector('.text-center.py-4');
+    if (welcome) welcome.remove();
+
+    // Add user message
+    chat.innerHTML += `<div class="d-flex justify-content-start mb-3"><div class="bg-primary text-white rounded-3 p-2 px-3" style="max-width:80%">${q}</div></div>`;
+    this._aiHistory.push({role:'user', text:q});
+
+    // Add loading
+    const loadingId = 'ai-loading-' + Date.now();
+    chat.innerHTML += `<div class="d-flex justify-content-end mb-3" id="${loadingId}"><div class="bg-light rounded-3 p-2 px-3 border"><div class="spinner-border spinner-border-sm text-primary me-2"></div>\u05D7\u05D5\u05E9\u05D1...</div></div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    try {
+      // Build context from real data
+      const [students, att, fin, beh, staff] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
+        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
+        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
+        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]),
+        App.getData('\u05E6\u05D5\u05D5\u05EA').catch(()=>[])
+      ]);
+
+      const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+      const todayAtt = att.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === Utils.todayISO());
+      const present = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
+      const totalFin = fin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const paidFin = fin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const posB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+      const negB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+
+      const context = '\u05D0\u05EA\u05D4 \u05E2\u05D5\u05D6\u05E8 AI \u05E9\u05DC \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D9\u05E0\u05D5\u05DB\u05D9 "\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3". \u05E2\u05E0\u05D4 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA \u05D1\u05E6\u05D5\u05E8\u05D4 \u05DE\u05D5\u05E2\u05D9\u05DC\u05D4 \u05D5\u05EA\u05DE\u05E6\u05D9\u05EA\u05D9\u05EA.\n\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05DB\u05E0\u05D9\u05D9\u05DD:\n- ' + active.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD\n- ' + staff.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA\n- \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD: ' + present + '/' + (todayAtt.length || active.length) + ' (' + (todayAtt.length ? Math.round(present/todayAtt.length*100) : 0) + '%)\n- \u05DB\u05E1\u05E4\u05D9\u05DD: \u05E1\u05D4"\u05DB ' + totalFin + ' \u05E9"\u05D7, \u05E0\u05D2\u05D1\u05D4 ' + paidFin + ' \u05E9"\u05D7, \u05D7\u05D5\u05D1 ' + (totalFin-paidFin) + ' \u05E9"\u05D7\n- \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: ' + posB + ' \u05D7\u05D9\u05D5\u05D1\u05D9, ' + negB + ' \u05E9\u05DC\u05D9\u05DC\u05D9\n- \u05DB\u05D9\u05EA\u05D5\u05EA: ' + [...new Set(active.map(s=>s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].join(', ');
+
+      // Call Gemini API
+      const apiKey = 'AIzaSyB4slohbaWuVF1Fb4hUEKxR3Kxu2ItonWY';
+      const models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'];
+      let response = null;
+
+      for (const model of models) {
+        try {
+          const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+              contents: [{parts:[{text: context + '\n\n\u05E9\u05D0\u05DC\u05EA \u05D4\u05DE\u05E9\u05EA\u05DE\u05E9: ' + q}]}],
+              generationConfig: {temperature:0.7, maxOutputTokens:1024}
+            })
+          });
+          if (!resp.ok) continue;
+          const json = await resp.json();
+          response = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (response) break;
+        } catch(e) { continue; }
+      }
+
+      if (!response) response = '\u05DC\u05D0 \u05D4\u05E6\u05DC\u05D7\u05EA\u05D9 \u05DC\u05E7\u05D1\u05DC \u05EA\u05E9\u05D5\u05D1\u05D4. \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1.';
+
+      // Format response (convert **bold** to <strong>, newlines to <br>)
+      const formatted = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+      const el = document.getElementById(loadingId);
+      if (el) el.innerHTML = '<div class="bg-light rounded-3 p-2 px-3 border" style="max-width:85%">' + formatted + '</div>';
+
+      this._aiHistory.push({role:'ai', text:formatted});
+      sessionStorage.setItem('bht_ai_history', JSON.stringify(this._aiHistory));
+    } catch(e) {
+      const el = document.getElementById(loadingId);
+      if (el) el.innerHTML = '<div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2 px-3 border border-danger" style="max-width:85%">\u05E9\u05D2\u05D9\u05D0\u05D4: ' + (e.message || '\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05EA\u05D7\u05D1\u05E8') + '</div>';
+    }
     chat.scrollTop = chat.scrollHeight;
   },
 
