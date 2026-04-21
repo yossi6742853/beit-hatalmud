@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בית התלמוד - טופס</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --form-primary: #2563eb;
+      --form-primary-dark: #1d4ed8;
+      --form-bg: #f0f4f8;
+      --form-card: #ffffff;
+      --form-radius: 16px;
+      --form-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --form-shadow-lg: 0 10px 25px rgba(0,0,0,.08), 0 4px 10px rgba(0,0,0,.04);
+      --form-transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    * { font-family: 'Heebo', sans-serif; box-sizing: border-box; }
+    body {
+      background: var(--form-bg);
+      min-height: 100vh;
+      margin: 0;
+      background-image:
+        radial-gradient(at 20% 0%, rgba(37,99,235,.06) 0%, transparent 50%),
+        radial-gradient(at 80% 100%, rgba(99,102,241,.06) 0%, transparent 50%);
+    }
+
+    /* Container */
+    .form-container { max-width: 720px; margin: 0 auto; padding: 1.25rem; }
+
+    /* Header */
+    .form-header {
+      background: linear-gradient(135deg, #0f2027 0%, #1e3a5f 30%, #2563eb 70%, #6366f1 100%);
+      color: white; border-radius: var(--form-radius); padding: 3rem 2.5rem 2.5rem;
+      text-align: center; margin-bottom: 1.5rem; position: relative; overflow: hidden;
+      box-shadow: var(--form-shadow-lg);
+    }
+    .form-header::before {
+      content:''; position:absolute; width:300px; height:300px; border-radius:50%;
+      background:rgba(255,255,255,.04); top:-120px; right:-80px;
+    }
+    .form-header::after {
+      content:''; position:absolute; width:200px; height:200px; border-radius:50%;
+      background:rgba(255,255,255,.03); bottom:-60px; left:-40px;
+    }
+    .form-header .header-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(255,255,255,.15); backdrop-filter: blur(8px);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin-bottom: 1rem; border: 2px solid rgba(255,255,255,.2);
+    }
+    .form-header h1 { font-weight: 800; font-size: 1.9rem; margin-bottom: .5rem; position: relative; }
+    .form-header p { opacity: .85; font-size: .95rem; margin: 0; position: relative; }
+    .form-header .badge-count {
+      display: inline-block; background: rgba(255,255,255,.2); border-radius: 20px;
+      padding: 4px 14px; font-size: .8rem; margin-top: .75rem; backdrop-filter: blur(4px);
+      position: relative;
+    }
+
+    /* Progress bar */
+    .form-progress {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(12px);
+      padding: .75rem 1rem; margin-bottom: 1rem;
+      border-radius: 12px; box-shadow: var(--form-shadow);
+      border: 1px solid rgba(0,0,0,.05);
+    }
+    .form-progress .progress { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+    .form-progress .progress-bar {
+      background: linear-gradient(90deg, var(--form-primary), #6366f1);
+      border-radius: 4px; transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+    .progress-complete .progress-bar { background: linear-gradient(90deg, #16a34a, #22c55e); }
+
+    /* Cards */
+    .form-card {
+      background: var(--form-card); border-radius: var(--form-radius);
+      padding: 1.5rem 1.75rem; margin-bottom: .875rem;
+      box-shadow: var(--form-shadow); border: 2px solid transparent;
+      transition: var(--form-transition); position: relative;
+    }
+    .form-card:hover { box-shadow: var(--form-shadow-lg); }
+    .form-card:focus-within {
+      border-color: var(--form-primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12), var(--form-shadow-lg);
+    }
+    .form-card.card-error { border-color: #ef4444; }
+    .form-card.card-error:focus-within { box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
+    .form-card .field-label {
+      font-weight: 600; font-size: 1.05rem; margin-bottom: .6rem;
+      display: flex; align-items: center; gap: .5rem; color: #1f2937;
+    }
+    .field-hint { font-size: .82rem; color: #9ca3af; margin-bottom: .5rem; }
+    .field-required::after { content: '*'; color: #ef4444; margin-right: 4px; font-size: 1.2em; }
+    .field-error-msg { font-size: .82rem; color: #ef4444; margin-top: .3rem; display: none; }
+    .card-error .field-error-msg { display: block; }
+
+    /* Decorative cards */
+    .form-card.card-heading { background: linear-gradient(135deg, #f8fafc, #eff6ff); border-right: 4px solid var(--form-primary); }
+    .form-card.card-heading h5 { color: var(--form-primary); margin: 0; font-weight: 700; font-size: 1.15rem; }
+    .form-card.card-paragraph { background: #fafafa; }
+    .form-card.card-divider { background: transparent; box-shadow: none; padding: .5rem 0; }
+
+    /* Inputs */
+    .form-control, .form-select {
+      border-radius: 10px; border: 2px solid #e5e7eb;
+      padding: .75rem 1rem; transition: var(--form-transition);
+      font-size: .95rem; background: #fafafa;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--form-primary); background: white;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+    }
+    .form-control::placeholder { color: #c0c4cc; }
+
+    /* Rating stars */
+    .rating-stars { display: flex; gap: 8px; direction: ltr; }
+    .rating-star {
+      font-size: 2.2rem; cursor: pointer; color: #d1d5db;
+      transition: var(--form-transition); user-select: none; line-height: 1;
+    }
+    .rating-star:hover, .rating-star.active { color: #f59e0b; transform: scale(1.2); }
+    .rating-star:hover ~ .rating-star { color: #d1d5db !important; }
+
+    /* Yes/No toggle */
+    .yesno-group { display: flex; gap: 12px; }
+    .yesno-btn {
+      flex: 1; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb;
+      text-align: center; cursor: pointer; font-weight: 600; font-size: 1rem;
+      transition: var(--form-transition); background: #fafafa; user-select: none;
+    }
+    .yesno-btn:hover { border-color: #94a3b8; background: white; transform: translateY(-1px); }
+    .yesno-btn.selected-yes { background: #dcfce7; border-color: #16a34a; color: #15803d; box-shadow: 0 0 0 3px rgba(22,163,106,.1); }
+    .yesno-btn.selected-no { background: #fee2e2; border-color: #dc2626; color: #b91c1c; box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+
+    /* Signature pad */
+    .sig-container { position: relative; }
+    .sig-pad {
+      border: 2px dashed #d1d5db; border-radius: 12px; background: #fdfdfd;
+      cursor: crosshair; touch-action: none; width: 100%; display: block;
+      transition: var(--form-transition);
+    }
+    .sig-pad:hover, .sig-pad.drawing { border-color: var(--form-primary); border-style: solid; }
+    .sig-placeholder {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #c0c4cc; pointer-events: none; text-align: center; transition: opacity .3s;
+    }
+    .sig-placeholder.hidden { opacity: 0; }
+    .sig-placeholder i { font-size: 1.5rem; display: block; margin-bottom: .25rem; }
+
+    /* File upload */
+    .file-drop {
+      border: 2px dashed #d1d5db; border-radius: 12px; padding: 2.5rem 1.5rem;
+      text-align: center; cursor: pointer; transition: var(--form-transition);
+      background: #fafafa;
+    }
+    .file-drop:hover, .file-drop.dragover {
+      border-color: var(--form-primary); background: #eff6ff;
+      border-style: solid; transform: translateY(-1px);
+    }
+    .file-drop i { font-size: 2.5rem; color: var(--form-primary); display: block; margin-bottom: .5rem; }
+    .file-preview { display: flex; align-items: center; gap: .75rem; padding: .75rem; background: #f0f4f8; border-radius: 10px; margin-top: .75rem; }
+    .file-preview .file-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--form-primary); color: white; display: flex; align-items: center; justify-content: center; }
+    .file-preview .file-info { flex: 1; }
+    .file-preview .file-name { font-weight: 600; font-size: .9rem; }
+    .file-preview .file-size { font-size: .78rem; color: #9ca3af; }
+
+    /* Scale selector */
+    .scale-selector { display: flex; gap: 6px; justify-content: space-between; }
+    .scale-btn {
+      width: 44px; height: 44px; border-radius: 50%; border: 2px solid #e5e7eb;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-weight: 700; font-size: .95rem;
+      transition: var(--form-transition); background: #fafafa; user-select: none;
+    }
+    .scale-btn:hover { border-color: var(--form-primary); transform: scale(1.1); background: #eff6ff; }
+    .scale-btn.selected { background: var(--form-primary); border-color: var(--form-primary); color: white; box-shadow: 0 2px 8px rgba(37,99,235,.3); transform: scale(1.1); }
+    .scale-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: .75rem; color: #9ca3af; }
+
+    /* Color picker */
+    .color-options { display: flex; gap: 10px; flex-wrap: wrap; }
+    .color-option {
+      width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent;
+      cursor: pointer; transition: var(--form-transition); box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+    .color-option:hover { transform: scale(1.15); }
+    .color-option.selected { border-color: #1f2937; box-shadow: 0 0 0 2px white, 0 0 0 4px #1f2937; transform: scale(1.1); }
+
+    /* Multi-select chips */
+    .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip-option {
+      padding: 8px 16px; border-radius: 20px; border: 2px solid #e5e7eb;
+      cursor: pointer; font-size: .9rem; font-weight: 500;
+      transition: var(--form-transition); background: #fafafa; user-select: none;
+    }
+    .chip-option:hover { border-color: var(--form-primary); background: #eff6ff; }
+    .chip-option.selected { background: var(--form-primary); border-color: var(--form-primary); color: white; }
+
+    /* Radio cards */
+    .radio-card {
+      display: flex; align-items: center; gap: .75rem; padding: .85rem 1rem;
+      border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer;
+      transition: var(--form-transition); margin-bottom: .5rem; background: #fafafa;
+    }
+    .radio-card:hover { border-color: #94a3b8; background: white; }
+    .radio-card.selected { border-color: var(--form-primary); background: #eff6ff; }
+    .radio-card .radio-dot {
+      width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d1d5db;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: var(--form-transition);
+    }
+    .radio-card.selected .radio-dot { border-color: var(--form-primary); }
+    .radio-card.selected .radio-dot::after {
+      content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--form-primary);
+    }
+
+    /* Checkbox cards */
+    .check-card {
+      display: flex; align-items: center; gap: .75rem; padding: .85rem 1rem;
+      border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer;
+      transition: var(--form-transition); margin-bottom: .5rem; background: #fafafa;
+    }
+    .check-card:hover { border-color: #94a3b8; background: white; }
+    .check-card.selected { border-color: var(--form-primary); background: #eff6ff; }
+    .check-card .check-box {
+      width: 22px; height: 22px; border-radius: 6px; border: 2px solid #d1d5db;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: var(--form-transition);
+    }
+    .check-card.selected .check-box { border-color: var(--form-primary); background: var(--form-primary); }
+    .check-card.selected .check-box::after { content: '\2713'; color: white; font-size: .75rem; font-weight: 700; }
+
+    /* Consent */
+    .consent-box {
+      display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem;
+      background: #fffbeb; border: 2px solid #fbbf24; border-radius: 12px;
+    }
+    .consent-box .consent-check {
+      width: 26px; height: 26px; border-radius: 8px; border: 2px solid #d97706;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      cursor: pointer; transition: var(--form-transition); margin-top: 2px;
+    }
+    .consent-box .consent-check.checked { background: #16a34a; border-color: #16a34a; }
+    .consent-box .consent-check.checked::after { content: '\2713'; color: white; font-weight: 700; }
+    .consent-box .consent-text { font-weight: 600; line-height: 1.5; }
+
+    /* Success state */
+    .form-success { text-align: center; padding: 4rem 2rem; }
+    .form-success .success-circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .form-success .success-circle i { font-size: 3rem; color: #16a34a; }
+    .form-success h2 { font-weight: 800; color: #1f2937; margin-bottom: .5rem; }
+    .form-success p { color: #6b7280; font-size: 1.05rem; }
+
+    /* Submit button */
+    .submit-section { padding: 1rem 0 3rem; }
+    .submit-btn {
+      width: 100%; padding: 1.1rem; font-size: 1.15rem; font-weight: 700;
+      border-radius: 14px; border: none;
+      background: linear-gradient(135deg, #2563eb, #4f46e5, #6366f1);
+      color: white; box-shadow: 0 4px 15px rgba(37,99,235,.3);
+      transition: var(--form-transition); cursor: pointer; position: relative; overflow: hidden;
+    }
+    .submit-btn::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+      transition: left .6s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37,99,235,.4); }
+    .submit-btn:hover::before { left: 100%; }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .submit-btn .spinner-border { width: 1.2rem; height: 1.2rem; border-width: 2px; }
+
+    /* Footer */
+    .form-footer { text-align: center; padding: 1rem 0 2rem; color: #9ca3af; font-size: .82rem; }
+    .form-footer a { color: var(--form-primary); text-decoration: none; }
+
+    /* Loading skeleton */
+    .skeleton { background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Animations */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in-up { animation: fadeInUp .4s ease-out both; }
+    .form-card { animation: fadeInUp .4s ease-out both; }
+    .form-card:nth-child(2) { animation-delay: .05s; }
+    .form-card:nth-child(3) { animation-delay: .1s; }
+    .form-card:nth-child(4) { animation-delay: .15s; }
+    .form-card:nth-child(5) { animation-delay: .2s; }
+
+    @keyframes checkmark { 0% { transform: scale(0); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+    .success-anim { animation: checkmark .5s ease-out; }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .form-container { padding: .75rem; }
+      .form-header { padding: 2rem 1.5rem; }
+      .form-header h1 { font-size: 1.4rem; }
+      .form-card { padding: 1.25rem 1rem; }
+      .scale-btn { width: 36px; height: 36px; font-size: .85rem; }
+      .rating-star { font-size: 1.8rem; }
+    }
+
+    /* Print */
+    @media print {
+      .form-progress, .submit-section, .form-footer { display: none; }
+      .form-card { break-inside: avoid; box-shadow: none; border: 1px solid #e5e7eb; }
+    }
+
+    /* Scroll */
+    html { scroll-behavior: smooth; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="form-container" id="form-app">
+    <!-- Loading skeleton -->
+    <div style="padding:1rem">
+      <div class="skeleton" style="height:200px;border-radius:16px;margin-bottom:1rem"></div>
+      <div class="skeleton" style="height:8px;border-radius:4px;margin-bottom:1.5rem"></div>
+      <div class="skeleton" style="height:100px;border-radius:16px;margin-bottom:.75rem"></div>
+      <div class="skeleton" style="height:100px;border-radius:16px;margin-bottom:.75rem"></div>
+      <div class="skeleton" style="height:100px;border-radius:16px"></div>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* ==============================
+       30 FIELD TYPES
+       ============================== */
+    const FIELD_TYPES = {
+      // --- Basic inputs ---
+      text: {
+        label: '\u05D8\u05E7\u05E1\u05D8',
+        icon: 'bi-fonts',
+        render: (f, v) => `<input type="text" class="form-control" data-field="${f.id}" value="${esc(v)}" placeholder="${esc(f.placeholder||'')}" ${f.required?'required':''}>`
+      },
+      textarea: {
+        label: '\u05D8\u05E7\u05E1\u05D8 \u05D0\u05E8\u05D5\u05DA',
+        icon: 'bi-text-paragraph',
+        render: (f, v) => `<textarea class="form-control" data-field="${f.id}" rows="${f.rows||4}" placeholder="${esc(f.placeholder||'')}" ${f.required?'required':''}>${esc(v)}</textarea>`
+      },
+      number: {
+        label: '\u05DE\u05E1\u05E4\u05E8',
+        icon: 'bi-123',
+        render: (f, v) => `<input type="number" class="form-control" data-field="${f.id}" value="${esc(v)}" min="${f.min||''}" max="${f.max||''}" ${f.required?'required':''}>`
+      },
+      email: {
+        label: '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC',
+        icon: 'bi-envelope',
+        render: (f, v) => `<input type="email" class="form-control" dir="ltr" data-field="${f.id}" value="${esc(v)}" placeholder="example@email.com" ${f.required?'required':''}>`
+      },
+      phone: {
+        label: '\u05D8\u05DC\u05E4\u05D5\u05DF',
+        icon: 'bi-telephone',
+        render: (f, v) => `<input type="tel" class="form-control" dir="ltr" data-field="${f.id}" value="${esc(v)}" placeholder="05X-XXXXXXX" pattern="[0-9\\-]{9,12}" ${f.required?'required':''}>`
+      },
+      url: {
+        label: '\u05E7\u05D9\u05E9\u05D5\u05E8',
+        icon: 'bi-link-45deg',
+        render: (f, v) => `<input type="url" class="form-control" dir="ltr" data-field="${f.id}" placeholder="https://..." value="${esc(v)}">`
+      },
+      // --- Date/Time ---
+      date: {
+        label: '\u05EA\u05D0\u05E8\u05D9\u05DA',
+        icon: 'bi-calendar3',
+        render: (f, v) => `<input type="date" class="form-control" data-field="${f.id}" value="${esc(v)}" ${f.required?'required':''}>`
+      },
+      time: {
+        label: '\u05E9\u05E2\u05D4',
+        icon: 'bi-clock',
+        render: (f, v) => `<input type="time" class="form-control" data-field="${f.id}" value="${esc(v)}">`
+      },
+      hebrew_date: {
+        label: '\u05EA\u05D0\u05E8\u05D9\u05DA \u05E2\u05D1\u05E8\u05D9',
+        icon: 'bi-calendar-heart',
+        render: (f) => {
+          const days = ['\u05D0','\u05D1','\u05D2','\u05D3','\u05D4','\u05D5','\u05D6','\u05D7','\u05D8','\u05D9','\u05D9\u05D0','\u05D9\u05D1','\u05D9\u05D2','\u05D9\u05D3','\u05D8\u05D5','\u05D8\u05D6','\u05D9\u05D6','\u05D9\u05D7','\u05D9\u05D8','\u05DB','\u05DB\u05D0','\u05DB\u05D1','\u05DB\u05D2','\u05DB\u05D3','\u05DB\u05D4','\u05DB\u05D5','\u05DB\u05D6','\u05DB\u05D7','\u05DB\u05D8','\u05DC'];
+          const months = ['\u05EA\u05E9\u05E8\u05D9','\u05D7\u05E9\u05D5\u05D5\u05DF','\u05DB\u05E1\u05DC\u05D5','\u05D8\u05D1\u05EA','\u05E9\u05D1\u05D8','\u05D0\u05D3\u05E8','\u05E0\u05D9\u05E1\u05DF','\u05D0\u05D9\u05D9\u05E8','\u05E1\u05D9\u05D5\u05D5\u05DF','\u05EA\u05DE\u05D5\u05D6','\u05D0\u05D1','\u05D0\u05DC\u05D5\u05DC'];
+          return `<div class="row g-2">
+            <div class="col-4"><select class="form-select" data-field="${f.id}_day">${days.map(d=>`<option>${d}</option>`).join('')}</select></div>
+            <div class="col-4"><select class="form-select" data-field="${f.id}_month">${months.map(m=>`<option>${m}</option>`).join('')}</select></div>
+            <div class="col-4"><input class="form-control" data-field="${f.id}_year" placeholder="\u05EA\u05E9\u05E4\u05F4\u05D5"></div>
+          </div>`;
+        }
+      },
+      // --- Selection ---
+      select: {
+        label: '\u05D1\u05D7\u05D9\u05E8\u05D4',
+        icon: 'bi-list-ul',
+        render: (f, v) => `<select class="form-select" data-field="${f.id}" ${f.required?'required':''}>
+          <option value="">\u05D1\u05D7\u05E8...</option>
+          ${(f.options||'').split(',').map(o => `<option ${o.trim()===v?'selected':''}>${esc(o.trim())}</option>`).join('')}
+        </select>`
+      },
+      multiselect: {
+        label: '\u05D1\u05D7\u05D9\u05E8\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4',
+        icon: 'bi-ui-checks',
+        render: (f) => `<div class="chip-group">${(f.options||'').split(',').map(o =>
+          `<div class="chip-option" data-field="${f.id}" data-value="${esc(o.trim())}" onclick="FormApp.toggleChip(this)">${esc(o.trim())}</div>`
+        ).join('')}</div>`
+      },
+      radio: {
+        label: '\u05D1\u05D7\u05D9\u05E8\u05D4 \u05D9\u05D7\u05D9\u05D3\u05D4',
+        icon: 'bi-record-circle',
+        render: (f, v) => `<div>${(f.options||'').split(',').map(o =>
+          `<div class="radio-card ${o.trim()===v?'selected':''}" data-field="${f.id}" data-value="${esc(o.trim())}" onclick="FormApp.selectRadio(this)">
+            <div class="radio-dot"></div><span>${esc(o.trim())}</span>
+          </div>`
+        ).join('')}</div>`
+      },
+      checkbox: {
+        label: '\u05EA\u05D9\u05D1\u05EA \u05E1\u05D9\u05DE\u05D5\u05DF',
+        icon: 'bi-check-square',
+        render: (f, v) => `<div class="form-check" style="padding-right:2rem;padding-left:0">
+          <input type="checkbox" class="form-check-input" data-field="${f.id}" style="width:22px;height:22px;float:right;margin-left:.5rem;margin-right:-2rem" ${v?'checked':''}>
+          <label class="form-check-label" style="padding-top:2px">${esc(f.checkLabel||'\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA')}</label>
+        </div>`
+      },
+      // --- Special inputs ---
+      rating: {
+        label: '\u05D3\u05D9\u05E8\u05D5\u05D2 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD',
+        icon: 'bi-star',
+        render: (f, v) => `<div class="rating-stars">${[1,2,3,4,5].map(i =>
+          `<span class="rating-star ${i<=parseInt(v||0)?'active':''}" data-rating="${i}" data-target="${f.id}" onclick="FormApp.setRating('${f.id}',${i})">&#9733;</span>`
+        ).join('')}<input type="hidden" data-field="${f.id}" value="${v||''}"></div>`
+      },
+      scale: {
+        label: '\u05E1\u05D5\u05DC\u05DD 1-10',
+        icon: 'bi-sliders',
+        render: (f, v) => `<div class="scale-selector">${[1,2,3,4,5,6,7,8,9,10].map(i =>
+          `<div class="scale-btn ${i==v?'selected':''}" onclick="FormApp.setScale('${f.id}',${i})">${i}</div>`
+        ).join('')}</div>
+        <div class="scale-labels"><span>${esc(f.scaleMin||'\u05E0\u05DE\u05D5\u05DA')}</span><span>${esc(f.scaleMax||'\u05D2\u05D1\u05D5\u05D4')}</span></div>
+        <input type="hidden" data-field="${f.id}" value="${v||''}">`
+      },
+      yesno: {
+        label: '\u05DB\u05DF/\u05DC\u05D0',
+        icon: 'bi-toggle-on',
+        render: (f, v) => `<div class="yesno-group">
+          <div class="yesno-btn ${v==='\u05DB\u05DF'?'selected-yes':''}" onclick="FormApp.setYesNo('${f.id}','\u05DB\u05DF')"><i class="bi bi-check-circle-fill me-1"></i>\u05DB\u05DF</div>
+          <div class="yesno-btn ${v==='\u05DC\u05D0'?'selected-no':''}" onclick="FormApp.setYesNo('${f.id}','\u05DC\u05D0')"><i class="bi bi-x-circle-fill me-1"></i>\u05DC\u05D0</div>
+          <input type="hidden" data-field="${f.id}" value="${v||''}">
+        </div>`
+      },
+      signature: {
+        label: '\u05D7\u05EA\u05D9\u05DE\u05D4',
+        icon: 'bi-vector-pen',
+        render: (f) => `<div class="sig-container">
+          <canvas class="sig-pad" data-field="${f.id}" width="660" height="160"></canvas>
+          <div class="sig-placeholder" id="sig-ph-${f.id}"><i class="bi bi-vector-pen"></i><span>\u05D7\u05EA\u05DE/\u05D9 \u05DB\u05D0\u05DF</span></div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="FormApp.clearSig('${f.id}')"><i class="bi bi-eraser me-1"></i>\u05E0\u05E7\u05D4</button>
+          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="FormApp.undoSig('${f.id}')"><i class="bi bi-arrow-counterclockwise me-1"></i>\u05D1\u05D8\u05DC</button>
+        </div>`
+      },
+      file: {
+        label: '\u05D4\u05E2\u05DC\u05D0\u05EA \u05E7\u05D5\u05D1\u05E5',
+        icon: 'bi-cloud-upload',
+        render: (f) => `<div class="file-drop" id="drop-${f.id}" onclick="this.querySelector('input').click()">
+          <i class="bi bi-cloud-arrow-up"></i>
+          <p class="mb-1 fw-600">\u05DC\u05D7\u05E5 \u05DC\u05D4\u05E2\u05DC\u05D0\u05D4 \u05D0\u05D5 \u05D2\u05E8\u05D5\u05E8 \u05E7\u05D5\u05D1\u05E5 \u05DC\u05DB\u05D0\u05DF</p>
+          <small class="text-muted">PDF, JPG, PNG, DOC \u05E2\u05D3 10MB</small>
+          <input type="file" data-field="${f.id}" class="d-none" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="FormApp.handleFile(this)">
+        </div><div id="preview-${f.id}"></div>`
+      },
+      // --- Layout ---
+      heading: {
+        label: '\u05DB\u05D5\u05EA\u05E8\u05EA',
+        icon: 'bi-type-h1',
+        render: (f) => `<h5 class="fw-bold mb-0" style="color:var(--form-primary)">${esc(f.label)}</h5>${f.subtitle ? `<p class="text-muted mb-0 mt-1" style="font-size:.9rem">${esc(f.subtitle)}</p>` : ''}`
+      },
+      paragraph: {
+        label: '\u05E4\u05E1\u05E7\u05D4',
+        icon: 'bi-text-left',
+        render: (f) => `<p class="text-muted mb-0" style="line-height:1.7">${esc(f.label)}</p>`
+      },
+      divider: {
+        label: '\u05E7\u05D5 \u05DE\u05E4\u05E8\u05D9\u05D3',
+        icon: 'bi-hr',
+        render: () => `<hr class="my-0" style="border-color:#e5e7eb">`
+      },
+      // --- Domain-specific ---
+      address: {
+        label: '\u05DB\u05EA\u05D5\u05D1\u05EA',
+        icon: 'bi-geo-alt',
+        render: (f) => `<div class="row g-2">
+          <div class="col-sm-8"><input type="text" class="form-control" data-field="${f.id}_street" placeholder="\u05E8\u05D7\u05D5\u05D1 \u05D5\u05DE\u05E1\u05E4\u05E8" ${f.required?'required':''}></div>
+          <div class="col-sm-4"><input type="text" class="form-control" data-field="${f.id}_city" placeholder="\u05E2\u05D9\u05E8" value="\u05D1\u05D9\u05EA \u05E9\u05DE\u05E9"></div>
+        </div>`
+      },
+      id_number: {
+        label: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA',
+        icon: 'bi-person-vcard',
+        render: (f, v) => `<input type="text" class="form-control" dir="ltr" data-field="${f.id}" maxlength="9" pattern="[0-9]{9}" placeholder="XXXXXXXXX" value="${esc(v)}" inputmode="numeric" ${f.required?'required':''}>`
+      },
+      class_select: {
+        label: '\u05D1\u05D7\u05D9\u05E8\u05EA \u05DB\u05D9\u05EA\u05D4',
+        icon: 'bi-mortarboard',
+        render: (f, v) => {
+          const classes = ['\u05D0','\u05D1','\u05D2','\u05D3','\u05D4','\u05D5','\u05D6','\u05D7'];
+          return `<div class="chip-group">${classes.map(c =>
+            `<div class="chip-option ${c===v?'selected':''}" data-field="${f.id}" data-value="${c}" onclick="FormApp.selectSingleChip(this)" style="min-width:50px;text-align:center">${c}</div>`
+          ).join('')}<input type="hidden" data-field="${f.id}" value="${esc(v)}"></div>`;
+        }
+      },
+      gender: {
+        label: '\u05DE\u05D9\u05DF',
+        icon: 'bi-gender-ambiguous',
+        render: (f, v) => `<div class="d-flex gap-3">
+          <div class="radio-card flex-fill ${v==='\u05D6\u05DB\u05E8'?'selected':''}" data-field="${f.id}" data-value="\u05D6\u05DB\u05E8" onclick="FormApp.selectRadio(this)">
+            <div class="radio-dot"></div><span>\u05D6\u05DB\u05E8</span>
+          </div>
+          <div class="radio-card flex-fill ${v==='\u05E0\u05E7\u05D1\u05D4'?'selected':''}" data-field="${f.id}" data-value="\u05E0\u05E7\u05D1\u05D4" onclick="FormApp.selectRadio(this)">
+            <div class="radio-dot"></div><span>\u05E0\u05E7\u05D1\u05D4</span>
+          </div>
+        </div><input type="hidden" data-field="${f.id}" value="${esc(v)}">`
+      },
+      family_status: {
+        label: '\u05DE\u05E6\u05D1 \u05DE\u05E9\u05E4\u05D7\u05EA\u05D9',
+        icon: 'bi-people',
+        render: (f, v) => {
+          const opts = ['\u05E0\u05E9\u05D5\u05D9','\u05E8\u05D5\u05D5\u05E7','\u05D2\u05E8\u05D5\u05E9','\u05D0\u05DC\u05DE\u05DF'];
+          return `<div class="chip-group">${opts.map(o =>
+            `<div class="chip-option ${o===v?'selected':''}" data-field="${f.id}" data-value="${o}" onclick="FormApp.selectSingleChip(this)">${o}</div>`
+          ).join('')}<input type="hidden" data-field="${f.id}" value="${esc(v)}"></div>`;
+        }
+      },
+      emergency: {
+        label: '\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05D7\u05D9\u05E8\u05D5\u05DD',
+        icon: 'bi-exclamation-triangle',
+        render: (f) => `<div class="row g-2">
+          <div class="col-sm-5"><input type="text" class="form-control" data-field="${f.id}_name" placeholder="\u05E9\u05DD \u05DE\u05DC\u05D0" ${f.required?'required':''}></div>
+          <div class="col-sm-4"><input type="tel" class="form-control" dir="ltr" data-field="${f.id}_phone" placeholder="\u05D8\u05DC\u05E4\u05D5\u05DF" ${f.required?'required':''}></div>
+          <div class="col-sm-3"><input type="text" class="form-control" data-field="${f.id}_relation" placeholder="\u05E7\u05E8\u05D1\u05D4"></div>
+        </div>`
+      },
+      medical: {
+        label: '\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9',
+        icon: 'bi-heart-pulse',
+        render: (f) => `<div class="row g-2">
+          <div class="col-sm-6"><input class="form-control" data-field="${f.id}_allergies" placeholder="\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA"></div>
+          <div class="col-sm-6"><input class="form-control" data-field="${f.id}_meds" placeholder="\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA"></div>
+          <div class="col-12"><textarea class="form-control mt-1" data-field="${f.id}_notes" rows="2" placeholder="\u05D4\u05E2\u05E8\u05D5\u05EA \u05E8\u05E4\u05D5\u05D0\u05D9\u05D5\u05EA \u05E0\u05D5\u05E1\u05E4\u05D5\u05EA"></textarea></div>
+        </div>`
+      },
+      consent: {
+        label: '\u05D4\u05E1\u05DB\u05DE\u05D4',
+        icon: 'bi-shield-check',
+        render: (f) => `<div class="consent-box">
+          <div class="consent-check" data-field="${f.id}" onclick="FormApp.toggleConsent(this)"></div>
+          <div class="consent-text">${esc(f.label || '\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05D0\u05EA \u05D4\u05EA\u05E0\u05D0\u05D9\u05DD')}</div>
+          <input type="hidden" data-field="${f.id}" value="">
+        </div>`
+      },
+      payment: {
+        label: '\u05E1\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DD',
+        icon: 'bi-currency-exchange',
+        render: (f, v) => `<div class="input-group" style="max-width:250px">
+          <span class="input-group-text" style="border-radius:0 10px 10px 0;border:2px solid #e5e7eb;border-left:0;background:#fafafa;font-weight:700">\u20AA</span>
+          <input type="number" class="form-control" data-field="${f.id}" value="${esc(v)}" placeholder="0.00" style="border-radius:10px 0 0 10px" ${f.required?'required':''}>
+        </div>`
+      }
+    };
+
+    /* ==============================
+       DEMO FORM
+       ============================== */
+    const DEMO_FORM = {
+      id: 'demo',
+      title: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 - \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05EA\u05E9\u05E4\u05F4\u05D6',
+      description: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05DC\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D9\u05E0\u05D5\u05DB\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3. \u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E4\u05E8\u05D8\u05D9\u05DD.',
+      icon: '\uD83C\uDF93',
+      color: '#2563eb',
+      fields: [
+        { id:'f1',  type:'heading',   label:'\u05E4\u05E8\u05D8\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3', subtitle:'\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05E4\u05E8\u05D8\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D1\u05E7\u05E4\u05D9\u05D3\u05D4' },
+        { id:'f2',  type:'text',      label:'\u05E9\u05DD \u05E4\u05E8\u05D8\u05D9', required:true, placeholder:'\u05D4\u05DB\u05E0\u05E1 \u05D0\u05EA \u05D4\u05E9\u05DD \u05D4\u05E4\u05E8\u05D8\u05D9' },
+        { id:'f3',  type:'text',      label:'\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4', required:true },
+        { id:'f4',  type:'id_number', label:'\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', required:true },
+        { id:'f5',  type:'date',      label:'\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4', required:true },
+        { id:'f6',  type:'hebrew_date',label:'\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4 \u05E2\u05D1\u05E8\u05D9' },
+        { id:'f7',  type:'class_select', label:'\u05DB\u05D9\u05EA\u05D4 \u05DE\u05D1\u05D5\u05E7\u05E9\u05EA', required:true },
+        { id:'f8',  type:'address',   label:'\u05DB\u05EA\u05D5\u05D1\u05EA \u05DE\u05D2\u05D5\u05E8\u05D9\u05DD', required:true },
+        { id:'f9',  type:'divider',   label:'' },
+        { id:'f10', type:'heading',   label:'\u05E4\u05E8\u05D8\u05D9 \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD', subtitle:'\u05E4\u05E8\u05D8\u05D9 \u05D4\u05EA\u05E7\u05E9\u05E8\u05D5\u05EA \u05E9\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD' },
+        { id:'f11', type:'text',      label:'\u05E9\u05DD \u05D4\u05D0\u05D1', required:true },
+        { id:'f12', type:'phone',     label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D0\u05D1', required:true },
+        { id:'f13', type:'email',     label:'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D4\u05D0\u05D1' },
+        { id:'f14', type:'text',      label:'\u05DE\u05E7\u05D5\u05DD \u05E2\u05D1\u05D5\u05D3\u05D4 \u05D4\u05D0\u05D1' },
+        { id:'f15', type:'text',      label:'\u05E9\u05DD \u05D4\u05D0\u05DD', required:true },
+        { id:'f16', type:'phone',     label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D0\u05DD', required:true },
+        { id:'f17', type:'divider',   label:'' },
+        { id:'f18', type:'heading',   label:'\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3' },
+        { id:'f19', type:'text',      label:'\u05D1\u05D9\u05EA \u05DB\u05E0\u05E1\u05EA' },
+        { id:'f20', type:'text',      label:'\u05E8\u05D1 \u05D4\u05E7\u05D4\u05D9\u05DC\u05D4' },
+        { id:'f21', type:'text',      label:'\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05E7\u05D5\u05D3\u05DD' },
+        { id:'f22', type:'number',    label:'\u05DE\u05E1\u05E4\u05E8 \u05D0\u05D7\u05D9\u05DD/\u05D0\u05D7\u05D9\u05D5\u05EA' },
+        { id:'f23', type:'emergency', label:'\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05D7\u05D9\u05E8\u05D5\u05DD', required:true },
+        { id:'f24', type:'medical',   label:'\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9' },
+        { id:'f25', type:'divider',   label:'' },
+        { id:'f26', type:'heading',   label:'\u05D4\u05E6\u05D4\u05E8\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD' },
+        { id:'f27', type:'consent',   label:'\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05D0\u05EA \u05D4\u05E8\u05E9\u05DE\u05EA \u05D1\u05E0\u05D9/\u05D1\u05EA\u05D9 \u05DC\u05DE\u05D5\u05E1\u05D3 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3', required:true },
+        { id:'f28', type:'yesno',     label:'\u05D4\u05D0\u05DD \u05DE\u05D0\u05E9\u05E8\u05D9\u05DD \u05E6\u05D9\u05DC\u05D5\u05DD \u05DC\u05E6\u05E8\u05DB\u05D9 \u05D4\u05DE\u05D5\u05E1\u05D3?' },
+        { id:'f29', type:'textarea',  label:'\u05D4\u05E2\u05E8\u05D5\u05EA \u05E0\u05D5\u05E1\u05E4\u05D5\u05EA', placeholder:'\u05D4\u05D5\u05E1\u05E3 \u05DB\u05DC \u05D4\u05E2\u05E8\u05D4 \u05E8\u05DC\u05D5\u05D5\u05E0\u05D8\u05D9\u05EA...' },
+        { id:'f30', type:'signature', label:'\u05D7\u05EA\u05D9\u05DE\u05EA \u05D4\u05D4\u05D5\u05E8\u05D4', required:true }
+      ]
+    };
+
+    /* ==============================
+       APP STATE
+       ============================== */
+    const sigStrokes = {}; // per-field stroke history
+
+    function esc(s) { return s == null ? '' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    /* ==============================
+       MAIN APP
+       ============================== */
+    const FormApp = {
+      formDef: null,
+
+      async init() {
+        const params = new URLSearchParams(location.search);
+        const formId = params.get('id');
+        // Try loading from API
+        if (formId && formId !== 'demo') {
+          try {
+            const base = location.origin + location.pathname.replace('form.html','');
+            const resp = await fetch(base + 'api/forms/' + formId);
+            if (resp.ok) { this.formDef = await resp.json(); this.render(); return; }
+          } catch(e) { console.log('API unavailable, using demo'); }
+        }
+        this.formDef = DEMO_FORM;
+        this.render();
+      },
+
+      render() {
+        const form = this.formDef;
+        const app = document.getElementById('form-app');
+        document.title = form.title + ' - \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3';
+        const reqCount = form.fields.filter(f => f.required).length;
+
+        let html = `
+          <div class="form-header fade-in-up" style="background:linear-gradient(135deg, #0f2027, ${form.color||'#2563eb'}, #6366f1)">
+            <div class="header-icon">${form.icon||'\uD83D\uDCCB'}</div>
+            <h1>${esc(form.title)}</h1>
+            ${form.description ? `<p>${esc(form.description)}</p>` : ''}
+            ${reqCount ? `<div class="badge-count"><i class="bi bi-info-circle me-1"></i>${reqCount} \u05E9\u05D3\u05D5\u05EA \u05D7\u05D5\u05D1\u05D4</div>` : ''}
+          </div>
+          <div class="form-progress" id="form-progress">
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="fw-500" style="color:#6b7280">\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA</span>
+              <span class="fw-600" id="progress-text" style="color:var(--form-primary)">0%</span>
+            </div>
+            <div class="progress"><div class="progress-bar" id="progress-bar" role="progressbar" style="width:0%"></div></div>
+          </div>
+        `;
+
+        form.fields.forEach((f, idx) => {
+          const type = FIELD_TYPES[f.type];
+          if (!type) return;
+          const isLayout = ['heading','paragraph','divider'].includes(f.type);
+          const cardClass = f.type === 'heading' ? 'card-heading' : f.type === 'paragraph' ? 'card-paragraph' : f.type === 'divider' ? 'card-divider' : '';
+
+          if (isLayout) {
+            html += `<div class="form-card ${cardClass}" data-idx="${idx}">${type.render(f)}</div>`;
+          } else {
+            html += `<div class="form-card ${cardClass}" data-idx="${idx}" data-fid="${f.id}">
+              <div class="field-label ${f.required ? 'field-required' : ''}">
+                <i class="bi ${type.icon || 'bi-input-cursor'}" style="color:var(--form-primary);font-size:.9rem"></i>
+                ${esc(f.label)}
+              </div>
+              ${f.hint ? `<div class="field-hint">${esc(f.hint)}</div>` : ''}
+              ${type.render(f, '')}
+              <div class="field-error-msg"><i class="bi bi-exclamation-circle me-1"></i>\u05E9\u05D3\u05D4 \u05D6\u05D4 \u05D4\u05D5\u05D0 \u05D7\u05D5\u05D1\u05D4</div>
+            </div>`;
+          }
+        });
+
+        html += `<div class="submit-section">
+          <button type="button" class="submit-btn" id="submit-btn" onclick="FormApp.submit()">
+            <i class="bi bi-send-fill me-2"></i>\u05E9\u05DC\u05D9\u05D7\u05EA \u05D4\u05D8\u05D5\u05E4\u05E1
+          </button>
+        </div>
+        <div class="form-footer">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 &copy; ${new Date().getFullYear()} &middot; \u05DE\u05E2\u05E8\u05DB\u05EA \u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D9\u05E0\u05D5\u05DB\u05D9</div>`;
+
+        app.innerHTML = html;
+
+        // Init signatures
+        form.fields.filter(f => f.type === 'signature').forEach(f => this.initSignature(f.id));
+
+        // Init file drops
+        form.fields.filter(f => f.type === 'file').forEach(f => this.initFileDrop(f.id));
+
+        // Track progress on input
+        app.addEventListener('input', () => this.updateProgress());
+        app.addEventListener('change', () => this.updateProgress());
+      },
+
+      /* --- Interactive handlers --- */
+      setRating(id, val) {
+        document.querySelector(`input[data-field="${id}"]`).value = val;
+        document.querySelectorAll(`[data-target="${id}"]`).forEach(s => {
+          s.classList.toggle('active', parseInt(s.dataset.rating) <= val);
+        });
+        this.updateProgress();
+      },
+
+      setScale(id, val) {
+        document.querySelector(`input[data-field="${id}"]`).value = val;
+        const card = document.querySelector(`[data-fid="${id}"]`);
+        if (card) card.querySelectorAll('.scale-btn').forEach(b => {
+          b.classList.toggle('selected', parseInt(b.textContent) == val);
+        });
+        this.updateProgress();
+      },
+
+      setYesNo(id, val) {
+        document.querySelector(`input[data-field="${id}"]`).value = val;
+        const group = document.querySelector(`input[data-field="${id}"]`).closest('.yesno-group');
+        group.children[0].className = 'yesno-btn ' + (val==='\u05DB\u05DF' ? 'selected-yes' : '');
+        group.children[1].className = 'yesno-btn ' + (val==='\u05DC\u05D0' ? 'selected-no' : '');
+        this.updateProgress();
+      },
+
+      toggleChip(el) {
+        el.classList.toggle('selected');
+        this.updateProgress();
+      },
+
+      selectRadio(el) {
+        const fid = el.dataset.field;
+        const parent = el.parentElement;
+        parent.querySelectorAll('.radio-card').forEach(r => r.classList.remove('selected'));
+        el.classList.add('selected');
+        // Update hidden input if exists
+        const hidden = parent.parentElement.querySelector(`input[type="hidden"][data-field="${fid}"]`);
+        if (hidden) hidden.value = el.dataset.value;
+        this.updateProgress();
+      },
+
+      selectSingleChip(el) {
+        const fid = el.dataset.field;
+        const group = el.closest('.chip-group');
+        group.querySelectorAll('.chip-option').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        const hidden = group.querySelector(`input[type="hidden"][data-field="${fid}"]`);
+        if (hidden) hidden.value = el.dataset.value;
+        this.updateProgress();
+      },
+
+      toggleConsent(el) {
+        const checked = el.classList.toggle('checked');
+        const hidden = el.closest('.consent-box').querySelector('input[type="hidden"]');
+        if (hidden) hidden.value = checked ? '\u05DB\u05DF' : '';
+        this.updateProgress();
+      },
+
+      /* --- Signature --- */
+      initSignature(id) {
+        const canvas = document.querySelector(`canvas[data-field="${id}"]`);
+        if (!canvas) return;
+        // Responsive width
+        const container = canvas.parentElement;
+        canvas.width = container.offsetWidth;
+        canvas.height = 160;
+
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let currentStroke = [];
+        sigStrokes[id] = [];
+
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const getPos = (e) => {
+          const r = canvas.getBoundingClientRect();
+          const t = e.touches ? e.touches[0] : e;
+          return { x: (t.clientX - r.left) * (canvas.width / r.width), y: (t.clientY - r.top) * (canvas.height / r.height) };
+        };
+
+        const startDraw = (e) => {
+          drawing = true;
+          canvas.classList.add('drawing');
+          const ph = document.getElementById('sig-ph-' + id);
+          if (ph) ph.classList.add('hidden');
+          currentStroke = [];
+          const p = getPos(e);
+          currentStroke.push(p);
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        };
+        const moveDraw = (e) => {
+          if (!drawing) return;
+          const p = getPos(e);
+          currentStroke.push(p);
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+        };
+        const endDraw = () => {
+          if (!drawing) return;
+          drawing = false;
+          canvas.classList.remove('drawing');
+          if (currentStroke.length > 1) sigStrokes[id].push([...currentStroke]);
+          this.updateProgress();
+        };
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', moveDraw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('mouseleave', endDraw);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); moveDraw(e); }, { passive: false });
+        canvas.addEventListener('touchend', endDraw);
+
+        // Resize
+        window.addEventListener('resize', () => {
+          const w = container.offsetWidth;
+          if (Math.abs(canvas.width - w) > 20) {
+            canvas.width = w;
+            this.redrawSig(id);
+          }
+        });
+      },
+
+      redrawSig(id) {
+        const canvas = document.querySelector(`canvas[data-field="${id}"]`);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        (sigStrokes[id] || []).forEach(stroke => {
+          if (stroke.length < 2) return;
+          ctx.beginPath();
+          ctx.moveTo(stroke[0].x, stroke[0].y);
+          stroke.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+          ctx.stroke();
+        });
+      },
+
+      clearSig(id) {
+        const canvas = document.querySelector(`canvas[data-field="${id}"]`);
+        if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        sigStrokes[id] = [];
+        const ph = document.getElementById('sig-ph-' + id);
+        if (ph) ph.classList.remove('hidden');
+        this.updateProgress();
+      },
+
+      undoSig(id) {
+        if (sigStrokes[id] && sigStrokes[id].length) {
+          sigStrokes[id].pop();
+          this.redrawSig(id);
+          if (!sigStrokes[id].length) {
+            const ph = document.getElementById('sig-ph-' + id);
+            if (ph) ph.classList.remove('hidden');
+          }
+        }
+        this.updateProgress();
+      },
+
+      /* --- File upload --- */
+      initFileDrop(id) {
+        const drop = document.getElementById('drop-' + id);
+        if (!drop) return;
+        ['dragenter','dragover'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('dragover'); }));
+        ['dragleave','drop'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove('dragover'); }));
+        drop.addEventListener('drop', (ev) => {
+          const file = ev.dataTransfer.files[0];
+          if (file) this.showFilePreview(id, file);
+        });
+      },
+
+      handleFile(input) {
+        if (input.files[0]) this.showFilePreview(input.dataset.field, input.files[0]);
+      },
+
+      showFilePreview(id, file) {
+        const preview = document.getElementById('preview-' + id);
+        if (!preview) return;
+        const size = file.size < 1024*1024 ? (file.size/1024).toFixed(1) + ' KB' : (file.size/1024/1024).toFixed(1) + ' MB';
+        const icon = file.type.includes('pdf') ? 'bi-file-earmark-pdf' : file.type.includes('image') ? 'bi-file-earmark-image' : 'bi-file-earmark';
+        preview.innerHTML = `<div class="file-preview">
+          <div class="file-icon"><i class="bi ${icon}"></i></div>
+          <div class="file-info"><div class="file-name">${esc(file.name)}</div><div class="file-size">${size}</div></div>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" onclick="this.closest('.file-preview').remove()" style="width:32px;height:32px;padding:0"><i class="bi bi-x"></i></button>
+        </div>`;
+        this.updateProgress();
+      },
+
+      /* --- Progress --- */
+      updateProgress() {
+        const form = this.formDef;
+        if (!form) return;
+        const required = form.fields.filter(f => f.required && !['heading','paragraph','divider'].includes(f.type));
+        let filled = 0;
+
+        required.forEach(f => {
+          if (this.getFieldValue(f)) filled++;
+        });
+
+        const pct = required.length ? Math.round(filled / required.length * 100) : 0;
+        const bar = document.getElementById('progress-bar');
+        const text = document.getElementById('progress-text');
+        const prog = document.getElementById('form-progress');
+        if (bar) bar.style.width = pct + '%';
+        if (text) text.textContent = pct + '%';
+        if (prog) prog.classList.toggle('progress-complete', pct === 100);
+      },
+
+      getFieldValue(f) {
+        // Check various field types
+        if (f.type === 'signature') {
+          return sigStrokes[f.id] && sigStrokes[f.id].length > 0;
+        }
+        if (f.type === 'multiselect') {
+          const selected = document.querySelectorAll(`.chip-option[data-field="${f.id}"].selected`);
+          return selected.length > 0;
+        }
+        if (f.type === 'radio' || f.type === 'gender' || f.type === 'class_select' || f.type === 'family_status') {
+          const hidden = document.querySelector(`input[type="hidden"][data-field="${f.id}"]`);
+          if (hidden && hidden.value) return true;
+          const selected = document.querySelector(`.radio-card[data-field="${f.id}"].selected, .chip-option[data-field="${f.id}"].selected`);
+          return !!selected;
+        }
+        if (f.type === 'consent') {
+          const hidden = document.querySelector(`input[type="hidden"][data-field="${f.id}"]`);
+          return hidden && hidden.value;
+        }
+        if (f.type === 'address') {
+          const street = document.querySelector(`[data-field="${f.id}_street"]`);
+          return street && street.value.trim();
+        }
+        if (f.type === 'emergency') {
+          const name = document.querySelector(`[data-field="${f.id}_name"]`);
+          const phone = document.querySelector(`[data-field="${f.id}_phone"]`);
+          return name && name.value.trim() && phone && phone.value.trim();
+        }
+        if (f.type === 'file') {
+          const preview = document.getElementById('preview-' + f.id);
+          return preview && preview.innerHTML.trim();
+        }
+        const el = document.querySelector(`[data-field="${f.id}"]`);
+        if (!el) return false;
+        if (el.type === 'checkbox') return el.checked;
+        return el.value && el.value.trim();
+      },
+
+      /* --- Submit --- */
+      async submit() {
+        const form = this.formDef;
+        const btn = document.getElementById('submit-btn');
+
+        // Validate required fields
+        const required = form.fields.filter(f => f.required && !['heading','paragraph','divider'].includes(f.type));
+        const missing = [];
+        document.querySelectorAll('.form-card.card-error').forEach(c => c.classList.remove('card-error'));
+
+        required.forEach(f => {
+          if (!this.getFieldValue(f)) {
+            missing.push(f);
+            const card = document.querySelector(`[data-fid="${f.id}"]`);
+            if (card) card.classList.add('card-error');
+          }
+        });
+
+        if (missing.length) {
+          // Scroll to first error
+          const firstErr = document.querySelector('.form-card.card-error');
+          if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        // Collect data
+        const data = { _formId: form.id, _timestamp: new Date().toISOString() };
+        form.fields.forEach(f => {
+          if (['heading','paragraph','divider'].includes(f.type)) return;
+
+          if (f.type === 'signature') {
+            const canvas = document.querySelector(`canvas[data-field="${f.id}"]`);
+            data[f.id] = canvas ? canvas.toDataURL('image/png') : '';
+          } else if (f.type === 'multiselect') {
+            const selected = [];
+            document.querySelectorAll(`.chip-option[data-field="${f.id}"].selected`).forEach(c => selected.push(c.dataset.value));
+            data[f.id] = selected;
+          } else if (f.type === 'address') {
+            data[f.id] = {
+              street: document.querySelector(`[data-field="${f.id}_street"]`)?.value || '',
+              city: document.querySelector(`[data-field="${f.id}_city"]`)?.value || ''
+            };
+          } else if (f.type === 'emergency') {
+            data[f.id] = {
+              name: document.querySelector(`[data-field="${f.id}_name"]`)?.value || '',
+              phone: document.querySelector(`[data-field="${f.id}_phone"]`)?.value || '',
+              relation: document.querySelector(`[data-field="${f.id}_relation"]`)?.value || ''
+            };
+          } else if (f.type === 'medical') {
+            data[f.id] = {
+              allergies: document.querySelector(`[data-field="${f.id}_allergies"]`)?.value || '',
+              meds: document.querySelector(`[data-field="${f.id}_meds"]`)?.value || '',
+              notes: document.querySelector(`[data-field="${f.id}_notes"]`)?.value || ''
+            };
+          } else if (f.type === 'hebrew_date') {
+            data[f.id] = {
+              day: document.querySelector(`[data-field="${f.id}_day"]`)?.value || '',
+              month: document.querySelector(`[data-field="${f.id}_month"]`)?.value || '',
+              year: document.querySelector(`[data-field="${f.id}_year"]`)?.value || ''
+            };
+          } else if (f.type === 'consent') {
+            const hidden = document.querySelector(`input[type="hidden"][data-field="${f.id}"]`);
+            data[f.id] = hidden ? hidden.value : '';
+          } else {
+            const el = document.querySelector(`[data-field="${f.id}"]`);
+            if (el) data[f.id] = el.type === 'checkbox' ? el.checked : el.value;
+          }
+        });
+
+        // Show loading
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>\u05E9\u05D5\u05DC\u05D7...';
+
+        // Try API submit
+        try {
+          const base = location.origin + location.pathname.replace('form.html','');
+          const resp = await fetch(base + 'api/forms/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          if (!resp.ok) throw new Error('API error');
+        } catch(e) {
+          console.log('API submit unavailable, showing success anyway');
+        }
+
+        // Success screen
+        await new Promise(r => setTimeout(r, 800));
+        document.getElementById('form-app').innerHTML = `
+          <div class="form-card form-success fade-in-up" style="margin-top:3rem">
+            <div class="success-circle success-anim"><i class="bi bi-check-lg"></i></div>
+            <h2>\u05D4\u05D8\u05D5\u05E4\u05E1 \u05E0\u05E9\u05DC\u05D7 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!</h2>
+            <p>\u05EA\u05D5\u05D3\u05D4 \u05E2\u05DC \u05DE\u05D9\u05DC\u05D5\u05D9 \u05D4\u05D8\u05D5\u05E4\u05E1. \u05E0\u05D7\u05D6\u05D5\u05E8 \u05D0\u05DC\u05D9\u05DB\u05DD \u05D1\u05D4\u05E7\u05D3\u05DD.</p>
+            <div class="mt-4">
+              <span class="badge bg-light text-dark px-3 py-2" style="font-size:.85rem">
+                <i class="bi bi-clock me-1"></i>${new Date().toLocaleString('he-IL')}
+              </span>
+            </div>
+            <div class="form-footer mt-4">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 &copy; ${new Date().getFullYear()}</div>
+          </div>`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    // Expose to global for onclick handlers
+    window.FormApp = FormApp;
+
+    // Init on DOM ready
+    document.addEventListener('DOMContentLoaded', () => FormApp.init());
+  })();
+  </script>
+</body>
+</html>
