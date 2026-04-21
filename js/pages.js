@@ -11,7 +11,7 @@ const Pages = {
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div>
           <h1><i class="bi bi-speedometer2 me-2"></i>לוח בקרה</h1>
-          <p>${Utils.dayName()} | ${Utils.formatDate(new Date())}</p>
+          <p>${Utils.dayName()} | ${Utils.formatDate(new Date())}${Utils.hebrewDateFull() ? ' | ' + Utils.hebrewDateFull() : ''}</p>
         </div>
         <div id="dash-notifications"></div>
       </div>
@@ -73,6 +73,12 @@ const Pages = {
             <div id="ai-insight"><div class="text-muted text-center py-3"><div class="spinner-border spinner-border-sm me-2"></div>מנתח...</div></div>
           </div>
         </div>
+      </div>
+
+      <!-- Birthday Alerts -->
+      <div class="card p-3 mt-3 mb-3" id="dash-birthdays" style="display:none">
+        <h6 class="fw-bold"><i class="bi bi-cake2 me-2 text-danger"></i>ימי הולדת השבוע</h6>
+        <div id="birthday-list"></div>
       </div>
 
       <!-- Row 4: Today's Schedule + Upcoming Events -->
@@ -236,6 +242,25 @@ const Pages = {
         cbEl.innerHTML = cbHtml;
       } else {
         cbEl.innerHTML = '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
+      }
+    }
+
+    // === 5b. Birthday Alerts ===
+    const birthdays = Utils.getUpcomingBirthdays(activeStudents, 7);
+    if (birthdays.length) {
+      const bdEl = document.getElementById('dash-birthdays');
+      if (bdEl) {
+        bdEl.style.display = '';
+        document.getElementById('birthday-list').innerHTML = birthdays.map(b =>
+          `<div class="d-flex align-items-center gap-2 py-1 border-bottom">
+            ${Utils.avatarHTML(b.name, 'sm')}
+            <div class="flex-grow-1">
+              <span class="fw-bold">${b.name}</span>
+              <small class="text-muted ms-2">${b.daysUntil === 0 ? '\uD83C\uDF82 \u05D4\u05D9\u05D5\u05DD!' : '\u05D1\u05E2\u05D5\u05D3 ' + b.daysUntil + ' \u05D9\u05DE\u05D9\u05DD'}</small>
+            </div>
+            <span class="badge bg-light text-dark">\u05D2\u05D9\u05DC ${b.age}</span>
+          </div>`
+        ).join('');
       }
     }
 

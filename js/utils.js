@@ -230,6 +230,51 @@ const Utils = {
     link.download = filename || 'export.json'; link.click();
   },
 
+  /* ---- Hebrew calendar date (Intl, no library) ---- */
+  hebrewDateFull() {
+    try {
+      const fmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      return fmt.format(new Date());
+    } catch(e) { return ''; }
+  },
+
+  hebrewDateShort() {
+    try {
+      const fmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {
+        day: 'numeric', month: 'short'
+      });
+      return fmt.format(new Date());
+    } catch(e) { return ''; }
+  },
+
+  /* ---- Birthday helpers ---- */
+  isBirthdayToday(birthdate) {
+    if (!birthdate) return false;
+    const bd = new Date(birthdate);
+    if (isNaN(bd)) return false;
+    const today = new Date();
+    return bd.getMonth() === today.getMonth() && bd.getDate() === today.getDate();
+  },
+
+  getUpcomingBirthdays(students, days = 7) {
+    const today = new Date();
+    const upcoming = [];
+    students.forEach(s => {
+      const bd = s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'];
+      if (!bd) return;
+      const d = new Date(bd);
+      if (isNaN(d)) return;
+      const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
+      const diff = Math.ceil((thisYear - today) / 86400000);
+      if (diff >= 0 && diff <= days) {
+        upcoming.push({ name: Utils.fullName(s), date: bd, daysUntil: diff, age: today.getFullYear() - d.getFullYear() });
+      }
+    });
+    return upcoming.sort((a,b) => a.daysUntil - b.daysUntil);
+  },
+
   /* ---- Data export: CSV from table element ---- */
   exportTableCSV(tableEl, filename) {
     if (!tableEl) return;
