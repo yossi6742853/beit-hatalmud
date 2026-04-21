@@ -75,6 +75,8 @@ Object.assign(Pages, {
     const fullName = document.getElementById('sf-name').value.trim(); const nameParts = fullName.split(/\s+/); const firstName = nameParts[0]||''; const lastName = nameParts.slice(1).join(' ')||'';
     const row = { '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': firstName, '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': lastName, '\u05DB\u05D9\u05EA\u05D4': document.getElementById('sf-class').value.trim(), '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('sf-phone').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': document.getElementById('sf-birthdate').value, '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sf-status').value, '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('sf-address').value.trim() };
     if (!firstName) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD', 'warning'); return; }
+    const phone = document.getElementById('sf-phone').value.trim();
+    if (phone && !/^0\d{8,9}$/.test(phone.replace(/[-\s]/g,''))) { Utils.toast('\u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF','warning'); return; }
     try {
       if (id) { await App.apiCall('update', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { id, row }); } else { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); }
       bootstrap.Modal.getInstance(document.getElementById('student-modal')).hide();

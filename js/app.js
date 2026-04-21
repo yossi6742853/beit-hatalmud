@@ -17,6 +17,10 @@ const App = {
      INITIALIZATION
      ============================== */
   init() {
+    // Set Chart.js global defaults for RTL Hebrew labels
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.font.family = 'Heebo';
+    }
     this.applyTheme();
     this.bindGlobalEvents();
     this.initAutoRefresh();
@@ -131,6 +135,12 @@ const App = {
     // Close mobile sidebar
     const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebar'));
     if (offcanvas) offcanvas.hide();
+
+    // Close any open modals
+    document.querySelectorAll('.modal.show').forEach(m => {
+      const instance = bootstrap.Modal.getInstance(m);
+      if (instance) instance.hide();
+    });
 
     // Destroy old charts
     Object.values(this.charts).forEach(c => { try { c.destroy(); } catch(e){} });
@@ -610,8 +620,9 @@ const App = {
       const body = cat.querySelector('.sidebar-cat-body');
       if (!btn || !body) return;
 
-      // Restore state (default: open)
-      const isOpen = saved[key] !== false;
+      // Restore state (default: only students+staff open)
+      const defaultOpen = ['students', 'staff'];
+      const isOpen = saved[key] !== undefined ? saved[key] !== false : defaultOpen.includes(key);
       if (!isOpen) {
         body.classList.add('collapsed');
         btn.setAttribute('aria-expanded', 'false');
@@ -752,12 +763,12 @@ const App = {
       let hits = [];
       students.forEach(s => {
         const name = Utils.fullName(s);
-        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q) || (s['\u05DB\u05D9\u05EA\u05D4']||'').toLowerCase().includes(q) || (s['\u05DB\u05EA\u05D5\u05D1\u05EA']||'').toLowerCase().includes(q))
           hits.push({name, type:'\u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-person-fill', color:'primary', link:'#student/'+Utils.rowId(s), sub:'\u05DB\u05D9\u05EA\u05D4 '+(s['\u05DB\u05D9\u05EA\u05D4']||'')});
       });
       staff.forEach(s => {
         const name = Utils.fullName(s);
-        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q) || (s['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').toLowerCase().includes(q))
           hits.push({name, type:'\u05E6\u05D5\u05D5\u05EA', icon:'bi-person-badge-fill', color:'success', link:'#staff_card/'+Utils.rowId(s), sub:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''});
       });
       parents.forEach(p => {

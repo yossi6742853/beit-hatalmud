@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bht-v5.3';
+const CACHE_NAME = 'bht-v5.4-0421';
 const ASSETS = [
   './',
   './index.html',
