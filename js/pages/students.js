@@ -125,6 +125,66 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
+     PRINT STUDENT REPORT CARD
+     ====================================================================== */
+  async printStudentCard(id) {
+    const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const s = students.find(x => String(Utils.rowId(x)) === String(id));
+    if (!s) return;
+    const name = Utils.fullName(s);
+    const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+    const studentAtt = att.filter(a => (a['\u05E9\u05DD']||a['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
+    const present = studentAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
+    const attPct = studentAtt.length ? Math.round(present/studentAtt.length*100) : 0;
+
+    const grades = await App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(()=>[]);
+    const studentGrades = grades.filter(g => (g['\u05E9\u05DD']||g['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||g['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||g['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
+    const avgGrade = studentGrades.length ? Math.round(studentGrades.reduce((s,g)=>s+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length) : null;
+
+    const behavior = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]);
+    const studentBeh = behavior.filter(b => (b['\u05E9\u05DD']||b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(b['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
+    const posB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+    const negB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+
+    const gradesTableRows = studentGrades.length > 0 ? studentGrades.slice(-20).reverse().map(g => {
+      const grade = Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0);
+      return `<tr><td>${g['\u05DE\u05E7\u05E6\u05D5\u05E2']||g['subject']||''}</td><td>${g['\u05DE\u05D1\u05D7\u05DF']||g['exam']||''}</td><td style="font-weight:700;color:${grade>=80?'#0f9d58':grade>=60?'#f9ab00':'#ea4335'}">${grade}</td></tr>`;
+    }).join('') : '';
+
+    const win = window.open('','','width=800,height=600');
+    win.document.write(`<html dir="rtl"><head><title>\u05DB\u05E8\u05D8\u05D9\u05E1 \u05EA\u05DC\u05DE\u05D9\u05D3 - ${name}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+      <style>*{font-family:Heebo,sans-serif;margin:0;box-sizing:border-box}body{padding:2rem;max-width:800px;margin:0 auto;color:#1a1a1a}
+      h1{color:#2563eb;border-bottom:3px solid #2563eb;padding-bottom:.5rem;margin-bottom:1rem;font-size:1.6rem}
+      h2{color:#374151;font-size:1.1rem;margin:1.5rem 0 .5rem;border-bottom:1px solid #e5e7eb;padding-bottom:.3rem}
+      table{width:100%;border-collapse:collapse;margin:.5rem 0}td,th{border:1px solid #ddd;padding:8px 10px;text-align:right}
+      th{background:#f8f9fa;font-weight:700;font-size:.9rem}.stat{display:inline-block;text-align:center;padding:.8rem 1.5rem;border:1px solid #ddd;border-radius:8px;margin:.3rem}
+      .stat .value{font-size:1.8rem;font-weight:700}.stat .label{font-size:.8rem;color:#6b7280}
+      .logo{text-align:center;color:#2563eb;font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+      .footer{text-align:center;margin-top:2rem;color:#999;font-size:.8rem;border-top:1px solid #eee;padding-top:.5rem}
+      @media print{body{padding:1rem}}</style></head><body>
+      <div class="logo">\uD83C\uDF93 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div>
+      <h1>\u05DB\u05E8\u05D8\u05D9\u05E1 \u05EA\u05DC\u05DE\u05D9\u05D3</h1>
+      <table><tr><th>\u05E9\u05DD</th><td>${name}</td><th>\u05DB\u05D9\u05EA\u05D4</th><td>${s['\u05DB\u05D9\u05EA\u05D4']||''}</td></tr>
+      <tr><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><td>${s['\u05D8\u05DC\u05E4\u05D5\u05DF']||''}</td><th>\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4</th><td>${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'])}</td></tr>
+      <tr><th>\u05DB\u05EA\u05D5\u05D1\u05EA</th><td colspan="3">${s['\u05DB\u05EA\u05D5\u05D1\u05EA']||''}</td></tr></table>
+
+      <div style="text-align:center;margin:1.2rem 0">
+        <div class="stat"><div class="value" style="color:${attPct>=80?'#0f9d58':attPct>=60?'#f9ab00':'#ea4335'}">${attPct}%</div><div class="label">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div></div>
+        <div class="stat"><div class="value">${studentAtt.length}</div><div class="label">\u05D9\u05DE\u05D9 \u05E8\u05D9\u05E9\u05D5\u05DD</div></div>
+        ${avgGrade !== null ? `<div class="stat"><div class="value" style="color:${avgGrade>=80?'#0f9d58':avgGrade>=60?'#f9ab00':'#ea4335'}">${avgGrade}</div><div class="label">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</div></div>` : ''}
+        <div class="stat"><div class="value" style="color:${(posB-negB)>=0?'#0f9d58':'#ea4335'}">${posB-negB>=0?'+':''}${posB-negB}</div><div class="label">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</div></div>
+      </div>
+
+      ${gradesTableRows ? `<h2>\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h2><table><tr><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DE\u05D1\u05D7\u05DF</th><th>\u05E6\u05D9\u05D5\u05DF</th></tr>${gradesTableRows}</table>` : ''}
+
+      <div class="footer">\u05D4\u05D5\u05E4\u05E7 \u05D1-${Utils.formatDate(new Date())} | \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div>
+    </body></html>`);
+    win.document.close();
+    win.print();
+  },
+
+  /* ======================================================================
      STUDENT CARD (10 tabs)
      ====================================================================== */
   student(id) { return `<div id="student-card-content">${Utils.skeleton(3)}</div>`; },
@@ -182,6 +242,7 @@ Object.assign(Pages, {
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <a href="#students" class="btn btn-link text-decoration-none"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a>
         <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printStudentCard('${sId}')"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
           <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._studentsData.find(x=>String(Utils.rowId(x))==='${sId}'))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           ${primaryPhone ? `<a href="${waLink(primaryPhone)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
           ${parentPhone && parentPhone !== phone ? `<a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-outline-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
