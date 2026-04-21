@@ -8,8 +8,14 @@ with open('js/app.js', encoding='utf-8') as f:
     content = f.read()
 
 def he(text):
-    """Encode Hebrew to \\uXXXX escapes"""
-    return ''.join(f'\\u{ord(c):04x}' if ord(c) > 127 else c for c in text)
+    """Encode Hebrew to literal backslash-u-XXXX escape sequences matching file format"""
+    result = []
+    for c in text:
+        if ord(c) > 127:
+            result.append(chr(92) + 'u{:04X}'.format(ord(c)))
+        else:
+            result.append(c)
+    return ''.join(result)
 
 lines = content.split('\n')
 
