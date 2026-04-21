@@ -59,116 +59,246 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     DOCUMENTS
+     DOCUMENTS — Full Document Management System
      ====================================================================== */
   documents() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div><h1><i class="bi bi-folder-fill me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1></div>
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-folder-fill me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1><p>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD, \u05E6\u05E4\u05D9\u05D9\u05D4 \u05D5\u05D4\u05E2\u05DC\u05D0\u05D4</p></div>
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-warning btn-sm" onclick="Pages.showMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05D3\u05D5\u05D7 \u05D7\u05E1\u05E8\u05D9\u05DD</button>
-        <button class="btn btn-outline-success btn-sm" onclick="Pages.bulkMarkReceived()"><i class="bi bi-check-all me-1"></i>\u05E1\u05DE\u05DF \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showUploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
+        <button class="btn btn-outline-warning btn-sm" onclick="Pages.showMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05D7\u05E1\u05E8\u05D9\u05DD</button>
       </div>
     </div>
-    <ul class="nav nav-tabs mb-3" id="doc-tabs">
-      <li class="nav-item"><a class="nav-link active" href="#" onclick="Pages.switchDocTab('students',event)">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages.switchDocTab('staff',event)">\u05E6\u05D5\u05D5\u05EA</a></li>
+    <ul class="nav nav-tabs-bht mb-3">
+      <li class="nav-item"><a class="nav-link active" href="#" onclick="Pages._docTab='students';Pages._renderDocs();return false"><i class="bi bi-people me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages._docTab='staff';Pages._renderDocs();return false"><i class="bi bi-person-badge me-1"></i>\u05E6\u05D5\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages._docTab='all';Pages._renderDocs();return false"><i class="bi bi-files me-1"></i>\u05DB\u05DC \u05D4\u05E7\u05D1\u05E6\u05D9\u05DD</a></li>
     </ul>
-    <div id="docs-missing-report" class="mb-3" style="display:none"></div>
-    <div id="docs-list">${Utils.skeleton(3)}</div>`;
+    <div class="card p-3 mb-3">
+      <div class="row g-2">
+        <div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input class="form-control" id="doc-search" placeholder="\u05D7\u05E4\u05E9 \u05DE\u05E1\u05DE\u05DA..." oninput="Pages._renderDocs()"></div></div>
+        <div class="col-md-3"><select class="form-select" id="doc-type-filter" onchange="Pages._renderDocs()"><option value="">\u05DB\u05DC \u05D4\u05E1\u05D5\u05D2\u05D9\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9</option><option>\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4</option><option>\u05D0\u05D7\u05E8</option></select></div>
+        <div class="col-md-3"><select class="form-select" id="doc-status-filter" onchange="Pages._renderDocs()"><option value="">\u05DB\u05DC \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1\u05D9\u05DD</option><option value="\u05D4\u05EA\u05E7\u05D1\u05DC">\u05D4\u05EA\u05E7\u05D1\u05DC</option><option value="\u05D7\u05E1\u05E8">\u05D7\u05E1\u05E8</option><option value="\u05DE\u05DE\u05EA\u05D9\u05DF">\u05DE\u05DE\u05EA\u05D9\u05DF</option></select></div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="doc-total">0</div><small>\u05E1\u05D4"\u05DB \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</small></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="doc-received">0</div><small>\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5</small></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="doc-missing">0</div><small>\u05D7\u05E1\u05E8\u05D9\u05DD</small></div></div>
+      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-warning" id="doc-pending">0</div><small>\u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD</small></div></div>
+    </div>
+    <div id="doc-list">${Utils.skeleton(4)}</div>
+    <!-- Upload Modal -->
+    <div class="modal fade" id="upload-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+      <div class="mb-3"><label class="form-label">\u05E9\u05D9\u05D9\u05DA \u05DC</label><select class="form-select" id="upload-owner"></select></div>
+      <div class="mb-3"><label class="form-label">\u05E1\u05D5\u05D2 \u05DE\u05E1\u05DE\u05DA</label><select class="form-select" id="upload-type"><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9</option><option>\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4</option><option>\u05D0\u05D7\u05E8</option></select></div>
+      <div class="mb-3"><label class="form-label">\u05E7\u05D5\u05D1\u05E5</label><input type="file" class="form-control" id="upload-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"></div>
+      <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input class="form-control" id="upload-notes"></div>
+    </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.uploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D4</button></div></div></div></div>
+    <!-- Viewer Modal -->
+    <div class="modal fade" id="doc-viewer-modal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header"><h5 id="viewer-title">\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" id="viewer-body" style="min-height:500px"></div></div></div></div>
+  `;
   },
-  _docTab: 'students',
-  _studentDocs: [],
-  _staffDocData: [],
+
+  _docTab: 'students', _docsData: [], _studentsForDocs: [], _staffForDocs: [],
+  _requiredStudentDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9','\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC'],
+  _requiredStaffDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9'],
+
   async documentsInit() {
-    this._docTab = 'students';
-    const [sDocs, stDocs] = await Promise.all([
-      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(() => []),
-      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA').catch(() => [])
+    const [docs, students, staff] = await Promise.all([
+      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(()=>[]),
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
+      App.getData('\u05E6\u05D5\u05D5\u05EA').catch(()=>[])
     ]);
-    this._studentDocs = sDocs;
-    this._staffDocData = stDocs;
-    this.renderDocs();
+    this._docsData = docs;
+    this._studentsForDocs = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    this._staffForDocs = staff.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    this._renderDocs();
   },
-  switchDocTab(tab, e) {
-    if (e) e.preventDefault();
-    this._docTab = tab;
-    document.querySelectorAll('#doc-tabs .nav-link').forEach(a => a.classList.remove('active'));
-    if (e) e.target.classList.add('active');
-    else document.querySelector(`#doc-tabs .nav-link:${tab==='students'?'first':'last'}-child`)?.classList.add('active');
-    this.renderDocs();
-  },
-  renderDocs() {
-    const docs = this._docTab === 'students' ? this._studentDocs : this._staffDocData;
-    const nameField = this._docTab === 'students' ? '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3';
-    if (!docs.length) { document.getElementById('docs-list').innerHTML = `<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>`; return; }
-    document.getElementById('docs-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th><input type="checkbox" id="doc-check-all" onchange="Pages.toggleDocCheckAll(this)"></th><th>${this._docTab === 'students' ? '\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05E2\u05D5\u05D1\u05D3'}</th><th>\u05E1\u05D5\u05D2</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${docs.map(d => {
-      const did = Utils.rowId(d);
-      const isReceived = d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC';
-      return `<tr><td><input type="checkbox" class="doc-chk" value="${did}" ${isReceived ? 'disabled' : ''}></td><td>${d[nameField]||''}</td><td>${d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||''}</td><td><span class="badge bg-${isReceived?'success':'warning'} cursor-pointer" onclick="Pages.updateDocStatus('${did}','${this._docTab}')">${d['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D7\u05E1\u05E8'}</span></td><td>${Utils.formatDateShort(d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4'])}</td><td><button class="btn btn-sm btn-outline-success" onclick="Pages.updateDocStatus('${did}','${this._docTab}')"><i class="bi bi-check"></i></button></td></tr>`;
-    }).join('')}</tbody></table></div>`;
-  },
-  toggleDocCheckAll(el) {
-    document.querySelectorAll('.doc-chk:not(:disabled)').forEach(cb => cb.checked = el.checked);
-  },
-  async bulkMarkReceived() {
-    const checked = [...document.querySelectorAll('.doc-chk:checked')].map(cb => cb.value);
-    if (!checked.length) { Utils.toast('\u05E1\u05DE\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05DC\u05E1\u05D9\u05DE\u05D5\u05DF', 'warning'); return; }
-    const sheet = this._docTab === 'students' ? '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA';
-    try {
-      for (const id of checked) await App.apiCall('update', sheet, { id, row: { '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO() } });
-      Utils.toast(`${checked.length} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5`);
-      this.documentsInit();
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
-  },
-  async updateDocStatus(id, tab) {
-    const sheet = tab === 'students' ? '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA';
-    try {
-      await App.apiCall('update', sheet, { id, row: { '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO() } });
-      Utils.toast('\u05E1\u05D8\u05D8\u05D5\u05E1 \u05E2\u05D5\u05D3\u05DB\u05DF');
-      this.documentsInit();
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
-  },
-  async showMissingDocs() {
-    const section = document.getElementById('docs-missing-report');
-    if (section.style.display !== 'none') { section.style.display = 'none'; return; }
-    section.style.display = '';
-    section.innerHTML = '<div class="card p-3"><div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> \u05D1\u05D5\u05D3\u05E7...</div></div>';
-    const [students, staff] = await Promise.all([
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
-      App.getData('\u05E6\u05D5\u05D5\u05EA').catch(() => [])
-    ]);
-    const reqStudentDocs = ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', '\u05E6\u05D9\u05DC\u05D5\u05DD', '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9'];
-    const reqStaffDocs = ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', '\u05EA\u05E2\u05D5\u05D3\u05EA \u05DE\u05E9\u05D8\u05E8\u05D4', '\u05EA\u05DC\u05D5\u05E9 \u05DE\u05E9\u05DB\u05D5\u05E8\u05EA'];
-    const missingStudents = [];
-    students.forEach(s => {
-      const name = Utils.fullName(s);
-      const hasDocs = this._studentDocs.filter(d => d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] === name || d['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] === Utils.rowId(s));
-      const hasTypes = hasDocs.filter(d => d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC').map(d => d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||'');
-      const miss = reqStudentDocs.filter(r => !hasTypes.includes(r));
-      if (miss.length) missingStudents.push({ name, missing: miss });
+
+  _renderDocs() {
+    const search = (document.getElementById('doc-search')?.value||'').toLowerCase();
+    const typeF = document.getElementById('doc-type-filter')?.value||'';
+    const statusF = document.getElementById('doc-status-filter')?.value||'';
+
+    // Update tab active state
+    document.querySelectorAll('.nav-tabs-bht .nav-link').forEach((a,i) => {
+      a.classList.toggle('active', ['students','staff','all'][i] === this._docTab);
     });
-    const missingStaff = [];
-    staff.forEach(s => {
+
+    let items = [];
+    if (this._docTab === 'students' || this._docTab === 'all') {
+      this._studentsForDocs.forEach(s => {
+        const name = Utils.fullName(s);
+        const sid = Utils.rowId(s);
+        this._requiredStudentDocs.forEach(docType => {
+          const doc = this._docsData.find(d => (d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||d['\u05E9\u05DD']||'')===name && (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'')===docType);
+          items.push({ name, id: sid, type: docType, status: doc ? (doc['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D4\u05EA\u05E7\u05D1\u05DC') : '\u05D7\u05E1\u05E8', date: doc?.['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4']||'', url: doc?.['\u05E7\u05D9\u05E9\u05D5\u05E8']||doc?.['url']||'', entity: 'student', notes: doc?.['\u05D4\u05E2\u05E8\u05D5\u05EA']||'' });
+        });
+      });
+    }
+    if (this._docTab === 'staff' || this._docTab === 'all') {
+      this._staffForDocs.forEach(s => {
+        const name = Utils.fullName(s);
+        const sid = Utils.rowId(s);
+        this._requiredStaffDocs.forEach(docType => {
+          const doc = this._docsData.find(d => (d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3']||d['\u05E9\u05DD']||'')===name && (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'')===docType);
+          items.push({ name, id: sid, type: docType, status: doc ? (doc['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D4\u05EA\u05E7\u05D1\u05DC') : '\u05D7\u05E1\u05E8', date: doc?.['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4']||'', url: doc?.['\u05E7\u05D9\u05E9\u05D5\u05E8']||doc?.['url']||'', entity: 'staff', notes: doc?.['\u05D4\u05E2\u05E8\u05D5\u05EA']||'' });
+        });
+      });
+    }
+
+    // Filter
+    if (search) items = items.filter(i => i.name.toLowerCase().includes(search) || i.type.toLowerCase().includes(search));
+    if (typeF) items = items.filter(i => i.type === typeF);
+    if (statusF) items = items.filter(i => i.status === statusF);
+
+    // Stats
+    const received = items.filter(i => i.status === '\u05D4\u05EA\u05E7\u05D1\u05DC').length;
+    const missing = items.filter(i => i.status === '\u05D7\u05E1\u05E8').length;
+    const pending = items.filter(i => i.status === '\u05DE\u05DE\u05EA\u05D9\u05DF').length;
+    document.getElementById('doc-total').textContent = items.length;
+    document.getElementById('doc-received').textContent = received;
+    document.getElementById('doc-missing').textContent = missing;
+    document.getElementById('doc-pending').textContent = pending;
+
+    if (!items.length) { document.getElementById('doc-list').innerHTML = '<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>'; return; }
+
+    // Group by person
+    const grouped = {};
+    items.forEach(i => { if (!grouped[i.name]) grouped[i.name]=[]; grouped[i.name].push(i); });
+
+    const statusIcon = {
+      '\u05D4\u05EA\u05E7\u05D1\u05DC': '<i class="bi bi-check-circle-fill text-success"></i>',
+      '\u05D7\u05E1\u05E8': '<i class="bi bi-x-circle-fill text-danger"></i>',
+      '\u05DE\u05DE\u05EA\u05D9\u05DF': '<i class="bi bi-clock-fill text-warning"></i>'
+    };
+    const statusBadge = {
+      '\u05D4\u05EA\u05E7\u05D1\u05DC': 'bg-success', '\u05D7\u05E1\u05E8': 'bg-danger', '\u05DE\u05DE\u05EA\u05D9\u05DF': 'bg-warning'
+    };
+
+    document.getElementById('doc-list').innerHTML = Object.keys(grouped).map(name => {
+      const docs = grouped[name];
+      const completePct = Math.round(docs.filter(d => d.status === '\u05D4\u05EA\u05E7\u05D1\u05DC').length / docs.length * 100);
+      return `<div class="card mb-3 p-3">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          ${Utils.avatarHTML(name)}
+          <div class="flex-grow-1">
+            <div class="fw-bold">${name}</div>
+            <div class="progress mt-1" style="height:6px"><div class="progress-bar bg-success" style="width:${completePct}%"></div></div>
+          </div>
+          <span class="badge bg-${completePct===100?'success':completePct>=50?'warning':'danger'}">${completePct}%</span>
+        </div>
+        <div class="table-responsive"><table class="table table-sm mb-0"><tbody>
+          ${docs.map(d => `<tr>
+            <td style="width:30px">${statusIcon[d.status]||''}</td>
+            <td class="fw-medium">${d.type}</td>
+            <td><span class="badge ${statusBadge[d.status]||'bg-secondary'}">${d.status}</span></td>
+            <td class="small text-muted">${d.date ? Utils.formatDateShort(d.date) : '--'}</td>
+            <td>
+              ${d.url ? `<button class="btn btn-sm btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${d.type} - ${name}')"><i class="bi bi-eye"></i></button>` : ''}
+              ${d.status==='\u05D7\u05E1\u05E8' ? `<button class="btn btn-sm btn-outline-success" onclick="Pages.markDocReceived('${name.replace(/'/g,"\\'")}','${d.type}')"><i class="bi bi-check"></i></button>` : ''}
+            </td>
+          </tr>`).join('')}
+        </tbody></table></div>
+      </div>`;
+    }).join('');
+  },
+
+  viewDoc(url, title) {
+    document.getElementById('viewer-title').textContent = title || '\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA';
+    const body = document.getElementById('viewer-body');
+    const ext = (url.split('.').pop()||'').toLowerCase().split('?')[0];
+    if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+      body.innerHTML = `<img src="${url}" style="width:100%;max-height:80vh;object-fit:contain" alt="${title}">`;
+    } else if (ext === 'pdf') {
+      body.innerHTML = `<iframe src="${url}" style="width:100%;height:80vh;border:none"></iframe>`;
+    } else {
+      // Use Google Docs Viewer for office files
+      body.innerHTML = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true" style="width:100%;height:80vh;border:none"></iframe>`;
+    }
+    new bootstrap.Modal(document.getElementById('doc-viewer-modal')).show();
+  },
+
+  async showUploadDoc() {
+    const sel = document.getElementById('upload-owner');
+    const students = this._studentsForDocs || [];
+    const staff = this._staffForDocs || [];
+    sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8...</option>' +
+      '<optgroup label="\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD">' + students.map(s => `<option value="student:${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>' +
+      '<optgroup label="\u05E6\u05D5\u05D5\u05EA">' + staff.map(s => `<option value="staff:${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>';
+    document.getElementById('upload-file').value = '';
+    document.getElementById('upload-notes').value = '';
+    new bootstrap.Modal(document.getElementById('upload-modal')).show();
+  },
+
+  async uploadDoc() {
+    const owner = document.getElementById('upload-owner').value;
+    const type = document.getElementById('upload-type').value;
+    const file = document.getElementById('upload-file').files[0];
+    const notes = document.getElementById('upload-notes').value.trim();
+    if (!owner || !file) { Utils.toast('\u05D1\u05D7\u05E8 \u05D1\u05E2\u05DC\u05D9\u05DD \u05D5\u05E7\u05D5\u05D1\u05E5','\u05D0\u05D6\u05D4\u05E8\u05D4'); return; }
+
+    const [entity, id] = owner.split(':');
+    const ownerName = document.getElementById('upload-owner').selectedOptions[0]?.text || '';
+
+    // Convert file to base64 for API
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1];
+      try {
+        const row = {
+          '\u05E9\u05DD': ownerName,
+          '\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA': type,
+          '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC',
+          '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO(),
+          '\u05E9\u05DD_\u05E7\u05D5\u05D1\u05E5': file.name,
+          '\u05D4\u05E2\u05E8\u05D5\u05EA': notes,
+          '\u05E7\u05D5\u05D1\u05E5_base64': base64
+        };
+        if (entity === 'student') row['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] = ownerName;
+        else row['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] = ownerName;
+
+        await App.apiCall('add', '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3', { row });
+        bootstrap.Modal.getInstance(document.getElementById('upload-modal'))?.hide();
+        Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05D4\u05D5\u05E2\u05DC\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
+        this.documentsInit();
+      } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D4\u05E2\u05DC\u05D0\u05D4','danger'); }
+    };
+    reader.readAsDataURL(file);
+  },
+
+  async markDocReceived(name, type) {
+    try {
+      const row = { '\u05E9\u05DD': name, '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': name, '\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA': type, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO() };
+      await App.apiCall('add', '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3', { row });
+      Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E1\u05D5\u05DE\u05DF \u05DB\u05D4\u05EA\u05E7\u05D1\u05DC');
+      this.documentsInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+
+  showMissingDocs() {
+    const missing = [];
+    this._studentsForDocs.forEach(s => {
       const name = Utils.fullName(s);
-      const hasDocs = this._staffDocData.filter(d => d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] === name || d['\u05DE\u05D6\u05D4\u05D4_\u05E2\u05D5\u05D1\u05D3'] === Utils.rowId(s));
-      const hasTypes = hasDocs.filter(d => d['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05EA\u05E7\u05D1\u05DC').map(d => d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||'');
-      const miss = reqStaffDocs.filter(r => !hasTypes.includes(r));
-      if (miss.length) missingStaff.push({ name, missing: miss });
+      const docs = this._docsData.filter(d => (d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||d['\u05E9\u05DD']||'') === name);
+      const missingTypes = this._requiredStudentDocs.filter(t => !docs.find(d => (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'') === t));
+      if (missingTypes.length) missing.push({ name, types: missingTypes });
     });
-    const total = missingStudents.length + missingStaff.length;
-    if (!total) {
-      section.innerHTML = '<div class="card p-3 text-center text-success"><i class="bi bi-check-circle fs-3"></i><p class="mt-2">\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05E7\u05D9\u05D9\u05DE\u05D9\u05DD!</p></div>';
-      return;
-    }
-    let html = '<div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>\u05D3\u05D5\u05D7 \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD</h6>';
-    if (missingStudents.length) {
-      html += `<h6 class="text-primary mt-3"><i class="bi bi-people me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD (${missingStudents.length})</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E9\u05DD</th><th>\u05D7\u05E1\u05E8</th></tr></thead><tbody>${missingStudents.map(m => `<tr><td class="fw-bold">${m.name}</td><td>${m.missing.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`;
-    }
-    if (missingStaff.length) {
-      html += `<h6 class="text-success mt-3"><i class="bi bi-person-badge me-1"></i>\u05E6\u05D5\u05D5\u05EA (${missingStaff.length})</h6><div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E9\u05DD</th><th>\u05D7\u05E1\u05E8</th></tr></thead><tbody>${missingStaff.map(m => `<tr><td class="fw-bold">${m.name}</td><td>${m.missing.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div>`;
-    }
-    html += '</div>';
-    section.innerHTML = html;
+    this._staffForDocs.forEach(s => {
+      const name = Utils.fullName(s);
+      const docs = this._docsData.filter(d => (d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3']||d['\u05E9\u05DD']||'') === name);
+      const missingTypes = this._requiredStaffDocs.filter(t => !docs.find(d => (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'') === t));
+      if (missingTypes.length) missing.push({ name, types: missingTypes, isStaff: true });
+    });
+
+    const html = `<div class="modal fade" id="missing-docs-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5><i class="bi bi-exclamation-triangle me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD (${missing.length} \u05D0\u05E0\u05E9\u05D9\u05DD)</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+      ${missing.length ? missing.map(m => `<div class="d-flex align-items-center gap-3 py-2 border-bottom">${Utils.avatarHTML(m.name,'sm')}<div class="flex-grow-1"><span class="fw-bold">${m.name}</span>${m.isStaff ? ' <span class="badge bg-info">\u05E6\u05D5\u05D5\u05EA</span>' : ''}</div><div>${m.types.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</div></div>`).join('') : '<div class="text-success text-center py-3"><i class="bi bi-check-circle fs-1"></i><h5>\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5!</h5></div>'}
+    </div></div></div></div>`;
+    document.getElementById('missing-docs-modal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('missing-docs-modal')).show();
   },
 
 
