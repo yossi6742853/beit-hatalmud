@@ -1,6 +1,19 @@
 /* ===== BHT v5.0 — Utilities ===== */
 
 const Utils = {
+  /* ---- Full name from שם_פרטי + שם_משפחה or fallback to שם ---- */
+  fullName(row) {
+    if (row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || row['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']) {
+      return ((row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (row['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
+    }
+    return row['\u05E9\u05DD'] || '';
+  },
+
+  /* ---- Get ID from מזהה or id ---- */
+  rowId(row) {
+    return row['\u05DE\u05D6\u05D4\u05D4'] || row['id'] || '';
+  },
+
   /* ---- Hebrew months ---- */
   HEB_MONTHS: [
     '\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5',

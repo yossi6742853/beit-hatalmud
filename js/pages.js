@@ -41,7 +41,7 @@ const Pages = {
     const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
     const finance = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
     const attendance = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-    const activeStudents = students.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     document.getElementById('stat-students').textContent = activeStudents.length;
     document.getElementById('stat-staff').textContent = staff.length;
     const todayAtt = attendance.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === Utils.todayISO());
@@ -49,7 +49,7 @@ const Pages = {
     const absent = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
     const late = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8');
     document.getElementById('stat-attendance').textContent = todayAtt.length > 0 ? Math.round(present.length / todayAtt.length * 100) + '%' : '--';
-    const totalDebt = finance.reduce((s, f) => s + (Number(f['\u05D9\u05EA\u05E8\u05D4']) || 0), 0);
+    const totalDebt = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05E9\u05D5\u05DC\u05DD').reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
     document.getElementById('stat-debt').textContent = Utils.formatCurrency(totalDebt);
     const attCtx = document.getElementById('chart-attendance');
     if (attCtx) {
@@ -57,13 +57,13 @@ const Pages = {
     }
     const finCtx = document.getElementById('chart-finance');
     if (finCtx) {
-      const totalPaid = finance.reduce((s, f) => s + (Number(f['\u05E9\u05D5\u05DC\u05DD']) || 0), 0);
+      const totalPaid = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
       App.charts.fin = new Chart(finCtx, { type: 'doughnut', data: { labels: ['\u05E9\u05D5\u05DC\u05DD', '\u05D9\u05EA\u05E8\u05D4'], datasets: [{ data: [totalPaid, totalDebt], backgroundColor: ['#0f9d58', '#ea4335'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Heebo' } } } } } });
     }
     const feed = document.getElementById('activity-feed');
     const activities = [
       { icon: 'calendar-check', color: 'success', text: `\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD: ${present.length}/${todayAtt.length} \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD`, time: '\u05D4\u05D9\u05D5\u05DD' },
-      { icon: 'cash', color: 'warning', text: `${finance.filter(f => Number(f['\u05D9\u05EA\u05E8\u05D4']) > 0).length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7`, time: '\u05D4\u05D9\u05D5\u05DD' },
+      { icon: 'cash', color: 'warning', text: `${finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05E9\u05D5\u05DC\u05DD').length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7`, time: '\u05D4\u05D9\u05D5\u05DD' },
       { icon: 'people', color: 'primary', text: `${activeStudents.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD`, time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
       { icon: 'person-badge', color: 'info', text: `${staff.length} \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA`, time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' }
     ];
@@ -102,6 +102,7 @@ const Pages = {
   async studentsInit() {
     const data = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     this._studentsData = data;
+    data.forEach(s => { s._fullName = Utils.fullName(s); s._id = Utils.rowId(s); });
     const classes = [...new Set(data.map(s => s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
     const classFilter = document.getElementById('students-class-filter');
     classes.forEach(c => { classFilter.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`); });
@@ -116,7 +117,7 @@ const Pages = {
     const classF = document.getElementById('students-class-filter')?.value || '';
     const statusF = document.getElementById('students-status-filter')?.value || '';
     let filtered = this._studentsData.filter(s => {
-      if (search && !(s['\u05E9\u05DD'] || '').toLowerCase().includes(search)) return false;
+      if (search && !(s._fullName || '').toLowerCase().includes(search)) return false;
       if (classF && s['\u05DB\u05D9\u05EA\u05D4'] !== classF) return false;
       if (statusF && s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== statusF) return false;
       return true;
@@ -124,14 +125,14 @@ const Pages = {
     document.getElementById('students-count').textContent = `${filtered.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`;
     if (filtered.length === 0) { document.getElementById('students-list').innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>`; return; }
     document.getElementById('students-list').innerHTML = `<div class="row g-3">${filtered.map(s => {
-      const name = s['\u05E9\u05DD'] || ''; const cls = s['\u05DB\u05D9\u05EA\u05D4'] || ''; const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
-      return `<div class="col-md-6 col-lg-4"><div class="card card-clickable p-3" onclick="location.hash='student/${s.id}'""><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name)}<div class="flex-grow-1 min-width-0"><div class="fw-bold text-truncate">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${cls}${age ? ' | \u05D2\u05D9\u05DC ' + age : ''}</small></div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
+      const name = s._fullName || ''; const cls = s['\u05DB\u05D9\u05EA\u05D4'] || ''; const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
+      return `<div class="col-md-6 col-lg-4"><div class="card card-clickable p-3" onclick="location.hash='student/${s._id}'""><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name)}<div class="flex-grow-1 min-width-0"><div class="fw-bold text-truncate">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${cls}${age ? ' | \u05D2\u05D9\u05DC ' + age : ''}</small></div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
     }).join('')}</div>`;
   },
   showStudentForm(student = null) {
     document.getElementById('student-modal-title').textContent = student ? '\u05E2\u05E8\u05D9\u05DB\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3';
-    document.getElementById('sf-id').value = student?.id || '';
-    document.getElementById('sf-name').value = student?.['\u05E9\u05DD'] || '';
+    document.getElementById('sf-id').value = student ? Utils.rowId(student) : '';
+    document.getElementById('sf-name').value = student ? Utils.fullName(student) : '';
     document.getElementById('sf-class').value = student?.['\u05DB\u05D9\u05EA\u05D4'] || '';
     document.getElementById('sf-phone').value = student?.['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
     document.getElementById('sf-birthdate').value = student?.['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'] || '';
@@ -141,8 +142,9 @@ const Pages = {
   },
   async saveStudent() {
     const id = document.getElementById('sf-id').value;
-    const row = { '\u05E9\u05DD': document.getElementById('sf-name').value.trim(), '\u05DB\u05D9\u05EA\u05D4': document.getElementById('sf-class').value.trim(), '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('sf-phone').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': document.getElementById('sf-birthdate').value, '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sf-status').value, '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('sf-address').value.trim() };
-    if (!row['\u05E9\u05DD']) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD', 'warning'); return; }
+    const fullName = document.getElementById('sf-name').value.trim(); const nameParts = fullName.split(/\s+/); const firstName = nameParts[0]||''; const lastName = nameParts.slice(1).join(' ')||'';
+    const row = { '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': firstName, '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': lastName, '\u05DB\u05D9\u05EA\u05D4': document.getElementById('sf-class').value.trim(), '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('sf-phone').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': document.getElementById('sf-birthdate').value, '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sf-status').value, '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('sf-address').value.trim() };
+    if (!firstName) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD', 'warning'); return; }
     try {
       if (id) { await App.apiCall('update', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { id, row }); } else { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); }
       bootstrap.Modal.getInstance(document.getElementById('student-modal')).hide();
@@ -157,19 +159,23 @@ const Pages = {
   student(id) { return `<div id="student-card-content">${Utils.skeleton(3)}</div>`; },
   async studentInit(id) {
     const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-    const s = students.find(x => String(x.id) === String(id));
+    const s = students.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) { document.getElementById('student-card-content').innerHTML = `<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05EA\u05DC\u05DE\u05D9\u05D3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5><a href="#students" class="btn btn-primary mt-2">\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a></div>`; return; }
-    const name = s['\u05E9\u05DD'] || ''; const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
+    const sId = Utils.rowId(s); const name = Utils.fullName(s); const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
     const attendance = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-    const studentAtt = attendance.filter(a => a['\u05EA\u05DC\u05DE\u05D9\u05D3'] === name);
+    const studentAtt = attendance.filter(a => String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']) === String(sId) || (a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name);
     const presentCount = studentAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
     const attPct = studentAtt.length ? Math.round(presentCount / studentAtt.length * 100) : 0;
     const finance = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
-    const sf = finance.find(f => f['\u05EA\u05DC\u05DE\u05D9\u05D3'] === name) || {};
+    const studentFin = finance.filter(f => String(f['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === String(sId) || (f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name);
+    const sfTotal = studentFin.reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    const sfPaid = studentFin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    const sfDebt = sfTotal - sfPaid;
+    const sf = {'\u05E1\u05DB\u05D5\u05DD':sfTotal,'\u05E9\u05D5\u05DC\u05DD':sfPaid,'\u05D9\u05EA\u05E8\u05D4':sfDebt};
     const behavior = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
-    const studentBeh = (behavior || []).filter(b => (b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || b['\u05EA\u05DC\u05DE\u05D9\u05D3']) === name);
-    const posB = studentBeh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
-    const negB = studentBeh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+    const studentBeh = (behavior || []).filter(b => String(b['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === String(sId) || (b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name);
+    const posB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+    const negB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
 
     document.getElementById('student-card-content').innerHTML = `
       <a href="#students" class="btn btn-link text-decoration-none mb-2"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a>
@@ -188,7 +194,7 @@ const Pages = {
           <div class="col-sm-6"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone(s['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</div></div>
           <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4</label><div class="fw-bold">${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'])}</div></div>
           <div class="col-12"><label class="form-label text-muted small">\u05DB\u05EA\u05D5\u05D1\u05EA</label><div class="fw-bold">${s['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '--'}</div></div>
-        </div><div class="mt-3"><button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._studentsData.find(x=>x.id==${s.id}))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button></div></div></div>
+        </div><div class="mt-3"><button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._studentsData.find(x=>String(Utils.rowId(x))==='${sId}'))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button></div></div></div>
         <div class="tab-pane fade" id="tab-att"><div class="row g-3 mb-3">
           <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
           <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-primary">${presentCount}</div><small class="text-muted">\u05D9\u05DE\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
@@ -237,14 +243,16 @@ const Pages = {
   _attState: {}, _attStudents: [],
   async attendanceInit() {
     const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-    const active = students.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    active.forEach(s => { s._fullName = Utils.fullName(s); s._id = Utils.rowId(s); });
     this._attStudents = active;
     const attendance = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     const today = document.getElementById('att-date').value;
     this._attState = {};
     active.forEach(s => {
-      const existing = attendance.find(a => a['\u05EA\u05DC\u05DE\u05D9\u05D3'] === s['\u05E9\u05DD'] && a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === today);
-      this._attState[s.id] = existing ? (existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' ? 'present' : existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? 'absent' : 'late') : '';
+      const sId = s._id; const sName = s._fullName;
+      const existing = attendance.find(a => (String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'')===String(sId) || (a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')===sName) && a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === today);
+      this._attState[s._id] = existing ? (existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' ? 'present' : existing['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? 'absent' : 'late') : '';
     });
     document.getElementById('att-search').addEventListener('input', Utils.debounce(() => this.renderAttList(), 200));
     document.getElementById('att-date').addEventListener('change', () => this.attendanceInit());
@@ -252,16 +260,16 @@ const Pages = {
   },
   renderAttList() {
     const search = (document.getElementById('att-search')?.value || '').trim().toLowerCase();
-    const filtered = this._attStudents.filter(s => !search || (s['\u05E9\u05DD'] || '').toLowerCase().includes(search));
+    const filtered = this._attStudents.filter(s => !search || (s._fullName || '').toLowerCase().includes(search));
     const html = filtered.map((s, i) => {
-      const name = s['\u05E9\u05DD']; const state = this._attState[s.id] || '';
-      return `<div class="d-flex align-items-center gap-3 p-3 border-bottom att-row" data-id="${s.id}">${Utils.avatarHTML(name)}<div class="flex-grow-1"><div class="fw-bold">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || '--'}</small></div><div class="d-flex gap-2"><div class="att-btn ${state==='present'?'present selected':''}" onclick="Pages.toggleAtt(${s.id},'present')" title="\u05E0\u05D5\u05DB\u05D7 (P)"><i class="bi bi-check-lg"></i></div><div class="att-btn ${state==='absent'?'absent selected':''}" onclick="Pages.toggleAtt(${s.id},'absent')" title="\u05D7\u05D9\u05E1\u05D5\u05E8 (A)"><i class="bi bi-x-lg"></i></div><div class="att-btn ${state==='late'?'late selected':''}" onclick="Pages.toggleAtt(${s.id},'late')" title="\u05D0\u05D9\u05D7\u05D5\u05E8 (L)"><i class="bi bi-clock"></i></div></div></div>`;
+      const name = s._fullName; const sid = s._id; const state = this._attState[sid] || '';
+      return `<div class="d-flex align-items-center gap-3 p-3 border-bottom att-row" data-id="${sid}">${Utils.avatarHTML(name)}<div class="flex-grow-1"><div class="fw-bold">${name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || '--'}</small></div><div class="d-flex gap-2"><div class="att-btn ${state==='present'?'present selected':''}" onclick="Pages.toggleAtt('${sid}','present')" title="\u05E0\u05D5\u05DB\u05D7 (P)"><i class="bi bi-check-lg"></i></div><div class="att-btn ${state==='absent'?'absent selected':''}" onclick="Pages.toggleAtt('${sid}','absent')" title="\u05D7\u05D9\u05E1\u05D5\u05E8 (A)"><i class="bi bi-x-lg"></i></div><div class="att-btn ${state==='late'?'late selected':''}" onclick="Pages.toggleAtt('${sid}','late')" title="\u05D0\u05D9\u05D7\u05D5\u05E8 (L)"><i class="bi bi-clock"></i></div></div></div>`;
     }).join('');
     document.getElementById('att-list').innerHTML = `<div class="card">${html}</div>`;
     this.updateAttSummary();
   },
-  toggleAtt(id, status) { this._attState[id] = this._attState[id] === status ? '' : status; this.renderAttList(); },
-  markAll(status) { this._attStudents.forEach(s => { this._attState[s.id] = status; }); this.renderAttList(); },
+  toggleAtt(id, status) { this._attState[String(id)] = this._attState[String(id)] === status ? '' : status; this.renderAttList(); },
+  markAll(status) { this._attStudents.forEach(s => { this._attState[s._id] = status; }); this.renderAttList(); },
   updateAttSummary() {
     const vals = Object.values(this._attState);
     document.getElementById('att-present').textContent = vals.filter(v => v === 'present').length;
@@ -272,7 +280,7 @@ const Pages = {
     const date = document.getElementById('att-date').value;
     const statusMap = { present: '\u05E0\u05D5\u05DB\u05D7', absent: '\u05D7\u05D9\u05E1\u05D5\u05E8', late: '\u05D0\u05D9\u05D7\u05D5\u05E8' };
     const rows = [];
-    this._attStudents.forEach(s => { const st = this._attState[s.id]; if (st) rows.push({ '\u05EA\u05DC\u05DE\u05D9\u05D3': s['\u05E9\u05DD'], '\u05EA\u05D0\u05E8\u05D9\u05DA': date, '\u05E1\u05D8\u05D8\u05D5\u05E1': statusMap[st] }); });
+    this._attStudents.forEach(s => { const st = this._attState[s._id]; if (st) rows.push({ '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': s._id, '\u05E9\u05DD': s._fullName, '\u05DB\u05D9\u05EA\u05D4': s['\u05DB\u05D9\u05EA\u05D4']||'', '\u05EA\u05D0\u05E8\u05D9\u05DA': date, '\u05E1\u05D8\u05D8\u05D5\u05E1': statusMap[st] }); });
     if (rows.length === 0) { Utils.toast('\u05DC\u05D0 \u05E1\u05D5\u05DE\u05E0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', 'warning'); return; }
     try { await App.apiCall('bulkAdd', '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', { rows }); Utils.toast(`\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D4: ${rows.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`, 'success'); } catch(e) { localStorage.setItem('bht_att_' + date, JSON.stringify(rows)); Utils.toast('\u05E0\u05E9\u05DE\u05E8 \u05DE\u05E7\u05D5\u05DE\u05D9\u05EA', 'info'); }
   },
@@ -304,7 +312,7 @@ const Pages = {
     const month = document.getElementById('attm-month').value; if (!month) return;
     const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     const monthAtt = att.filter(a => (a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(month));
-    const students = [...new Set(monthAtt.map(a => a['\u05EA\u05DC\u05DE\u05D9\u05D3']))];
+    const students = [...new Set(monthAtt.map(a => a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''))];
     const days = [...new Set(monthAtt.map(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA']))].sort();
     const present = monthAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
     const absentC = monthAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8').length;
@@ -320,7 +328,7 @@ const Pages = {
       html += `<tr><td class="fw-bold small">${st}</td>`;
       let pCnt = 0;
       days.forEach(d => {
-        const rec = monthAtt.find(a => a['\u05EA\u05DC\u05DE\u05D9\u05D3']===st && a['\u05EA\u05D0\u05E8\u05D9\u05DA']===d);
+        const rec = monthAtt.find(a => (a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')===st && a['\u05EA\u05D0\u05E8\u05D9\u05DA']===d);
         const s = rec ? rec['\u05E1\u05D8\u05D8\u05D5\u05E1'] : '';
         if (s === '\u05E0\u05D5\u05DB\u05D7') pCnt++;
         const cls = s==='\u05E0\u05D5\u05DB\u05D7' ? 'bg-success' : s==='\u05D7\u05D9\u05E1\u05D5\u05E8' ? 'bg-danger' : s==='\u05D0\u05D9\u05D7\u05D5\u05E8' ? 'bg-warning' : '';
@@ -347,12 +355,12 @@ const Pages = {
   },
   renderStaffList() {
     const search = (document.getElementById('staff-search')?.value || '').trim().toLowerCase();
-    const filtered = (this._staffData || []).filter(s => !search || (s['\u05E9\u05DD'] || '').toLowerCase().includes(search));
+    const filtered = (this._staffData || []).filter(s => !search || (Utils.fullName(s)).toLowerCase().includes(search));
     document.getElementById('staff-count').textContent = `${filtered.length} \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA`;
     if (filtered.length === 0) { document.getElementById('staff-list').innerHTML = `<div class="empty-state"><i class="bi bi-person-badge"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>`; return; }
     document.getElementById('staff-list').innerHTML = `<div class="row g-3">${filtered.map(s => {
-      const name = s['\u05E9\u05DD'] || ''; const role = s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || ''; const phone = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
-      return `<div class="col-md-6 col-lg-4"><div class="card p-3 card-clickable" onclick="location.hash='staff_card/${s.id}'"><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name, 'lg')}<div class="flex-grow-1"><div class="fw-bold fs-6">${name}</div><div class="text-muted small">${role}</div>${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
+      const name = Utils.fullName(s); const role = s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || ''; const phone = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''; const sid = Utils.rowId(s);
+      return `<div class="col-md-6 col-lg-4"><div class="card p-3 card-clickable" onclick="location.hash='staff_card/${sid}'"><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name, 'lg')}<div class="flex-grow-1"><div class="fw-bold fs-6">${name}</div><div class="text-muted small">${role}</div>${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
     }).join('')}</div>`;
   },
 
@@ -362,9 +370,9 @@ const Pages = {
   staff_card(id) { return `<div id="staff-card-content">${Utils.skeleton(2)}</div>`; },
   async staff_cardInit(id) {
     const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
-    const s = staff.find(x => String(x.id) === String(id));
+    const s = staff.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) { document.getElementById('staff-card-content').innerHTML = `<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05E2\u05D5\u05D1\u05D3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5><a href="#staff" class="btn btn-primary mt-2">\u05D7\u05D6\u05E8\u05D4</a></div>`; return; }
-    const name = s['\u05E9\u05DD'] || '';
+    const name = Utils.fullName(s);
     document.getElementById('staff-card-content').innerHTML = `
       <a href="#staff" class="btn btn-link text-decoration-none mb-2"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E6\u05D5\u05D5\u05EA</a>
       <div class="card overflow-hidden mb-3"><div class="student-header">${Utils.avatarHTML(name, 'xl')}<h3 class="fw-bold mt-2 mb-1">${name}</h3><div>${s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div>
@@ -430,7 +438,7 @@ const Pages = {
   parent_card(id) { return `<div id="parent-card-content">${Utils.skeleton(2)}</div>`; },
   async parent_cardInit(id) {
     const parents = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
-    const p = parents.find(x => String(x.id) === String(id));
+    const p = parents.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!p) { document.getElementById('parent-card-content').innerHTML = '<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05D4\u05D5\u05E8\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5></div>'; return; }
     document.getElementById('parent-card-content').innerHTML = `<a href="#parents" class="btn btn-link text-decoration-none mb-2"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4</a><div class="card p-3"><div class="d-flex align-items-center gap-3 mb-3">${Utils.avatarHTML(p['\u05E9\u05DD'],'lg')}<div><h4 class="fw-bold mb-1">${p['\u05E9\u05DD']||''}</h4><span class="badge bg-secondary">${p['\u05E7\u05E9\u05E8']||''}</span></div></div><div class="row g-3"><div class="col-sm-6"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone(p['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</div></div><div class="col-sm-6"><label class="form-label text-muted small">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><div class="fw-bold">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'--'}</div></div></div></div>`;
   },
@@ -445,8 +453,8 @@ const Pages = {
   async financeInit() {
     this._finData = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
     const total = this._finData.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-    const paid = this._finData.reduce((s,f) => s+(Number(f['\u05E9\u05D5\u05DC\u05DD'])||0),0);
-    const debt = this._finData.reduce((s,f) => s+(Number(f['\u05D9\u05EA\u05E8\u05D4'])||0),0);
+    const paid = this._finData.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    const debt = total - paid;
     document.getElementById('fin-total').textContent = Utils.formatCurrency(total);
     document.getElementById('fin-paid').textContent = Utils.formatCurrency(paid);
     document.getElementById('fin-debt').textContent = Utils.formatCurrency(debt);
@@ -457,9 +465,9 @@ const Pages = {
   renderFinList() {
     const search = (document.getElementById('fin-search')?.value || '').trim().toLowerCase();
     const filter = document.getElementById('fin-filter')?.value || '';
-    let filtered = (this._finData || []).filter(f => { if (search && !(f['\u05EA\u05DC\u05DE\u05D9\u05D3']||'').toLowerCase().includes(search)) return false; if (filter==='debt'&&!(Number(f['\u05D9\u05EA\u05E8\u05D4'])>0)) return false; if (filter==='paid'&&Number(f['\u05D9\u05EA\u05E8\u05D4'])>0) return false; return true; });
+    let filtered = (this._finData || []).filter(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (search && !nm.toLowerCase().includes(search)) return false; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; if (filter==='debt'&&isPaid) return false; if (filter==='paid'&&!isPaid) return false; return true; });
     if (!filtered.length) { document.getElementById('fin-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>'; return; }
-    document.getElementById('fin-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E9\u05D5\u05DC\u05DD</th><th>\u05D9\u05EA\u05E8\u05D4</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA</th></tr></thead><tbody>${filtered.map(f => { const t=Number(f['\u05E1\u05DB\u05D5\u05DD'])||0,p=Number(f['\u05E9\u05D5\u05DC\u05DD'])||0,d=Number(f['\u05D9\u05EA\u05E8\u05D4'])||0,pct=t?Math.round(p/t*100):0,sc=d<=0?'success':d>t*0.5?'danger':'warning'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(f['\u05EA\u05DC\u05DE\u05D9\u05D3'],'sm')}<span class="fw-bold">${f['\u05EA\u05DC\u05DE\u05D9\u05D3']}</span></div></td><td>${Utils.formatCurrency(t)}</td><td class="text-success">${Utils.formatCurrency(p)}</td><td class="text-danger fw-bold">${Utils.formatCurrency(d)}</td><td><span class="badge bg-${sc}">${d<=0?'\u05E9\u05D5\u05DC\u05DD':'\u05D7\u05D5\u05D1'}</span></td><td style="min-width:120px"><div class="finance-progress"><div class="finance-progress-bar bg-${sc}" style="width:${pct}%"></div></div><small class="text-muted">${pct}%</small></td></tr>`; }).join('')}</tbody></table></div>`;
+    document.getElementById('fin-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D5\u05D3\u05E9</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${filtered.map(f => { const nm=f['\u05E9\u05DD']||f['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; const amt=Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; const isPaid=(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD'; const sc=isPaid?'success':'danger'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(nm,'sm')}<span class="fw-bold">${nm}</span></div></td><td>${f['\u05D7\u05D5\u05D3\u05E9']||''}</td><td class="fw-bold">${Utils.formatCurrency(amt)}</td><td><span class="badge bg-${sc}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></td><td>${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||''}</td><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'])}</td></tr>`; }).join('')}</tbody></table></div>`;
   },
 
   /* ======================================================================
@@ -481,15 +489,15 @@ const Pages = {
     document.getElementById('beh-total').textContent = rows.length;
     // Leaderboard
     const scores = {};
-    rows.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]={p:0,n:0}; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++; });
+    rows.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]={p:0,n:0}; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++; });
     const sorted = Object.keys(scores).sort((a,b) => (scores[b].p-scores[b].n)-(scores[a].p-scores[a].n)).slice(0,5);
     if (sorted.length) { document.getElementById('beh-leaderboard').style.display=''; document.getElementById('beh-top').innerHTML = sorted.map((n,i) => { const net = scores[n].p-scores[n].n; return `<div class="d-flex align-items-center gap-2 mb-1"><span class="fw-bold" style="width:25px">${['&#129351;','&#129352;','&#129353;','4','5'][i]}</span><span class="flex-grow-1">${n}</span><span class="badge ${net>=0?'bg-success':'bg-danger'}">${net>=0?'+':''}${net}</span></div>`; }).join(''); }
     if (!rows.length) { document.getElementById('beh-list').innerHTML = '<div class="empty-state"><i class="bi bi-star"></i><h5>\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('beh-list').innerHTML = rows.slice().reverse().slice(0,50).map(r => { const tc = r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9'?'success':r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9'?'danger':'secondary'; return `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><span class="badge bg-${tc} me-2">${r['\u05E1\u05D5\u05D2']||''}</span><strong>${r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''}</strong></div><small class="text-muted">${Utils.formatDateShort(r['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</small></div><p class="mb-0 mt-1 small">${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</p></div>`; }).join('');
+    document.getElementById('beh-list').innerHTML = rows.slice().reverse().slice(0,50).map(r => { const tc = r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9'?'success':r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9'?'danger':'secondary'; const nm=r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; return `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><span class="badge bg-${tc} me-2">${r['\u05E1\u05D5\u05D2']||''}</span><strong>${nm}</strong></div><small class="text-muted">${Utils.formatDateShort(r['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</small></div><p class="mb-0 mt-1 small">${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</p></div>`; }).join('');
   },
-  showAddBeh() { const students = this._studentsData || []; const sel = document.getElementById('bf-student'); if (sel) { sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s => `<option value="${s.id}">${s['\u05E9\u05DD']||''}</option>`).join(''); } new bootstrap.Modal(document.getElementById('beh-modal')).show(); },
+  showAddBeh() { const students = this._studentsData || []; const sel = document.getElementById('bf-student'); if (sel) { sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); } new bootstrap.Modal(document.getElementById('beh-modal')).show(); },
   async saveBeh() {
-    const row = { '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': document.getElementById('bf-student').selectedOptions[0]?.text || '', '\u05E1\u05D5\u05D2': document.getElementById('bf-type').value, '\u05D7\u05D5\u05DE\u05E8\u05D4': document.getElementById('bf-severity').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('bf-desc').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO() };
+    const row = { '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': document.getElementById('bf-student').value, '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': document.getElementById('bf-student').selectedOptions[0]?.text || '', '\u05E1\u05D5\u05D2': document.getElementById('bf-type').value, '\u05D7\u05D5\u05DE\u05E8\u05D4': document.getElementById('bf-severity').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('bf-desc').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO() };
     try { await App.apiCall('add', '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', { row }); bootstrap.Modal.getInstance(document.getElementById('beh-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.behaviorInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 
@@ -559,12 +567,12 @@ const Pages = {
     if (type === 'behavior') {
       const beh = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
       const scores = {};
-      beh.forEach(r => { const n=r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]=0; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n]++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n]--; });
+      beh.forEach(r => { const n=r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]=0; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n]++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n]--; });
       data = Object.keys(scores).map(n => ({name:n, score:scores[n]})).sort((a,b)=>b.score-a.score);
     } else {
       const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
       const counts = {};
-      att.forEach(a => { const n=a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!counts[n]) counts[n]={p:0,t:0}; counts[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') counts[n].p++; });
+      att.forEach(a => { const n=a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!counts[n]) counts[n]={p:0,t:0}; counts[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') counts[n].p++; });
       data = Object.keys(counts).map(n => ({name:n, score:counts[n].t?Math.round(counts[n].p/counts[n].t*100):0})).sort((a,b)=>b.score-a.score);
     }
     if (!data.length) { document.getElementById('rank-table').innerHTML = '<div class="empty-state"><i class="bi bi-trophy"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h5></div>'; document.getElementById('rank-podium').style.display='none'; return; }
@@ -745,7 +753,7 @@ const Pages = {
     if (!this._mvzData.length) { document.getElementById('mvz-list').innerHTML = '<div class="empty-state"><i class="bi bi-award"></i><h5>\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9\u05DD</h5></div>'; return; }
     document.getElementById('mvz-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05DC\u05D9\u05DE\u05D5\u05D3</th><th class="fw-bold">\u05E1\u05D4"\u05DB</th></tr></thead><tbody>${this._mvzData.map(r => `<tr><td class="fw-bold">${r['\u05E9\u05DD']||''}</td><td>${r['\u05E9\u05D7\u05E8\u05D9\u05EA']||0}</td><td>${r['\u05DE\u05E0\u05D7\u05D4']||0}</td><td>${r['\u05DE\u05E2\u05E8\u05D9\u05D1']||0}</td><td>${r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']||0}</td><td class="fw-bold text-primary">${r['\u05E1\u05D4_\u05DB']||0}</td></tr>`).join('')}</tbody></table></div>`;
   },
-  async showAddMvz() { const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); document.getElementById('mvf-student').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s=>`<option value="${s.id}">${s['\u05E9\u05DD']||''}</option>`).join(''); new bootstrap.Modal(document.getElementById('mvz-modal')).show(); },
+  async showAddMvz() { const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); document.getElementById('mvf-student').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); new bootstrap.Modal(document.getElementById('mvz-modal')).show(); },
   async saveMvz() { const sel=document.getElementById('mvf-student'); const sh=parseInt(document.getElementById('mvf-shacharit').value)||0; const mn=parseInt(document.getElementById('mvf-mincha').value)||0; const ma=parseInt(document.getElementById('mvf-maariv').value)||0; const se=parseInt(document.getElementById('mvf-self').value)||0; const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05E9\u05D7\u05E8\u05D9\u05EA':sh,'\u05DE\u05E0\u05D7\u05D4':mn,'\u05DE\u05E2\u05E8\u05D9\u05D1':ma,'\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9':se,'\u05E1\u05D4_\u05DB':sh+mn+ma+se}; try { await App.apiCall('add','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{row}); bootstrap.Modal.getInstance(document.getElementById('mvz-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
 
   /* ======================================================================
@@ -772,14 +780,14 @@ const Pages = {
     }
     if (type==='all'||type==='finance') {
       const totalAmt=fin.reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-      const totalPaid=fin.reduce((s,f)=>s+(Number(f['\u05E9\u05D5\u05DC\u05DD'])||0),0);
-      const totalDebt=fin.reduce((s,f)=>s+(Number(f['\u05D9\u05EA\u05E8\u05D4'])||0),0);
+      const totalPaid=fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+      const totalDebt=totalAmt-totalPaid;
       html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-cash-coin me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold">${Utils.formatCurrency(totalAmt)}</div><small>\u05E1\u05D4"\u05DB</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(totalPaid)}</div><small>\u05E0\u05D2\u05D1\u05D4</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(totalDebt)}</div><small>\u05D7\u05D5\u05D1</small></div></div></div>`;
     }
     if (type==='all') {
       const pos=beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
       const neg=beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
-      html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-star-half me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold text-success">${pos}</div><small>\u05D7\u05D9\u05D5\u05D1\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${neg}</div><small>\u05E9\u05DC\u05D9\u05DC\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold">${students.filter(s=>s['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC').length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div></div>`;
+      html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-star-half me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold text-success">${pos}</div><small>\u05D7\u05D9\u05D5\u05D1\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${neg}</div><small>\u05E9\u05DC\u05D9\u05DC\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold">${students.filter(s=>(s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC').length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div></div>`;
     }
     container.innerHTML = html || '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
   },
@@ -881,7 +889,7 @@ const Pages = {
   },
   async phoneInit() {
     const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
-    const contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:s['\u05E9\u05DD'],phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
+    const contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
     document.getElementById('phone-contacts').innerHTML = contacts.length ? contacts.map(c=>`<div class="d-flex align-items-center gap-3 py-2 border-bottom clickable" onclick="Pages.quickDial('${c.phone}')">${Utils.avatarHTML(c.name,'sm')}<div class="flex-grow-1"><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.role}</small></div><small dir="ltr">${Utils.formatPhone(c.phone)}</small></div>`).join('') : '<div class="text-muted text-center">\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</div>';
   },
   dialPress(d) { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'')+d; },
