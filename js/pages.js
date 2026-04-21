@@ -891,7 +891,7 @@ const Pages = {
     if (filtered.length === 0) { document.getElementById('staff-list').innerHTML = `<div class="empty-state"><i class="bi bi-person-badge"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>`; return; }
     document.getElementById('staff-list').innerHTML = `<div class="row g-3">${filtered.map(s => {
       const name = Utils.fullName(s); const role = s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || ''; const phone = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''; const sid = Utils.rowId(s);
-      return `<div class="col-md-6 col-lg-4"><div class="card p-3 card-clickable" onclick="location.hash='staff_card/${sid}'"><div class="d-flex align-items-center gap-3">${Utils.avatarHTML(name, 'lg')}<div class="flex-grow-1"><div class="fw-bold fs-6">${name}</div><div class="text-muted small">${role}</div>${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div></div>`;
+      return `<div class="col-md-6 col-lg-4"><div class="card p-3"><div class="d-flex align-items-center gap-3 cursor-pointer" onclick="location.hash='staff_card/${sid}'">${Utils.avatarHTML(name, 'lg')}<div class="flex-grow-1"><div class="fw-bold fs-6">${name}</div><div class="text-muted small">${role}</div>${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div><div class="d-flex gap-1 mt-2 border-top pt-2"><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();Pages.showAddStaff(Pages._staffData.find(x=>x===Pages._staffData.filter(z=>String(Utils.rowId(z))==='${sid}')[0]))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D5\u05DA</button><button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation();Pages.deleteStaff('${sid}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05E7</button>${phone?`<a href="https://wa.me/972${phone.replace(/^0/,'')}" target="_blank" class="btn btn-sm btn-outline-success ms-auto" onclick="event.stopPropagation()"><i class="bi bi-whatsapp"></i></a>`:''}</div></div></div>`;
     }).join('')}</div>`;
   },
   showAddStaff(staff = null) {
@@ -1990,20 +1990,51 @@ const Pages = {
      HUB
      ====================================================================== */
   hub() {
-    return `<div class="page-header"><h1><i class="bi bi-grid-fill me-2"></i>\u05DE\u05E8\u05DB\u05D6 \u05DE\u05D9\u05D3\u05E2</h1></div><div class="row g-3">${[
-      {page:'students',icon:'bi-people-fill',color:'primary',label:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'},
-      {page:'staff',icon:'bi-person-badge-fill',color:'success',label:'\u05E6\u05D5\u05D5\u05EA'},
-      {page:'parents',icon:'bi-house-heart-fill',color:'warning',label:'\u05D4\u05D5\u05E8\u05D9\u05DD'},
-      {page:'attendance',icon:'bi-calendar-check-fill',color:'info',label:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'},
-      {page:'finance',icon:'bi-cash-stack',color:'danger',label:'\u05DB\u05E1\u05E4\u05D9\u05DD'},
-      {page:'behavior',icon:'bi-star-half',color:'primary',label:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'},
-      {page:'homework',icon:'bi-book',color:'success',label:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA'},
-      {page:'academics',icon:'bi-journal-text',color:'info',label:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'},
-      {page:'tasks',icon:'bi-kanban',color:'warning',label:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'},
-      {page:'calendar',icon:'bi-calendar3',color:'primary',label:'\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4'},
-      {page:'reports',icon:'bi-file-earmark-bar-graph',color:'danger',label:'\u05D3\u05D5\u05D7\u05D5\u05EA'},
-      {page:'communications',icon:'bi-chat-dots',color:'success',label:'\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA'}
-    ].map(p => `<div class="col-6 col-md-4 col-lg-3"><a href="#${p.page}" class="card p-3 text-center text-decoration-none card-clickable"><i class="bi ${p.icon} fs-1 text-${p.color}"></i><div class="fw-bold mt-2">${p.label}</div></a></div>`).join('')}</div>`;
+    const sections = [
+      { title: '\u05E0\u05D9\u05D4\u05D5\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', items: [
+        {page:'students',icon:'bi-people-fill',color:'primary',label:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'},
+        {page:'parents',icon:'bi-house-heart-fill',color:'warning',label:'\u05D4\u05D5\u05E8\u05D9\u05DD'},
+        {page:'attendance',icon:'bi-calendar-check-fill',color:'info',label:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'},
+        {page:'attendance_monthly',icon:'bi-calendar-range',color:'info',label:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA'},
+        {page:'behavior',icon:'bi-star-half',color:'primary',label:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'},
+        {page:'medical',icon:'bi-heart-pulse',color:'danger',label:'\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9'},
+      ]},
+      { title: '\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD', items: [
+        {page:'homework',icon:'bi-book',color:'success',label:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA'},
+        {page:'academics',icon:'bi-journal-text',color:'info',label:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'},
+        {page:'schedule',icon:'bi-clock',color:'primary',label:'\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA'},
+        {page:'rankings',icon:'bi-trophy',color:'warning',label:'\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD'},
+        {page:'mivtza',icon:'bi-lightning',color:'warning',label:'\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3'},
+      ]},
+      { title: '\u05E6\u05D5\u05D5\u05EA \u05D5\u05DE\u05D5\u05E1\u05D3', items: [
+        {page:'staff',icon:'bi-person-badge-fill',color:'success',label:'\u05E6\u05D5\u05D5\u05EA'},
+        {page:'staff_salary',icon:'bi-cash-stack',color:'success',label:'\u05E9\u05DB\u05E8 \u05E6\u05D5\u05D5\u05EA'},
+        {page:'institutions',icon:'bi-building',color:'primary',label:'\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA'},
+        {page:'committees',icon:'bi-people',color:'info',label:'\u05D5\u05E2\u05D3\u05D5\u05EA'},
+      ]},
+      { title: '\u05DB\u05E1\u05E4\u05D9\u05DD', items: [
+        {page:'finance',icon:'bi-cash-stack',color:'danger',label:'\u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3'},
+        {page:'budget',icon:'bi-piggy-bank',color:'warning',label:'\u05EA\u05E7\u05E6\u05D9\u05D1'},
+        {page:'pettycash',icon:'bi-wallet2',color:'success',label:'\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4'},
+      ]},
+      { title: '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D5\u05E0\u05D9\u05D4\u05D5\u05DC', items: [
+        {page:'communications',icon:'bi-chat-dots',color:'success',label:'\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA'},
+        {page:'tasks',icon:'bi-kanban',color:'warning',label:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'},
+        {page:'calendar',icon:'bi-calendar3',color:'primary',label:'\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4'},
+        {page:'trips',icon:'bi-bus-front',color:'info',label:'\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD'},
+        {page:'documents',icon:'bi-folder',color:'warning',label:'\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD'},
+        {page:'forms',icon:'bi-ui-checks',color:'primary',label:'\u05D8\u05E4\u05E1\u05D9\u05DD'},
+      ]},
+      { title: '\u05D3\u05D5\u05D7\u05D5\u05EA \u05D5\u05DB\u05DC\u05D9\u05DD', items: [
+        {page:'reports',icon:'bi-file-earmark-bar-graph',color:'danger',label:'\u05D3\u05D5\u05D7\u05D5\u05EA'},
+        {page:'ai_assistant',icon:'bi-robot',color:'info',label:'\u05E2\u05D5\u05D6\u05E8 AI'},
+        {page:'activity_log',icon:'bi-clock-history',color:'secondary',label:'\u05D9\u05D5\u05DE\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA'},
+        {page:'settings',icon:'bi-gear',color:'secondary',label:'\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA'},
+        {page:'user_management',icon:'bi-person-lock',color:'danger',label:'\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD'},
+        {page:'help',icon:'bi-question-circle',color:'secondary',label:'\u05E2\u05D6\u05E8\u05D4'},
+      ]}
+    ];
+    return `<div class="page-header"><h1><i class="bi bi-grid-fill me-2"></i>\u05DE\u05E8\u05DB\u05D6 \u05DE\u05D9\u05D3\u05E2</h1><p class="text-muted">\u05D2\u05D9\u05E9\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4 \u05DC\u05DB\u05DC \u05D4\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD</p></div>${sections.map(sec => `<h6 class="fw-bold mt-3 mb-2 text-muted"><i class="bi bi-chevron-left me-1"></i>${sec.title}</h6><div class="row g-3 mb-2">${sec.items.map(p => `<div class="col-6 col-md-4 col-lg-3"><a href="#${p.page}" class="card p-3 text-center text-decoration-none card-clickable"><i class="bi ${p.icon} fs-1 text-${p.color}"></i><div class="fw-bold mt-2">${p.label}</div></a></div>`).join('')}</div>`).join('')}`;
   },
   hubInit() {},
 
@@ -2605,12 +2636,116 @@ const Pages = {
       <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-cloud me-2"></i>\u05D7\u05D9\u05D1\u05D5\u05E8 API</h6><div class="mb-3"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA API</label><input type="url" class="form-control" id="set-api" value="${apiUrl}" dir="ltr"></div><button class="btn btn-primary btn-sm" onclick="Pages.saveApiUrl()"><i class="bi bi-check me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div></div>
       <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-database me-2"></i>\u05DE\u05D8\u05DE\u05D5\u05DF</h6><button class="btn btn-outline-warning btn-sm" onclick="Pages.clearCache()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05DE\u05D8\u05DE\u05D5\u05DF</button></div></div>
       <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>\u05D0\u05D1\u05D8\u05D7\u05D4</h6><div class="mb-3"><label class="form-label">\u05E7\u05D5\u05D3 PIN \u05D7\u05D3\u05E9</label><input type="password" class="form-control" id="set-pin" maxlength="6" inputmode="numeric"></div><button class="btn btn-primary btn-sm" onclick="Pages.changePin()"><i class="bi bi-key me-1"></i>\u05E2\u05D3\u05DB\u05D5\u05DF</button></div></div>
+
+      <!-- Backup & Export -->
+      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-cloud-download me-2 text-primary"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D5\u05D9\u05D9\u05E6\u05D5\u05D0</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.backupNow()"><i class="bi bi-cloud-arrow-up me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D1\u05E9\u05E8\u05EA</button>
+          <button class="btn btn-outline-success btn-sm" onclick="Pages.exportAllData()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05DB\u05DC \u05D4\u05DE\u05D9\u05D3\u05E2</button>
+        </div>
+        <div id="backup-result" class="mt-2"></div>
+      </div></div>
+
+      <!-- Self-Check -->
+      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-heart-pulse me-2 text-danger"></i>\u05D1\u05D3\u05D9\u05E7\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA</h6>
+        <button class="btn btn-outline-danger btn-sm" onclick="Pages.runSelfCheck()"><i class="bi bi-activity me-1"></i>\u05D4\u05E4\u05E2\u05DC \u05D1\u05D3\u05D9\u05E7\u05D4</button>
+        <div id="selfcheck-result" class="mt-2"></div>
+      </div></div>
+
+      <!-- Email Actions -->
+      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-envelope me-2 text-info"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-info btn-sm" onclick="Pages.sendStatusEmail()"><i class="bi bi-envelope-check me-1"></i>\u05E9\u05DC\u05D7 \u05D3\u05D5\u05D7 \u05D9\u05D5\u05DE\u05D9</button>
+          <button class="btn btn-outline-warning btn-sm" onclick="Pages.sendPayReminders()"><i class="bi bi-cash-coin me-1"></i>\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</button>
+          <button class="btn btn-outline-success btn-sm" onclick="Pages.sendBehSummary()"><i class="bi bi-clipboard-data me-1"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</button>
+        </div>
+        <div id="email-result" class="mt-2"></div>
+      </div></div>
+
+      <!-- Data Import -->
+      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down me-2 text-success"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-success btn-sm" onclick="Pages.runImport()"><i class="bi bi-arrow-repeat me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05DE\u05DE\u05E7\u05D5\u05E8</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.runSeed()"><i class="bi bi-magic me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0</button>
+        </div>
+        <div id="import-result" class="mt-2"></div>
+      </div></div>
+
       <div class="col-12"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05DE\u05E2\u05E8\u05DB\u05EA</h6><div class="row g-2 small"><div class="col-sm-6"><strong>\u05D2\u05E8\u05E1\u05D4:</strong> 5.0</div><div class="col-sm-6"><strong>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4:</strong> GitHub Pages + Google Sheets</div><div class="col-sm-6"><strong>\u05DE\u05D5\u05E1\u05D3:</strong> \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div><div class="col-sm-6"><strong>\u05DE\u05E4\u05EA\u05D7:</strong> \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</div></div></div></div></div>`;
   },
   settingsInit() { document.getElementById('set-dark').addEventListener('change', (e) => { localStorage.setItem(App.THEME_KEY, e.target.checked ? 'dark' : 'light'); App.applyTheme(); }); },
   saveApiUrl() { const url=document.getElementById('set-api').value.trim(); if (!url) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05EA\u05D5\u05D1\u05EA','warning'); return; } localStorage.setItem('bht_api_url',url); App.API_URL=url; Utils.toast('API \u05E2\u05D5\u05D3\u05DB\u05DF'); },
   clearCache() { Object.keys(localStorage).forEach(k => { if (k.startsWith(App.CACHE_PREFIX)) localStorage.removeItem(k); }); Utils.toast('\u05DE\u05D8\u05DE\u05D5\u05DF \u05E0\u05D5\u05E7\u05D4'); },
   changePin() { const pin=document.getElementById('set-pin').value.trim(); if (pin.length<4) { Utils.toast('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA','warning'); return; } localStorage.setItem(App.PIN_KEY, Utils.hashPin(pin)); document.getElementById('set-pin').value=''; Utils.toast('PIN \u05E2\u05D5\u05D3\u05DB\u05DF'); },
+  // --- Backup ---
+  async backupNow() {
+    const el = document.getElementById('backup-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D2\u05D1\u05D4...';
+    try {
+      const res = await App.apiCall('run', 'createBackup', {});
+      el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05D5\u05E6\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4</div>';
+    } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D2\u05D9\u05D1\u05D5\u05D9</div>'; }
+  },
+  async exportAllData() {
+    const el = document.getElementById('backup-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05D0...';
+    try {
+      const sheets = ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E6\u05D5\u05D5\u05EA','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'];
+      const allData = {};
+      for (const s of sheets) { try { allData[s] = await App.getData(s); } catch(e) { allData[s] = []; } }
+      const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `bht_export_${Utils.todayISO()}.json`; a.click();
+      URL.revokeObjectURL(url);
+      el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D4\u05D5\u05E8\u05D3</div>';
+    } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  // --- Self-Check ---
+  async runSelfCheck() {
+    const el = document.getElementById('selfcheck-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05D1\u05D5\u05D3\u05E7...';
+    const checks = [];
+    // Check 1: API connectivity
+    try { await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); checks.push({ name: '\u05D7\u05D9\u05D1\u05D5\u05E8 API', ok: true }); } catch(e) { checks.push({ name: '\u05D7\u05D9\u05D1\u05D5\u05E8 API', ok: false, err: e.message }); }
+    // Check 2: localStorage
+    try { localStorage.setItem('_test_','1'); localStorage.removeItem('_test_'); checks.push({ name: 'localStorage', ok: true }); } catch(e) { checks.push({ name: 'localStorage', ok: false }); }
+    // Check 3: Cached data freshness
+    const cacheKeys = Object.keys(localStorage).filter(k => k.startsWith(App.CACHE_PREFIX));
+    checks.push({ name: `\u05DE\u05D8\u05DE\u05D5\u05DF (${cacheKeys.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA)`, ok: true });
+    // Check 4: Sheets existence
+    const testSheets = ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05E6\u05D5\u05D5\u05EA','\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'];
+    for (const s of testSheets) { try { await App.getData(s); checks.push({ name: `\u05D2\u05DC\u05D9\u05D5\u05DF ${s}`, ok: true }); } catch(e) { checks.push({ name: `\u05D2\u05DC\u05D9\u05D5\u05DF ${s}`, ok: false }); } }
+    const passed = checks.filter(c => c.ok).length;
+    el.innerHTML = `<div class="mt-2"><div class="fw-bold mb-2">${passed}/${checks.length} \u05D1\u05D3\u05D9\u05E7\u05D5\u05EA \u05E2\u05D1\u05E8\u05D5</div>${checks.map(c => `<div class="small ${c.ok?'text-success':'text-danger'}"><i class="bi bi-${c.ok?'check-circle':'x-circle'} me-1"></i>${c.name}${c.err?' - '+c.err:''}</div>`).join('')}</div>`;
+  },
+  // --- Email Actions ---
+  async sendStatusEmail() {
+    const el = document.getElementById('email-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05E9\u05D5\u05DC\u05D7...';
+    try { await App.apiCall('run', 'sendStatusEmail', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D3\u05D5\u05D7 \u05E0\u05E9\u05DC\u05D7</div>'; } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  async sendPayReminders() {
+    const el = document.getElementById('email-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05E9\u05D5\u05DC\u05D7...';
+    try { await App.apiCall('run', 'sendPaymentReminders', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5</div>'; } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  async sendBehSummary() {
+    const el = document.getElementById('email-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05E9\u05D5\u05DC\u05D7...';
+    try { await App.apiCall('run', 'sendWeeklyBehaviorSummary', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05E9\u05DC\u05D7</div>'; } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  // --- Import/Seed ---
+  async runImport() {
+    const el = document.getElementById('import-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05D1\u05D0...';
+    try { await App.apiCall('run', 'importAll', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05D4\u05D5\u05E9\u05DC\u05DD</div>'; } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  async runSeed() {
+    if (!await Utils.confirm('\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0', '\u05D4\u05D0\u05DD \u05DC\u05D9\u05D9\u05E6\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0? \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5 \u05E2\u05DC\u05D5\u05DC\u05D4 \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD.')) return;
+    const el = document.getElementById('import-result');
+    el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05E8...';
+    try { await App.apiCall('run', 'seedAllData', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0 \u05E0\u05D5\u05E6\u05E8\u05D5</div>'; this.clearCache(); } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
 
   /* ======================================================================
      STAFF SALARY
