@@ -1762,13 +1762,516 @@ const Pages = {
   /* ======================================================================
      FORMS
      ====================================================================== */
+  /* --- Form Builder State --- */
+  _formsData: [],
+  _formResponses: [],
+  _formsTab: 'list',
+  _editingForm: null,
+  _formFields: [],
+  _formColors: ['#4285f4','#34a853','#ea4335','#fbbc04','#673ab7','#ff6d00'],
+  _fieldTypes: [
+    {value:'text', label:'\u05D8\u05E7\u05E1\u05D8', icon:'bi-type'},
+    {value:'textarea', label:'\u05D8\u05E7\u05E1\u05D8 \u05D0\u05E8\u05D5\u05DA', icon:'bi-text-paragraph'},
+    {value:'select', label:'\u05D1\u05D7\u05D9\u05E8\u05D4', icon:'bi-list-ul'},
+    {value:'checkbox', label:'\u05EA\u05D9\u05D1\u05EA \u05E1\u05D9\u05DE\u05D5\u05DF', icon:'bi-check-square'},
+    {value:'date', label:'\u05EA\u05D0\u05E8\u05D9\u05DA', icon:'bi-calendar-date'},
+    {value:'number', label:'\u05DE\u05E1\u05E4\u05E8', icon:'bi-123'},
+    {value:'email', label:'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC', icon:'bi-envelope'},
+    {value:'phone', label:'\u05D8\u05DC\u05E4\u05D5\u05DF', icon:'bi-telephone'},
+    {value:'rating', label:'\u05D3\u05D9\u05E8\u05D5\u05D2 1-5', icon:'bi-star'},
+    {value:'yesno', label:'\u05DB\u05DF/\u05DC\u05D0', icon:'bi-toggle-on'}
+  ],
+
   forms() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-ui-checks me-2"></i>\u05D8\u05E4\u05E1\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Utils.toast('\u05D9\u05E6\u05D9\u05E8\u05EA \u05D8\u05E4\u05E1\u05D9\u05DD \u05D6\u05DE\u05D9\u05E0\u05D4 \u05D1\u05D2\u05E8\u05E1\u05D4 \u05D4\u05DE\u05DC\u05D0\u05D4','info')"><i class="bi bi-plus-lg me-1"></i>\u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9</button></div><div id="forms-list">${Utils.skeleton(2)}</div>`;
+    return `
+      <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div><h1><i class="bi bi-ui-checks me-2"></i>\u05D8\u05E4\u05E1\u05D9\u05DD</h1></div>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showCreateForm()"><i class="bi bi-plus-lg me-1"></i>\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9</button>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" id="forms-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" onclick="Pages.switchFormsTab('list');return false"><i class="bi bi-collection me-1"></i>\u05D8\u05E4\u05E1\u05D9\u05DD \u05E9\u05DC\u05D9</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="Pages.switchFormsTab('responses');return false"><i class="bi bi-inbox me-1"></i>\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA</a></li>
+      </ul>
+
+      <div id="forms-content">${Utils.skeleton(3)}</div>
+
+      <!-- Form Builder Modal (large) -->
+      <div class="modal fade" id="form-builder-modal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="form-builder-title">\u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="fb-id">
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-bold">\u05DB\u05D5\u05EA\u05E8\u05EA \u05D4\u05D8\u05D5\u05E4\u05E1</label>
+              <input type="text" class="form-control form-control-lg" id="fb-title" placeholder="\u05DB\u05D5\u05EA\u05E8\u05EA \u05D4\u05D8\u05D5\u05E4\u05E1">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">\u05E6\u05D1\u05E2</label>
+              <div class="d-flex gap-2" id="fb-colors"></div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">\u05EA\u05D9\u05D0\u05D5\u05E8</label>
+            <textarea class="form-control" id="fb-desc" rows="2" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05D8\u05D5\u05E4\u05E1 (\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9)"></textarea>
+          </div>
+
+          <hr>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-2"></i>\u05E9\u05D3\u05D5\u05EA</h6>
+            <div class="dropdown">
+              <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E9\u05D3\u05D4</button>
+              <ul class="dropdown-menu" id="fb-add-field-menu"></ul>
+            </div>
+          </div>
+          <div id="fb-fields-list"></div>
+          <div id="fb-fields-empty" class="text-center text-muted py-4" style="display:none">
+            <i class="bi bi-arrow-up-circle" style="font-size:2rem"></i>
+            <p class="mt-2">\u05DC\u05D7\u05E5 "\u05D4\u05D5\u05E1\u05E3 \u05E9\u05D3\u05D4" \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+          <button class="btn btn-success" onclick="Pages.saveForm(false)"><i class="bi bi-save me-1"></i>\u05E9\u05DE\u05D9\u05E8\u05D4 (\u05D8\u05D9\u05D5\u05D8\u05D4)</button>
+          <button class="btn btn-primary" onclick="Pages.saveForm(true)"><i class="bi bi-send me-1"></i>\u05E9\u05DE\u05D9\u05E8\u05D4 \u05D5\u05E4\u05E8\u05E1\u05D5\u05DD</button>
+        </div>
+      </div></div></div>
+
+      <!-- Form Preview Modal -->
+      <div class="modal fade" id="form-preview-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">\u05EA\u05E6\u05D5\u05D2\u05D4 \u05DE\u05E7\u05D3\u05D9\u05DE\u05D4</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="form-preview-body"></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05E1\u05D2\u05D5\u05E8</button></div>
+      </div></div></div>
+    `;
   },
+
   async formsInit() {
-    const data = await App.getData('\u05D8\u05E4\u05E1\u05D9\u05DD');
-    if (!data.length) { document.getElementById('forms-list').innerHTML = '<div class="empty-state"><i class="bi bi-ui-checks"></i><h5>\u05D0\u05D9\u05DF \u05D8\u05E4\u05E1\u05D9\u05DD</h5><p class="text-muted">\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p></div>'; return; }
-    document.getElementById('forms-list').innerHTML = `<div class="row g-3">${data.map(f => `<div class="col-md-6 col-lg-4"><div class="card p-3"><h6 class="fw-bold">${f['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}</h6><p class="small text-muted">${f['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</p><span class="badge bg-${f['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E4\u05E2\u05D9\u05DC'?'success':'secondary'}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span></div></div>`).join('')}</div>`;
+    try {
+      this._formsData = await App.getData('\u05D8\u05E4\u05E1\u05D9\u05DD');
+    } catch(e) { this._formsData = []; }
+    this._formsTab = 'list';
+    this._renderFormsContent();
+  },
+
+  switchFormsTab(tab) {
+    this._formsTab = tab;
+    document.querySelectorAll('#forms-tabs .nav-link').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('#forms-tabs .nav-link')[tab === 'list' ? 0 : 1].classList.add('active');
+    this._renderFormsContent();
+  },
+
+  _renderFormsContent() {
+    const el = document.getElementById('forms-content');
+    if (this._formsTab === 'list') {
+      this._renderFormsList(el);
+    } else {
+      this._renderFormResponses(el);
+    }
+  },
+
+  _renderFormsList(container) {
+    const data = this._formsData;
+    if (!data.length) {
+      container.innerHTML = '<div class="empty-state"><i class="bi bi-ui-checks"></i><h5>\u05D0\u05D9\u05DF \u05D8\u05E4\u05E1\u05D9\u05DD</h5><p class="text-muted">\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p></div>';
+      return;
+    }
+    container.innerHTML = `<div class="row g-3">${data.map(f => {
+      const id = Utils.rowId(f);
+      const title = f['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '\u05D8\u05D5\u05E4\u05E1 \u05DC\u05DC\u05D0 \u05E9\u05DD';
+      const desc = f['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+      const status = f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D8\u05D9\u05D5\u05D8\u05D4';
+      const isPublished = status === '\u05E4\u05E2\u05D9\u05DC';
+      const color = f['\u05E6\u05D1\u05E2'] || '#4285f4';
+      const responseCount = f['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || 0;
+      const created = f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E6\u05D9\u05E8\u05D4'] || '';
+      let fieldsCount = 0;
+      try { const fields = JSON.parse(f['\u05E9\u05D3\u05D5\u05EA'] || '[]'); fieldsCount = fields.length; } catch(e) {}
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card h-100" style="border-top:4px solid ${color}">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h6 class="fw-bold mb-0">${title}</h6>
+              <span class="badge bg-${isPublished ? 'success' : 'secondary'}">${isPublished ? '\u05E4\u05E2\u05D9\u05DC' : '\u05D8\u05D9\u05D5\u05D8\u05D4'}</span>
+            </div>
+            ${desc ? `<p class="small text-muted mb-2">${desc}</p>` : ''}
+            <div class="d-flex gap-3 small text-muted mb-3">
+              <span><i class="bi bi-list-check me-1"></i>${fieldsCount} \u05E9\u05D3\u05D5\u05EA</span>
+              <span><i class="bi bi-inbox me-1"></i>${responseCount} \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA</span>
+              ${created ? `<span><i class="bi bi-calendar me-1"></i>${created}</span>` : ''}
+            </div>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 p-3 pt-0">
+            <div class="d-flex gap-1 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm" onclick="Pages.editForm('${id}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
+              <button class="btn btn-outline-info btn-sm" onclick="Pages.previewForm('${id}')" title="\u05EA\u05E6\u05D5\u05D2\u05D4 \u05DE\u05E7\u05D3\u05D9\u05DE\u05D4"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-outline-success btn-sm" onclick="Pages.copyFormLink('${id}')" title="\u05D4\u05E2\u05EA\u05E7 \u05E7\u05D9\u05E9\u05D5\u05E8"><i class="bi bi-link-45deg"></i></button>
+              <button class="btn btn-outline-danger btn-sm ms-auto" onclick="Pages.deleteForm('${id}')" title="\u05DE\u05D7\u05D9\u05E7\u05D4"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  },
+
+  _renderFormResponses(container) {
+    const forms = this._formsData;
+    if (!forms.length) {
+      container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox"></i><h5>\u05D0\u05D9\u05DF \u05D8\u05E4\u05E1\u05D9\u05DD</h5><p class="text-muted">\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05E7\u05D5\u05D3\u05DD</p></div>';
+      return;
+    }
+    container.innerHTML = `
+      <div class="card p-3 mb-3">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label fw-bold">\u05D1\u05D7\u05E8 \u05D8\u05D5\u05E4\u05E1</label>
+            <select class="form-select" id="resp-form-select" onchange="Pages.loadFormResponses(this.value)">
+              <option value="">\u2014 \u05D1\u05D7\u05E8 \u05D8\u05D5\u05E4\u05E1 \u2014</option>
+              ${forms.map(f => `<option value="${Utils.rowId(f)}">${f['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '\u05DC\u05DC\u05D0 \u05E9\u05DD'}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-3">
+            <span class="badge bg-info" id="resp-count-badge" style="display:none"></span>
+          </div>
+          <div class="col-md-4 text-start">
+            <button class="btn btn-outline-success btn-sm" id="resp-export-btn" onclick="Pages.exportFormResponsesCSV()" style="display:none"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="resp-table-container">
+        <div class="text-center text-muted py-5"><i class="bi bi-hand-index" style="font-size:2rem"></i><p class="mt-2">\u05D1\u05D7\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05DC\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA</p></div>
+      </div>
+    `;
+  },
+
+  showCreateForm() {
+    this._editingForm = null;
+    this._formFields = [];
+    document.getElementById('fb-id').value = '';
+    document.getElementById('fb-title').value = '';
+    document.getElementById('fb-desc').value = '';
+    document.getElementById('form-builder-title').textContent = '\u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9';
+    this._renderColorPicker('#4285f4');
+    this._renderFieldTypeMenu();
+    this._renderFormFieldsEditor();
+    new bootstrap.Modal(document.getElementById('form-builder-modal')).show();
+  },
+
+  editForm(id) {
+    const form = this._formsData.find(f => Utils.rowId(f) === id);
+    if (!form) { Utils.toast('\u05D8\u05D5\u05E4\u05E1 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'danger'); return; }
+    this._editingForm = id;
+    document.getElementById('fb-id').value = id;
+    document.getElementById('fb-title').value = form['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '';
+    document.getElementById('fb-desc').value = form['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+    document.getElementById('form-builder-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05D8\u05D5\u05E4\u05E1';
+    this._renderColorPicker(form['\u05E6\u05D1\u05E2'] || '#4285f4');
+    try { this._formFields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) { this._formFields = []; }
+    this._renderFieldTypeMenu();
+    this._renderFormFieldsEditor();
+    new bootstrap.Modal(document.getElementById('form-builder-modal')).show();
+  },
+
+  _renderColorPicker(selected) {
+    const el = document.getElementById('fb-colors');
+    el.innerHTML = this._formColors.map(c =>
+      `<div onclick="Pages._selectFormColor('${c}')" class="rounded-circle border border-2 ${c === selected ? 'border-dark' : 'border-transparent'}" style="width:32px;height:32px;background:${c};cursor:pointer" data-color="${c}"></div>`
+    ).join('');
+    el.dataset.selected = selected;
+  },
+
+  _selectFormColor(color) {
+    document.getElementById('fb-colors').dataset.selected = color;
+    document.querySelectorAll('#fb-colors > div').forEach(d => {
+      d.classList.toggle('border-dark', d.dataset.color === color);
+      d.classList.toggle('border-transparent', d.dataset.color !== color);
+    });
+  },
+
+  _renderFieldTypeMenu() {
+    document.getElementById('fb-add-field-menu').innerHTML = this._fieldTypes.map(t =>
+      `<li><a class="dropdown-item" href="#" onclick="Pages.addFormField('${t.value}');return false"><i class="bi ${t.icon} me-2"></i>${t.label}</a></li>`
+    ).join('');
+  },
+
+  addFormField(type) {
+    const typeObj = this._fieldTypes.find(t => t.value === type);
+    this._formFields.push({
+      id: 'f' + Date.now() + Math.random().toString(36).slice(2,6),
+      type: type,
+      label: typeObj ? typeObj.label : type,
+      required: false,
+      options: type === 'select' ? ['\u05D0\u05E4\u05E9\u05E8\u05D5\u05EA 1', '\u05D0\u05E4\u05E9\u05E8\u05D5\u05EA 2'] : []
+    });
+    this._renderFormFieldsEditor();
+  },
+
+  removeFormField(idx) {
+    this._formFields.splice(idx, 1);
+    this._renderFormFieldsEditor();
+  },
+
+  moveFormField(idx, dir) {
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= this._formFields.length) return;
+    const temp = this._formFields[idx];
+    this._formFields[idx] = this._formFields[newIdx];
+    this._formFields[newIdx] = temp;
+    this._renderFormFieldsEditor();
+  },
+
+  _renderFormFieldsEditor() {
+    const list = document.getElementById('fb-fields-list');
+    const empty = document.getElementById('fb-fields-empty');
+    if (!this._formFields.length) {
+      list.innerHTML = '';
+      empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = this._formFields.map((field, idx) => {
+      const typeObj = this._fieldTypes.find(t => t.value === field.type);
+      const typeName = typeObj ? typeObj.label : field.type;
+      const typeIcon = typeObj ? typeObj.icon : 'bi-question-circle';
+      const isSelect = field.type === 'select';
+      return `
+        <div class="card mb-2 border-start border-3" style="border-color:var(--bht-primary,#4285f4)!important">
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark"><i class="bi ${typeIcon} me-1"></i>${typeName}</span>
+                <span class="text-muted small">#${idx + 1}</span>
+              </div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="Pages.moveFormField(${idx},-1)" ${idx === 0 ? 'disabled' : ''} title="\u05D4\u05E2\u05DC\u05D4"><i class="bi bi-arrow-up"></i></button>
+                <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="Pages.moveFormField(${idx},1)" ${idx === this._formFields.length - 1 ? 'disabled' : ''} title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-arrow-down"></i></button>
+                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Pages.removeFormField(${idx})" title="\u05D4\u05E1\u05E8"><i class="bi bi-x-lg"></i></button>
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="${isSelect ? 'col-md-6' : 'col-md-9'}">
+                <input type="text" class="form-control form-control-sm" value="${this._escAttr(field.label)}" placeholder="\u05EA\u05D5\u05D5\u05D9\u05EA \u05D4\u05E9\u05D3\u05D4" onchange="Pages._updateFieldProp(${idx},'label',this.value)">
+              </div>
+              <div class="col-md-3">
+                <div class="form-check form-switch mt-1">
+                  <input class="form-check-input" type="checkbox" id="fb-req-${idx}" ${field.required ? 'checked' : ''} onchange="Pages._updateFieldProp(${idx},'required',this.checked)">
+                  <label class="form-check-label small" for="fb-req-${idx}">\u05D7\u05D5\u05D1\u05D4</label>
+                </div>
+              </div>
+              ${isSelect ? `<div class="col-md-6">
+                <input type="text" class="form-control form-control-sm" value="${this._escAttr((field.options||[]).join(', '))}" placeholder="\u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA (\u05DE\u05D5\u05E4\u05E8\u05D3\u05D5\u05EA \u05D1\u05E4\u05E1\u05D9\u05E7)" onchange="Pages._updateFieldOptions(${idx},this.value)">
+                <small class="text-muted">\u05D4\u05E4\u05E8\u05D3 \u05D0\u05E4\u05E9\u05E8\u05D5\u05D9\u05D5\u05EA \u05D1\u05E4\u05E1\u05D9\u05E7</small>
+              </div>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  },
+
+  _escAttr(str) {
+    return String(str || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  },
+
+  _updateFieldProp(idx, prop, val) {
+    if (this._formFields[idx]) this._formFields[idx][prop] = val;
+  },
+
+  _updateFieldOptions(idx, val) {
+    if (this._formFields[idx]) {
+      this._formFields[idx].options = val.split(',').map(s => s.trim()).filter(Boolean);
+    }
+  },
+
+  async saveForm(publish) {
+    const title = document.getElementById('fb-title').value.trim();
+    if (!title) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05DB\u05D5\u05EA\u05E8\u05EA \u05DC\u05D8\u05D5\u05E4\u05E1', 'danger'); return; }
+    const id = document.getElementById('fb-id').value;
+    const color = document.getElementById('fb-colors').dataset.selected || '#4285f4';
+    const desc = document.getElementById('fb-desc').value.trim();
+    const status = publish ? '\u05E4\u05E2\u05D9\u05DC' : '\u05D8\u05D9\u05D5\u05D8\u05D4';
+    const fieldsJson = JSON.stringify(this._formFields);
+    const row = {
+      '\u05DB\u05D5\u05EA\u05E8\u05EA': title,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc,
+      '\u05E6\u05D1\u05E2': color,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': status,
+      '\u05E9\u05D3\u05D5\u05EA': fieldsJson,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E6\u05D9\u05E8\u05D4': id ? undefined : Utils.formatDate(new Date()),
+      '\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA': '0'
+    };
+    // Remove undefined keys
+    Object.keys(row).forEach(k => { if (row[k] === undefined) delete row[k]; });
+    try {
+      if (id) {
+        await App.apiCall('update', '\u05D8\u05E4\u05E1\u05D9\u05DD', { id, row });
+      } else {
+        await App.apiCall('add', '\u05D8\u05E4\u05E1\u05D9\u05DD', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('form-builder-modal')).hide();
+      Utils.toast(id ? '\u05D8\u05D5\u05E4\u05E1 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D8\u05D5\u05E4\u05E1 \u05E0\u05D5\u05E6\u05E8');
+      this.formsInit();
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger');
+    }
+  },
+
+  async deleteForm(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D8\u05D5\u05E4\u05E1', '\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D5\u05E4\u05E1 \u05D6\u05D4? \u05DB\u05DC \u05D4\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05D9\u05D9\u05DE\u05D7\u05E7\u05D5.')) return;
+    try {
+      await App.apiCall('delete', '\u05D8\u05E4\u05E1\u05D9\u05DD', { id });
+      Utils.toast('\u05D8\u05D5\u05E4\u05E1 \u05E0\u05DE\u05D7\u05E7');
+      this.formsInit();
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
+  },
+
+  copyFormLink(id) {
+    const form = this._formsData.find(f => Utils.rowId(f) === id);
+    const title = form ? (form['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '') : '';
+    const link = `${location.origin}${location.pathname}#forms/fill/${id}`;
+    navigator.clipboard.writeText(link).then(() => {
+      Utils.toast('\u05E7\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E2\u05EA\u05E7: ' + title);
+    }).catch(() => {
+      Utils.toast('\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05E2\u05EA\u05D9\u05E7', 'danger');
+    });
+  },
+
+  previewForm(id) {
+    const form = this._formsData.find(f => Utils.rowId(f) === id);
+    if (!form) return;
+    let fields = [];
+    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+    const color = form['\u05E6\u05D1\u05E2'] || '#4285f4';
+    const title = form['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '';
+    const desc = form['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+
+    let html = `<div class="p-3 rounded mb-3" style="background:${color};color:#fff">
+      <h4 class="mb-1">${title}</h4>
+      ${desc ? `<p class="mb-0 opacity-75">${desc}</p>` : ''}
+    </div>`;
+
+    if (!fields.length) {
+      html += '<p class="text-muted text-center">\u05D0\u05D9\u05DF \u05E9\u05D3\u05D5\u05EA \u05D1\u05D8\u05D5\u05E4\u05E1 \u05D6\u05D4</p>';
+    } else {
+      html += fields.map(f => {
+        const req = f.required ? ' <span class="text-danger">*</span>' : '';
+        let input = '';
+        switch(f.type) {
+          case 'text': input = '<input type="text" class="form-control" disabled>'; break;
+          case 'textarea': input = '<textarea class="form-control" rows="3" disabled></textarea>'; break;
+          case 'select': input = `<select class="form-select" disabled><option>\u2014 \u05D1\u05D7\u05E8 \u2014</option>${(f.options||[]).map(o=>`<option>${o}</option>`).join('')}</select>`; break;
+          case 'checkbox': input = '<div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">\u05DB\u05DF</label></div>'; break;
+          case 'date': input = '<input type="date" class="form-control" disabled>'; break;
+          case 'number': input = '<input type="number" class="form-control" disabled>'; break;
+          case 'email': input = '<input type="email" class="form-control" disabled dir="ltr">'; break;
+          case 'phone': input = '<input type="tel" class="form-control" disabled dir="ltr">'; break;
+          case 'rating': input = '<div class="d-flex gap-1">' + [1,2,3,4,5].map(n => `<i class="bi bi-star text-warning" style="font-size:1.5rem;cursor:pointer"></i>`).join('') + '</div>'; break;
+          case 'yesno': input = '<div class="btn-group"><button class="btn btn-outline-success btn-sm" disabled>\u05DB\u05DF</button><button class="btn btn-outline-danger btn-sm" disabled>\u05DC\u05D0</button></div>'; break;
+          default: input = '<input type="text" class="form-control" disabled>';
+        }
+        return `<div class="mb-3"><label class="form-label fw-bold">${f.label}${req}</label>${input}</div>`;
+      }).join('');
+    }
+    document.getElementById('form-preview-body').innerHTML = html;
+    new bootstrap.Modal(document.getElementById('form-preview-modal')).show();
+  },
+
+  async loadFormResponses(formId) {
+    const container = document.getElementById('resp-table-container');
+    const badge = document.getElementById('resp-count-badge');
+    const exportBtn = document.getElementById('resp-export-btn');
+    if (!formId) {
+      container.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-hand-index" style="font-size:2rem"></i><p class="mt-2">\u05D1\u05D7\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05DC\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA</p></div>';
+      badge.style.display = 'none';
+      exportBtn.style.display = 'none';
+      return;
+    }
+    container.innerHTML = Utils.skeleton(2);
+    try {
+      const allResponses = await App.getData('\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA_\u05D8\u05E4\u05E1\u05D9\u05DD');
+      this._formResponses = allResponses.filter(r => r['\u05DE\u05D6\u05D4\u05D4_\u05D8\u05D5\u05E4\u05E1'] === formId);
+    } catch(e) {
+      this._formResponses = [];
+    }
+
+    const form = this._formsData.find(f => Utils.rowId(f) === formId);
+    let fields = [];
+    try { fields = JSON.parse((form || {})['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+
+    badge.textContent = this._formResponses.length + ' \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA';
+    badge.style.display = '';
+    exportBtn.style.display = '';
+    exportBtn.dataset.formId = formId;
+
+    if (!this._formResponses.length) {
+      container.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-inbox" style="font-size:2rem"></i><p class="mt-2">\u05D0\u05D9\u05DF \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05DC\u05D8\u05D5\u05E4\u05E1 \u05D6\u05D4</p></div>';
+      return;
+    }
+
+    // Build table
+    const fieldLabels = fields.map(f => f.label);
+    const headerCols = ['\u05EA\u05D0\u05E8\u05D9\u05DA', '\u05E9\u05DD \u05DE\u05DE\u05DC\u05D0', ...fieldLabels];
+    container.innerHTML = `
+      <div class="table-responsive">
+        <table class="table table-sm table-striped">
+          <thead><tr>${headerCols.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+          <tbody>${this._formResponses.map(resp => {
+            let respData = {};
+            try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) {}
+            const date = resp['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+            const name = resp['\u05E9\u05DD'] || '';
+            const fieldValues = fields.map(f => {
+              const val = respData[f.id] || respData[f.label] || '';
+              if (f.type === 'checkbox') return val ? '\u2713' : '\u2717';
+              if (f.type === 'rating') return val ? '\u2605'.repeat(Number(val)) : '';
+              if (f.type === 'yesno') return val === 'yes' ? '\u05DB\u05DF' : val === 'no' ? '\u05DC\u05D0' : val;
+              return val;
+            });
+            return `<tr><td class="small">${date}</td><td>${name}</td>${fieldValues.map(v => `<td class="small">${v}</td>`).join('')}</tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
+  },
+
+  exportFormResponsesCSV() {
+    const formId = document.getElementById('resp-export-btn').dataset.formId;
+    const form = this._formsData.find(f => Utils.rowId(f) === formId);
+    if (!form || !this._formResponses.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'info'); return; }
+    let fields = [];
+    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+
+    const headers = ['\u05EA\u05D0\u05E8\u05D9\u05DA', '\u05E9\u05DD \u05DE\u05DE\u05DC\u05D0', ...fields.map(f => f.label)];
+    const rows = this._formResponses.map(resp => {
+      let respData = {};
+      try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) {}
+      return [
+        resp['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
+        resp['\u05E9\u05DD'] || '',
+        ...fields.map(f => respData[f.id] || respData[f.label] || '')
+      ];
+    });
+
+    const BOM = '\uFEFF';
+    const csvContent = BOM + [headers, ...rows].map(row =>
+      row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')
+    ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (form['\u05DB\u05D5\u05EA\u05E8\u05EA'] || 'form') + '_responses.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E8\u05D3');
   },
 
   /* ======================================================================
