@@ -287,5 +287,89 @@ const Utils = {
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
     link.download = (filename||'table')+'_'+Utils.todayISO()+'.csv'; link.click();
     Utils.toast('CSV \u05D9\u05D5\u05E6\u05D0');
+  },
+
+  /* ---- Sortable table columns ---- */
+  initSortableTable(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    table.querySelectorAll('thead th').forEach((th, idx) => {
+      th.style.cursor = 'pointer';
+      th.style.userSelect = 'none';
+      th.innerHTML += ' <i class="bi bi-arrow-down-up" style="font-size:.7rem;opacity:.3"></i>';
+      th.addEventListener('click', () => {
+        const tbody = table.querySelector('tbody');
+        const rows = [...tbody.querySelectorAll('tr')];
+        const dir = th.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+        // Reset all headers
+        table.querySelectorAll('thead th').forEach(h => { h.dataset.sortDir = ''; h.querySelector('i').className = 'bi bi-arrow-down-up'; h.querySelector('i').style.opacity = '.3'; });
+        th.dataset.sortDir = dir;
+        th.querySelector('i').className = dir === 'asc' ? 'bi bi-arrow-up' : 'bi bi-arrow-down';
+        th.querySelector('i').style.opacity = '1';
+        rows.sort((a, b) => {
+          let aVal = a.cells[idx]?.textContent?.trim() || '';
+          let bVal = b.cells[idx]?.textContent?.trim() || '';
+          // Try numeric sort
+          const aNum = parseFloat(aVal.replace(/[^\d.-]/g, ''));
+          const bNum = parseFloat(bVal.replace(/[^\d.-]/g, ''));
+          if (!isNaN(aNum) && !isNaN(bNum)) return dir === 'asc' ? aNum - bNum : bNum - aNum;
+          // String sort
+          return dir === 'asc' ? aVal.localeCompare(bVal, 'he') : bVal.localeCompare(aVal, 'he');
+        });
+        rows.forEach(r => tbody.appendChild(r));
+      });
+    });
+  },
+
+  /* ---- Pagination ---- */
+  paginate(items, page, perPage = 20) {
+    const total = Math.ceil(items.length / perPage);
+    const start = (page - 1) * perPage;
+    return {
+      items: items.slice(start, start + perPage),
+      page, total, perPage,
+      hasNext: page < total,
+      hasPrev: page > 1
+    };
+  },
+
+  paginationHTML(current, total, onClickFn) {
+    if (total <= 1) return '';
+    let html = '<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">';
+    html += `<li class="page-item ${current <= 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${current-1});return false"><i class="bi bi-chevron-right"></i></a></li>`;
+    for (let i = 1; i <= Math.min(total, 7); i++) {
+      html += `<li class="page-item ${i === current ? 'active' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${i});return false">${i}</a></li>`;
+    }
+    if (total > 7) html += `<li class="page-item disabled"><span class="page-link">...${total}</span></li>`;
+    html += `<li class="page-item ${current >= total ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${current+1});return false"><i class="bi bi-chevron-left"></i></a></li>`;
+    html += '</ul></nav>';
+    return html;
+  },
+
+  /* ---- Copy to clipboard ---- */
+  copyText(text) {
+    navigator.clipboard.writeText(text).then(() => this.toast('\u05D4\u05D5\u05E2\u05EA\u05E7!')).catch(() => {
+      // Fallback
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      this.toast('\u05D4\u05D5\u05E2\u05EA\u05E7!');
+    });
+  },
+
+  /* ---- Relative time ---- */
+  relativeTime(date) {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d)) return date;
+    const diff = Math.round((Date.now() - d) / 1000);
+    if (diff < 60) return '\u05E2\u05DB\u05E9\u05D9\u05D5';
+    if (diff < 3600) return Math.round(diff/60) + ' \u05D3\u05E7\u05D5\u05EA';
+    if (diff < 86400) return Math.round(diff/3600) + ' \u05E9\u05E2\u05D5\u05EA';
+    if (diff < 604800) return Math.round(diff/86400) + ' \u05D9\u05DE\u05D9\u05DD';
+    return this.formatDateShort(date);
   }
 };
