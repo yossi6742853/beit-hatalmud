@@ -1376,36 +1376,142 @@ const Pages = {
      REPORTS
      ====================================================================== */
   reports() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-file-earmark-bar-graph me-2"></i>\u05D3\u05D5\u05D7\u05D5\u05EA</h1></div><button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1</button></div><ul class="nav nav-pills mb-3"><li class="nav-item"><a class="nav-link active" href="#" onclick="Pages.loadReport('all',this)">\u05E1\u05E7\u05D9\u05E8\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA</a></li><li class="nav-item"><a class="nav-link" href="#" onclick="Pages.loadReport('attendance',this)">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li><li class="nav-item"><a class="nav-link" href="#" onclick="Pages.loadReport('finance',this)">\u05DB\u05E1\u05E4\u05D9\u05DD</a></li></ul><div id="rpt-content">${Utils.skeleton(3)}</div>`;
+    return `
+      <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div><h1><i class="bi bi-file-earmark-bar-graph me-2"></i>\u05D3\u05D5\u05D7\u05D5\u05EA</h1></div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1</button>
+        </div>
+      </div>
+      <ul class="nav nav-pills mb-3" id="rpt-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" data-rpt="overview">\u05E1\u05E7\u05D9\u05E8\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-rpt="attendance">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-rpt="finance">\u05DB\u05E1\u05E4\u05D9\u05DD</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-rpt="behavior">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-rpt="classes">\u05DB\u05D9\u05EA\u05D5\u05EA</a></li>
+      </ul>
+      <div id="rpt-content">${Utils.skeleton(3)}</div>`;
   },
-  async reportsInit() { this.loadReport('all'); },
-  async loadReport(type, el) {
-    if (el) { document.querySelectorAll('.nav-pills .nav-link').forEach(a=>a.classList.remove('active')); el.classList.add('active'); }
-    const container = document.getElementById('rpt-content');
-    container.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
-    const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-    const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-    const fin = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
-    const beh = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
-    let html = '';
-    if (type==='all'||type==='attendance') {
-      const present=att.filter(a=>a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
-      const absent=att.filter(a=>a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8').length;
-      const pct=att.length?Math.round(present/att.length*100):0;
-      html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-clipboard-data me-2"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold text-success">${pct}%</div><small>\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-primary">${present}</div><small>\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${absent}</div><small>\u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD</small></div></div></div>`;
+  async reportsInit() {
+    document.querySelectorAll('#rpt-tabs .nav-link').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('#rpt-tabs .nav-link').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        this.loadReport(a.dataset.rpt);
+      });
+    });
+    this.loadReport('overview');
+  },
+  async loadReport(type) {
+    const c = document.getElementById('rpt-content');
+    c.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+
+    const [students, att, fin, beh] = await Promise.all([
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
+      App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
+      App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
+      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])
+    ]);
+    const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+
+    if (type === 'overview') {
+      const present = att.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
+      const absent = att.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8').length;
+      const totalFin = fin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const paidFin = fin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const posB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+      const negB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+
+      c.innerHTML = `
+        <div class="row g-3 mb-4">
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${active.length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${att.length ? Math.round(present/att.length*100) : 0}%</div><small>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05DE\u05D5\u05E6\u05E2\u05EA</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${Utils.formatCurrency(totalFin-paidFin)}</div><small>\u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-warning">${posB-negB}</div><small>\u05E0\u05D9\u05E7\u05D5\u05D3 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E0\u05D8\u05D5</small></div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-bar-chart me-2"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</h6><div style="height:250px"><canvas id="rpt-att-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-pie-chart me-2"></i>\u05DE\u05E6\u05D1 \u05DB\u05E1\u05E4\u05D9</h6><div style="height:250px"><canvas id="rpt-fin-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-star me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div style="height:250px"><canvas id="rpt-beh-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-people me-2"></i>\u05DB\u05D9\u05EA\u05D5\u05EA</h6><div style="height:250px"><canvas id="rpt-cls-chart"></canvas></div></div></div>
+        </div>`;
+
+      // Attendance bar
+      const attCtx = document.getElementById('rpt-att-chart');
+      if (attCtx) App.charts.rptAtt = new Chart(attCtx, {type:'bar', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present, absent, att.filter(a=>a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D0\u05D9\u05D7\u05D5\u05E8').length], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+
+      // Finance doughnut
+      const finCtx = document.getElementById('rpt-fin-chart');
+      if (finCtx) App.charts.rptFin = new Chart(finCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1'], datasets:[{data:[paidFin, totalFin-paidFin], backgroundColor:['#0f9d58','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom'}}}});
+
+      // Behavior bar
+      const behCtx = document.getElementById('rpt-beh-chart');
+      if (behCtx) App.charts.rptBeh = new Chart(behCtx, {type:'bar', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[posB, negB, beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D4\u05E2\u05E8\u05D4').length], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+
+      // Classes pie
+      const classes = {}; active.forEach(s => { const cl = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; classes[cl]=(classes[cl]||0)+1; });
+      const clsCtx = document.getElementById('rpt-cls-chart');
+      if (clsCtx) App.charts.rptCls = new Chart(clsCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.values(classes), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}});
     }
-    if (type==='all'||type==='finance') {
-      const totalAmt=fin.reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-      const totalPaid=fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-      const totalDebt=totalAmt-totalPaid;
-      html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-cash-coin me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold">${Utils.formatCurrency(totalAmt)}</div><small>\u05E1\u05D4"\u05DB</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(totalPaid)}</div><small>\u05E0\u05D2\u05D1\u05D4</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(totalDebt)}</div><small>\u05D7\u05D5\u05D1</small></div></div></div>`;
+    else if (type === 'attendance') {
+      // Group by date, last 14 days
+      const byDate = {};
+      att.forEach(a => { const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''; if (!d) return; if (!byDate[d]) byDate[d]={p:0,a:0,l:0}; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') byDate[d].p++; else if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8') byDate[d].a++; else byDate[d].l++; });
+      const dates = Object.keys(byDate).sort().slice(-14);
+
+      // Per student attendance ranking
+      const perStudent = {};
+      att.forEach(a => { const n = a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!perStudent[n]) perStudent[n]={p:0,t:0}; perStudent[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') perStudent[n].p++; });
+      const ranked = Object.keys(perStudent).map(n => ({name:n, pct:perStudent[n].t?Math.round(perStudent[n].p/perStudent[n].t*100):0})).sort((a,b)=>a.pct-b.pct);
+
+      c.innerHTML = `
+        <div class="card p-3 mb-3"><h6 class="fw-bold">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA 14 \u05D9\u05DE\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</h6><div style="height:300px"><canvas id="rpt-att14"></canvas></div></div>
+        <div class="card p-3"><h6 class="fw-bold">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF (\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4)</h6>
+          ${ranked.filter(r=>r.pct<80).length ? `<table class="table table-sm table-bht"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</th><th>\u05DE\u05E6\u05D1</th></tr></thead><tbody>${ranked.filter(r=>r.pct<80).map(r => `<tr><td class="fw-bold">${r.name}</td><td>${r.pct}%</td><td><div class="progress" style="height:20px;width:120px"><div class="progress-bar ${r.pct>=60?'bg-warning':'bg-danger'}" style="width:${r.pct}%">${r.pct}%</div></div></td></tr>`).join('')}</tbody></table>` : '<div class="text-success text-center py-3"><i class="bi bi-check-circle me-1"></i>\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E2\u05DC 80% \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>'}
+        </div>`;
+
+      const att14Ctx = document.getElementById('rpt-att14');
+      if (att14Ctx && dates.length) App.charts.rptAtt14 = new Chart(att14Ctx, {type:'bar', data:{labels:dates.map(d=>d.substring(5)), datasets:[{label:'\u05E0\u05D5\u05DB\u05D7',data:dates.map(d=>byDate[d].p),backgroundColor:'#0f9d58'},{label:'\u05D7\u05D9\u05E1\u05D5\u05E8',data:dates.map(d=>byDate[d].a),backgroundColor:'#ea4335'},{label:'\u05D0\u05D9\u05D7\u05D5\u05E8',data:dates.map(d=>byDate[d].l),backgroundColor:'#f9ab00'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}, plugins:{legend:{position:'top'}}}});
     }
-    if (type==='all') {
-      const pos=beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
-      const neg=beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
-      html+=`<div class="card p-3 mb-3"><h6 class="fw-bold"><i class="bi bi-star-half me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div class="row g-3 text-center"><div class="col-md-4"><div class="fs-3 fw-bold text-success">${pos}</div><small>\u05D7\u05D9\u05D5\u05D1\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold text-danger">${neg}</div><small>\u05E9\u05DC\u05D9\u05DC\u05D9</small></div><div class="col-md-4"><div class="fs-3 fw-bold">${students.filter(s=>(s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC').length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div></div>`;
+    else if (type === 'finance') {
+      // Monthly breakdown
+      const byMonth = {};
+      fin.forEach(f => { const m = f['\u05D7\u05D5\u05D3\u05E9']||''; if (!m) return; if (!byMonth[m]) byMonth[m]={total:0,paid:0}; byMonth[m].total += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD') byMonth[m].paid += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; });
+      const months = Object.keys(byMonth).sort().slice(-6);
+
+      c.innerHTML = `
+        <div class="row g-3 mb-3">
+          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold">${Utils.formatCurrency(fin.reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05E1\u05D4"\u05DB</small></div></div>
+          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05E0\u05D2\u05D1\u05D4</small></div></div>
+          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05D7\u05D5\u05D1</small></div></div>
+        </div>
+        <div class="card p-3"><h6 class="fw-bold">\u05DE\u05D2\u05DE\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA</h6><div style="height:300px"><canvas id="rpt-fin-monthly"></canvas></div></div>`;
+
+      const fmCtx = document.getElementById('rpt-fin-monthly');
+      if (fmCtx && months.length) App.charts.rptFinM = new Chart(fmCtx, {type:'bar', data:{labels:months, datasets:[{label:'\u05D7\u05D9\u05D5\u05D1',data:months.map(m=>byMonth[m].total),backgroundColor:'rgba(37,99,235,.3)',borderColor:'#2563eb',borderWidth:2},{label:'\u05D2\u05D1\u05D9\u05D4',data:months.map(m=>byMonth[m].paid),backgroundColor:'rgba(15,157,88,.3)',borderColor:'#0f9d58',borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}}});
     }
-    container.innerHTML = html || '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
+    else if (type === 'behavior') {
+      const scores = {};
+      beh.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]={p:0,n:0}; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++; });
+      const sorted = Object.keys(scores).map(n => ({name:n, net:scores[n].p-scores[n].n, pos:scores[n].p, neg:scores[n].n})).sort((a,b)=>b.net-a.net);
+
+      c.innerHTML = `
+        <div class="card p-3 mb-3"><h6 class="fw-bold">\u05E0\u05D9\u05E7\u05D5\u05D3 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3</h6><div style="height:350px"><canvas id="rpt-beh-rank"></canvas></div></div>
+        <div class="card p-3"><h6 class="fw-bold">\u05D8\u05D1\u05DC\u05D4 \u05DE\u05E4\u05D5\u05E8\u05D8\u05EA</h6><table class="table table-sm table-bht"><thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D9\u05D5\u05D1\u05D9</th><th>\u05E9\u05DC\u05D9\u05DC\u05D9</th><th>\u05E0\u05D8\u05D5</th></tr></thead><tbody>${sorted.map((r,i) => `<tr><td>${i+1}</td><td class="fw-bold">${r.name}</td><td class="text-success">${r.pos}</td><td class="text-danger">${r.neg}</td><td class="fw-bold ${r.net>=0?'text-success':'text-danger'}">${r.net>=0?'+':''}${r.net}</td></tr>`).join('')}</tbody></table></div>`;
+
+      const brCtx = document.getElementById('rpt-beh-rank');
+      if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}});
+    }
+    else if (type === 'classes') {
+      const classes = {};
+      active.forEach(s => { const cls = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; if (!classes[cls]) classes[cls]=[]; classes[cls].push(s); });
+
+      c.innerHTML = `<div class="row g-3">${Object.keys(classes).sort().map(cls => {
+        const list = classes[cls];
+        return `<div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-people-fill text-primary me-2"></i>\u05DB\u05D9\u05EA\u05D4 ${cls} <span class="badge bg-primary">${list.length}</span></h6><div class="mt-2">${list.map(s => `<div class="d-flex align-items-center gap-2 py-1 border-bottom">${Utils.avatarHTML(Utils.fullName(s),'sm')}<a href="#student/${Utils.rowId(s)}" class="text-decoration-none">${Utils.fullName(s)}</a></div>`).join('')}</div></div></div>`;
+      }).join('')}</div>`;
+    }
   },
 
   /* ======================================================================
