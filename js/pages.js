@@ -1235,19 +1235,209 @@ const Pages = {
      COMMUNICATIONS
      ====================================================================== */
   communications() {
-    return `<div class="page-header"><h1><i class="bi bi-chat-dots me-2"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h1></div><ul class="nav nav-tabs mb-3"><li class="nav-item"><a class="nav-link active" href="#" onclick="Pages._commTab='history';Pages.renderComm();return false">\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05E0\u05E9\u05DC\u05D7\u05D5</a></li><li class="nav-item"><a class="nav-link" href="#" onclick="Pages._commTab='send';Pages.renderComm();return false">\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4</a></li></ul><div id="comm-content">${Utils.skeleton(3)}</div>`;
+    return `<div class="page-header"><h1><i class="bi bi-chat-dots me-2"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h1></div>
+    <ul class="nav nav-tabs mb-3" id="comm-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" data-comm-tab="history" onclick="Pages._commTab='history';Pages.renderComm();return false"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="send" onclick="Pages._commTab='send';Pages.renderComm();return false"><i class="bi bi-send me-1"></i>\u05E9\u05DC\u05D9\u05D7\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="templates" onclick="Pages._commTab='templates';Pages.renderComm();return false"><i class="bi bi-file-earmark-text me-1"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA</a></li>
+    </ul>
+    <div id="comm-content">${Utils.skeleton(3)}</div>`;
   },
-  _commData: [], _commTab: 'history',
-  async communicationsInit() { this._commData = await App.getData('\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA'); this._commTab='history'; this.renderComm(); },
+  _commData: [], _commTab: 'history', _commParents: [], _commStudents: [], _commClasses: [], _commSelectedClasses: new Set(),
+  _waTemplates: [
+    {title:'\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD', icon:'bi-emoji-smile', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3!\n\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05D4\u05EA\u05E7\u05D1\u05DC \u05DC\u05DB\u05D9\u05EA\u05D4 {\u05DB\u05D9\u05EA\u05D4}.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E9\u05EA\u05E3 \u05E4\u05E2\u05D5\u05DC\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', icon:'bi-cash', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D6\u05D5\u05D4\u05D9 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05E2\u05DC \u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D9.\n\u05E1\u05DB\u05D5\u05DD: {\u05E1\u05DB\u05D5\u05DD}\n\u05E0\u05D0 \u05DC\u05D4\u05E1\u05D3\u05D9\u05E8 \u05D1\u05D4\u05E7\u05D3\u05DD.\n\u05EA\u05D5\u05D3\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-exclamation-triangle', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E9\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05E8\u05D5\u05D1', icon:'bi-calendar-event', text:'\u05E9\u05DC\u05D5\u05DD,\n\u05DC\u05D9\u05D3\u05D9\u05E2\u05EA\u05DB\u05DD, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05E8\u05D5\u05D1 \u05D1\u05DE\u05D5\u05E1\u05D3:\n{\u05D0\u05D9\u05E8\u05D5\u05E2}\n\u05EA\u05D0\u05E8\u05D9\u05DA: {\u05EA\u05D0\u05E8\u05D9\u05DA}\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E8\u05D0\u05D5\u05EA\u05DB\u05DD!\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05D1\u05D5\u05E2\u05D9', icon:'bi-clipboard-data', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05D1\u05D5\u05E2\u05D9 \u05E2\u05D1\u05D5\u05E8 {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3}:\n\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA: {\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA}\n\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: {\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA}\n\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA: {\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05E6\u05D5\u05D5\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05D5\u05D3\u05E2\u05EA \u05D7\u05D5\u05E4\u05E9\u05D4', icon:'bi-sun', text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD,\n\u05DC\u05D9\u05D3\u05D9\u05E2\u05EA\u05DB\u05DD, \u05D4\u05DE\u05D5\u05E1\u05D3 \u05D9\u05D4\u05D9\u05D4 \u05E1\u05D2\u05D5\u05E8 \u05D1:\n{\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD}\n\u05E1\u05D9\u05D1\u05D4: {\u05E1\u05D9\u05D1\u05D4}\n\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD: {\u05D7\u05D6\u05E8\u05D4}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA', icon:'bi-chat-text', text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3,\n{\u05D4\u05D5\u05D3\u05E2\u05D4}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D4\u05E0\u05D4\u05DC\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'}
+  ],
+  async communicationsInit() {
+    const [commData, students, parents] = await Promise.all([
+      App.getData('\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA').catch(() => []),
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
+      App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => [])
+    ]);
+    this._commData = commData;
+    this._commStudents = students;
+    this._commParents = parents;
+    // Build class list from students
+    const classSet = new Set();
+    students.forEach(s => { if (s['\u05DB\u05D9\u05EA\u05D4']) classSet.add(s['\u05DB\u05D9\u05EA\u05D4']); });
+    this._commClasses = [...classSet].sort();
+    this._commSelectedClasses = new Set();
+    this._commTab = 'history';
+    this.renderComm();
+  },
   renderComm() {
-    if (this._commTab === 'send') {
-      document.getElementById('comm-content').innerHTML = `<div class="card p-3"><div class="mb-3"><label class="form-label">\u05D4\u05D5\u05D3\u05E2\u05D4</label><textarea class="form-control" id="comm-msg" rows="5" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05DB\u05D0\u05DF..."></textarea></div><button class="btn btn-success" onclick="Pages.sendComm()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D7 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD</button></div>`;
+    // Update active tab
+    document.querySelectorAll('#comm-tabs .nav-link').forEach(a => {
+      a.classList.toggle('active', a.dataset.commTab === this._commTab);
+    });
+    const el = document.getElementById('comm-content');
+    if (this._commTab === 'history') {
+      this._renderCommHistory(el);
+    } else if (this._commTab === 'send') {
+      this._renderCommSend(el);
     } else {
-      if (!this._commData.length) { document.getElementById('comm-content').innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA</h5></div>'; return; }
-      document.getElementById('comm-content').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD</th><th>\u05EA\u05D5\u05DB\u05DF</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead><tbody>${this._commData.map(r => `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td>${r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD']||''}</td><td class="small">${(r['\u05D4\u05D5\u05D3\u05E2\u05D4']||'').substring(0,60)}</td><td><span class="badge bg-${r['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05E9\u05DC\u05D7'?'success':'secondary'}">${r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D8\u05D9\u05D5\u05D8\u05D4'}</span></td></tr>`).join('')}</tbody></table></div>`;
+      this._renderCommTemplates(el);
     }
   },
-  async sendComm() { const msg = document.getElementById('comm-msg')?.value?.trim(); if (!msg) { Utils.toast('\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4','warning'); return; } const parents = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD'); let sent=0; parents.forEach(p => { if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return; window.open(`https://wa.me/972${p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/^0/,'')}?text=${encodeURIComponent(msg)}`,'_blank'); sent++; }); Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`); },
+  _renderCommHistory(el) {
+    if (!this._commData.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05E0\u05E9\u05DC\u05D7\u05D5</h5><p class="text-muted">\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05EA\u05E9\u05DC\u05D7\u05D5 \u05D9\u05D5\u05E4\u05D9\u05E2\u05D5 \u05DB\u05D0\u05DF</p></div>';
+      return;
+    }
+    const rows = this._commData.map(r => {
+      const status = r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D8\u05D9\u05D5\u05D8\u05D4';
+      const badgeClass = status === '\u05E0\u05E9\u05DC\u05D7' ? 'success' : 'secondary';
+      return `<tr>
+        <td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</td>
+        <td>${r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD'] || ''}</td>
+        <td class="small text-truncate" style="max-width:250px">${(r['\u05D4\u05D5\u05D3\u05E2\u05D4'] || '').substring(0, 80)}</td>
+        <td><span class="badge bg-${badgeClass}">${status}</span></td>
+      </tr>`;
+    }).join('');
+    el.innerHTML = `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+      <thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD</th><th>\u05EA\u05D5\u05DB\u05DF</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead>
+      <tbody>${rows}</tbody></table></div></div>`;
+  },
+  _renderCommSend(el) {
+    const classChecks = this._commClasses.map(c => {
+      const checked = this._commSelectedClasses.has(c) ? 'checked' : '';
+      return `<div class="form-check form-check-inline">
+        <input class="form-check-input comm-class-cb" type="checkbox" value="${c}" id="cc-${c}" ${checked} onchange="Pages._toggleCommClass('${c}')">
+        <label class="form-check-label" for="cc-${c}">${c}</label>
+      </div>`;
+    }).join('');
+    const allChecked = this._commSelectedClasses.size === this._commClasses.length && this._commClasses.length > 0 ? 'checked' : '';
+    const selectedCount = this._getCommRecipients().length;
+    const msgVal = document.getElementById('comm-msg')?.value || '';
+    el.innerHTML = `<div class="card p-3">
+      <h6 class="mb-2"><i class="bi bi-people me-1"></i>\u05D1\u05D7\u05E8 \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</h6>
+      <div class="mb-3 p-2 border rounded bg-light">
+        <div class="form-check form-check-inline border-end pe-3 me-3">
+          <input class="form-check-input" type="checkbox" id="cc-all" ${allChecked} onchange="Pages._toggleCommAll(this.checked)">
+          <label class="form-check-label fw-bold" for="cc-all">\u05D1\u05D7\u05E8 \u05D4\u05DB\u05DC</label>
+        </div>
+        ${classChecks}
+      </div>
+      <div class="mb-2 d-flex justify-content-between align-items-center">
+        <span class="badge bg-primary"><i class="bi bi-people-fill me-1"></i>${selectedCount} \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D5</span>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">\u05D4\u05D5\u05D3\u05E2\u05D4</label>
+        <textarea class="form-control" id="comm-msg" rows="6" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05D0\u05DF..." oninput="Pages._updateCommCharCount()">${msgVal}</textarea>
+        <div class="d-flex justify-content-end mt-1"><small class="text-muted" id="comm-char-count">${msgVal.length} \u05EA\u05D5\u05D5\u05D9\u05DD</small></div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" onclick="Pages.sendComm()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D7 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4</button>
+      </div>
+    </div>`;
+  },
+  _renderCommTemplates(el) {
+    const cards = this._waTemplates.map((t, i) => {
+      const preview = t.text.replace(/\n/g, '<br>').substring(0, 120) + (t.text.length > 120 ? '...' : '');
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title"><i class="bi ${t.icon} me-1 text-primary"></i>${t.title}</h6>
+            <p class="card-text small text-muted" style="min-height:60px">${preview}</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 pt-0">
+            <button class="btn btn-outline-primary btn-sm w-100" onclick="Pages._useCommTemplate(${i})"><i class="bi bi-pencil-square me-1"></i>\u05D4\u05E9\u05EA\u05DE\u05E9</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    el.innerHTML = `<div class="row g-3">${cards}</div>`;
+  },
+  _toggleCommClass(cls) {
+    if (this._commSelectedClasses.has(cls)) this._commSelectedClasses.delete(cls);
+    else this._commSelectedClasses.add(cls);
+    this._renderCommSend(document.getElementById('comm-content'));
+  },
+  _toggleCommAll(checked) {
+    if (checked) this._commClasses.forEach(c => this._commSelectedClasses.add(c));
+    else this._commSelectedClasses.clear();
+    this._renderCommSend(document.getElementById('comm-content'));
+  },
+  _getCommRecipients() {
+    if (!this._commSelectedClasses.size) return [];
+    // Get student IDs for selected classes
+    const studentIds = new Set();
+    const studentNames = {};
+    this._commStudents.forEach(s => {
+      if (this._commSelectedClasses.has(s['\u05DB\u05D9\u05EA\u05D4'])) {
+        const id = s['\u05DE\u05D6\u05D4\u05D4'] || s['\u05E9\u05DD'];
+        studentIds.add(id);
+        studentNames[id] = s['\u05E9\u05DD'];
+      }
+    });
+    // Find parents with phones who match those students
+    const recipients = [];
+    this._commParents.forEach(p => {
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'];
+      if (!phone) return;
+      const studentRef = p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      if (studentIds.has(studentRef) || studentIds.has(p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'])) {
+        recipients.push({ name: p['\u05E9\u05DD'] || '', phone, studentName: studentNames[studentRef] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '' });
+      }
+    });
+    return recipients;
+  },
+  _updateCommCharCount() {
+    const msg = document.getElementById('comm-msg')?.value || '';
+    const counter = document.getElementById('comm-char-count');
+    if (counter) counter.textContent = msg.length + ' \u05EA\u05D5\u05D5\u05D9\u05DD';
+  },
+  _useCommTemplate(idx) {
+    const tpl = this._waTemplates[idx];
+    if (!tpl) return;
+    this._commTab = 'send';
+    this.renderComm();
+    setTimeout(() => {
+      const ta = document.getElementById('comm-msg');
+      if (ta) { ta.value = tpl.text; this._updateCommCharCount(); }
+    }, 50);
+  },
+  async sendComm() {
+    const msg = document.getElementById('comm-msg')?.value?.trim();
+    if (!msg) { Utils.toast('\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    const recipients = this._getCommRecipients();
+    // If no class selected, send to ALL parents
+    let targets = recipients;
+    if (!targets.length) {
+      targets = this._commParents.filter(p => p['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(p => ({ name: p['\u05E9\u05DD'] || '', phone: p['\u05D8\u05DC\u05E4\u05D5\u05DF'], studentName: '' }));
+    }
+    if (!targets.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF', 'warning'); return; }
+    let sent = 0;
+    targets.forEach(t => {
+      const phone = t.phone.replace(/[-\s]/g, '').replace(/^0/, '972');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      sent++;
+    });
+    // Save to history
+    try {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('he-IL');
+      const recipientStr = this._commSelectedClasses.size ? [...this._commSelectedClasses].join(', ') : '\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD';
+      await App.apiCall('add', '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA', {
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
+        '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipientStr,
+        '\u05D4\u05D5\u05D3\u05E2\u05D4': msg.substring(0, 200),
+        '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05E9\u05DC\u05D7'
+      });
+      this._commData.unshift({
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
+        '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipientStr,
+        '\u05D4\u05D5\u05D3\u05E2\u05D4': msg.substring(0, 200),
+        '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05E9\u05DC\u05D7'
+      });
+    } catch(e) { /* silent */ }
+    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`);
+  },
 
   /* ======================================================================
      DOCUMENTS
