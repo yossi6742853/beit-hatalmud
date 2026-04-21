@@ -249,30 +249,68 @@ const Utils = {
     } catch(e) { return ''; }
   },
 
-  /* ---- Birthday helpers ---- */
+  /* ---- Hebrew calendar date from any date (Intl API) ---- */
+  getHebrewDate(date) {
+    try {
+      const d = date instanceof Date ? date : new Date(date);
+      if (isNaN(d)) return null;
+      const dayFmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day: 'numeric' });
+      const monthFmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { month: 'long' });
+      const yearFmt = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { year: 'numeric' });
+      return {
+        day: dayFmt.format(d),
+        month: monthFmt.format(d),
+        year: yearFmt.format(d),
+        full: new Intl.DateTimeFormat('he-IL-u-ca-hebrew', { day:'numeric', month:'long', year:'numeric' }).format(d)
+      };
+    } catch(e) { return null; }
+  },
+
+  /* ---- Birthday helpers (Hebrew calendar) ---- */
   isBirthdayToday(birthdate) {
     if (!birthdate) return false;
     const bd = new Date(birthdate);
     if (isNaN(bd)) return false;
     const today = new Date();
-    return bd.getMonth() === today.getMonth() && bd.getDate() === today.getDate();
+    const todayHeb = this.getHebrewDate(today);
+    const bdHeb = this.getHebrewDate(bd);
+    if (!todayHeb || !bdHeb) return false;
+    return todayHeb.day === bdHeb.day && todayHeb.month === bdHeb.month;
   },
 
   getUpcomingBirthdays(students, days = 7) {
     const today = new Date();
     const upcoming = [];
+
     students.forEach(s => {
       const bd = s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'];
       if (!bd) return;
       const d = new Date(bd);
       if (isNaN(d)) return;
-      const thisYear = new Date(today.getFullYear(), d.getMonth(), d.getDate());
-      const diff = Math.ceil((thisYear - today) / 86400000);
-      if (diff >= 0 && diff <= days) {
-        upcoming.push({ name: Utils.fullName(s), date: bd, daysUntil: diff, age: today.getFullYear() - d.getFullYear() });
+
+      const bdHeb = this.getHebrewDate(d);
+      if (!bdHeb) return;
+
+      // Check each of the next N days for a Hebrew date match
+      for (let i = 0; i <= days; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() + i);
+        const checkHeb = this.getHebrewDate(checkDate);
+        if (checkHeb && checkHeb.day === bdHeb.day && checkHeb.month === bdHeb.month) {
+          const age = today.getFullYear() - d.getFullYear();
+          upcoming.push({
+            name: Utils.fullName(s),
+            hebrewDate: bdHeb.day + ' ' + bdHeb.month,
+            daysUntil: i,
+            age: age,
+            gregorianBirth: bd
+          });
+          break;
+        }
       }
     });
-    return upcoming.sort((a,b) => a.daysUntil - b.daysUntil);
+
+    return upcoming.sort((a, b) => a.daysUntil - b.daysUntil);
   },
 
   /* ---- Data export: CSV from table element ---- */

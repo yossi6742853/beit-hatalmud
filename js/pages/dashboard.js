@@ -308,7 +308,7 @@ Object.assign(Pages, {
             ${Utils.avatarHTML(b.name, 'sm')}
             <div class="flex-grow-1">
               <span class="fw-bold">${b.name}</span>
-              <small class="text-muted ms-2">${b.daysUntil === 0 ? '\uD83C\uDF82 \u05D4\u05D9\u05D5\u05DD!' : '\u05D1\u05E2\u05D5\u05D3 ' + b.daysUntil + ' \u05D9\u05DE\u05D9\u05DD'}</small>
+              <small class="text-muted ms-2">${b.hebrewDate} | ${b.daysUntil === 0 ? '\uD83C\uDF82 \u05D4\u05D9\u05D5\u05DD!' : '\u05D1\u05E2\u05D5\u05D3 ' + b.daysUntil + ' \u05D9\u05DE\u05D9\u05DD'}</small>
             </div>
             <span class="badge bg-light text-dark">\u05D2\u05D9\u05DC ${b.age}</span>
           </div>`
