@@ -453,6 +453,63 @@ Object.assign(Pages, {
     {value:'yesno', label:'\u05DB\u05DF/\u05DC\u05D0', icon:'bi-toggle-on'}
   ],
 
+  _builtInForms: [
+    {title:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC', color:'#2563eb', fields:[
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3',required:true},
+      {type:'text',label:'\u05DB\u05D9\u05EA\u05D4',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05D4\u05D5\u05E8\u05D4',required:true},
+      {type:'text',label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D5\u05E8\u05D4',required:true},
+      {type:'text',label:'\u05D9\u05E2\u05D3 \u05D4\u05D8\u05D9\u05D5\u05DC',required:true},
+      {type:'date',label:'\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D8\u05D9\u05D5\u05DC',required:true},
+      {type:'yesno',label:'\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05D0\u05EA \u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05E0\u05D9/\u05D1\u05EA\u05D9 \u05D1\u05D8\u05D9\u05D5\u05DC',required:true},
+      {type:'textarea',label:'\u05D4\u05E2\u05E8\u05D5\u05EA \u05D1\u05E8\u05D9\u05D0\u05D5\u05EA\u05D9\u05D5\u05EA / \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA'},
+      {type:'text',label:'\u05E9\u05DD \u05DE\u05DC\u05D0 (\u05D7\u05EA\u05D9\u05DE\u05D4 \u05D3\u05D9\u05D2\u05D9\u05D8\u05DC\u05D9\u05EA)',required:true}
+    ]},
+    {title:'\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05DC\u05DE\u05D5\u05E1\u05D3', color:'#0f9d58', fields:[
+      {type:'text',label:'\u05E9\u05DD \u05E4\u05E8\u05D8\u05D9',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4',required:true},
+      {type:'date',label:'\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4',required:true},
+      {type:'text',label:'\u05DB\u05EA\u05D5\u05D1\u05EA \u05DE\u05D2\u05D5\u05E8\u05D9\u05DD',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05D0\u05D1',required:true},
+      {type:'phone',label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D0\u05D1',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05D0\u05DD',required:true},
+      {type:'phone',label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D0\u05DD',required:true},
+      {type:'email',label:'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'},
+      {type:'select',label:'\u05DB\u05D9\u05EA\u05D4 \u05DE\u05D1\u05D5\u05E7\u05E9\u05EA',options:'\u05D0,\u05D1,\u05D2,\u05D3,\u05D4,\u05D5'},
+      {type:'textarea',label:'\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9 \u05D7\u05E9\u05D5\u05D1'},
+      {type:'textarea',label:'\u05D4\u05E2\u05E8\u05D5\u05EA \u05E0\u05D5\u05E1\u05E4\u05D5\u05EA'}
+    ]},
+    {title:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3', color:'#f9ab00', fields:[
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3',required:true},
+      {type:'text',label:'\u05DB\u05D9\u05EA\u05D4',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05D4\u05D5\u05E8\u05D4',required:true},
+      {type:'yesno',label:'\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05E6\u05D9\u05DC\u05D5\u05DD \u05D1\u05E0\u05D9/\u05D1\u05EA\u05D9 \u05DC\u05E6\u05E8\u05DB\u05D9 \u05D4\u05DE\u05D5\u05E1\u05D3',required:true},
+      {type:'yesno',label:'\u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05E4\u05E8\u05E1\u05D5\u05DD \u05D1\u05E8\u05E9\u05EA\u05D5\u05EA \u05D4\u05D7\u05D1\u05E8\u05EA\u05D9\u05D5\u05EA'},
+      {type:'text',label:'\u05D7\u05EA\u05D9\u05DE\u05D4 \u05D3\u05D9\u05D2\u05D9\u05D8\u05DC\u05D9\u05EA',required:true}
+    ]},
+    {title:'\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E9\u05D1\u05D5\u05E2\u05D9', color:'#ea4335', fields:[
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3',required:true},
+      {type:'text',label:'\u05DB\u05D9\u05EA\u05D4',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05DE\u05D7\u05E0\u05DA',required:true},
+      {type:'date',label:'\u05E9\u05D1\u05D5\u05E2 \u05DE-\u05EA\u05D0\u05E8\u05D9\u05DA',required:true},
+      {type:'rating',label:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05DB\u05DC\u05DC\u05D9\u05EA'},
+      {type:'rating',label:'\u05DE\u05E2\u05D5\u05E8\u05D1\u05D5\u05EA \u05D1\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD'},
+      {type:'rating',label:'\u05D9\u05D7\u05E1\u05D9\u05DD \u05E2\u05DD \u05D7\u05D1\u05E8\u05D9\u05DD'},
+      {type:'textarea',label:'\u05D4\u05E2\u05E8\u05D5\u05EA \u05D4\u05DE\u05D7\u05E0\u05DA'},
+      {type:'textarea',label:'\u05D4\u05DE\u05DC\u05E6\u05D5\u05EA \u05DC\u05E9\u05D9\u05E4\u05D5\u05E8'}
+    ]},
+    {title:'\u05D1\u05E7\u05E9\u05EA \u05D7\u05D5\u05E4\u05E9\u05D4', color:'#8b5cf6', fields:[
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3',required:true},
+      {type:'text',label:'\u05DB\u05D9\u05EA\u05D4',required:true},
+      {type:'text',label:'\u05E9\u05DD \u05D4\u05D4\u05D5\u05E8\u05D4',required:true},
+      {type:'date',label:'\u05DE\u05EA\u05D0\u05E8\u05D9\u05DA',required:true},
+      {type:'date',label:'\u05E2\u05D3 \u05EA\u05D0\u05E8\u05D9\u05DA',required:true},
+      {type:'select',label:'\u05E1\u05D9\u05D1\u05D4',options:'\u05DE\u05D7\u05DC\u05D4,\u05D0\u05D9\u05E8\u05D5\u05E2 \u05DE\u05E9\u05E4\u05D7\u05EA\u05D9,\u05D8\u05D9\u05D5\u05DC,\u05D0\u05D7\u05E8'},
+      {type:'textarea',label:'\u05E4\u05D9\u05E8\u05D5\u05D8'},
+      {type:'phone',label:'\u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D9\u05E6\u05D9\u05E8\u05EA \u05E7\u05E9\u05E8',required:true}
+    ]}
+  ],
+
   forms() {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
@@ -620,6 +677,33 @@ Object.assign(Pages, {
         <div class="text-center text-muted py-5"><i class="bi bi-hand-index" style="font-size:2rem"></i><p class="mt-2">\u05D1\u05D7\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05DC\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA</p></div>
       </div>
     `;
+  },
+
+  showFormTemplates() {
+    const html = `<div class="modal fade" id="form-templates-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5>\u05D1\u05D7\u05E8 \u05EA\u05D1\u05E0\u05D9\u05EA \u05D8\u05D5\u05E4\u05E1</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
+      <div class="row g-3">
+        <div class="col-md-4"><div class="card p-3 text-center card-clickable" onclick="bootstrap.Modal.getInstance(document.getElementById('form-templates-modal')).hide();Pages.showCreateForm()"><i class="bi bi-plus-circle fs-1 text-primary"></i><h6 class="mt-2 fw-bold">\u05D8\u05D5\u05E4\u05E1 \u05E8\u05D9\u05E7</h6><small class="text-muted">\u05D4\u05EA\u05D7\u05DC \u05DE\u05D0\u05E4\u05E1</small></div></div>
+        ${this._builtInForms.map((f,i) => `<div class="col-md-4"><div class="card p-3 text-center card-clickable" style="border-top:3px solid ${f.color}" onclick="Pages.useFormTemplate(${i})"><i class="bi bi-file-earmark-text fs-1" style="color:${f.color}"></i><h6 class="mt-2 fw-bold">${f.title}</h6><small class="text-muted">${f.fields.length} \u05E9\u05D3\u05D5\u05EA</small></div></div>`).join('')}
+      </div>
+    </div></div></div></div>`;
+    document.getElementById('form-templates-modal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('form-templates-modal')).show();
+  },
+
+  useFormTemplate(idx) {
+    bootstrap.Modal.getInstance(document.getElementById('form-templates-modal'))?.hide();
+    const tmpl = this._builtInForms[idx];
+    this._editingForm = null;
+    this._formFields = tmpl.fields.map((f,i) => ({...f, id: 'f'+i}));
+    document.getElementById('fb-id').value = '';
+    document.getElementById('fb-title').value = tmpl.title;
+    document.getElementById('fb-desc').value = '';
+    document.getElementById('form-builder-title').textContent = '\u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9';
+    this._renderColorPicker(tmpl.color);
+    this._renderFieldTypeMenu();
+    this._renderFormFieldsEditor();
+    new bootstrap.Modal(document.getElementById('form-builder-modal')).show();
   },
 
   showCreateForm() {
