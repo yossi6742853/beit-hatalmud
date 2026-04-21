@@ -154,7 +154,7 @@
               <button class="sidebar-cat-header" type="button" aria-expanded="true">
                 <i class="bi bi-people-fill sidebar-cat-icon"></i>
                 <span class="sidebar-cat-title">תלמידים</span>
-                <span class="sidebar-cat-badge">8</span>
+                <span class="sidebar-cat-badge">10</span>
                 <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
               </button>
               <div class="sidebar-cat-body">
@@ -251,6 +251,9 @@
                 <a href="#budget" class="sidebar-link" data-page="budget">
                   <i class="bi bi-wallet2"></i><span>תקציב</span>
                 </a>
+                <a href="#donations" class="sidebar-link" data-page="donations">
+                  <i class="bi bi-heart-fill"></i><span>תרומות</span>
+                </a>
               </div>
             </div>
 
@@ -259,7 +262,7 @@
               <button class="sidebar-cat-header" type="button" aria-expanded="true">
                 <i class="bi bi-building sidebar-cat-icon"></i>
                 <span class="sidebar-cat-title">מוסד</span>
-                <span class="sidebar-cat-badge">6</span>
+                <span class="sidebar-cat-badge">8</span>
                 <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
               </button>
               <div class="sidebar-cat-body">
@@ -281,6 +284,12 @@
                 <a href="#medical" class="sidebar-link" data-page="medical">
                   <i class="bi bi-heart-pulse"></i><span>מידע רפואי</span>
                 </a>
+                <a href="#meals" class="sidebar-link" data-page="meals">
+                  <i class="bi bi-egg-fried"></i><span>תפריט</span>
+                </a>
+                <a href="#transport" class="sidebar-link" data-page="transport">
+                  <i class="bi bi-bus-front"></i><span>הסעות</span>
+                </a>
               </div>
             </div>
 
@@ -289,10 +298,13 @@
               <button class="sidebar-cat-header" type="button" aria-expanded="true">
                 <i class="bi bi-gear sidebar-cat-icon"></i>
                 <span class="sidebar-cat-title">מערכת</span>
-                <span class="sidebar-cat-badge">9</span>
+                <span class="sidebar-cat-badge">10</span>
                 <i class="bi bi-chevron-down sidebar-cat-arrow"></i>
               </button>
               <div class="sidebar-cat-body">
+                <a href="#bulletin" class="sidebar-link" data-page="bulletin">
+                  <i class="bi bi-megaphone-fill"></i><span>לוח מודעות</span>
+                </a>
                 <a href="#tasks" class="sidebar-link" data-page="tasks">
                   <i class="bi bi-kanban"></i><span>משימות</span>
                 </a>
@@ -319,6 +331,9 @@
                 </a>
                 <a href="#drive" class="sidebar-link" data-page="drive">
                   <i class="bi bi-cloud-fill"></i><span>Drive</span>
+                </a>
+                <a href="#checklist" class="sidebar-link" data-page="checklist">
+                  <i class="bi bi-check2-square"></i><span>צ'קליסט</span>
                 </a>
               </div>
             </div>
@@ -413,8 +428,15 @@
   <script src="js/pages/organization.js" defer></script>
   <script src="js/pages/communication.js" defer></script>
   <script src="js/pages/admin.js" defer></script>
+  <script src="js/pages/chavruta.js" defer></script>
+  <script src="js/pages/library.js" defer></script>
+  <script src="js/pages/meals.js" defer></script>
+  <script src="js/pages/transport.js" defer></script>
+  <script src="js/pages/bulletin.js" defer></script>
   <script src="js/pages/email.js" defer></script>
   <script src="js/pages/drive.js" defer></script>
+  <script src="js/pages/donations.js" defer></script>
+  <script src="js/pages/checklist.js" defer></script>
   <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
 </body>
 </html>
