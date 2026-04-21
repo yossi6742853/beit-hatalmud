@@ -1,0 +1,295 @@
+/* ===== BHT v5.0 — App Core (Router, Auth, Data Layer) ===== */
+
+const App = {
+  /* ---- Config ---- */
+  API_URL: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  CACHE_TTL: 5 * 60 * 1000, // 5 minutes
+  PIN_KEY: 'bht_pin_hash',
+  CACHE_PREFIX: 'bht_cache_',
+  THEME_KEY: 'bht_theme',
+
+  currentPage: null,
+  charts: {},
+
+  /* ==============================
+     INITIALIZATION
+     ============================== */
+  init() {
+    this.applyTheme();
+    this.bindGlobalEvents();
+
+    if (this.isLoggedIn()) {
+      this.showApp();
+    } else {
+      this.showLogin();
+    }
+  },
+
+  /* ==============================
+     AUTHENTICATION
+     ============================== */
+  isLoggedIn() {
+    return !!localStorage.getItem(this.PIN_KEY);
+  },
+
+  showLogin() {
+    document.getElementById('login-screen').classList.remove('d-none');
+    document.getElementById('app-shell').classList.add('d-none');
+    const pinInput = document.getElementById('pin-input');
+    pinInput.value = '';
+    this.updatePinDots(0);
+    setTimeout(() => pinInput.focus(), 100);
+  },
+
+  showApp() {
+    document.getElementById('login-screen').classList.add('d-none');
+    document.getElementById('app-shell').classList.remove('d-none');
+    this.handleRoute();
+  },
+
+  handleLogin() {
+    const pin = document.getElementById('pin-input').value.trim();
+    if (pin.length < 4) {
+      this.showLoginError('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 \u05DC\u05D4\u05DB\u05D9\u05DC 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA');
+      return;
+    }
+    // Store hashed PIN and enter
+    localStorage.setItem(this.PIN_KEY, Utils.hashPin(pin));
+    this.showApp();
+  },
+
+  logout() {
+    localStorage.removeItem(this.PIN_KEY);
+    // Clear cache
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
+    });
+    this.showLogin();
+  },
+
+  showLoginError(msg) {
+    const el = document.getElementById('login-error');
+    el.textContent = msg;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 3000);
+  },
+
+  updatePinDots(len) {
+    const container = document.getElementById('pin-dots');
+    let html = '';
+    for (let i = 0; i < 6; i++) {
+      html += `<div class="pin-dot ${i < len ? 'filled' : ''}"></div>`;
+    }
+    container.innerHTML = html;
+  },
+
+  /* ==============================
+     ROUTING
+     ============================== */
+  handleRoute() {
+    const hash = location.hash.slice(1) || 'dashboard';
+    const parts = hash.split('/');
+    const page = parts[0];
+    const param = parts[1] || null;
+
+    // Update sidebar active
+    document.querySelectorAll('.sidebar-link').forEach(el => {
+      el.classList.toggle('active', el.dataset.page === page);
+    });
+
+    // Close mobile sidebar
+    const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('sidebar'));
+    if (offcanvas) offcanvas.hide();
+
+    // Destroy old charts
+    Object.values(this.charts).forEach(c => { try { c.destroy(); } catch(e){} });
+    this.charts = {};
+
+    this.currentPage = page;
+    const content = document.getElementById('main-content');
+
+    // Render page
+    if (Pages[page]) {
+      content.innerHTML = '<div class="fade-in">' + Pages[page](param) + '</div>';
+      if (Pages[page + 'Init']) {
+        Pages[page + 'Init'](param);
+      }
+    } else {
+      content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
+    }
+  },
+
+  /* ==============================
+     DATA LAYER
+     ============================== */
+  async fetchSheet(sheet, forceRefresh = false) {
+    const cacheKey = this.CACHE_PREFIX + sheet;
+
+    // Check cache
+    if (!forceRefresh) {
+      const cached = this.getCache(cacheKey);
+      if (cached) return cached;
+    }
+
+    try {
+      const url = `${this.API_URL}?action=list&sheet=${encodeURIComponent(sheet)}`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+
+      // Cache it
+      this.setCache(cacheKey, data);
+      return data;
+    } catch (err) {
+      console.error('fetchSheet error:', sheet, err);
+      // Return cached even if expired
+      const stale = localStorage.getItem(cacheKey);
+      if (stale) {
+        try { return JSON.parse(stale).data; } catch(e) {}
+      }
+      return [];
+    }
+  },
+
+  async apiCall(action, sheet, data = {}) {
+    try {
+      const url = `${this.API_URL}`;
+      const body = { action, sheet, ...data };
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(body)
+      });
+      const result = await resp.json();
+
+      // Invalidate cache for this sheet
+      localStorage.removeItem(this.CACHE_PREFIX + sheet);
+
+      return result;
+    } catch (err) {
+      console.error('apiCall error:', err);
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05E2\u05DD \u05D4\u05E9\u05E8\u05EA', 'danger');
+      throw err;
+    }
+  },
+
+  /* ---- Cache helpers ---- */
+  setCache(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+    } catch(e) {
+      // localStorage full — clear old caches
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
+      });
+    }
+  },
+
+  getCache(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const { data, ts } = JSON.parse(raw);
+      if (Date.now() - ts > this.CACHE_TTL) return null;
+      return data;
+    } catch(e) { return null; }
+  },
+
+  /* ==============================
+     DEMO DATA (offline fallback)
+     ============================== */
+  getDemoData(sheet) {
+    const demo = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD': [
+        { id: 1, '\u05E9\u05DD': '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', '\u05DB\u05D9\u05EA\u05D4': '\u05D0', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0501234567', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2015-03-12', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D0\u05DC 5, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD' },
+        { id: 2, '\u05E9\u05DD': '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D0', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0529876543', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2014-07-22', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05D4\u05E8\u05D1 \u05E1\u05D9\u05E0\u05D9 8, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7' },
+        { id: 3, '\u05E9\u05DD': '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', '\u05DB\u05D9\u05EA\u05D4': '\u05D1', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0587654321', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2015-11-05', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05D3\u05E8\u05DA \u05D4\u05E9\u05DC\u05D5\u05DD 12, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD' },
+        { id: 4, '\u05E9\u05DD': '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05DB\u05D9\u05EA\u05D4': '\u05D1', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0541112233', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2016-01-18', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05D4\u05E8\u05E6\u05DC 3, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7' },
+        { id: 5, '\u05E9\u05DD': '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05E7\u05D5\u05D1\u05D9\u05E5', '\u05DB\u05D9\u05EA\u05D4': '\u05D0', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0503334455', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2014-09-30', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E0\u05D7\u05DE\u05D9\u05D4 7, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD' },
+        { id: 6, '\u05E9\u05DD': '\u05D7\u05D9\u05D9\u05DD \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D2', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0526667788', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2015-05-14', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E9\u05D3\u05E8\u05D5\u05EA \u05D4\u05E4\u05E8\u05D7\u05D9\u05DD 22, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD' },
+        { id: 7, '\u05E9\u05DD': '\u05E0\u05EA\u05E0\u05D0\u05DC \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05DB\u05D9\u05EA\u05D4': '\u05D2', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0588990011', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2016-08-03', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05D9\u05E4\u05D5 18, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD' },
+        { id: 8, '\u05E9\u05DD': '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05DE\u05D6\u05E8\u05D7\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D0', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0542223344', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': '2015-12-25', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05D4\u05E0\u05E9\u05D9\u05D0 4, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7' }
+      ],
+      '\u05E6\u05D5\u05D5\u05EA': [
+        { id: 1, '\u05E9\u05DD': '\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9', '\u05EA\u05E4\u05E7\u05D9\u05D3': '\u05E8\u05D0\u05E9 \u05D9\u05E9\u05D9\u05D1\u05D4', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0521234567', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' },
+        { id: 2, '\u05E9\u05DD': '\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF', '\u05EA\u05E4\u05E7\u05D9\u05D3': '\u05DE\u05DC\u05DE\u05D3', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0539876543', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' },
+        { id: 3, '\u05E9\u05DD': '\u05D4\u05E8\u05D1 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', '\u05EA\u05E4\u05E7\u05D9\u05D3': '\u05DE\u05DC\u05DE\u05D3', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0547654321', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' },
+        { id: 4, '\u05E9\u05DD': '\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8', '\u05EA\u05E4\u05E7\u05D9\u05D3': '\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA', '\u05D8\u05DC\u05E4\u05D5\u05DF': '0501234567', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' }
+      ],
+      '\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3': [
+        { id: 1, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 1800, '\u05D9\u05EA\u05E8\u05D4': 600, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' },
+        { id: 2, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 2400, '\u05D9\u05EA\u05E8\u05D4': 0, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E9\u05D5\u05DC\u05DD' },
+        { id: 3, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 800, '\u05D9\u05EA\u05E8\u05D4': 1600, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D7\u05D5\u05D1' },
+        { id: 4, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 1200, '\u05D9\u05EA\u05E8\u05D4': 1200, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' },
+        { id: 5, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05E7\u05D5\u05D1\u05D9\u05E5', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 0, '\u05D9\u05EA\u05E8\u05D4': 2400, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D7\u05D5\u05D1' },
+        { id: 6, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D7\u05D9\u05D9\u05DD \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9', '\u05E1\u05DB\u05D5\u05DD': 2400, '\u05E9\u05D5\u05DC\u05DD': 2000, '\u05D9\u05EA\u05E8\u05D4': 400, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' }
+      ],
+      '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA': [
+        { id: 1, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' },
+        { id: 2, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' },
+        { id: 3, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D7\u05D9\u05E1\u05D5\u05E8' },
+        { id: 4, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' },
+        { id: 5, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05E7\u05D5\u05D1\u05D9\u05E5', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D0\u05D9\u05D7\u05D5\u05E8' },
+        { id: 6, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D7\u05D9\u05D9\u05DD \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' },
+        { id: 7, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05E0\u05EA\u05E0\u05D0\u05DC \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' },
+        { id: 8, '\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05DE\u05D6\u05E8\u05D7\u05D9', '\u05EA\u05D0\u05E8\u05D9\u05DA': '2026-04-19', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05D5\u05DB\u05D7' }
+      ]
+    };
+    return demo[sheet] || [];
+  },
+
+  /* Fetch with demo fallback */
+  async getData(sheet) {
+    try {
+      const data = await this.fetchSheet(sheet);
+      if (data && data.length > 0) return data;
+    } catch(e) {}
+    return this.getDemoData(sheet);
+  },
+
+  /* ==============================
+     THEME
+     ============================== */
+  applyTheme() {
+    const theme = localStorage.getItem(this.THEME_KEY) || 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    const icon = document.querySelector('#theme-toggle i');
+    if (icon) icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+  },
+
+  toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(this.THEME_KEY, next);
+    this.applyTheme();
+  },
+
+  /* ==============================
+     GLOBAL EVENTS
+     ============================== */
+  bindGlobalEvents() {
+    // Login
+    document.getElementById('login-btn').addEventListener('click', () => this.handleLogin());
+    document.getElementById('pin-input').addEventListener('keyup', (e) => {
+      this.updatePinDots(e.target.value.length);
+      if (e.key === 'Enter') this.handleLogin();
+    });
+
+    // Logout
+    document.getElementById('logout-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+
+    // Hash routing
+    window.addEventListener('hashchange', () => {
+      if (this.isLoggedIn()) this.handleRoute();
+    });
+  }
+};
+
+/* ===== Start ===== */
+document.addEventListener('DOMContentLoaded', () => App.init());
