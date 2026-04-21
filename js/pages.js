@@ -24,6 +24,14 @@ const Pages = {
         <div class="col-6 col-md-3"><div class="card stat-card p-3"><div class="stat-icon gradient-warning"><i class="bi bi-cash-stack"></i></div><div class="stat-value" id="stat-debt">--</div><div class="stat-label">חובות פתוחים</div></div></div>
       </div>
 
+      <!-- Executive KPI Section -->
+      <div class="row g-3 mb-4" id="dash-kpi" style="display:none">
+        <div class="col-md-3"><div class="card p-3 card-top-primary"><small class="text-muted">ממוצע נוכחות חודשי</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-att-pct">--</span><span class="badge" id="kpi-att-trend"></span></div></div></div>
+        <div class="col-md-3"><div class="card p-3 card-top-success"><small class="text-muted">שיעור גביה</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-collection">--</span><span class="badge" id="kpi-col-trend"></span></div></div></div>
+        <div class="col-md-3"><div class="card p-3 card-top-warning"><small class="text-muted">ניקוד התנהגות ממוצע</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-beh-score">--</span><span class="badge" id="kpi-beh-trend"></span></div></div></div>
+        <div class="col-md-3"><div class="card p-3 card-top-danger"><small class="text-muted">תלמידים בסיכון</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold text-danger" id="kpi-at-risk">--</span><small class="text-muted" id="kpi-risk-detail"></small></div></div></div>
+      </div>
+
       <!-- Row 2: Weekly Attendance Chart + Finance Doughnut -->
       <div class="row g-3 mb-3">
         <div class="col-lg-8">
@@ -107,7 +115,7 @@ const Pages = {
 
   async dashboardInit() {
     // Load all data in parallel
-    const [students, staff, finance, attendance, calendar, schedule, tasks, homework] = await Promise.all([
+    const [students, staff, finance, attendance, calendar, schedule, tasks, homework, beh] = await Promise.all([
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
       App.getData('\u05E6\u05D5\u05D5\u05EA'),
       App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
@@ -115,7 +123,8 @@ const Pages = {
       App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
       App.getData('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA').catch(() => []),
       App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []),
-      App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(() => [])
+      App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(() => []),
+      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(() => [])
     ]);
 
     const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
@@ -134,6 +143,52 @@ const Pages = {
     document.getElementById('stat-attendance').textContent = todayAtt.length > 0 ? attPct + '%' : '--';
     document.getElementById('stat-staff').textContent = staff.length;
     document.getElementById('stat-debt').textContent = Utils.formatCurrency(totalDebt);
+
+    // === 1b. Executive KPI Section ===
+    const kpiEl = document.getElementById('dash-kpi');
+    if (kpiEl) {
+      kpiEl.style.display = '';
+
+      // Attendance %
+      const kpiAttPct = attendance.length ? Math.round(attendance.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length / attendance.length * 100) : 0;
+      document.getElementById('kpi-att-pct').textContent = kpiAttPct + '%';
+      document.getElementById('kpi-att-trend').className = 'badge ' + (kpiAttPct >= 85 ? 'bg-success' : kpiAttPct >= 70 ? 'bg-warning' : 'bg-danger');
+      document.getElementById('kpi-att-trend').innerHTML = kpiAttPct >= 85 ? '<i class="bi bi-arrow-up"></i> \u05D8\u05D5\u05D1' : kpiAttPct >= 70 ? '<i class="bi bi-dash"></i> \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9' : '<i class="bi bi-arrow-down"></i> \u05E0\u05DE\u05D5\u05DA';
+
+      // Collection rate
+      const totalAmt = totalPaid + totalDebt;
+      const colRate = totalAmt > 0 ? Math.round(totalPaid / totalAmt * 100) : 0;
+      document.getElementById('kpi-collection').textContent = colRate + '%';
+      document.getElementById('kpi-col-trend').className = 'badge ' + (colRate >= 80 ? 'bg-success' : colRate >= 50 ? 'bg-warning' : 'bg-danger');
+      document.getElementById('kpi-col-trend').innerHTML = colRate >= 80 ? '<i class="bi bi-arrow-up"></i> \u05D8\u05D5\u05D1' : '<i class="bi bi-arrow-down"></i> \u05E0\u05DE\u05D5\u05DA';
+
+      // Behavior score
+      const posB = beh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+      const negB = beh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+      const behNet = posB - negB;
+      document.getElementById('kpi-beh-score').textContent = (behNet >= 0 ? '+' : '') + behNet;
+      document.getElementById('kpi-beh-trend').className = 'badge ' + (behNet >= 0 ? 'bg-success' : 'bg-danger');
+      document.getElementById('kpi-beh-trend').textContent = behNet >= 0 ? '\u05D7\u05D9\u05D5\u05D1\u05D9' : '\u05E9\u05DC\u05D9\u05DC\u05D9';
+
+      // At-risk students (attendance < 70% or behavior < -3)
+      const studentAtt = {};
+      attendance.forEach(a => { const n = a['\u05E9\u05DD'] || ''; if (!n) return; if (!studentAtt[n]) studentAtt[n] = { p: 0, t: 0 }; studentAtt[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7') studentAtt[n].p++; });
+      const studentBeh = {};
+      beh.forEach(b => { const n = b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || b['\u05E9\u05DD'] || ''; if (!n) return; if (!studentBeh[n]) studentBeh[n] = 0; if (b['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9') studentBeh[n]++; else if (b['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') studentBeh[n]--; });
+
+      let atRisk = 0;
+      const reasons = [];
+      Object.keys(studentAtt).forEach(n => {
+        const pct = studentAtt[n].t ? Math.round(studentAtt[n].p / studentAtt[n].t * 100) : 100;
+        if (pct < 70) { atRisk++; reasons.push(n + ' (\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA ' + pct + '%)'); }
+      });
+      Object.keys(studentBeh).forEach(n => {
+        if (studentBeh[n] < -3 && !reasons.find(r => r.startsWith(n))) { atRisk++; reasons.push(n + ' (\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA)'); }
+      });
+
+      document.getElementById('kpi-at-risk').textContent = atRisk;
+      document.getElementById('kpi-risk-detail').textContent = atRisk ? reasons.slice(0, 3).join(', ') : '\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF';
+    }
 
     // === 2. Notifications Badge ===
     const pendingTasks = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05D4\u05D5\u05E9\u05DC\u05DD').length;
@@ -1417,7 +1472,7 @@ const Pages = {
     const evMap = {}; mEvents.forEach(e => { const d=String(e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').substring(0,10); if (!evMap[d]) evMap[d]=[]; evMap[d].push(e); });
     const first = new Date(this._calYear, this._calMonth, 1); const startDay=first.getDay(); const daysInMonth=new Date(this._calYear,this._calMonth+1,0).getDate(); const today=Utils.todayISO();
     let html='',dayNum=1;
-    for (let week=0;week<6;week++) { if (dayNum>daysInMonth&&week>0) break; html+='<div class="row g-0">'; for (let dow=0;dow<7;dow++) { if ((week===0&&dow<startDay)||dayNum>daysInMonth) { html+='<div class="col border-bottom border-end p-2" style="min-height:80px"></div>'; } else { const ds=this._calYear+'-'+String(this._calMonth+1).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); const isT=ds===today; const evts=evMap[ds]||[]; html+=`<div class="col border-bottom border-end p-2${isT?' bg-primary bg-opacity-10':''}" style="min-height:80px;cursor:pointer" onclick="Pages.showAddEvent('${ds}')"><div class="${isT?'badge bg-primary rounded-circle':'fw-bold small'}">${dayNum}</div>`; evts.forEach(e => { const cs={'חג':'danger','חופשה':'success','מבחן':'warning'}; const c=cs[e['\u05E1\u05D5\u05D2']]||'primary'; html+=`<div class="badge bg-${c} text-wrap mb-1" style="font-size:10px">${e['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}</div> `; }); html+='</div>'; dayNum++; } } html+='</div>'; }
+    for (let week=0;week<6;week++) { if (dayNum>daysInMonth&&week>0) break; html+='<div class="row g-0">'; for (let dow=0;dow<7;dow++) { if ((week===0&&dow<startDay)||dayNum>daysInMonth) { html+='<div class="col border-bottom border-end p-2" style="min-height:80px"></div>'; } else { const ds=this._calYear+'-'+String(this._calMonth+1).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); const isT=ds===today; const evts=evMap[ds]||[]; html+=`<div class="col border-bottom border-end p-2${isT?' bg-primary bg-opacity-10':''}" style="min-height:80px;cursor:pointer" onclick="Pages.showAddEvent('${ds}')"><div class="${isT?'badge bg-primary rounded-circle':'fw-bold small'}">${dayNum}</div>`; evts.forEach(e => { const cs={'חג':'danger','חופשה':'success','מבחן':'warning'}; const c=cs[e['\u05E1\u05D5\u05D2']]||'primary'; html+=`<div class="badge bg-${c} text-wrap mb-1 d-inline-flex align-items-center gap-1" style="font-size:10px" onclick="event.stopPropagation()">${e['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}<span style="cursor:pointer" onclick="Pages.deleteCalEvent('${e.id||e['\u05DE\u05D6\u05D4\u05D4']}')">&times;</span></div> `; }); html+='</div>'; dayNum++; } } html+='</div>'; }
     document.getElementById('cal-grid').innerHTML = html;
   },
   showAddEvent(date) { document.getElementById('cf-date').value = date || Utils.todayISO(); new bootstrap.Modal(document.getElementById('cal-modal')).show(); },
@@ -1782,13 +1837,22 @@ const Pages = {
     document.getElementById('pc-balance').textContent = '\u20AA'+(tIn-tOut).toLocaleString();
     document.getElementById('pc-count').textContent = this._pcData.length;
     if (!this._pcData.length) { document.getElementById('pc-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-coin"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5></div>'; return; }
-    let bal=0; document.getElementById('pc-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05D9\u05EA\u05E8\u05D4</th><th></th></tr></thead><tbody>${this._pcData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const pcId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); if (r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4') bal+=a; else bal-=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'bg-success':'bg-danger'}">${r['\u05E1\u05D5\u05D2']}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'text-success':'text-danger'}">${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'+':'-'}\u20AA${a}</td><td class="fw-bold">\u20AA${bal}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.deletePc('${pcId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
+    let bal=0; document.getElementById('pc-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05D9\u05EA\u05E8\u05D4</th><th></th></tr></thead><tbody>${this._pcData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const pcId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); if (r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4') bal+=a; else bal-=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'bg-success':'bg-danger'}">${r['\u05E1\u05D5\u05D2']}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'text-success':'text-danger'}">${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'+':'-'}\u20AA${a}</td><td class="fw-bold">\u20AA${bal}</td><td><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editPc('${pcId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deletePc('${pcId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
   },
-  showAddPc() { new bootstrap.Modal(document.getElementById('pc-modal')).show(); },
-  async savePc() { const row = {'\u05E1\u05D5\u05D2':document.getElementById('pcf-type').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('pcf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('pcf-amount').value,'\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}; if (!row['\u05EA\u05D9\u05D0\u05D5\u05E8']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; } try { await App.apiCall('add','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{row}); bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide(); Utils.toast('\u05E4\u05E2\u05D5\u05DC\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  showAddPc() { this._pcEditId=null; document.getElementById('pcf-type').value='\u05D4\u05DB\u05E0\u05E1\u05D4'; document.getElementById('pcf-desc').value=''; document.getElementById('pcf-amount').value=''; new bootstrap.Modal(document.getElementById('pc-modal')).show(); },
+  async savePc() { const row = {'\u05E1\u05D5\u05D2':document.getElementById('pcf-type').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('pcf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('pcf-amount').value,'\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}; if (!row['\u05EA\u05D9\u05D0\u05D5\u05E8']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; } try { if (this._pcEditId) { await App.apiCall('update','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{id:this._pcEditId,row}); this._pcEditId=null; } else { await App.apiCall('add','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{row}); } bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
   async deletePc(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5?')) return;
     try { await App.apiCall('delete','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  editPc(id) {
+    var item = this._pcData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    if (!item) return;
+    document.getElementById('pcf-type').value = item['\u05E1\u05D5\u05D2'] || '\u05D4\u05DB\u05E0\u05E1\u05D4';
+    document.getElementById('pcf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+    document.getElementById('pcf-amount').value = item['\u05E1\u05DB\u05D5\u05DD'] || '';
+    this._pcEditId = id;
+    new bootstrap.Modal(document.getElementById('pc-modal')).show();
   },
 
   /* ======================================================================
@@ -1802,13 +1866,23 @@ const Pages = {
   renderTrips() {
     if (!this._tripData.length) { document.getElementById('trip-cards').innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-geo-alt"></i><h5>\u05D0\u05D9\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h5></div></div>'; return; }
     const stC = {'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF':'primary','\u05D0\u05D5\u05E9\u05E8':'success','\u05D1\u05D5\u05E6\u05E2':'info','\u05D1\u05D5\u05D8\u05DC':'danger'};
-    document.getElementById('trip-cards').innerHTML = this._tripData.map(t => { const tId=t.id||t['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(t); return `<div class="col-md-6"><div class="card p-3"><div class="d-flex justify-content-between"><h6 class="fw-bold"><i class="bi bi-geo-alt-fill text-primary me-1"></i>${t['\u05D9\u05E2\u05D3']||''}</h6><div class="d-flex align-items-center gap-2"><span class="badge bg-${stC[t['\u05E1\u05D8\u05D8\u05D5\u05E1']]||'secondary'}">${t['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteTrip('${tId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div><div class="small text-muted"><i class="bi bi-calendar me-1"></i>${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4']||''} ${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']?' - '+t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']:''}</div>${t['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mb-0 mt-1">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}</div></div>`; }).join('');
+    document.getElementById('trip-cards').innerHTML = this._tripData.map(t => { const tId=t.id||t['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(t); return `<div class="col-md-6"><div class="card p-3"><div class="d-flex justify-content-between"><h6 class="fw-bold"><i class="bi bi-geo-alt-fill text-primary me-1"></i>${t['\u05D9\u05E2\u05D3']||''}</h6><div class="d-flex align-items-center gap-2"><span class="badge bg-${stC[t['\u05E1\u05D8\u05D8\u05D5\u05E1']]||'secondary'}">${t['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editTrip('${tId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteTrip('${tId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div><div class="small text-muted"><i class="bi bi-calendar me-1"></i>${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4']||''} ${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']?' - '+t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']:''}</div>${t['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mb-0 mt-1">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}</div></div>`; }).join('');
   },
-  showAddTrip() { new bootstrap.Modal(document.getElementById('trip-modal')).show(); },
-  async saveTrip() { const row = {'\u05D9\u05E2\u05D3':document.getElementById('tf-dest').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':document.getElementById('tf-start').value,'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':document.getElementById('tf-end').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('tf-desc').value.trim(),'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}; if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3','warning'); return; } try { await App.apiCall('add','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{row}); bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide(); Utils.toast('\u05D8\u05D9\u05D5\u05DC \u05E0\u05D5\u05E1\u05E3'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  showAddTrip() { this._tripEditId=null; document.getElementById('tf-dest').value=''; document.getElementById('tf-start').value=''; document.getElementById('tf-end').value=''; document.getElementById('tf-desc').value=''; new bootstrap.Modal(document.getElementById('trip-modal')).show(); },
+  async saveTrip() { const row = {'\u05D9\u05E2\u05D3':document.getElementById('tf-dest').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':document.getElementById('tf-start').value,'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':document.getElementById('tf-end').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('tf-desc').value.trim(),'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}; if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3','warning'); return; } try { if (this._tripEditId) { await App.apiCall('update','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{id:this._tripEditId,row}); this._tripEditId=null; } else { await App.apiCall('add','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{row}); } bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
   async deleteTrip(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D9\u05D5\u05DC \u05D6\u05D4?')) return;
     try { await App.apiCall('delete','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  editTrip(id) {
+    var item = this._tripData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    if (!item) return;
+    document.getElementById('tf-dest').value = item['\u05D9\u05E2\u05D3'] || '';
+    document.getElementById('tf-start').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+    document.getElementById('tf-end').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] || '';
+    document.getElementById('tf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+    this._tripEditId = id;
+    new bootstrap.Modal(document.getElementById('trip-modal')).show();
   },
 
   /* ======================================================================
@@ -1828,13 +1902,24 @@ const Pages = {
     const ctx = document.getElementById('budg-chart');
     if (ctx && Object.keys(cats).length) { App.charts.budg = new Chart(ctx, { type:'doughnut', data:{ labels:Object.keys(cats), datasets:[{data:Object.values(cats), backgroundColor:['#2563eb','#16a34a','#f59e0b','#dc2626','#8b5cf6','#06b6d4'], borderWidth:0}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}} }); }
     if (!this._budgData.length) { document.getElementById('budg-list').innerHTML = '<div class="empty-state"><i class="bi bi-wallet2"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</h5></div>'; return; }
-    let cum=0; document.getElementById('budg-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05DE\u05E6\u05D8\u05D1\u05E8</th><th>\u05E1\u05E4\u05E7</th><th></th></tr></thead><tbody>${this._budgData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const bgId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); cum+=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge bg-secondary">${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||''}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold text-danger">${Utils.formatCurrency(a)}</td><td class="fw-bold">${Utils.formatCurrency(cum)}</td><td>${r['\u05E1\u05E4\u05E7']||''}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteBudgetItem('${bgId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
+    let cum=0; document.getElementById('budg-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05DE\u05E6\u05D8\u05D1\u05E8</th><th>\u05E1\u05E4\u05E7</th><th></th></tr></thead><tbody>${this._budgData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const bgId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); cum+=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge bg-secondary">${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||''}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold text-danger">${Utils.formatCurrency(a)}</td><td class="fw-bold">${Utils.formatCurrency(cum)}</td><td>${r['\u05E1\u05E4\u05E7']||''}</td><td><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editBudgetItem('${bgId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteBudgetItem('${bgId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
   },
-  showAddBudget() { document.getElementById('bgf-date').value=Utils.todayISO(); new bootstrap.Modal(document.getElementById('budg-modal')).show(); },
-  async saveBudget() { const row={'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('bgf-date').value,'\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4':document.getElementById('bgf-cat').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('bgf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('bgf-amount').value,'\u05E1\u05E4\u05E7':document.getElementById('bgf-vendor').value.trim()}; try { await App.apiCall('add','\u05EA\u05E7\u05E6\u05D9\u05D1',{row}); bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide(); Utils.toast('\u05D4\u05D5\u05E6\u05D0\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  showAddBudget() { this._budgEditId=null; document.getElementById('bgf-date').value=Utils.todayISO(); document.getElementById('bgf-cat').value=''; document.getElementById('bgf-desc').value=''; document.getElementById('bgf-amount').value=''; document.getElementById('bgf-vendor').value=''; new bootstrap.Modal(document.getElementById('budg-modal')).show(); },
+  async saveBudget() { const row={'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('bgf-date').value,'\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4':document.getElementById('bgf-cat').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('bgf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('bgf-amount').value,'\u05E1\u05E4\u05E7':document.getElementById('bgf-vendor').value.trim()}; try { if (this._budgEditId) { await App.apiCall('update','\u05EA\u05E7\u05E6\u05D9\u05D1',{id:this._budgEditId,row}); this._budgEditId=null; } else { await App.apiCall('add','\u05EA\u05E7\u05E6\u05D9\u05D1',{row}); } bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
   async deleteBudgetItem(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
     try { await App.apiCall('delete','\u05EA\u05E7\u05E6\u05D9\u05D1',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  editBudgetItem(id) {
+    var item = this._budgData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    if (!item) return;
+    document.getElementById('bgf-date').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+    document.getElementById('bgf-cat').value = item['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '';
+    document.getElementById('bgf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
+    document.getElementById('bgf-amount').value = item['\u05E1\u05DB\u05D5\u05DD'] || '';
+    document.getElementById('bgf-vendor').value = item['\u05E1\u05E4\u05E7'] || '';
+    this._budgEditId = id;
+    new bootstrap.Modal(document.getElementById('budg-modal')).show();
   },
 
   /* ======================================================================
@@ -1850,10 +1935,11 @@ const Pages = {
     const sorted = Object.keys(scores).sort((a,b)=>scores[b]-scores[a]).slice(0,5);
     if (sorted.length) { document.getElementById('mvz-leaderboard').style.display=''; document.getElementById('mvz-top').innerHTML = sorted.map((n,i) => `<div class="d-flex align-items-center gap-2 mb-1"><span class="fw-bold" style="width:25px">${['&#129351;','&#129352;','&#129353;','4','5'][i]}</span><span class="flex-grow-1">${n}</span><span class="badge bg-primary">${scores[n]}</span></div>`).join(''); }
     if (!this._mvzData.length) { document.getElementById('mvz-list').innerHTML = '<div class="empty-state"><i class="bi bi-award"></i><h5>\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('mvz-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05DC\u05D9\u05DE\u05D5\u05D3</th><th class="fw-bold">\u05E1\u05D4"\u05DB</th></tr></thead><tbody>${this._mvzData.map(r => `<tr><td class="fw-bold">${r['\u05E9\u05DD']||''}</td><td>${r['\u05E9\u05D7\u05E8\u05D9\u05EA']||0}</td><td>${r['\u05DE\u05E0\u05D7\u05D4']||0}</td><td>${r['\u05DE\u05E2\u05E8\u05D9\u05D1']||0}</td><td>${r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']||0}</td><td class="fw-bold text-primary">${r['\u05E1\u05D4_\u05DB']||0}</td></tr>`).join('')}</tbody></table></div>`;
+    document.getElementById('mvz-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05DC\u05D9\u05DE\u05D5\u05D3</th><th class="fw-bold">\u05E1\u05D4"\u05DB</th><th></th></tr></thead><tbody>${this._mvzData.map(r => `<tr><td class="fw-bold">${r['\u05E9\u05DD']||''}</td><td>${r['\u05E9\u05D7\u05E8\u05D9\u05EA']||0}</td><td>${r['\u05DE\u05E0\u05D7\u05D4']||0}</td><td>${r['\u05DE\u05E2\u05E8\u05D9\u05D1']||0}</td><td>${r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']||0}</td><td class="fw-bold text-primary">${r['\u05E1\u05D4_\u05DB']||0}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteMvz('${r.id||r['\u05DE\u05D6\u05D4\u05D4']||""}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`;
   },
   async showAddMvz() { const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); document.getElementById('mvf-student').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); new bootstrap.Modal(document.getElementById('mvz-modal')).show(); },
   async saveMvz() { const sel=document.getElementById('mvf-student'); const sh=parseInt(document.getElementById('mvf-shacharit').value)||0; const mn=parseInt(document.getElementById('mvf-mincha').value)||0; const ma=parseInt(document.getElementById('mvf-maariv').value)||0; const se=parseInt(document.getElementById('mvf-self').value)||0; const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05E9\u05D7\u05E8\u05D9\u05EA':sh,'\u05DE\u05E0\u05D7\u05D4':mn,'\u05DE\u05E2\u05E8\u05D9\u05D1':ma,'\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9':se,'\u05E1\u05D4_\u05DB':sh+mn+ma+se}; try { await App.apiCall('add','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{row}); bootstrap.Modal.getInstance(document.getElementById('mvz-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async deleteCampaign(id) { return this.deleteMvz(id); },
   async deleteMvz(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
     try { await App.apiCall('delete','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
@@ -3011,7 +3097,7 @@ const Pages = {
      MEDICAL
      ====================================================================== */
   medical() {
-    return `<div class="page-header"><h1><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h1></div><div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="med-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div id="med-list">${Utils.skeleton(3)}</div>`;
+    return `<div class="page-header"><h1><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h1></div><div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="med-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..."></div></div><div id="med-list">${Utils.skeleton(3)}</div><div class="modal fade" id="med-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E2\u05E8\u05D9\u05DB\u05EA \u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="medf-sid"><div class="mb-3"><label class="form-label">\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA</label><input class="form-control" id="medf-allergies"></div><div class="mb-3"><label class="form-label">\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA</label><input class="form-control" id="medf-meds"></div><div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><textarea class="form-control" id="medf-notes" rows="3"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveMedical()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
   },
   _medData: [],
   async medicalInit() {
@@ -3032,8 +3118,33 @@ const Pages = {
     document.getElementById('med-list').innerHTML = `<div class="row g-3">${filtered.map(r => {
       const m = r.med;
       const hasMed = m && (m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']||m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']);
-      return `<div class="col-md-6"><div class="card p-3 ${hasMed?'medical-card':''}"><div class="d-flex align-items-center gap-3 mb-2">${Utils.avatarHTML(r.name)}<div><div class="fw-bold">${r.name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${r.cls}</small></div>${hasMed?'<span class="badge bg-danger ms-auto">\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</span>':'<span class="badge bg-success ms-auto">\u05EA\u05E7\u05D9\u05DF</span>'}</div>${hasMed?`<div class="small">${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']?`<div><i class="bi bi-exclamation-triangle text-warning me-1"></i><strong>\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA:</strong> ${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']}</div>`:''}${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']?`<div><i class="bi bi-capsule text-primary me-1"></i><strong>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA:</strong> ${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']}</div>`:''}${m['\u05D4\u05E2\u05E8\u05D5\u05EA']?`<div><i class="bi bi-info-circle text-info me-1"></i>${m['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div>`:''}</div>`:''}</div></div>`;
+      return `<div class="col-md-6"><div class="card p-3 ${hasMed?'medical-card':''}"><div class="d-flex align-items-center gap-3 mb-2">${Utils.avatarHTML(r.name)}<div><div class="fw-bold">${r.name}</div><small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${r.cls}</small></div>${hasMed?'<span class="badge bg-danger ms-auto">\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</span>':'<span class="badge bg-success ms-auto">\u05EA\u05E7\u05D9\u05DF</span>'}<button class="btn btn-sm btn-outline-primary ms-2" onclick="Pages.openMedicalEdit('${r.id}','${r.name}')"><i class="bi bi-pencil"></i></button></div><div class="mt-2"><button class="btn btn-sm btn-outline-primary" onclick="Pages.openMedicalEdit('${r.id}','${r.name.replace(/'/g,'')}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button></div>${''}</div>${hasMed?`<div class="small">${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']?`<div><i class="bi bi-exclamation-triangle text-warning me-1"></i><strong>\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA:</strong> ${m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']}</div>`:''}${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']?`<div><i class="bi bi-capsule text-primary me-1"></i><strong>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA:</strong> ${m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']}</div>`:''}${m['\u05D4\u05E2\u05E8\u05D5\u05EA']?`<div><i class="bi bi-info-circle text-info me-1"></i>${m['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div>`:''}</div>`:''}</div></div>`;
     }).join('')}</div>`;
+  },
+  openMedicalEdit(studentId, studentName) {
+    var item = this._medData.find(function(r){ return r.id == studentId; });
+    var med = item ? item.med : null;
+    document.getElementById('medf-sid').value = studentId;
+    document.getElementById('medf-allergies').value = med ? (med['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']||'') : '';
+    document.getElementById('medf-meds').value = med ? (med['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'') : '';
+    document.getElementById('medf-notes').value = med ? (med['\u05D4\u05E2\u05E8\u05D5\u05EA']||'') : '';
+    new bootstrap.Modal(document.getElementById('med-modal')).show();
+  },
+  async saveMedical() {
+    var sid = document.getElementById('medf-sid').value;
+    var row = {'\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': sid, '\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA': document.getElementById('medf-allergies').value.trim(), '\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA': document.getElementById('medf-meds').value.trim(), '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('medf-notes').value.trim()};
+    var item = this._medData.find(function(r){ return r.id == sid; });
+    var existing = item ? item.med : null;
+    try {
+      if (existing && (existing.id || existing['\u05DE\u05D6\u05D4\u05D4'])) {
+        await App.apiCall('update', '\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9', { id: existing.id || existing['\u05DE\u05D6\u05D4\u05D4'], row: row });
+      } else {
+        await App.apiCall('add', '\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9', { row: row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('med-modal')).hide();
+      Utils.toast('\u05E0\u05E9\u05DE\u05E8');
+      this.medicalInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 
   /* ======================================================================
@@ -3066,7 +3177,7 @@ const Pages = {
         if (lesson) {
           const colors = ['#e3f2fd','#e8f5e9','#fff3e0','#fce4ec','#f3e5f5','#e0f2f1'];
           const bg = colors[Math.abs((lesson['\u05DE\u05E7\u05E6\u05D5\u05E2']||'').charCodeAt(0))%colors.length];
-          html += `<td class="schedule-cell" style="background:${bg}"><div class="fw-bold">${lesson['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</div><div class="text-muted" style="font-size:.7rem">${lesson['\u05DE\u05DC\u05DE\u05D3']||''}</div>${lesson['\u05D7\u05D3\u05E8']?`<span class="badge bg-secondary">${lesson['\u05D7\u05D3\u05E8']}</span>`:''}</td>`;
+          html += `<td class="schedule-cell" style="background:${bg}"><div class="fw-bold">${lesson['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</div><div class="text-muted" style="font-size:.7rem">${lesson['\u05DE\u05DC\u05DE\u05D3']||''}</div>${lesson['\u05D7\u05D3\u05E8']?`<span class="badge bg-secondary">${lesson['\u05D7\u05D3\u05E8']}</span>`:''}<button class="btn btn-outline-danger p-0 border-0" style="font-size:.6rem" onclick="Pages.deleteLesson('${lesson.id||lesson['\u05DE\u05D6\u05D4\u05D4']}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-x-circle"></i></button></td>`;
         } else {
           html += '<td class="schedule-cell text-center text-muted">-</td>';
         }
@@ -3081,6 +3192,10 @@ const Pages = {
     const row = {'\u05D9\u05D5\u05DD':document.getElementById('schf-day').value,'\u05E9\u05E2\u05D4':document.getElementById('schf-hour').value,'\u05DE\u05E7\u05E6\u05D5\u05E2':document.getElementById('schf-subject').value.trim(),'\u05DE\u05DC\u05DE\u05D3':document.getElementById('schf-teacher').value.trim(),'\u05DB\u05D9\u05EA\u05D4':document.getElementById('schf-class').value.trim(),'\u05D7\u05D3\u05E8':document.getElementById('schf-room').value.trim()};
     if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2','warning'); return; }
     try { await App.apiCall('add','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('sch-modal')).hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3'); this.scheduleInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async deleteLesson(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.scheduleInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
 
   /* ======================================================================
