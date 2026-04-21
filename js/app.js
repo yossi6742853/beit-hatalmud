@@ -3,10 +3,12 @@
 const App = {
   /* ---- Config ---- */
   API_URL: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  API_TOKEN: 'bht2026',
   CACHE_TTL: 5 * 60 * 1000, // 5 minutes
   PIN_KEY: 'bht_pin_hash',
   CACHE_PREFIX: 'bht_cache_',
   THEME_KEY: 'bht_theme',
+  USE_API: true, // true = real data from Apps Script, false = demo fallback
 
   currentPage: null,
   charts: {},
@@ -132,10 +134,13 @@ const App = {
     }
 
     try {
-      const url = `${this.API_URL}?action=list&sheet=${encodeURIComponent(sheet)}`;
+      const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(sheet)}&token=${this.API_TOKEN}`;
       const resp = await fetch(url);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const data = await resp.json();
+      const json = await resp.json();
+
+      if (json.error) throw new Error(json.error);
+      const data = json.data || [];
 
       // Cache it
       this.setCache(cacheKey, data);
@@ -154,13 +159,19 @@ const App = {
   async apiCall(action, sheet, data = {}) {
     try {
       const url = `${this.API_URL}`;
-      const body = { action, sheet, ...data };
+      // Map action names to API actions: add -> api_add, update -> api_update, delete -> api_delete
+      const apiAction = 'api_' + action;
+      const body = { action: apiAction, sheet, token: this.API_TOKEN, ...data };
       const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(body)
       });
       const result = await resp.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
 
       // Invalidate cache for this sheet
       localStorage.removeItem(this.CACHE_PREFIX + sheet);
@@ -170,6 +181,38 @@ const App = {
       console.error('apiCall error:', err);
       Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05E2\u05DD \u05D4\u05E9\u05E8\u05EA', 'danger');
       throw err;
+    }
+  },
+
+  /* Fetch a single record by ID */
+  async fetchRecord(sheet, id) {
+    try {
+      const url = `${this.API_URL}?mode=api&action=get&sheet=${encodeURIComponent(sheet)}&id=${encodeURIComponent(id)}&token=${this.API_TOKEN}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+      if (json.error) throw new Error(json.error);
+      return json.data;
+    } catch(err) {
+      console.error('fetchRecord error:', sheet, id, err);
+      return null;
+    }
+  },
+
+  /* Fetch stats (dashboard counts) */
+  async fetchStats() {
+    const cacheKey = this.CACHE_PREFIX + '_stats';
+    const cached = this.getCache(cacheKey);
+    if (cached) return cached;
+    try {
+      const url = `${this.API_URL}?mode=api&action=stats&token=${this.API_TOKEN}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+      if (json.error) throw new Error(json.error);
+      this.setCache(cacheKey, json.data);
+      return json.data;
+    } catch(err) {
+      console.error('fetchStats error:', err);
+      return null;
     }
   },
 
@@ -240,10 +283,14 @@ const App = {
 
   /* Fetch with demo fallback */
   async getData(sheet) {
-    try {
-      const data = await this.fetchSheet(sheet);
-      if (data && data.length > 0) return data;
-    } catch(e) {}
+    if (this.USE_API) {
+      try {
+        const data = await this.fetchSheet(sheet);
+        if (data && data.length > 0) return data;
+      } catch(e) {
+        console.warn('API failed for', sheet, '- using demo data');
+      }
+    }
     return this.getDemoData(sheet);
   },
 
