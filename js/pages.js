@@ -625,10 +625,17 @@ const Pages = {
         <div class="d-flex gap-2">
           <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._studentsData.find(x=>String(Utils.rowId(x))==='${sId}'))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           ${primaryPhone ? `<a href="${waLink(primaryPhone)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
+          ${parentPhone && parentPhone !== phone ? `<a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-outline-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
           <button class="btn btn-outline-danger btn-sm" onclick="Pages.deleteStudent('${sId}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
         </div>
       </div>
       <div class="card overflow-hidden mb-3"><div class="student-header">${Utils.avatarHTML(name, 'xl')}<h3 class="fw-bold mt-2 mb-1">${name}</h3><div>\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || '--'}${age ? ` | \u05D2\u05D9\u05DC ${age}` : ''}</div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${attPct >= 80 ? 'text-success' : attPct >= 60 ? 'text-warning' : 'text-danger'}">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small><div class="progress mt-2" style="height:4px"><div class="progress-bar ${attPct >= 80 ? 'bg-success' : 'bg-warning'}" style="width:${attPct}%"></div></div></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${(posB-negB) >= 0 ? 'text-success' : 'text-danger'}">${posB-negB >= 0 ? '+' : ''}${posB-negB}</div><small class="text-muted">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold">${Utils.formatCurrency(sfDebt)}</div><small class="text-muted">${sfDebt > 0 ? '\u05D7\u05D5\u05D1' : '\u05DE\u05D0\u05D5\u05D6\u05DF'}</small></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary">${studentAtt.length}</div><small class="text-muted">\u05D9\u05DE\u05D9 \u05E8\u05D9\u05E9\u05D5\u05DD</small></div></div>
+      </div>
       <ul class="nav nav-tabs-bht mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space:nowrap">
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-info"><i class="bi bi-info-circle me-1"></i>\u05DE\u05D9\u05D3\u05E2</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-parents"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</a></li>
@@ -1388,6 +1395,45 @@ const Pages = {
   async deleteExam(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05D1\u05D7\u05DF \u05D6\u05D4?')) return;
     try { await App.apiCall('delete','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.academicsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+  async viewGrades(examId) {
+    var section = document.getElementById('aca-grades-section'); if (!section) return;
+    section.style.display = '';
+    section.innerHTML = '<div class="card p-3"><div class="text-center py-3"><div class="spinner-border spinner-border-sm"></div> \u05D8\u05D5\u05E2\u05DF...</div></div>';
+    var exam = this._acaExams.find(function(e){ return String(e['\u05DE\u05D6\u05D4\u05D4']||e.id) === String(examId); });
+    var examClass = exam ? (exam['\u05DB\u05D9\u05EA\u05D4']||'') : '';
+    var students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    var classStudents = examClass ? students.filter(function(s){ return (s['\u05DB\u05D9\u05EA\u05D4']||'') === examClass && (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC'; }) : students.filter(function(s){ return (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC'; });
+    var examGrades = this._acaGrades.filter(function(g){ return String(g['\u05DE\u05D1\u05D7\u05DF_\u05DE\u05D6\u05D4\u05D4']||'') === String(examId); });
+    var gradeMap = {}; examGrades.forEach(function(g){ gradeMap[g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||g['\u05E9\u05DD']||''] = g; });
+    var examLabel = (exam?(exam['\u05DE\u05E7\u05E6\u05D5\u05E2']||''):'') + (examClass?' ('+examClass+')':'');
+    var html = '<div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-3"><h6 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2"></i>\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD: ' + examLabel + '</h6><button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById(\'aca-grades-section\').style.display=\'none\'"><i class="bi bi-x-lg"></i></button></div><table class="table table-sm table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th style="width:120px">\u05E6\u05D9\u05D5\u05DF</th><th style="width:200px">\u05D4\u05E2\u05E8\u05D5\u05EA</th><th style="width:80px"></th></tr></thead><tbody>';
+    classStudents.forEach(function(s){
+      var sid = Utils.rowId(s), name = Utils.fullName(s);
+      var existing = gradeMap[sid] || gradeMap[name];
+      var grade = existing ? (existing['\u05E6\u05D9\u05D5\u05DF']||'') : '';
+      var notes = existing ? (existing['\u05D4\u05E2\u05E8\u05D5\u05EA']||'') : '';
+      html += '<tr><td class="fw-medium">' + name + '</td><td><input type="number" class="form-control form-control-sm" id="grade-' + sid + '" value="' + grade + '" min="0" max="100"></td><td><input class="form-control form-control-sm" id="gnote-' + sid + '" value="' + notes + '"></td><td><button class="btn btn-sm btn-outline-primary" onclick="Pages.saveGrade(\'' + examId + '\',\'' + sid + '\',\'' + name.replace(/'/g,'') + '\')" title="\u05E9\u05DE\u05D5\u05E8"><i class="bi bi-check-lg"></i></button></td></tr>';
+    });
+    html += '</tbody></table></div>';
+    section.innerHTML = html;
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
+  async saveGrade(examId, studentId, studentName) {
+    var grade = document.getElementById('grade-' + studentId)?.value || '';
+    var notes = document.getElementById('gnote-' + studentId)?.value || '';
+    if (!grade) { Utils.toast('\u05D7\u05E1\u05E8 \u05E6\u05D9\u05D5\u05DF', 'warning'); return; }
+    var existing = this._acaGrades.find(function(g){ return String(g['\u05DE\u05D1\u05D7\u05DF_\u05DE\u05D6\u05D4\u05D4']||'') === String(examId) && (String(g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === String(studentId) || (g['\u05E9\u05DD']||'') === studentName); });
+    try {
+      if (existing) {
+        await App.apiCall('update', '\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', { id: existing.id || existing['\u05DE\u05D6\u05D4\u05D4'], row: { '\u05E6\u05D9\u05D5\u05DF': grade, '\u05D4\u05E2\u05E8\u05D5\u05EA': notes } });
+      } else {
+        await App.apiCall('add', '\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', { row: { '\u05DE\u05D1\u05D7\u05DF_\u05DE\u05D6\u05D4\u05D4': examId, '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': studentId, '\u05E9\u05DD': studentName, '\u05E6\u05D9\u05D5\u05DF': grade, '\u05D4\u05E2\u05E8\u05D5\u05EA': notes } });
+      }
+      Utils.toast('\u05E6\u05D9\u05D5\u05DF \u05E0\u05E9\u05DE\u05E8');
+      this._acaGrades = await App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
+      this.renderAca();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 
   /* ======================================================================
