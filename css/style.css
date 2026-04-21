@@ -2138,3 +2138,29 @@ body {
 @media print {
   #fab-container, #scroll-top, #toast-container { display: none !important; }
 }
+
+/* ===== Accessibility ===== */
+:focus-visible {
+  outline: 3px solid var(--bht-primary);
+  outline-offset: 2px;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}
+/* Skip to content link */
+.skip-link {
+  position: absolute; top: -40px; right: 0; background: var(--bht-primary);
+  color: white; padding: 8px 16px; z-index: 10000; border-radius: 0 0 8px 8px;
+  transition: top .3s;
+}
+.skip-link:focus { top: 0; }
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+/* High contrast mode */
+@media (forced-colors: active) {
+  .card { border: 2px solid; }
+  .badge { border: 1px solid; }
+}

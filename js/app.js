@@ -21,6 +21,14 @@ const App = {
     if (typeof Chart !== 'undefined') {
       Chart.defaults.font.family = 'Heebo';
     }
+    // Global error handler
+    window.addEventListener('error', (e) => {
+      console.error('Global error:', e.message, e.filename, e.lineno);
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled promise:', e.reason);
+    });
+
     this.applyTheme();
     this.bindGlobalEvents();
     this.initAutoRefresh();
@@ -581,6 +589,23 @@ const App = {
     const next = current === 'dark' ? 'light' : 'dark';
     localStorage.setItem(this.THEME_KEY, next);
     this.applyTheme();
+  },
+
+  /* ==============================
+     LOADING OVERLAY
+     ============================== */
+  showLoading(msg) {
+    let el = document.getElementById('global-loading');
+    if (!el) {
+      document.body.insertAdjacentHTML('beforeend', `<div id="global-loading" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(255,255,255,.8);z-index:9999;backdrop-filter:blur(4px)"><div class="text-center"><div class="spinner-border text-primary mb-3" style="width:3rem;height:3rem"></div><div class="fw-bold" id="loading-text"></div></div></div>`);
+      el = document.getElementById('global-loading');
+    }
+    document.getElementById('loading-text').textContent = msg || '\u05D8\u05D5\u05E2\u05DF...';
+    el.style.display = '';
+  },
+  hideLoading() {
+    const el = document.getElementById('global-loading');
+    if (el) el.style.display = 'none';
   },
 
   /* ==============================
