@@ -355,6 +355,9 @@ const App = {
 
     // Sidebar collapsible categories
     this.initSidebarCategories();
+
+    // Global search
+    this.initGlobalSearch();
   },
 
   /* ==============================
@@ -391,6 +394,65 @@ const App = {
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
       });
+    });
+  },
+
+  /* ==============================
+     GLOBAL SEARCH
+     ============================== */
+  initGlobalSearch() {
+    const input = document.getElementById('global-search');
+    const results = document.getElementById('search-results');
+    if (!input || !results) return;
+
+    input.addEventListener('input', Utils.debounce(async () => {
+      const q = input.value.trim().toLowerCase();
+      if (q.length < 2) { results.classList.remove('show'); return; }
+
+      const [students, staff, parents] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
+        App.getData('\u05E6\u05D5\u05D5\u05EA').catch(()=>[]),
+        App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(()=>[])
+      ]);
+
+      let hits = [];
+      students.forEach(s => {
+        const name = Utils.fullName(s);
+        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+          hits.push({name, type:'\u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-person-fill', color:'primary', link:'#student/'+Utils.rowId(s), sub:'\u05DB\u05D9\u05EA\u05D4 '+(s['\u05DB\u05D9\u05EA\u05D4']||'')});
+      });
+      staff.forEach(s => {
+        const name = Utils.fullName(s);
+        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+          hits.push({name, type:'\u05E6\u05D5\u05D5\u05EA', icon:'bi-person-badge-fill', color:'success', link:'#staff_card/'+Utils.rowId(s), sub:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''});
+      });
+      parents.forEach(p => {
+        if ((p['\u05E9\u05DD']||'').toLowerCase().includes(q) || (p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+          hits.push({name:p['\u05E9\u05DD']||'', type:'\u05D4\u05D5\u05E8\u05D4', icon:'bi-house-heart-fill', color:'warning', link:'#parent_card/'+Utils.rowId(p), sub:p['\u05E7\u05E9\u05E8']||''});
+      });
+
+      if (!hits.length) {
+        results.innerHTML = '<div class="p-3 text-muted text-center small">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA</div>';
+      } else {
+        results.innerHTML = hits.slice(0,10).map(h =>
+          `<a href="${h.link}" class="dropdown-item d-flex align-items-center gap-2 py-2" onclick="document.getElementById('search-results').classList.remove('show');document.getElementById('global-search').value=''">
+            <i class="bi ${h.icon} text-${h.color}"></i>
+            <div><div class="fw-bold small">${h.name}</div><small class="text-muted">${h.type} ${h.sub?'| '+h.sub:''}</small></div>
+          </a>`
+        ).join('');
+      }
+      results.classList.add('show');
+    }, 300));
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#global-search') && !e.target.closest('#search-results'))
+        results.classList.remove('show');
+    });
+
+    // Close on Escape
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { results.classList.remove('show'); input.value = ''; }
     });
   }
 };

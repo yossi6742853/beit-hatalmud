@@ -46,6 +46,11 @@
           <span class="fw-bold">בית התלמוד</span>
         </a>
         <div class="d-flex align-items-center order-lg-last gap-2">
+          <div class="position-relative d-none d-lg-block" style="width:250px">
+            <input type="text" class="form-control form-control-sm" id="global-search" placeholder="חיפוש..." style="padding-right:32px">
+            <i class="bi bi-search position-absolute" style="top:50%;right:10px;transform:translateY(-50%);opacity:.5"></i>
+            <div id="search-results" class="dropdown-menu w-100" style="max-height:400px;overflow-y:auto"></div>
+          </div>
           <button class="btn btn-outline-light btn-sm d-none d-lg-inline-flex align-items-center" id="theme-toggle" title="מצב כהה/בהיר">
             <i class="bi bi-moon-fill"></i>
           </button>

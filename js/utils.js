@@ -221,5 +221,26 @@ const Utils = {
     const cls = map[status] || 'pending';
     const label = labels[cls] || status;
     return `<span class="badge-status badge-${cls}">${label}</span>`;
+  },
+
+  /* ---- Data export: JSON ---- */
+  exportJSON(data, filename) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+    link.download = filename || 'export.json'; link.click();
+  },
+
+  /* ---- Data export: CSV from table element ---- */
+  exportTableCSV(tableEl, filename) {
+    if (!tableEl) return;
+    let csv = '\uFEFF';
+    tableEl.querySelectorAll('tr').forEach(row => {
+      const cells = [...row.querySelectorAll('th,td')].map(c => '"'+c.textContent.replace(/"/g,'""')+'"');
+      csv += cells.join(',') + '\n';
+    });
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+    link.download = (filename||'table')+'_'+Utils.todayISO()+'.csv'; link.click();
+    Utils.toast('CSV \u05D9\u05D5\u05E6\u05D0');
   }
 };
