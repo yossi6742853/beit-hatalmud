@@ -189,5 +189,48 @@ Object.assign(Pages, {
     });
     html += '</tbody></table></div>';
     document.getElementById('attm-table').innerHTML = html;
+    document.getElementById('attm-table').innerHTML += this._renderAttHeatmap(att);
+  },
+  _renderAttHeatmap(att) {
+    // Build 365-day heatmap
+    const today = new Date();
+    const counts = {};
+    att.forEach(a => {
+      const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'';
+      if (!d) return;
+      if (!counts[d]) counts[d] = {p:0,a:0,t:0};
+      counts[d].t++;
+      if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') counts[d].p++;
+      else counts[d].a++;
+    });
+
+    let html = '<div class="card p-3 mt-3"><h6 class="fw-bold"><i class="bi bi-grid-3x3 me-2"></i>\u05DE\u05E4\u05EA \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E9\u05E0\u05EA\u05D9\u05EA</h6><div style="overflow-x:auto"><div style="display:flex;gap:2px;direction:ltr">';
+
+    for (let w = 51; w >= 0; w--) {
+      html += '<div style="display:flex;flex-direction:column;gap:2px">';
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - (w * 7 + (6 - d)));
+        const ds = date.toISOString().slice(0,10);
+        const c = counts[ds];
+        let color = '#ebedf0'; // no data
+        if (c) {
+          const pct = c.t ? c.p / c.t : 0;
+          if (pct >= 0.9) color = '#216e39';
+          else if (pct >= 0.7) color = '#30a14e';
+          else if (pct >= 0.5) color = '#40c463';
+          else if (pct > 0) color = '#9be9a8';
+          else color = '#ea4335';
+        }
+        html += `<div style="width:12px;height:12px;border-radius:2px;background:${color}" title="${ds}${c?' ('+c.p+'/'+c.t+')':''}"></div>`;
+      }
+      html += '</div>';
+    }
+    html += '</div><div class="d-flex gap-2 mt-2 small text-muted"><span>\u05E4\u05D7\u05D5\u05EA</span>';
+    ['#ebedf0','#9be9a8','#40c463','#30a14e','#216e39'].forEach(c => {
+      html += `<div style="width:12px;height:12px;border-radius:2px;background:${c}"></div>`;
+    });
+    html += '<span>\u05D9\u05D5\u05EA\u05E8</span></div></div>';
+    return html;
   },
 });

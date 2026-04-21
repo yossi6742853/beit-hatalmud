@@ -879,6 +879,32 @@ const App = {
       const mins = Math.round((Date.now() - latest) / 60000);
       el.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i>${mins < 1 ? '\u05E2\u05D5\u05D3\u05DB\u05DF \u05E2\u05DB\u05E9\u05D9\u05D5' : '\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ' + mins + ' \u05D3\u05E7\''}`;
     }
+  },
+
+  /* ==============================
+     QUICK NOTE
+     ============================== */
+  async quickNote() {
+    const students = await this.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]);
+    const html = `<div class="modal fade" id="quick-note-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-info text-white"><h5><i class="bi bi-sticky me-2"></i>\u05D4\u05E2\u05E8\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
+    <div class="mb-3"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="qn-student"><option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3...</option>${students.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('')}</select></div>
+    <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D4</label><textarea class="form-control" id="qn-text" rows="3" placeholder="\u05DB\u05EA\u05D5\u05D1 \u05D4\u05E2\u05E8\u05D4..."></textarea></div>
+    <div class="mb-3"><label class="form-label">\u05E1\u05D5\u05D2</label><div class="btn-group w-100"><button class="btn btn-outline-success active" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('qn-type').value='\u05D7\u05D9\u05D5\u05D1\u05D9'">\u05D7\u05D9\u05D5\u05D1\u05D9</button><button class="btn btn-outline-danger" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('qn-type').value='\u05E9\u05DC\u05D9\u05DC\u05D9'">\u05E9\u05DC\u05D9\u05DC\u05D9</button><button class="btn btn-outline-secondary" onclick="this.parentElement.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');document.getElementById('qn-type').value='\u05D4\u05E2\u05E8\u05D4'">\u05D4\u05E2\u05E8\u05D4</button></div><input type="hidden" id="qn-type" value="\u05D7\u05D9\u05D5\u05D1\u05D9"></div>
+  </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="App.saveQuickNote()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    document.getElementById('quick-note-modal')?.remove();
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('quick-note-modal')).show();
+  },
+  async saveQuickNote() {
+    const studentSel = document.getElementById('qn-student');
+    const text = document.getElementById('qn-text')?.value?.trim();
+    const type = document.getElementById('qn-type')?.value || '\u05D4\u05E2\u05E8\u05D4';
+    if (!studentSel?.value || !text) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D5\u05DB\u05EA\u05D5\u05D1 \u05D4\u05E2\u05E8\u05D4','warning'); return; }
+    try {
+      await this.apiCall('add','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA',{row:{'\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4':studentSel.value,'\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3':studentSel.selectedOptions[0]?.text||'','\u05E1\u05D5\u05D2':type,'\u05EA\u05D9\u05D0\u05D5\u05E8':text,'\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}});
+      bootstrap.Modal.getInstance(document.getElementById('quick-note-modal'))?.hide();
+      Utils.toast('\u05D4\u05E2\u05E8\u05D4 \u05E0\u05E9\u05DE\u05E8\u05D4!');
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   }
 };
 
