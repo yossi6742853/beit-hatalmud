@@ -457,7 +457,7 @@ Object.assign(Pages, {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div><h1><i class="bi bi-ui-checks me-2"></i>\u05D8\u05E4\u05E1\u05D9\u05DD</h1></div>
-        <button class="btn btn-primary btn-sm" onclick="Pages.showCreateForm()"><i class="bi bi-plus-lg me-1"></i>\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showFormTemplates()"><i class="bi bi-plus-lg me-1"></i>\u05E6\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D7\u05D3\u05E9</button>
       </div>
 
       <!-- Tabs -->
