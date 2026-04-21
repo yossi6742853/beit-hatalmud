@@ -49,6 +49,7 @@ const App = {
     document.getElementById('login-screen').classList.add('d-none');
     document.getElementById('app-shell').classList.remove('d-none');
     this.handleRoute();
+    this.loadNotifications();
   },
 
   handleLogin() {
@@ -445,6 +446,8 @@ const App = {
             } catch(e) { localStorage.removeItem(k); }
           }
         });
+        // Refresh notifications
+        this.loadNotifications();
       }
     }, 120000);
 
@@ -474,6 +477,57 @@ const App = {
       Utils.toast('\u05D2\u05E8\u05E1\u05D4 \u05D7\u05D3\u05E9\u05D4 \u05E0\u05D8\u05E2\u05E0\u05D4!', 'info');
     }
     localStorage.setItem('bht_version', current);
+  },
+
+  /* ==============================
+     NOTIFICATIONS
+     ============================== */
+  async loadNotifications() {
+    try {
+      const [fin, tasks, hw, events] = await Promise.all([
+        this.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
+        this.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(()=>[]),
+        this.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(()=>[]),
+        this.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(()=>[])
+      ]);
+      const today = typeof Utils !== 'undefined' && Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+      const notifs = [];
+
+      // Unpaid tuition
+      const unpaid = fin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05E9\u05D5\u05DC\u05DD');
+      if (unpaid.length) notifs.push({icon:'bi-cash text-danger', text: unpaid.length + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05DC\u05D0 \u05E9\u05D5\u05DC\u05DE\u05D5', link:'#finance'});
+
+      // Pending tasks
+      const pending = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') === '\u05D7\u05D3\u05E9');
+      if (pending.length) notifs.push({icon:'bi-kanban text-primary', text: pending.length + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05DE\u05DE\u05EA\u05D9\u05E0\u05D5\u05EA', link:'#tasks'});
+
+      // Overdue homework
+      const overdue = hw.filter(h => (h['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4']||'') < today && (h['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05D4\u05D5\u05E9\u05DC\u05DD');
+      if (overdue.length) notifs.push({icon:'bi-book text-warning', text: overdue.length + ' \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8', link:'#homework'});
+
+      // Today's events
+      const todayEvents = events.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(today));
+      todayEvents.forEach(e => notifs.push({icon:'bi-calendar-event text-success', text: '\u05D4\u05D9\u05D5\u05DD: ' + (e['\u05DB\u05D5\u05EA\u05E8\u05EA']||'\u05D0\u05D9\u05E8\u05D5\u05E2'), link:'#calendar'}));
+
+      // Update badge
+      const badge = document.getElementById('notif-count');
+      if (badge) {
+        if (notifs.length > 0) { badge.textContent = notifs.length; badge.classList.remove('d-none'); }
+        else { badge.classList.add('d-none'); }
+      }
+
+      // Update dropdown
+      const list = document.getElementById('notif-list');
+      if (list) {
+        if (!notifs.length) {
+          list.innerHTML = '<div class="text-center text-muted p-3 small">\u05D0\u05D9\u05DF \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D7\u05D3\u05E9\u05D5\u05EA</div>';
+        } else {
+          list.innerHTML = notifs.map(n =>
+            `<a href="${n.link}" class="dropdown-item d-flex align-items-center gap-2 py-2"><i class="bi ${n.icon}"></i><span class="small">${n.text}</span></a>`
+          ).join('');
+        }
+      }
+    } catch(e) { console.warn('Notifications error:', e); }
   },
 
   initGlobalSearch() {
