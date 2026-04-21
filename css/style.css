@@ -1804,3 +1804,109 @@ body {
 .stat-card .stat-icon.gradient-orange { background: var(--bht-gradient-orange); }
 .stat-card .stat-icon.gradient-teal { background: var(--bht-gradient-teal); }
 .stat-card .stat-icon.gradient-pink { background: var(--bht-gradient-pink); }
+
+/* ===== Stat Card Gradient Strips ===== */
+.stat-card { position: relative; }
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 0 0 var(--bht-radius) var(--bht-radius);
+  background: var(--bht-gradient-primary);
+}
+.stat-card:nth-child(2) .stat-card::after { background: var(--bht-gradient-success); }
+.stat-card:nth-child(3) .stat-card::after { background: var(--bht-gradient-info); }
+.stat-card:nth-child(4) .stat-card::after { background: var(--bht-gradient-warning); }
+
+/* ===== Global Search Dropdown ===== */
+#search-results {
+  border-radius: var(--bht-radius);
+  box-shadow: var(--bht-shadow-xl);
+  border: 1px solid var(--bht-border);
+  z-index: 1050;
+}
+#search-results .dropdown-item {
+  border-radius: 8px;
+  transition: all var(--bht-transition);
+}
+#search-results .dropdown-item:hover {
+  background: var(--bht-primary-light);
+}
+[data-theme="dark"] #search-results {
+  background: var(--bht-card-bg);
+}
+
+/* ===== Form Builder ===== */
+.form-field-item {
+  background: var(--bht-body-bg);
+  border: 1px solid var(--bht-border);
+  border-radius: var(--bht-radius-sm);
+  padding: 1rem;
+  margin-bottom: .5rem;
+  transition: all var(--bht-transition);
+}
+.form-field-item:hover {
+  border-color: var(--bht-primary);
+  box-shadow: var(--bht-shadow);
+}
+.form-color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--bht-transition);
+}
+.form-color-option:hover { transform: scale(1.15); }
+.form-color-option.selected { border-color: var(--bht-text); box-shadow: 0 0 0 2px var(--bht-card-bg), 0 0 0 4px var(--bht-text); }
+
+/* ===== Communication Page ===== */
+.comm-template-card {
+  cursor: pointer;
+  transition: all var(--bht-transition);
+  border: 2px solid transparent;
+}
+.comm-template-card:hover {
+  border-color: var(--bht-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--bht-shadow-md);
+}
+.comm-recipient-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: .8rem;
+  background: var(--bht-primary-light);
+  color: var(--bht-primary);
+  transition: all var(--bht-transition);
+}
+
+/* ===== Student Card Scrollable Tabs ===== */
+.nav-tabs-bht {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nav-tabs-bht::-webkit-scrollbar { display: none; }
+.nav-tabs-bht .nav-link {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ===== Report Chart Cards ===== */
+.report-chart-card {
+  min-height: 320px;
+}
+.report-stat {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+.report-stat .fs-2 {
+  font-variant-numeric: tabular-nums;
+}
