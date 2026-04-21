@@ -361,6 +361,17 @@ const App = {
     // Global search
     this.initGlobalSearch();
 
+    // Scroll to top button
+    window.addEventListener('scroll', () => {
+      const btn = document.getElementById('scroll-top');
+      if (btn) btn.classList.toggle('d-none', window.scrollY < 300);
+    });
+
+    // Close FAB menu on page navigation
+    window.addEventListener('hashchange', () => {
+      document.getElementById('fab-menu')?.classList.add('d-none');
+    });
+
     // Global keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       // Ctrl+K or Cmd+K = focus search

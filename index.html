@@ -288,6 +288,24 @@
     </div>
   </div>
 
+  <!-- FAB -->
+  <div id="fab-container" class="position-fixed" style="bottom:80px;left:20px;z-index:1035">
+    <div id="fab-menu" class="d-none mb-2">
+      <a href="#students" class="btn btn-primary btn-sm d-block mb-1 shadow"><i class="bi bi-person-plus me-1"></i>תלמיד</a>
+      <a href="#attendance" class="btn btn-success btn-sm d-block mb-1 shadow"><i class="bi bi-calendar-check me-1"></i>נוכחות</a>
+      <a href="#tasks" class="btn btn-info btn-sm d-block mb-1 shadow text-white"><i class="bi bi-kanban me-1"></i>משימה</a>
+      <a href="#communications" class="btn btn-warning btn-sm d-block mb-1 shadow"><i class="bi bi-whatsapp me-1"></i>הודעה</a>
+    </div>
+    <button class="btn btn-primary rounded-circle shadow-lg" style="width:56px;height:56px;font-size:1.5rem" onclick="document.getElementById('fab-menu').classList.toggle('d-none')" id="fab-btn">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+  </div>
+
+  <!-- Scroll to top -->
+  <button id="scroll-top" class="btn btn-primary rounded-circle position-fixed d-none shadow" style="bottom:20px;left:20px;width:40px;height:40px;z-index:1034" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
   <!-- Toast Container -->
   <div class="toast-container position-fixed bottom-0 start-0 p-3" id="toast-container"></div>
 
