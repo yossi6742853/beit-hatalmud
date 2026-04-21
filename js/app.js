@@ -2,7 +2,7 @@
 
 const App = {
   /* ---- Config ---- */
-  API_URL: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx5tzS-Br4F4-JkH2N4qPJ2kA5bNxqqYgzfmvB19YM6NitHFgNziSxhKfZx2gSnX8ySIw/exec',
   API_TOKEN: 'bht2026',
   CACHE_TTL: 5 * 60 * 1000, // 5 minutes
   PIN_KEY: 'bht_pin_hash',
