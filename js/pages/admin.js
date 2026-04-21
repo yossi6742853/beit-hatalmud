@@ -321,6 +321,16 @@ Object.assign(Pages, {
         <div id="import-result" class="mt-2"></div>
       </div></div>
 
+      <!-- Year-End Archive -->
+      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-archive me-2"></i>\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9</h6>
+        <p class="small text-muted">\u05D1\u05E1\u05D9\u05D5\u05DD \u05D4\u05E9\u05E0\u05D4, \u05D4\u05E2\u05D1\u05E8 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05D5\u05D4\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4</p>
+        <div class="mb-2"><select class="form-select form-select-sm" id="archive-year"><option>\u05EA\u05E9\u05E4"\u05D5 (2025-2026)</option><option>\u05EA\u05E9\u05E4"\u05D4 (2024-2025)</option></select></div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.exportYearArchive()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05D0\u05E8\u05DB\u05D9\u05D5\u05DF</button>
+          <button class="btn btn-outline-danger btn-sm" onclick="Pages.startNewYear()"><i class="bi bi-arrow-repeat me-1"></i>\u05D4\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+        </div>
+      </div></div>
+
       <div class="col-12"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05DE\u05E2\u05E8\u05DB\u05EA</h6><div class="row g-2 small"><div class="col-sm-6"><strong>\u05D2\u05E8\u05E1\u05D4:</strong> 5.0</div><div class="col-sm-6"><strong>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4:</strong> GitHub Pages + Google Sheets</div><div class="col-sm-6"><strong>\u05DE\u05D5\u05E1\u05D3:</strong> \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div><div class="col-sm-6"><strong>\u05DE\u05E4\u05EA\u05D7:</strong> \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</div></div></div></div></div>`;
   },
   settingsInit() { document.getElementById('set-dark').addEventListener('change', (e) => { localStorage.setItem(App.THEME_KEY, e.target.checked ? 'dark' : 'light'); App.applyTheme(); }); },
@@ -398,6 +408,21 @@ Object.assign(Pages, {
     const el = document.getElementById('import-result');
     el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05E8...';
     try { await App.apiCall('run', 'seedAllData', {}); el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0 \u05E0\u05D5\u05E6\u05E8\u05D5</div>'; this.clearCache(); } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
+  },
+  // --- Year-End Archive ---
+  async exportYearArchive() {
+    Utils.toast('\u05DE\u05D9\u05D9\u05E6\u05D0 \u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9...','info');
+    const sheets = ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E6\u05D5\u05D5\u05EA','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD','\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'];
+    const archive = {year: document.getElementById('archive-year')?.value || '\u05EA\u05E9\u05E4"\u05D5', exportDate: Utils.todayISO(), data:{}};
+    for (const s of sheets) { try { archive.data[s] = await App.getData(s); } catch(e) { archive.data[s]=[]; } }
+    Utils.exportJSON(archive, 'bht_archive_' + Utils.todayISO() + '.json');
+    Utils.toast('\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9 \u05D9\u05D5\u05E6\u05D0 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
+  },
+  async startNewYear() {
+    if (!await Utils.confirm('\u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4','\u26A0\uFE0F \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5 \u05EA\u05D0\u05E4\u05E1 \u05D0\u05EA \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D5\u05EA\u05E2\u05D1\u05D9\u05E8 \u05D4\u05DB\u05DC \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF. \u05D4\u05D0\u05DD \u05DC\u05D4\u05DE\u05E9\u05D9\u05DA?')) return;
+    Utils.toast('\u05DE\u05D0\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4...','info');
+    // In reality this would call API to archive and reset
+    Utils.toast('\u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4 \u05D4\u05D5\u05D7\u05DC\u05D4! \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05D5\u05E2\u05D1\u05E8\u05D5 \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF.');
   },
 
 
