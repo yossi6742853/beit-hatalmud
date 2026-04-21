@@ -3,6 +3,19 @@ Object.assign(Pages, {
   /* ======================================================================
      DASHBOARD
      ====================================================================== */
+  _getParasha() {
+    const parashot = ['בראשית','נח','לך לך','וירא','חיי שרה','תולדות','ויצא','וישלח','וישב','מקץ','ויגש','ויחי',
+      'שמות','וארא','בא','בשלח','יתרו','משפטים','תרומה','תצוה','כי תשא','ויקהל','פקודי',
+      'ויקרא','צו','שמיני','תזריע','מצורע','אחרי מות','קדושים','אמור','בהר','בחוקותי',
+      'במדבר','נשא','בהעלותך','שלח','קרח','חוקת','בלק','פינחס','מטות','מסעי',
+      'דברים','ואתחנן','עקב','ראה','שופטים','כי תצא','כי תבוא','ניצבים','וילך','האזינו','וזאת הברכה'];
+    // Approximate: use week of year mod 54
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 1);
+    const week = Math.ceil((now - start) / 604800000);
+    return parashot[week % parashot.length];
+  },
+
   dashboard() {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
@@ -27,6 +40,23 @@ Object.assign(Pages, {
         <div class="col-md-3"><div class="card p-3 card-top-success"><small class="text-muted">שיעור גביה</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-collection">--</span><span class="badge" id="kpi-col-trend"></span></div></div></div>
         <div class="col-md-3"><div class="card p-3 card-top-warning"><small class="text-muted">ניקוד התנהגות ממוצע</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-beh-score">--</span><span class="badge" id="kpi-beh-trend"></span></div></div></div>
         <div class="col-md-3"><div class="card p-3 card-top-danger"><small class="text-muted">תלמידים בסיכון</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold text-danger" id="kpi-at-risk">--</span><small class="text-muted" id="kpi-risk-detail"></small></div></div></div>
+      </div>
+
+      <!-- Parasha + Daily Schedule -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+          <div class="card p-3" style="border-right:4px solid #8b5cf6">
+            <h6 class="fw-bold"><i class="bi bi-book-half me-2 text-purple"></i>פרשת השבוע</h6>
+            <div class="fs-4 fw-bold text-gradient" id="dash-parasha">--</div>
+            <div class="mt-2 small text-muted" id="dash-shabbat"></div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card p-3">
+            <h6 class="fw-bold"><i class="bi bi-clock-history me-2 text-info"></i>סדר היום</h6>
+            <div class="small" id="daily-routine"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Row 2: Weekly Attendance Chart + Finance Doughnut -->
@@ -407,6 +437,48 @@ Object.assign(Pages, {
           '<div class="flex-grow-1"><span>' + a.text + '</span></div>' +
           '<small class="text-muted">' + a.time + '</small>' +
         '</div>';
+      }).join('');
+    }
+
+    // === Parasha + Shabbat Times ===
+    const parashaEl = document.getElementById('dash-parasha');
+    if (parashaEl) {
+      parashaEl.textContent = 'פרשת ' + this._getParasha();
+      // Approximate Shabbat times for Beit Shemesh (lat ~31.75)
+      const fri = new Date();
+      fri.setDate(fri.getDate() + (5 - fri.getDay() + 7) % 7); // next Friday
+      const sunset = '19:10'; // approximate April sunset Beit Shemesh
+      document.getElementById('dash-shabbat').innerHTML = `<i class="bi bi-clock me-1"></i>הדלקת נרות: ${sunset} | צאת שבת: 20:15`;
+    }
+
+    // === Daily Schedule (סדר יום) ===
+    const routineEl = document.getElementById('daily-routine');
+    if (routineEl) {
+      const routine = [
+        {time:'06:45', name:'שחרית', icon:'bi-sunrise'},
+        {time:'07:30', name:'ארוחת בוקר', icon:'bi-cup-hot'},
+        {time:'08:00', name:'סדר א\' - גמרא', icon:'bi-book'},
+        {time:'09:30', name:'שיעור כללי', icon:'bi-mortarboard'},
+        {time:'10:30', name:'הפסקה', icon:'bi-pause-circle'},
+        {time:'10:45', name:'סדר ב\' - הלכה', icon:'bi-journal-text'},
+        {time:'12:00', name:'מנחה', icon:'bi-sun'},
+        {time:'12:30', name:'ארוחת צהריים', icon:'bi-egg-fried'},
+        {time:'13:30', name:'סדר ג\' - חזרה', icon:'bi-arrow-repeat'},
+        {time:'15:00', name:'שיעורי העשרה', icon:'bi-lightbulb'},
+        {time:'16:00', name:'סיום', icon:'bi-door-open'}
+      ];
+      const now2 = new Date();
+      const nowMin = now2.getHours()*60 + now2.getMinutes();
+      routineEl.innerHTML = routine.map(r => {
+        const [h,m] = r.time.split(':').map(Number);
+        const rMin = h*60+m;
+        const isCurrent = nowMin >= rMin && nowMin < rMin+60;
+        return `<div class="d-flex align-items-center gap-2 py-1 ${isCurrent?'bg-primary bg-opacity-10 rounded px-2 fw-bold':''}">
+          <span style="width:45px" class="small ${isCurrent?'text-primary':''}">${r.time}</span>
+          <i class="bi ${r.icon} ${isCurrent?'text-primary':'text-muted'}"></i>
+          <span>${r.name}</span>
+          ${isCurrent?'<span class="badge bg-primary ms-auto">עכשיו</span>':''}
+        </div>`;
       }).join('');
     }
 
