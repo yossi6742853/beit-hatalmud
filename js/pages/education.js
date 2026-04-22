@@ -1,42 +1,6 @@
 /* ===== BHT v5.3 — Education ===== */
 Object.assign(Pages, {
   /* ======================================================================
-     BEHAVIOR
-     ====================================================================== */
-  behavior() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-star-half me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddBeh()"><i class="bi bi-plus-lg me-1"></i>\u05D3\u05D9\u05D5\u05D5\u05D7 \u05D7\u05D3\u05E9</button></div><div class="row g-3 mb-3"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="beh-pos">0</div><small>\u05D7\u05D9\u05D5\u05D1\u05D9</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="beh-neg">0</div><small>\u05E9\u05DC\u05D9\u05DC\u05D9</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="beh-total">0</div><small>\u05E1\u05D4"\u05DB</small></div></div></div><div class="card mb-3" id="beh-leaderboard" style="display:none"><div class="card-body"><h6 class="fw-bold"><i class="bi bi-trophy-fill text-warning me-2"></i>\u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD</h6><div id="beh-top"></div></div></div><div id="beh-list">${Utils.skeleton(3)}</div><div class="modal fade" id="beh-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D3\u05D9\u05D5\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="bf-student"></select></div><div class="col-6"><label class="form-label">\u05E1\u05D5\u05D2</label><select class="form-select" id="bf-type"><option>\u05D7\u05D9\u05D5\u05D1\u05D9</option><option>\u05E9\u05DC\u05D9\u05DC\u05D9</option><option>\u05D4\u05E2\u05E8\u05D4</option></select></div><div class="col-6"><label class="form-label">\u05D7\u05D5\u05DE\u05E8\u05D4</label><select class="form-select" id="bf-severity"><option value="1">1 \u05E7\u05DC</option><option value="3" selected>3 \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9</option><option value="5">5 \u05D7\u05DE\u05D5\u05E8</option></select></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="bf-desc" rows="3"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveBeh()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
-  },
-  _behData: [],
-  async behaviorInit() {
-    this._behData = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'); this.renderBeh();
-  },
-  renderBeh() {
-    const rows = this._behData || [];
-    const pos = rows.filter(r => r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
-    const neg = rows.filter(r => r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
-    document.getElementById('beh-pos').textContent = pos;
-    document.getElementById('beh-neg').textContent = neg;
-    document.getElementById('beh-total').textContent = rows.length;
-    // Leaderboard
-    const scores = {};
-    rows.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]={p:0,n:0}; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++; });
-    const sorted = Object.keys(scores).sort((a,b) => (scores[b].p-scores[b].n)-(scores[a].p-scores[a].n)).slice(0,5);
-    if (sorted.length) { document.getElementById('beh-leaderboard').style.display=''; document.getElementById('beh-top').innerHTML = sorted.map((n,i) => { const net = scores[n].p-scores[n].n; return `<div class="d-flex align-items-center gap-2 mb-1"><span class="fw-bold" style="width:25px">${['&#129351;','&#129352;','&#129353;','4','5'][i]}</span><span class="flex-grow-1">${n}</span><span class="badge ${net>=0?'bg-success':'bg-danger'}">${net>=0?'+':''}${net}</span></div>`; }).join(''); }
-    if (!rows.length) { document.getElementById('beh-list').innerHTML = '<div class="empty-state"><i class="bi bi-star"></i><h5>\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('beh-list').innerHTML = rows.slice().reverse().slice(0,50).map(r => { const tc = r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9'?'success':r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9'?'danger':'secondary'; const nm=r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; const rid=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); return `<div class="card p-3 mb-2"><div class="d-flex justify-content-between"><div><span class="badge bg-${tc} me-2">${r['\u05E1\u05D5\u05D2']||''}</span><strong>${nm}</strong></div><div class="d-flex align-items-center gap-2"><small class="text-muted">${Utils.formatDateShort(r['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</small><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteBeh('${rid}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div><p class="mb-0 mt-1 small">${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</p></div>`; }).join('');
-  },
-  async showAddBeh() { const students = this._studentsData?.length ? this._studentsData : await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); const sel = document.getElementById('bf-student'); if (sel) { sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); } new bootstrap.Modal(document.getElementById('beh-modal')).show(); },
-  async saveBeh() {
-    const row = { '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': document.getElementById('bf-student').value, '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': document.getElementById('bf-student').selectedOptions[0]?.text || '', '\u05E1\u05D5\u05D2': document.getElementById('bf-type').value, '\u05D7\u05D5\u05DE\u05E8\u05D4': document.getElementById('bf-severity').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('bf-desc').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO() };
-    try { await App.apiCall('add', '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', { row }); bootstrap.Modal.getInstance(document.getElementById('beh-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.behaviorInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
-  },
-  async deleteBeh(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.behaviorInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
-  },
-
-
-  /* ======================================================================
      HOMEWORK
      ====================================================================== */
   homework() {
