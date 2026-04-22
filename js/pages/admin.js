@@ -1,4 +1,4 @@
-/* ===== BHT v5.3 — Admin ===== */
+/* ===== BHT v5.6 — Admin ===== */
 Object.assign(Pages, {
   /* ======================================================================
      REPORTS
@@ -229,7 +229,7 @@ Object.assign(Pages, {
     return `<div class="page-header"><h1><i class="bi bi-question-circle-fill me-2"></i>\u05E2\u05D6\u05E8\u05D4</h1></div>
       <div class="row g-3">
         <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-keyboard me-2"></i>\u05E7\u05D9\u05E6\u05D5\u05E8\u05D9 \u05DE\u05E7\u05DC\u05D3\u05EA</h6><ul class="small mb-0"><li><strong>P</strong> \u2014 \u05E0\u05D5\u05DB\u05D7</li><li><strong>A</strong> \u2014 \u05D7\u05D9\u05E1\u05D5\u05E8</li><li><strong>L</strong> \u2014 \u05D0\u05D9\u05D7\u05D5\u05E8</li><li><strong>Esc</strong> \u2014 \u05E1\u05D2\u05D5\u05E8 \u05D7\u05DC\u05D5\u05E0\u05D5\u05EA</li></ul></div></div>
-        <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>\u05D0\u05D5\u05D3\u05D5\u05EA</h6><ul class="small mb-0"><li>\u05D2\u05E8\u05E1\u05D4: 5.0 (GitHub Pages)</li><li>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4: GitHub Pages + Google Sheets API</li><li>\u05DE\u05E4\u05EA\u05D7: \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</li></ul></div></div>
+        <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>\u05D0\u05D5\u05D3\u05D5\u05EA</h6><ul class="small mb-0"><li>\u05D2\u05E8\u05E1\u05D4: 5.6 (GitHub Pages)</li><li>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4: GitHub Pages + Google Sheets API</li><li>\u05DE\u05E4\u05EA\u05D7: \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</li></ul></div></div>
         <div class="col-12"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-book me-2"></i>\u05D3\u05E4\u05D9\u05DD \u05D6\u05DE\u05D9\u05E0\u05D9\u05DD</h6><div class="row g-2">${[
           {p:'dashboard',l:'\u05DC\u05D5\u05D7 \u05D1\u05E7\u05E8\u05D4'},{p:'students',l:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'},{p:'staff',l:'\u05E6\u05D5\u05D5\u05EA'},{p:'parents',l:'\u05D4\u05D5\u05E8\u05D9\u05DD'},
           {p:'attendance',l:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'},{p:'behavior',l:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'},{p:'homework',l:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA'},{p:'academics',l:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'},
@@ -276,73 +276,276 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     SETTINGS
+     SETTINGS — Enhanced Dashboard
      ====================================================================== */
   settings() {
     const currentTheme = localStorage.getItem(App.THEME_KEY) || 'light';
     const apiUrl = localStorage.getItem('bht_api_url') || App.API_URL;
-    return `<div class="page-header"><h1><i class="bi bi-gear-fill me-2"></i>\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA</h1></div><div class="row g-3">
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-palette me-2"></i>\u05DE\u05E8\u05D0\u05D4</h6><div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" id="set-dark" ${currentTheme==='dark'?'checked':''}><label class="form-check-label" for="set-dark">\u05DE\u05E6\u05D1 \u05DB\u05D4\u05D4</label></div></div></div>
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-cloud me-2"></i>\u05D7\u05D9\u05D1\u05D5\u05E8 API</h6><div class="mb-3"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA API</label><input type="url" class="form-control" id="set-api" value="${apiUrl}" dir="ltr"></div><button class="btn btn-primary btn-sm" onclick="Pages.saveApiUrl()"><i class="bi bi-check me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div></div>
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-database me-2"></i>\u05DE\u05D8\u05DE\u05D5\u05DF</h6><button class="btn btn-outline-warning btn-sm" onclick="Pages.clearCache()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05DE\u05D8\u05DE\u05D5\u05DF</button></div></div>
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>\u05D0\u05D1\u05D8\u05D7\u05D4</h6><div class="mb-3"><label class="form-label">\u05E7\u05D5\u05D3 PIN \u05D7\u05D3\u05E9</label><input type="password" class="form-control" id="set-pin" maxlength="6" inputmode="numeric"></div><button class="btn btn-primary btn-sm" onclick="Pages.changePin()"><i class="bi bi-key me-1"></i>\u05E2\u05D3\u05DB\u05D5\u05DF</button></div></div>
+    const fontSize = localStorage.getItem('bht_font_size') || '16';
+    const lastBackup = localStorage.getItem('bht_last_backup') || '\u05DC\u05D0 \u05D1\u05D5\u05E6\u05E2';
 
-      <!-- Backup & Export -->
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-cloud-download me-2 text-primary"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D5\u05D9\u05D9\u05E6\u05D5\u05D0</h6>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-outline-primary btn-sm" onclick="Pages.backupNow()"><i class="bi bi-cloud-arrow-up me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D1\u05E9\u05E8\u05EA</button>
-          <button class="btn btn-outline-success btn-sm" onclick="Pages.exportAllData()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05DB\u05DC \u05D4\u05DE\u05D9\u05D3\u05E2</button>
+    // Calculate storage
+    let storageUsed = 0;
+    let storageKeys = 0;
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        storageUsed += (localStorage.getItem(k) || '').length * 2; // ~2 bytes per char
+        storageKeys++;
+      }
+    } catch(e) {}
+    const storageMB = (storageUsed / 1024 / 1024).toFixed(2);
+    const storageMax = 5; // localStorage ~5MB
+    const storagePct = Math.min(100, Math.round((storageUsed / (storageMax * 1024 * 1024)) * 100));
+
+    return `<div class="page-header"><h1><i class="bi bi-gear-fill me-2"></i>\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA</h1><p class="text-muted">\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E2\u05E8\u05DB\u05EA, \u05D2\u05D9\u05D1\u05D5\u05D9\u05D9\u05DD \u05D5\u05D4\u05EA\u05D0\u05DE\u05D4 \u05D0\u05D9\u05E9\u05D9\u05EA</p></div>
+
+      <!-- System Info Dashboard -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="card p-3 text-center"><i class="bi bi-cpu fs-3 text-primary"></i><div class="fs-4 fw-bold text-primary mt-1">v5.6</div><small class="text-muted">\u05D2\u05E8\u05E1\u05D4</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center"><i class="bi bi-puzzle fs-3 text-success"></i><div class="fs-4 fw-bold text-success mt-1">33</div><small class="text-muted">\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center"><i class="bi bi-hdd fs-3 text-warning"></i><div class="fs-4 fw-bold text-warning mt-1">${storageMB} MB</div><small class="text-muted">\u05D0\u05D7\u05E1\u05D5\u05DF \u05DE\u05E7\u05D5\u05DE\u05D9</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center"><i class="bi bi-key fs-3 text-info"></i><div class="fs-4 fw-bold text-info mt-1">${storageKeys}</div><small class="text-muted">\u05DE\u05E4\u05EA\u05D7\u05D5\u05EA</small></div></div>
+      </div>
+
+      <!-- Storage bar -->
+      <div class="card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0"><i class="bi bi-device-ssd me-2"></i>\u05E0\u05D9\u05E6\u05D5\u05DC \u05D0\u05D7\u05E1\u05D5\u05DF</h6>
+          <small class="text-muted">${storageMB} MB / ${storageMax} MB</small>
         </div>
-        <div id="backup-result" class="mt-2"></div>
-      </div></div>
-
-      <!-- Self-Check -->
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-heart-pulse me-2 text-danger"></i>\u05D1\u05D3\u05D9\u05E7\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA</h6>
-        <button class="btn btn-outline-danger btn-sm" onclick="Pages.runSelfCheck()"><i class="bi bi-activity me-1"></i>\u05D4\u05E4\u05E2\u05DC \u05D1\u05D3\u05D9\u05E7\u05D4</button>
-        <div id="selfcheck-result" class="mt-2"></div>
-      </div></div>
-
-      <!-- Email Actions -->
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-envelope me-2 text-info"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</h6>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-outline-info btn-sm" onclick="Pages.sendStatusEmail()"><i class="bi bi-envelope-check me-1"></i>\u05E9\u05DC\u05D7 \u05D3\u05D5\u05D7 \u05D9\u05D5\u05DE\u05D9</button>
-          <button class="btn btn-outline-warning btn-sm" onclick="Pages.sendPayReminders()"><i class="bi bi-cash-coin me-1"></i>\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</button>
-          <button class="btn btn-outline-success btn-sm" onclick="Pages.sendBehSummary()"><i class="bi bi-clipboard-data me-1"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</button>
+        <div class="progress" style="height:24px">
+          <div class="progress-bar ${storagePct > 80 ? 'bg-danger' : storagePct > 50 ? 'bg-warning' : 'bg-success'}" style="width:${storagePct}%">${storagePct}%</div>
         </div>
-        <div id="email-result" class="mt-2"></div>
-      </div></div>
+      </div>
 
-      <!-- Data Import -->
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down me-2 text-success"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h6>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-outline-success btn-sm" onclick="Pages.runImport()"><i class="bi bi-arrow-repeat me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05DE\u05DE\u05E7\u05D5\u05E8</button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.runSeed()"><i class="bi bi-magic me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0</button>
+      <ul class="nav nav-pills mb-3" id="settings-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" data-tab="appearance"><i class="bi bi-palette me-1"></i>\u05DE\u05E8\u05D0\u05D4</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="connection"><i class="bi bi-cloud me-1"></i>\u05D7\u05D9\u05D1\u05D5\u05E8</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="backup"><i class="bi bi-cloud-download me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="data"><i class="bi bi-database me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="security"><i class="bi bi-shield-lock me-1"></i>\u05D0\u05D1\u05D8\u05D7\u05D4</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-tab="about"><i class="bi bi-info-circle me-1"></i>\u05D0\u05D5\u05D3\u05D5\u05EA</a></li>
+      </ul>
+
+      <div id="settings-content">
+      <!-- Appearance Tab (default visible) -->
+      <div class="settings-tab" id="tab-appearance">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-moon-stars me-2"></i>\u05E2\u05E8\u05DB\u05EA \u05E0\u05D5\u05E9\u05D0</h6>
+            <div class="d-flex gap-2 mb-3">
+              <button class="btn ${currentTheme==='light'?'btn-primary':'btn-outline-primary'} flex-fill" onclick="Pages.setTheme('light')"><i class="bi bi-sun me-1"></i>\u05D1\u05D4\u05D9\u05E8</button>
+              <button class="btn ${currentTheme==='dark'?'btn-primary':'btn-outline-primary'} flex-fill" onclick="Pages.setTheme('dark')"><i class="bi bi-moon me-1"></i>\u05DB\u05D4\u05D4</button>
+              <button class="btn ${currentTheme==='auto'?'btn-primary':'btn-outline-primary'} flex-fill" onclick="Pages.setTheme('auto')"><i class="bi bi-circle-half me-1"></i>\u05D0\u05D5\u05D8\u05D5</button>
+            </div>
+          </div></div>
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-fonts me-2"></i>\u05D2\u05D5\u05D3\u05DC \u05D2\u05D5\u05E4\u05DF</h6>
+            <div class="d-flex align-items-center gap-3">
+              <small>\u05E7\u05D8\u05DF</small>
+              <input type="range" class="form-range flex-fill" id="set-fontsize" min="12" max="22" step="1" value="${fontSize}">
+              <small>\u05D2\u05D3\u05D5\u05DC</small>
+            </div>
+            <div class="text-center mt-2"><span class="badge bg-secondary" id="fontsize-label">${fontSize}px</span></div>
+            <div class="mt-2 p-2 border rounded" id="fontsize-preview" style="font-size:${fontSize}px">\u05D8\u05E7\u05E1\u05D8 \u05DC\u05D3\u05D5\u05D2\u05DE\u05D0 - \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div>
+          </div></div>
         </div>
-        <div id="import-result" class="mt-2"></div>
-      </div></div>
+      </div>
 
-      <!-- Year-End Archive -->
-      <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-archive me-2"></i>\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9</h6>
-        <p class="small text-muted">\u05D1\u05E1\u05D9\u05D5\u05DD \u05D4\u05E9\u05E0\u05D4, \u05D4\u05E2\u05D1\u05E8 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05D5\u05D4\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4</p>
-        <div class="mb-2"><select class="form-select form-select-sm" id="archive-year"><option>\u05EA\u05E9\u05E4"\u05D5 (2025-2026)</option><option>\u05EA\u05E9\u05E4"\u05D4 (2024-2025)</option></select></div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-outline-primary btn-sm" onclick="Pages.exportYearArchive()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05D0\u05E8\u05DB\u05D9\u05D5\u05DF</button>
-          <button class="btn btn-outline-danger btn-sm" onclick="Pages.startNewYear()"><i class="bi bi-arrow-repeat me-1"></i>\u05D4\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+      <!-- Connection Tab -->
+      <div class="settings-tab d-none" id="tab-connection">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-cloud me-2"></i>\u05DB\u05EA\u05D5\u05D1\u05EA API</h6>
+            <div class="mb-3"><input type="url" class="form-control" id="set-api" value="${apiUrl}" dir="ltr"></div>
+            <button class="btn btn-primary btn-sm" onclick="Pages.saveApiUrl()"><i class="bi bi-check me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+          </div></div>
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-heart-pulse me-2 text-danger"></i>\u05D1\u05D3\u05D9\u05E7\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA</h6>
+            <button class="btn btn-outline-danger btn-sm" onclick="Pages.runSelfCheck()"><i class="bi bi-activity me-1"></i>\u05D4\u05E4\u05E2\u05DC \u05D1\u05D3\u05D9\u05E7\u05D4</button>
+            <div id="selfcheck-result" class="mt-2"></div>
+          </div></div>
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-envelope me-2 text-info"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</h6>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-outline-info btn-sm" onclick="Pages.sendStatusEmail()"><i class="bi bi-envelope-check me-1"></i>\u05D3\u05D5\u05D7 \u05D9\u05D5\u05DE\u05D9</button>
+              <button class="btn btn-outline-warning btn-sm" onclick="Pages.sendPayReminders()"><i class="bi bi-cash-coin me-1"></i>\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</button>
+              <button class="btn btn-outline-success btn-sm" onclick="Pages.sendBehSummary()"><i class="bi bi-clipboard-data me-1"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</button>
+            </div>
+            <div id="email-result" class="mt-2"></div>
+          </div></div>
         </div>
-      </div></div>
+      </div>
 
-      <div class="col-12"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05DE\u05E2\u05E8\u05DB\u05EA</h6><div class="row g-2 small"><div class="col-sm-6"><strong>\u05D2\u05E8\u05E1\u05D4:</strong> 5.0</div><div class="col-sm-6"><strong>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4:</strong> GitHub Pages + Google Sheets</div><div class="col-sm-6"><strong>\u05DE\u05D5\u05E1\u05D3:</strong> \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div><div class="col-sm-6"><strong>\u05DE\u05E4\u05EA\u05D7:</strong> \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</div></div></div></div></div>`;
+      <!-- Backup & Restore Tab -->
+      <div class="settings-tab d-none" id="tab-backup">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD (\u05E9\u05E8\u05EA)</h6>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              <button class="btn btn-outline-primary btn-sm" onclick="Pages.backupNow()"><i class="bi bi-cloud-arrow-up me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D1\u05E9\u05E8\u05EA</button>
+              <button class="btn btn-outline-success btn-sm" onclick="Pages.exportAllData()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05DB\u05DC \u05D4\u05DE\u05D9\u05D3\u05E2</button>
+            </div>
+            <div id="backup-result" class="mt-2"></div>
+            <div class="mt-2 small text-muted"><i class="bi bi-clock me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D0\u05D7\u05E8\u05D5\u05DF: ${lastBackup}</div>
+          </div></div>
+
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-cloud-arrow-down me-2 text-success"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 localStorage \u05DB-JSON</h6>
+            <p class="small text-muted">\u05D9\u05D9\u05E6\u05D5\u05D0 \u05DB\u05DC \u05D4\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05D5\u05D4\u05DE\u05D8\u05DE\u05D5\u05DF \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9 \u05DB\u05E7\u05D5\u05D1\u05E5 JSON</p>
+            <button class="btn btn-success btn-sm" onclick="Pages.exportLocalStorage()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 localStorage</button>
+          </div></div>
+
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-upload me-2 text-warning"></i>\u05E9\u05D7\u05D6\u05D5\u05E8 \u05DE\u05E7\u05D5\u05D1\u05E5</h6>
+            <p class="small text-muted">\u05D8\u05E2\u05DF \u05E7\u05D5\u05D1\u05E5 JSON \u05E9\u05D9\u05D5\u05E6\u05D0 \u05E7\u05D5\u05D3\u05DD \u05DB\u05D3\u05D9 \u05DC\u05E9\u05D7\u05D6\u05E8 \u05D4\u05D2\u05D3\u05E8\u05D5\u05EA</p>
+            <input type="file" class="form-control form-control-sm mb-2" id="restore-file" accept=".json">
+            <button class="btn btn-warning btn-sm" onclick="Pages.importLocalStorage()"><i class="bi bi-upload me-1"></i>\u05E9\u05D7\u05D6\u05E8 \u05DE\u05E7\u05D5\u05D1\u05E5</button>
+            <div id="restore-result" class="mt-2"></div>
+          </div></div>
+
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-archive me-2"></i>\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9</h6>
+            <p class="small text-muted">\u05D1\u05E1\u05D9\u05D5\u05DD \u05D4\u05E9\u05E0\u05D4, \u05D4\u05E2\u05D1\u05E8 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF</p>
+            <div class="mb-2"><select class="form-select form-select-sm" id="archive-year"><option>\u05EA\u05E9\u05E4"\u05D5 (2025-2026)</option><option>\u05EA\u05E9\u05E4"\u05D4 (2024-2025)</option></select></div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm" onclick="Pages.exportYearArchive()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05D0\u05E8\u05DB\u05D9\u05D5\u05DF</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="Pages.startNewYear()"><i class="bi bi-arrow-repeat me-1"></i>\u05D4\u05EA\u05D7\u05DC \u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Data Management Tab -->
+      <div class="settings-tab d-none" id="tab-data">
+        <div class="row g-3">
+          <div class="col-md-4"><div class="card p-3 text-center">
+            <i class="bi bi-trash3 fs-1 text-warning"></i>
+            <h6 class="fw-bold mt-2">\u05E0\u05E7\u05D4 \u05DE\u05D8\u05DE\u05D5\u05DF</h6>
+            <p class="small text-muted">\u05DE\u05D5\u05D7\u05E7 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E9\u05E0\u05E9\u05DE\u05E8\u05D5 \u05D1\u05DE\u05D8\u05DE\u05D5\u05DF \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9. \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D1\u05E9\u05E8\u05EA \u05DC\u05D0 \u05DE\u05D5\u05E9\u05E4\u05E2\u05D9\u05DD.</p>
+            <button class="btn btn-outline-warning btn-sm" onclick="Pages.clearCache()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05DE\u05D8\u05DE\u05D5\u05DF</button>
+          </div></div>
+          <div class="col-md-4"><div class="card p-3 text-center">
+            <i class="bi bi-magic fs-1 text-info"></i>
+            <h6 class="fw-bold mt-2">\u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D2\u05DE\u05D0</h6>
+            <p class="small text-muted">\u05D9\u05D9\u05E6\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D3\u05D5\u05D2\u05DE\u05D0 \u05DC\u05D1\u05D3\u05D9\u05E7\u05D4 \u05D5\u05D4\u05D3\u05D2\u05DE\u05D4. \u05E2\u05DC\u05D5\u05DC \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD.</p>
+            <button class="btn btn-outline-info btn-sm" onclick="Pages.runSeed()"><i class="bi bi-magic me-1"></i>\u05D0\u05E4\u05E1 \u05D3\u05D5\u05D2\u05DE\u05D0</button>
+          </div></div>
+          <div class="col-md-4"><div class="card p-3 text-center">
+            <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+            <h6 class="fw-bold mt-2">\u05DE\u05D7\u05E7 \u05D4\u05DB\u05DC</h6>
+            <p class="small text-muted">\u05DE\u05D5\u05D7\u05E7 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9\u05D9\u05DD. \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5 \u05D0\u05D9\u05E0\u05D4 \u05D4\u05E4\u05D9\u05DB\u05D4!</p>
+            <button class="btn btn-danger btn-sm" onclick="Pages.clearAllData()"><i class="bi bi-x-octagon me-1"></i>\u05DE\u05D7\u05E7 \u05D4\u05DB\u05DC</button>
+          </div></div>
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-down me-2 text-success"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h6>
+            <button class="btn btn-outline-success btn-sm" onclick="Pages.runImport()"><i class="bi bi-arrow-repeat me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05DE\u05DE\u05E7\u05D5\u05E8</button>
+            <div id="import-result" class="mt-2"></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- Security Tab -->
+      <div class="settings-tab d-none" id="tab-security">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>\u05E9\u05D9\u05E0\u05D5\u05D9 PIN</h6>
+            <div class="mb-3"><label class="form-label">\u05E7\u05D5\u05D3 PIN \u05D7\u05D3\u05E9</label><input type="password" class="form-control" id="set-pin" maxlength="6" inputmode="numeric"></div>
+            <button class="btn btn-primary btn-sm" onclick="Pages.changePin()"><i class="bi bi-key me-1"></i>\u05E2\u05D3\u05DB\u05D5\u05DF</button>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- About Tab -->
+      <div class="settings-tab d-none" id="tab-about">
+        <div class="row g-3">
+          <div class="col-md-8 mx-auto"><div class="card p-4 text-center">
+            <i class="bi bi-mortarboard-fill fs-1 text-primary"></i>
+            <h4 class="fw-bold mt-2">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h4>
+            <p class="text-muted">\u05DE\u05E2\u05E8\u05DB\u05EA \u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05D5\u05E1\u05D3\u05D9\u05EA \u05DE\u05EA\u05E7\u05D3\u05DE\u05EA</p>
+            <hr>
+            <div class="row g-2 text-start small">
+              <div class="col-6"><strong>\u05D2\u05E8\u05E1\u05D4:</strong></div><div class="col-6">5.6</div>
+              <div class="col-6"><strong>\u05EA\u05D0\u05E8\u05D9\u05DA \u05D1\u05E0\u05D9\u05D9\u05D4:</strong></div><div class="col-6">2026-04-22</div>
+              <div class="col-6"><strong>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4:</strong></div><div class="col-6">GitHub Pages + Google Sheets</div>
+              <div class="col-6"><strong>\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD:</strong></div><div class="col-6">33 \u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</div>
+              <div class="col-6"><strong>\u05DE\u05D5\u05E1\u05D3:</strong></div><div class="col-6">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div>
+              <div class="col-6"><strong>\u05DE\u05E4\u05EA\u05D7:</strong></div><div class="col-6">\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</div>
+              <div class="col-6"><strong>\u05D8\u05DB\u05E0\u05D5\u05DC\u05D5\u05D2\u05D9\u05D5\u05EA:</strong></div><div class="col-6">Bootstrap 5.3.2, Chart.js, Heebo</div>
+              <div class="col-6"><strong>\u05E8\u05D9\u05E9\u05D9\u05D5\u05DF:</strong></div><div class="col-6">MIT</div>
+            </div>
+            <hr>
+            <div class="small text-muted">\u05E0\u05D1\u05E0\u05D4 \u05E2\u05DD Claude AI | \u05DB\u05DC \u05D4\u05D6\u05DB\u05D5\u05D9\u05D5\u05EA \u05E9\u05DE\u05D5\u05E8\u05D5\u05EA</div>
+          </div></div>
+        </div>
+      </div>
+      </div>`;
   },
-  settingsInit() { document.getElementById('set-dark').addEventListener('change', (e) => { localStorage.setItem(App.THEME_KEY, e.target.checked ? 'dark' : 'light'); App.applyTheme(); }); },
+  settingsInit() {
+    // Tab switching
+    document.querySelectorAll('#settings-tabs .nav-link').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('#settings-tabs .nav-link').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.add('d-none'));
+        const tab = document.getElementById('tab-' + a.dataset.tab);
+        if (tab) tab.classList.remove('d-none');
+      });
+    });
+
+    // Font size slider
+    const slider = document.getElementById('set-fontsize');
+    if (slider) {
+      slider.addEventListener('input', () => {
+        const val = slider.value;
+        document.getElementById('fontsize-label').textContent = val + 'px';
+        document.getElementById('fontsize-preview').style.fontSize = val + 'px';
+      });
+      slider.addEventListener('change', () => {
+        const val = slider.value;
+        localStorage.setItem('bht_font_size', val);
+        document.documentElement.style.fontSize = val + 'px';
+        Utils.toast('\u05D2\u05D5\u05D3\u05DC \u05D2\u05D5\u05E4\u05DF \u05E2\u05D5\u05D3\u05DB\u05DF \u05DC-' + val + 'px');
+      });
+    }
+
+    // Apply saved font size on load
+    const savedSize = localStorage.getItem('bht_font_size');
+    if (savedSize) document.documentElement.style.fontSize = savedSize + 'px';
+  },
+
+  // --- Theme Toggle ---
+  setTheme(theme) {
+    localStorage.setItem(App.THEME_KEY, theme);
+    if (theme === 'auto') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', theme);
+    }
+    if (typeof App.applyTheme === 'function') App.applyTheme();
+    // Update buttons
+    document.querySelectorAll('#tab-appearance .btn').forEach(b => {
+      b.className = b.className.replace('btn-primary','btn-outline-primary');
+    });
+    const activeBtn = document.querySelector(`#tab-appearance .btn[onclick="Pages.setTheme('${theme}')"]`);
+    if (activeBtn) activeBtn.className = activeBtn.className.replace('btn-outline-primary','btn-primary');
+    Utils.toast('\u05E2\u05E8\u05DB\u05EA \u05E0\u05D5\u05E9\u05D0 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4');
+  },
+
   saveApiUrl() { const url=document.getElementById('set-api').value.trim(); if (!url) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05EA\u05D5\u05D1\u05EA','warning'); return; } localStorage.setItem('bht_api_url',url); App.API_URL=url; Utils.toast('API \u05E2\u05D5\u05D3\u05DB\u05DF'); },
   clearCache() { Object.keys(localStorage).forEach(k => { if (k.startsWith(App.CACHE_PREFIX)) localStorage.removeItem(k); }); Utils.toast('\u05DE\u05D8\u05DE\u05D5\u05DF \u05E0\u05D5\u05E7\u05D4'); },
   changePin() { const pin=document.getElementById('set-pin').value.trim(); if (pin.length<4) { Utils.toast('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA','warning'); return; } localStorage.setItem(App.PIN_KEY, Utils.hashPin(pin)); document.getElementById('set-pin').value=''; Utils.toast('PIN \u05E2\u05D5\u05D3\u05DB\u05DF'); },
-  // --- Backup ---
+
+  // --- Backup & Restore ---
   async backupNow() {
     const el = document.getElementById('backup-result');
     el.innerHTML = '<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D2\u05D1\u05D4...';
     try {
       const res = await App.apiCall('run', 'createBackup', {});
+      localStorage.setItem('bht_last_backup', new Date().toLocaleString('he-IL'));
       el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05D5\u05E6\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4</div>';
     } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D2\u05D9\u05D1\u05D5\u05D9</div>'; }
   },
@@ -359,10 +562,62 @@ Object.assign(Pages, {
         el.innerHTML = `<div class="spinner-border spinner-border-sm"></div> \u05DE\u05D9\u05D9\u05E6\u05D0... ${loaded}/${sheets.length}`;
       }
       Utils.exportJSON(allData, 'bht_backup_' + Utils.todayISO() + '.json');
+      localStorage.setItem('bht_last_backup', new Date().toLocaleString('he-IL'));
       el.innerHTML = '<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD!</div>';
       Utils.toast('\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD!');
     } catch(e) { el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4</div>'; }
   },
+
+  // --- localStorage Export/Import ---
+  exportLocalStorage() {
+    const data = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      data[key] = localStorage.getItem(key);
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bht_localstorage_' + (Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0,10)) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    localStorage.setItem('bht_last_backup', new Date().toLocaleString('he-IL'));
+    Utils.toast('\u05E7\u05D5\u05D1\u05E5 localStorage \u05D9\u05D5\u05E6\u05D0 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4');
+  },
+  async importLocalStorage() {
+    const fileInput = document.getElementById('restore-file');
+    const el = document.getElementById('restore-result');
+    if (!fileInput || !fileInput.files.length) { Utils.toast('\u05D1\u05D7\u05E8 \u05E7\u05D5\u05D1\u05E5 JSON','warning'); return; }
+    if (!await Utils.confirm('\u05E9\u05D7\u05D6\u05D5\u05E8 \u05D4\u05D2\u05D3\u05E8\u05D5\u05EA', '\u05D4\u05D0\u05DD \u05DC\u05E9\u05D7\u05D6\u05E8 \u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05DE\u05D4\u05E7\u05D5\u05D1\u05E5? \u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05E7\u05D9\u05D9\u05DE\u05D5\u05EA \u05D9\u05D3\u05E8\u05E1\u05D5.')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        let count = 0;
+        for (const [key, value] of Object.entries(data)) {
+          localStorage.setItem(key, value);
+          count++;
+        }
+        el.innerHTML = `<div class="text-success"><i class="bi bi-check-circle me-1"></i>\u05E9\u05D5\u05D7\u05D6\u05E8\u05D5 ${count} \u05DE\u05E4\u05EA\u05D7\u05D5\u05EA \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4</div>`;
+        Utils.toast(`\u05E9\u05D5\u05D7\u05D6\u05E8\u05D5 ${count} \u05DE\u05E4\u05EA\u05D7\u05D5\u05EA`);
+      } catch(err) {
+        el.innerHTML = '<div class="text-danger"><i class="bi bi-x-circle me-1"></i>\u05E7\u05D5\u05D1\u05E5 \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF</div>';
+        Utils.toast('\u05E7\u05D5\u05D1\u05E5 JSON \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF','danger');
+      }
+    };
+    reader.readAsText(fileInput.files[0]);
+  },
+
+  // --- Clear All Data ---
+  async clearAllData() {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD', '\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9\u05D9\u05DD? \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5 \u05D0\u05D9\u05E0\u05D4 \u05D4\u05E4\u05D9\u05DB\u05D4!')) return;
+    if (!await Utils.confirm('\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E1\u05D5\u05E4\u05D9', '\u05D4\u05D0\u05DD \u05D0\u05EA\u05D4 \u05D1\u05D8\u05D5\u05D7? \u05DB\u05DC \u05D4\u05DE\u05D8\u05DE\u05D5\u05DF, \u05D4\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05D5\u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05DE\u05E7\u05D5\u05DE\u05D9\u05D9\u05DD \u05D9\u05D9\u05DE\u05D7\u05E7\u05D5.')) return;
+    localStorage.clear();
+    Utils.toast('\u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E0\u05DE\u05D7\u05E7\u05D5. \u05D4\u05D3\u05E3 \u05D9\u05D9\u05D8\u05E2\u05DF \u05DE\u05D7\u05D3\u05E9...','warning');
+    setTimeout(() => location.reload(), 1500);
+  },
+
   // --- Self-Check ---
   async runSelfCheck() {
     const el = document.getElementById('selfcheck-result');
@@ -427,32 +682,123 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     USER MANAGEMENT
+     USER MANAGEMENT — Enhanced with PIN masking, role badges, edit
      ====================================================================== */
   user_management() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-shield-lock me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddUser()"><i class="bi bi-person-plus me-1"></i>\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</button></div><div class="row g-3 mb-3"><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="um-total">0</div><small>\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="um-admin">0</div><small>\u05DE\u05E0\u05D4\u05DC\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="um-teacher">0</div><small>\u05DE\u05DC\u05DE\u05D3\u05D9\u05DD</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-warning" id="um-parent">0</div><small>\u05D4\u05D5\u05E8\u05D9\u05DD</small></div></div></div><div id="um-list">${Utils.skeleton(3)}</div><div class="modal fade" id="um-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="um-modal-title">\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input type="email" class="form-control" id="umf-email" dir="ltr"></div><div class="col-6"><label class="form-label">\u05EA\u05E4\u05E7\u05D9\u05D3</label><select class="form-select" id="umf-role"><option value="admin">\u05DE\u05E0\u05D4\u05DC</option><option value="secretary">\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA</option><option value="teacher" selected>\u05DE\u05DC\u05DE\u05D3</option><option value="parent">\u05D4\u05D5\u05E8\u05D4</option></select></div><div class="col-6"><label class="form-label">\u05E1\u05D9\u05E1\u05DE\u05D4</label><input type="password" class="form-control" id="umf-password"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveUser()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-shield-lock me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h1></div>
+      <div class="d-flex gap-2">
+        <div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" id="um-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." style="width:180px"></div>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddUser()"><i class="bi bi-person-plus me-1"></i>\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</button>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="um-total">0</div><small>\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</small></div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="um-admin">0</div><small>\u05DE\u05E0\u05D4\u05DC\u05D9\u05DD</small></div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="um-teacher">0</div><small>\u05DE\u05DC\u05DE\u05D3\u05D9\u05DD</small></div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-warning" id="um-parent">0</div><small>\u05D4\u05D5\u05E8\u05D9\u05DD</small></div></div>
+    </div>
+    <div id="um-list">${Utils.skeleton(3)}</div>
+    <div class="modal fade" id="um-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="um-modal-title">\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3">
+      <div class="col-12"><label class="form-label">\u05E9\u05DD \u05DE\u05DC\u05D0</label><input type="text" class="form-control" id="umf-name"></div>
+      <div class="col-12"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input type="email" class="form-control" id="umf-email" dir="ltr"></div>
+      <div class="col-6"><label class="form-label">\u05EA\u05E4\u05E7\u05D9\u05D3</label><select class="form-select" id="umf-role"><option value="admin">\u05DE\u05E0\u05D4\u05DC</option><option value="secretary">\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA</option><option value="teacher" selected>\u05DE\u05DC\u05DE\u05D3</option><option value="parent">\u05D4\u05D5\u05E8\u05D4</option></select></div>
+      <div class="col-6"><label class="form-label">PIN</label><input type="password" class="form-control" id="umf-pin" maxlength="6" inputmode="numeric" placeholder="4-6 \u05E1\u05E4\u05E8\u05D5\u05EA"></div>
+      <div class="col-12"><label class="form-label">\u05E1\u05D9\u05E1\u05DE\u05D4</label><input type="password" class="form-control" id="umf-password"></div>
+      <input type="hidden" id="umf-edit-id">
+    </div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveUser()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
   },
   _umData: [],
   async user_managementInit() {
     this._umData = await App.getData('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
     this.renderUsers();
+    document.getElementById('um-search')?.addEventListener('input', Utils.debounce(() => this.renderUsers(), 200));
   },
   renderUsers() {
-    const data = this._umData||[];
-    document.getElementById('um-total').textContent = data.length;
-    document.getElementById('um-admin').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('admin')).length;
-    document.getElementById('um-teacher').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('teacher')).length;
-    document.getElementById('um-parent').textContent = data.filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('parent')).length;
+    const search = (document.getElementById('um-search')?.value || '').trim().toLowerCase();
+    let data = (this._umData||[]);
+    if (search) {
+      data = data.filter(u => {
+        const name = (u['\u05E9\u05DD']||u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'').toLowerCase();
+        const role = (u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').toLowerCase();
+        return name.includes(search) || role.includes(search);
+      });
+    }
+    document.getElementById('um-total').textContent = (this._umData||[]).length;
+    document.getElementById('um-admin').textContent = (this._umData||[]).filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('admin')).length;
+    document.getElementById('um-teacher').textContent = (this._umData||[]).filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('teacher')).length;
+    document.getElementById('um-parent').textContent = (this._umData||[]).filter(u=>(u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').includes('parent')).length;
     const roleLabels = {admin:'\u05DE\u05E0\u05D4\u05DC',secretary:'\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA',teacher:'\u05DE\u05DC\u05DE\u05D3',parent:'\u05D4\u05D5\u05E8\u05D4'};
     const roleColors = {admin:'danger',secretary:'primary',teacher:'success',parent:'warning'};
+    const roleIcons = {admin:'bi-shield-fill',secretary:'bi-person-workspace',teacher:'bi-person-video3',parent:'bi-house-heart'};
     if (!data.length) { document.getElementById('um-list').innerHTML = '<div class="empty-state"><i class="bi bi-shield-lock"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('um-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05DB\u05E0\u05D9\u05E1\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${data.map(u => {const role=u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'teacher'; return `<tr><td class="fw-bold">${u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||u['\u05E9\u05DD']||''}</td><td><span class="badge bg-${roleColors[role]||'secondary'}">${roleLabels[role]||role}</span></td><td class="small text-muted">${u['\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4']||'--'}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.removeUser('${Utils.rowId(u)}')"><i class="bi bi-trash"></i></button></td></tr>`}).join('')}</tbody></table></div>`;
+    document.getElementById('um-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th></th><th>\u05E9\u05DD</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>PIN</th><th>\u05DB\u05E0\u05D9\u05E1\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${data.map(u => {
+      const role = u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'teacher';
+      const name = u['\u05E9\u05DD']||u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'';
+      const pin = u['PIN']||u['\u05E1\u05D9\u05E1\u05DE\u05D4']||'';
+      const maskedPin = pin ? '\u2022'.repeat(Math.min(pin.length, 6)) : '--';
+      const lastLogin = u['\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4']||'--';
+      const id = Utils.rowId(u);
+      return `<tr>
+        <td>${Utils.avatarHTML ? Utils.avatarHTML(name,'sm') : ''}</td>
+        <td class="fw-bold">${name}</td>
+        <td class="small" dir="ltr">${u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td>
+        <td><span class="badge bg-${roleColors[role]||'secondary'}"><i class="bi ${roleIcons[role]||'bi-person'} me-1"></i>${roleLabels[role]||role}</span></td>
+        <td><code class="user-select-none">${maskedPin}</code></td>
+        <td class="small text-muted">${lastLogin}</td>
+        <td>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary" onclick="Pages.editUser('${id}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-outline-danger" onclick="Pages.removeUser('${id}')" title="\u05DE\u05D7\u05D9\u05E7\u05D4"><i class="bi bi-trash"></i></button>
+          </div>
+        </td>
+      </tr>`}).join('')}</tbody></table></div>`;
   },
-  showAddUser() { document.getElementById('um-modal-title').textContent = '\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9'; new bootstrap.Modal(document.getElementById('um-modal')).show(); },
+  showAddUser() {
+    document.getElementById('um-modal-title').textContent = '\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9';
+    document.getElementById('umf-name').value = '';
+    document.getElementById('umf-email').value = '';
+    document.getElementById('umf-role').value = 'teacher';
+    document.getElementById('umf-pin').value = '';
+    document.getElementById('umf-password').value = '';
+    document.getElementById('umf-edit-id').value = '';
+    new bootstrap.Modal(document.getElementById('um-modal')).show();
+  },
+  editUser(id) {
+    const user = (this._umData||[]).find(u => Utils.rowId(u) === id);
+    if (!user) return;
+    document.getElementById('um-modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9';
+    document.getElementById('umf-name').value = user['\u05E9\u05DD']||'';
+    document.getElementById('umf-email').value = user['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'';
+    document.getElementById('umf-role').value = user['\u05EA\u05E4\u05E7\u05D9\u05D3']||'teacher';
+    document.getElementById('umf-pin').value = '';
+    document.getElementById('umf-password').value = '';
+    document.getElementById('umf-edit-id').value = id;
+    new bootstrap.Modal(document.getElementById('um-modal')).show();
+  },
   async saveUser() {
-    const row = {'\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':document.getElementById('umf-email').value.trim(),'\u05EA\u05E4\u05E7\u05D9\u05D3':document.getElementById('umf-role').value,'\u05E1\u05D9\u05E1\u05DE\u05D4':document.getElementById('umf-password').value};
-    if (!row['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC','warning'); return; }
-    try { await App.apiCall('add','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{row}); bootstrap.Modal.getInstance(document.getElementById('um-modal')).hide(); Utils.toast('\u05DE\u05E9\u05EA\u05DE\u05E9 \u05E0\u05D5\u05E1\u05E3'); this.user_managementInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    const editId = document.getElementById('umf-edit-id').value;
+    const row = {
+      '\u05E9\u05DD': document.getElementById('umf-name').value.trim(),
+      '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('umf-email').value.trim(),
+      '\u05EA\u05E4\u05E7\u05D9\u05D3': document.getElementById('umf-role').value,
+    };
+    const pin = document.getElementById('umf-pin').value.trim();
+    if (pin) row['PIN'] = pin;
+    const pass = document.getElementById('umf-password').value;
+    if (pass) row['\u05E1\u05D9\u05E1\u05DE\u05D4'] = pass;
+    if (!row['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] && !row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD \u05D0\u05D5 \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC','warning'); return; }
+    try {
+      if (editId) {
+        await App.apiCall('update','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{id: editId, row});
+        Utils.toast('\u05DE\u05E9\u05EA\u05DE\u05E9 \u05E2\u05D5\u05D3\u05DB\u05DF');
+      } else {
+        await App.apiCall('add','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{row});
+        Utils.toast('\u05DE\u05E9\u05EA\u05DE\u05E9 \u05E0\u05D5\u05E1\u05E3');
+      }
+      bootstrap.Modal.getInstance(document.getElementById('um-modal')).hide();
+      this.user_managementInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
   async removeUser(id) { if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05EA\u05DE\u05E9 \u05D6\u05D4?')) return; try { await App.apiCall('delete','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.user_managementInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
 
