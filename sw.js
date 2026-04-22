@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v5.7-0422';
+const CACHE_VERSION = 'bht-v5.8-0422';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -47,8 +47,12 @@ const ASSETS = [
   './js/pages/transport.js',
   './js/pages/tutoring.js',
   './js/pages/visits.js',
+  './js/pages/timetable.js',
   './js/pages/videos.js',
   './js/pages/voting.js',
+  './js/pages/whatsapp.js',
+  './js/pages/certificates.js',
+  './js/pages/analytics.js',
   // Icons & images
   './icons/icon-192.png',
   './icons/icon-512.png',
