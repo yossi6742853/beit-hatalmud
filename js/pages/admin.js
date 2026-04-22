@@ -223,24 +223,319 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     HELP
+     HELP — Comprehensive Help Center
      ====================================================================== */
+  _helpFaqData: [
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05D5\u05E1\u05D9\u05E4\u05D9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D7\u05D3\u05E9?', a:'\u05E0\u05D5\u05D5\u05D8\u05D5 \u05DC\u05D3\u05E3 <a href="#students">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a> \u05D5\u05DC\u05D7\u05E6\u05D5 \u05E2\u05DC "\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3". \u05DE\u05DC\u05D0\u05D5 \u05D0\u05EA \u05D4\u05E9\u05DD, \u05DB\u05D9\u05EA\u05D4 \u05D5\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05E1\u05DE\u05E0\u05D9\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA?', a:'\u05D1\u05D3\u05E3 <a href="#attendance">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a> \u05D1\u05D7\u05E8\u05D5 \u05EA\u05D0\u05E8\u05D9\u05DA \u05D5\u05DB\u05D9\u05EA\u05D4, \u05D5\u05E1\u05DE\u05E0\u05D5 \u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u05DB\u05E0\u05D5\u05DB\u05D7/\u05D7\u05E1\u05E8/\u05DE\u05D0\u05D7\u05E8. \u05D0\u05E4\u05E9\u05E8 \u05D2\u05DD \u05D1\u05DE\u05E7\u05E9\u05D9\u05DD P/A/L.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05D2\u05D3\u05D9\u05E8\u05D9\u05DD \u05DB\u05D9\u05EA\u05D5\u05EA \u05D5\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA?', a:'\u05D1\u05D3\u05E3 <a href="#organization">\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</a> \u05D0\u05D5 <a href="#settings">\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA</a> \u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05D0\u05EA \u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA \u05D5\u05E9\u05D9\u05D9\u05DB\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.' },
+    { q:'\u05D4\u05D0\u05DD \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05E2\u05D5\u05D1\u05D3\u05EA \u05D1\u05DC\u05D9 \u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8?', a:'\u05DB\u05DF! \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05D5\u05DE\u05DB\u05EA PWA \u05D5\u05E2\u05D5\u05D1\u05D3\u05EA \u05D2\u05DD \u05D0\u05D5\u05E4\u05DC\u05D9\u05D9\u05DF. \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DE\u05E1\u05D5\u05E0\u05DB\u05E8\u05E0\u05D9\u05DD \u05DE\u05D4\u05E9\u05E8\u05EA \u05D1\u05E2\u05EA \u05D4\u05D7\u05D9\u05D1\u05D5\u05E8 \u05D4\u05D1\u05D0.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05E0\u05D4\u05DC\u05D9\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3?', a:'\u05D1\u05D3\u05E3 <a href="#finance">\u05DB\u05E1\u05E4\u05D9\u05DD</a> \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05D2\u05D3\u05D9\u05E8 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD, \u05D5\u05DC\u05E2\u05E7\u05D5\u05D1 \u05D0\u05D7\u05E8 \u05D2\u05D1\u05D9\u05D9\u05D4.' },
+    { q:'\u05D0\u05D9\u05DA \u05E9\u05D5\u05DC\u05D7\u05D9\u05DD \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD?', a:'\u05D1\u05D3\u05E3 <a href="#communications">\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</a> \u05D0\u05D5 <a href="#whatsapp">WhatsApp</a> \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9\u05D5\u05EA \u05D0\u05D5 \u05E7\u05D1\u05D5\u05E6\u05D9\u05D5\u05EA.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05D9\u05D9\u05E6\u05D0\u05D9\u05DD \u05D3\u05D5\u05D7\u05D5\u05EA?', a:'\u05D1\u05D3\u05E3 <a href="#reports">\u05D3\u05D5\u05D7\u05D5\u05EA</a> \u05D1\u05D7\u05E8\u05D5 \u05E1\u05D5\u05D2 \u05D3\u05D5\u05D7 (\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD, \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA) \u05D5\u05DC\u05D7\u05E6\u05D5 "\u05D4\u05E4\u05E7 \u05D3\u05D5\u05D7".' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05D2\u05D3\u05D9\u05E8\u05D9\u05DD \u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA?', a:'\u05D1\u05D3\u05E3 <a href="#timetable">\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA</a> \u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05D9\u05DE\u05D9\u05DD, \u05E9\u05E2\u05D5\u05EA \u05D5\u05DE\u05D5\u05E8\u05D9\u05DD \u05DC\u05DB\u05DC \u05DB\u05D9\u05EA\u05D4.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05E0\u05D4\u05DC\u05D9\u05DD \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA?', a:'\u05D1\u05D3\u05E3 <a href="#tasks">\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</a> \u05E6\u05E8\u05D5 \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05D7\u05D3\u05E9\u05D5\u05EA, \u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05EA\u05D0\u05E8\u05D9\u05DA \u05D9\u05E2\u05D3, \u05D5\u05D2\u05E8\u05E8\u05D5 \u05DC\u05E2\u05DE\u05D5\u05D3\u05D5\u05EA \u05E7\u05E0\u05D1\u05DF.' },
+    { q:'\u05D4\u05D0\u05DD \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05EA\u05E7\u05D9\u05DF \u05D0\u05EA \u05D4\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 \u05DB\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 \u05E2\u05E6\u05DE\u05D0\u05D9\u05EA?', a:'\u05DB\u05DF! \u05D1-Chrome \u05DC\u05D7\u05E6\u05D5 \u05E2\u05DC \u05E1\u05DE\u05DC \u05D4\u05D4\u05EA\u05E7\u05E0\u05D4 \u05D1\u05E9\u05D5\u05E8\u05EA \u05D4\u05DB\u05EA\u05D5\u05D1\u05EA, \u05D0\u05D5 \u05D4\u05E9\u05EA\u05DE\u05E9\u05D5 \u05D1\u05EA\u05E4\u05E8\u05D9\u05D8 "\u05D4\u05EA\u05E7\u05DF \u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4" \u05D1\u05EA\u05E4\u05E8\u05D9\u05D8 \u05D4\u05D3\u05E4\u05D3\u05E4\u05DF.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05E0\u05D4\u05DC\u05D9\u05DD \u05D4\u05E8\u05E9\u05D0\u05D5\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD?', a:'\u05D1\u05D3\u05E3 <a href="#user_management">\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</a> \u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05EA\u05E4\u05E7\u05D9\u05D3\u05D9\u05DD \u05D5\u05D4\u05E8\u05E9\u05D0\u05D5\u05EA \u05DC\u05DB\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05D2\u05D1\u05D9\u05DD \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD?', a:'\u05D1\u05D3\u05E3 <a href="#settings">\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA</a> \u05D9\u05E9 \u05D0\u05E4\u05E9\u05E8\u05D5\u05EA \u05DC\u05D9\u05D9\u05E6\u05D0 \u05D5\u05DC\u05D9\u05D9\u05D1\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D1\u05E4\u05D5\u05E8\u05DE\u05D8 CSV.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD \u05D1\u05E2\u05D5\u05D6\u05E8 AI?', a:'\u05D1\u05D3\u05E3 <a href="#ai_assistant">\u05E2\u05D5\u05D6\u05E8 AI</a> \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E9\u05D0\u05D5\u05DC \u05E9\u05D0\u05DC\u05D5\u05EA \u05E2\u05DC \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA, \u05DC\u05E7\u05D1\u05DC \u05EA\u05D5\u05D1\u05E0\u05D5\u05EA, \u05D5\u05DC\u05E0\u05EA\u05D7 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD.' },
+    { q:'\u05D0\u05D9\u05DA \u05DE\u05EA\u05E2\u05D3\u05D9\u05DD \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05D5\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD?', a:'\u05D1\u05D3\u05E3 <a href="#academics">\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</a> \u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD, \u05D4\u05D6\u05D9\u05E0\u05D5 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD, \u05D5\u05E6\u05E4\u05D5 \u05D1\u05D2\u05E8\u05E4\u05D9\u05DD \u05D1\u05D3\u05E3 <a href="#gradebook">\u05D2\u05E8\u05D3\u05D1\u05D5\u05E7</a>.' },
+    { q:'\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05DE\u05D0\u05D8\u05D4 \u2014 \u05DE\u05D4 \u05DC\u05E2\u05E9\u05D5\u05EA?', a:'\u05E0\u05E1\u05D5 \u05DC\u05E0\u05E7\u05D5\u05EA \u05DE\u05D8\u05DE\u05D5\u05DF (cache) \u05D1\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05D4\u05D3\u05E4\u05D3\u05E4\u05DF, \u05D0\u05D5 \u05DC\u05D7\u05E6\u05D5 Ctrl+Shift+R \u05DC\u05E8\u05E2\u05E0\u05D5\u05DF \u05DE\u05DC\u05D0. \u05D0\u05DD \u05D4\u05D1\u05E2\u05D9\u05D4 \u05E0\u05DE\u05E9\u05DB\u05EA, \u05E4\u05E0\u05D5 \u05DC\u05EA\u05DE\u05D9\u05DB\u05D4.' }
+  ],
+
+  _helpTips: [
+    '\u05D4\u05E9\u05EA\u05DE\u05E9\u05D5 \u05D1-Ctrl+K \u05DC\u05D7\u05D9\u05E4\u05D5\u05E9 \u05DE\u05D4\u05D9\u05E8 \u05D1\u05DB\u05DC \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA',
+    '\u05D1\u05D3\u05E3 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DC\u05D7\u05E6\u05D5 P/A/L \u05DC\u05E1\u05D9\u05DE\u05D5\u05DF \u05DE\u05D4\u05D9\u05E8',
+    '\u05D0\u05E4\u05E9\u05E8 \u05DC\u05D4\u05EA\u05E7\u05D9\u05DF \u05D0\u05EA \u05D4\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 \u05DB-PWA \u05DC\u05D2\u05D9\u05E9\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4 \u05D9\u05D5\u05EA\u05E8',
+    '\u05D2\u05E8\u05E8\u05D5 \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05DC\u05E2\u05DE\u05D5\u05D3\u05D5\u05EA \u05E7\u05E0\u05D1\u05DF \u05D1\u05DC\u05D5\u05D7 \u05D4\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',
+    '\u05D4\u05E9\u05EA\u05DE\u05E9\u05D5 \u05D1\u05E2\u05D5\u05D6\u05E8 AI \u05DC\u05E7\u05D1\u05DC\u05EA \u05EA\u05D5\u05D1\u05E0\u05D5\u05EA \u05D7\u05DB\u05DE\u05D5\u05EA',
+    '\u05D1\u05D3\u05E3 \u05D3\u05D5\u05D7\u05D5\u05EA \u05D0\u05E4\u05E9\u05E8 \u05DC\u05D9\u05D9\u05E6\u05D0 \u05DC-PDF \u05D0\u05D5 \u05DC\u05D4\u05D3\u05E4\u05D9\u05E1',
+    '\u05DC\u05D7\u05E6\u05D5 \u05E2\u05DC \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3 \u05DC\u05E4\u05EA\u05D9\u05D7\u05EA \u05DB\u05E8\u05D8\u05D9\u05E1 \u05D0\u05D9\u05E9\u05D9 \u05DE\u05E4\u05D5\u05E8\u05D8',
+    '\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05E2\u05D5\u05D1\u05D3\u05EA \u05D2\u05DD \u05D1\u05DE\u05D5\u05D1\u05D9\u05D9\u05DC \u2014 \u05E0\u05E1\u05D5 \u05DE\u05D4\u05D8\u05DC\u05E4\u05D5\u05DF!'
+  ],
+
+  _helpChangelog: [
+    { ver:'6.0', date:'04/2026', changes:['\u05DE\u05E2\u05E8\u05DB\u05EA \u05DE\u05D5\u05D3\u05D5\u05DC\u05E8\u05D9\u05EA \u05DE\u05DC\u05D0\u05D4','\u05E2\u05D9\u05E6\u05D5\u05D1 \u05DE\u05D7\u05D3\u05E9 \u05E2\u05DD \u05EA\u05DE\u05D9\u05DB\u05EA RTL','\u05E2\u05D5\u05D6\u05E8 AI \u05DE\u05E9\u05D5\u05D3\u05E8\u05D2','\u05DE\u05E8\u05DB\u05D6 \u05E2\u05D6\u05E8\u05D4 \u05DE\u05E7\u05D9\u05E3'] },
+    { ver:'5.6', date:'04/2026', changes:['\u05D3\u05E3 \u05D4\u05EA\u05E7\u05E0\u05D4 PWA','\u05D3\u05E3 \u05D4\u05EA\u05D7\u05D1\u05E8\u05D5\u05EA','\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD \u05D5\u05D4\u05E8\u05E9\u05D0\u05D5\u05EA'] },
+    { ver:'5.0', date:'03/2026', changes:['\u05D1\u05E0\u05D9\u05D9\u05D4 \u05DE\u05D7\u05D3\u05E9 \u05DE\u05D0\u05E4\u05E1 \u05E2\u05DD SPA','\u05E0\u05D9\u05D5\u05D5\u05D8 \u05E6\u05D3\u05D3\u05D9','\u05DE\u05D8\u05DE\u05D5\u05DF \u05D7\u05DB\u05DD \u05E2\u05DD Service Worker'] },
+    { ver:'4.3', date:'02/2026', changes:['\u05E9\u05D3\u05E8\u05D5\u05D2 \u05D0\u05D1\u05D8\u05D7\u05D4 \u05D5\u05D1\u05D9\u05E6\u05D5\u05E2\u05D9\u05DD','\u05D0\u05D9\u05DE\u05D5\u05EA PIN \u05DC\u05DB\u05DC \u05D3\u05E3','\u05D9\u05D5\u05DE\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA'] },
+    { ver:'3.2', date:'01/2026', changes:['Gmail Add-on v3','\u05DE\u05D8\u05DE\u05D5\u05DF \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9','\u05D4\u05E2\u05DC\u05D0\u05EA \u05E7\u05D1\u05E6\u05D9\u05DD'] },
+    { ver:'2.0', date:'12/2025', changes:['\u05DE\u05E2\u05D1\u05E8 \u05DC-Google Sheets API','\u05D3\u05E9\u05D1\u05D5\u05E8\u05D3 \u05DE\u05E9\u05D5\u05D3\u05E8\u05D2','\u05DE\u05E2\u05E8\u05DB\u05EA \u05DB\u05E1\u05E4\u05D9\u05DD'] },
+    { ver:'1.0', date:'11/2025', changes:['\u05D2\u05E8\u05E1\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4','\u05E0\u05D9\u05D4\u05D5\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05E1\u05D9','\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D5\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD'] }
+  ],
+
   help() {
-    return `<div class="page-header"><h1><i class="bi bi-question-circle-fill me-2"></i>\u05E2\u05D6\u05E8\u05D4</h1></div>
-      <div class="row g-3">
-        <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-keyboard me-2"></i>\u05E7\u05D9\u05E6\u05D5\u05E8\u05D9 \u05DE\u05E7\u05DC\u05D3\u05EA</h6><ul class="small mb-0"><li><strong>P</strong> \u2014 \u05E0\u05D5\u05DB\u05D7</li><li><strong>A</strong> \u2014 \u05D7\u05D9\u05E1\u05D5\u05E8</li><li><strong>L</strong> \u2014 \u05D0\u05D9\u05D7\u05D5\u05E8</li><li><strong>Esc</strong> \u2014 \u05E1\u05D2\u05D5\u05E8 \u05D7\u05DC\u05D5\u05E0\u05D5\u05EA</li></ul></div></div>
-        <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>\u05D0\u05D5\u05D3\u05D5\u05EA</h6><ul class="small mb-0"><li>\u05D2\u05E8\u05E1\u05D4: 5.6 (GitHub Pages)</li><li>\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4: GitHub Pages + Google Sheets API</li><li>\u05DE\u05E4\u05EA\u05D7: \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</li></ul></div></div>
-        <div class="col-12"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-book me-2"></i>\u05D3\u05E4\u05D9\u05DD \u05D6\u05DE\u05D9\u05E0\u05D9\u05DD</h6><div class="row g-2">${[
-          {p:'dashboard',l:'\u05DC\u05D5\u05D7 \u05D1\u05E7\u05E8\u05D4'},{p:'students',l:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'},{p:'staff',l:'\u05E6\u05D5\u05D5\u05EA'},{p:'parents',l:'\u05D4\u05D5\u05E8\u05D9\u05DD'},
-          {p:'attendance',l:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'},{p:'behavior',l:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'},{p:'homework',l:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA'},{p:'academics',l:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'},
-          {p:'tasks',l:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'},{p:'calendar',l:'\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4'},{p:'finance',l:'\u05DB\u05E1\u05E4\u05D9\u05DD'},{p:'pettycash',l:'\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4'},
-          {p:'budget',l:'\u05EA\u05E7\u05E6\u05D9\u05D1'},{p:'trips',l:'\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD'},{p:'mivtza',l:'\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3'},{p:'reports',l:'\u05D3\u05D5\u05D7\u05D5\u05EA'},
-          {p:'rankings',l:'\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD'},{p:'communications',l:'\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA'},{p:'documents',l:'\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD'},{p:'committees',l:'\u05D5\u05E2\u05D3\u05D5\u05EA'},
-          {p:'institutions',l:'\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA'},{p:'ai_assistant',l:'\u05E2\u05D5\u05D6\u05E8 AI'},{p:'forms',l:'\u05D8\u05E4\u05E1\u05D9\u05DD'},{p:'help',l:'\u05E2\u05D6\u05E8\u05D4'}
-        ].map(x => `<div class="col-6 col-md-3"><a href="#${x.p}" class="text-decoration-none small">${x.l}</a></div>`).join('')}</div></div></div>
-      </div>`;
+    const faqHtml = this._helpFaqData.map((f, i) => `
+      <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-${i}">${f.q}</button></h2>
+        <div id="faq-${i}" class="accordion-collapse collapse" data-bs-parent="#help-faq"><div class="accordion-body">${f.a}</div></div>
+      </div>`).join('');
+
+    const tip = this._helpTips[Math.floor(Math.random() * this._helpTips.length)];
+
+    const changelogHtml = this._helpChangelog.map(c => `
+      <div class="d-flex gap-3 mb-3">
+        <div class="text-center" style="min-width:60px">
+          <span class="badge bg-primary fs-6">v${c.ver}</span>
+          <div class="text-muted small mt-1">${c.date}</div>
+        </div>
+        <div><ul class="mb-0 small">${c.changes.map(ch => `<li>${ch}</li>`).join('')}</ul></div>
+      </div>`).join('');
+
+    const shortcuts = [
+      { key:'Ctrl+K', desc:'\u05E4\u05EA\u05D9\u05D7\u05EA \u05D7\u05D9\u05E4\u05D5\u05E9 \u05DE\u05D4\u05D9\u05E8' },
+      { key:'Esc', desc:'\u05E1\u05D2\u05D9\u05E8\u05EA \u05D7\u05DC\u05D5\u05E0\u05D5\u05EA / \u05E0\u05D9\u05E7\u05D5\u05D9 \u05D7\u05D9\u05E4\u05D5\u05E9' },
+      { key:'P', desc:'\u05E1\u05D9\u05DE\u05D5\u05DF \u05E0\u05D5\u05DB\u05D7 (\u05D1\u05D3\u05E3 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA)' },
+      { key:'A', desc:'\u05E1\u05D9\u05DE\u05D5\u05DF \u05D7\u05D9\u05E1\u05D5\u05E8 (\u05D1\u05D3\u05E3 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA)' },
+      { key:'L', desc:'\u05E1\u05D9\u05DE\u05D5\u05DF \u05D0\u05D9\u05D7\u05D5\u05E8 (\u05D1\u05D3\u05E3 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA)' },
+      { key:'Enter', desc:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D8\u05D5\u05E4\u05E1 / \u05E9\u05DC\u05D9\u05D7\u05D4' },
+      { key:'Ctrl+Shift+R', desc:'\u05E8\u05E2\u05E0\u05D5\u05DF \u05DE\u05DC\u05D0 (\u05E0\u05D9\u05E7\u05D5\u05D9 \u05DE\u05D8\u05DE\u05D5\u05DF)' }
+    ];
+    const shortcutsHtml = shortcuts.map(s => `<tr><td><kbd>${s.key}</kbd></td><td>${s.desc}</td></tr>`).join('');
+
+    const wizardSteps = [
+      { icon:'bi-person-plus-fill', color:'primary', title:'\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', desc:'\u05D4\u05D5\u05E1\u05D9\u05E4\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D9\u05DD \u05D1\u05D3\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', link:'students' },
+      { icon:'bi-building', color:'success', title:'\u05D4\u05D2\u05D3\u05E8\u05EA \u05DE\u05E1\u05D2\u05E8\u05D5\u05EA \u05D5\u05DB\u05D9\u05EA\u05D5\u05EA', desc:'\u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05DB\u05D9\u05EA\u05D5\u05EA \u05D5\u05E9\u05D9\u05D9\u05DB\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', link:'organization' },
+      { icon:'bi-person-badge', color:'info', title:'\u05D4\u05D5\u05E1\u05E4\u05EA \u05E6\u05D5\u05D5\u05EA', desc:'\u05D4\u05D5\u05E1\u05D9\u05E4\u05D5 \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA, \u05DE\u05D5\u05E8\u05D9\u05DD \u05D5\u05DE\u05E0\u05D4\u05DC\u05D9\u05DD', link:'staff' },
+      { icon:'bi-calendar-check', color:'warning', title:'\u05D4\u05D2\u05D3\u05E8\u05EA \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', desc:'\u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA \u05D5\u05D4\u05EA\u05D7\u05D9\u05DC\u05D5 \u05DC\u05E1\u05DE\u05DF \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', link:'attendance' },
+      { icon:'bi-cash-stack', color:'danger', title:'\u05D4\u05D2\u05D3\u05E8\u05EA \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3', desc:'\u05D4\u05D2\u05D3\u05D9\u05E8\u05D5 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D5\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', link:'finance' },
+      { icon:'bi-gear', color:'secondary', title:'\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA', desc:'\u05D4\u05EA\u05D0\u05D9\u05DE\u05D5 \u05D0\u05EA \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05DC\u05E6\u05E8\u05DB\u05D9 \u05D4\u05DE\u05D5\u05E1\u05D3', link:'settings' }
+    ];
+    const wizardHtml = wizardSteps.map((s, i) => `
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm card-clickable" onclick="location.hash='${s.link}'">
+          <div class="card-body text-center p-4">
+            <div class="rounded-circle bg-${s.color} bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px">
+              <i class="bi ${s.icon} fs-2 text-${s.color}"></i>
+            </div>
+            <div class="badge bg-${s.color} bg-opacity-25 text-${s.color} mb-2">\u05E9\u05DC\u05D1 ${i + 1}</div>
+            <h6 class="fw-bold">${s.title}</h6>
+            <p class="text-muted small mb-0">${s.desc}</p>
+          </div>
+        </div>
+      </div>`).join('');
+
+    const allPages = [
+      {p:'dashboard',l:'\u05DC\u05D5\u05D7 \u05D1\u05E7\u05E8\u05D4'},{p:'students',l:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'},{p:'staff',l:'\u05E6\u05D5\u05D5\u05EA'},{p:'parents',l:'\u05D4\u05D5\u05E8\u05D9\u05DD'},
+      {p:'attendance',l:'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'},{p:'behavior',l:'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'},{p:'homework',l:'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA'},{p:'academics',l:'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'},
+      {p:'tasks',l:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'},{p:'calendar',l:'\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4'},{p:'finance',l:'\u05DB\u05E1\u05E4\u05D9\u05DD'},{p:'pettycash',l:'\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4'},
+      {p:'budget',l:'\u05EA\u05E7\u05E6\u05D9\u05D1'},{p:'trips',l:'\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD'},{p:'mivtza',l:'\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3'},{p:'reports',l:'\u05D3\u05D5\u05D7\u05D5\u05EA'},
+      {p:'rankings',l:'\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD'},{p:'communications',l:'\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA'},{p:'documents',l:'\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD'},{p:'committees',l:'\u05D5\u05E2\u05D3\u05D5\u05EA'},
+      {p:'organization',l:'\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA'},{p:'ai_assistant',l:'\u05E2\u05D5\u05D6\u05E8 AI'},{p:'forms',l:'\u05D8\u05E4\u05E1\u05D9\u05DD'},{p:'help',l:'\u05E2\u05D6\u05E8\u05D4'}
+    ];
+
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-question-circle-fill me-2"></i>\u05DE\u05E8\u05DB\u05D6 \u05E2\u05D6\u05E8\u05D4</h1>
+        <p class="text-muted mb-0">\u05DE\u05D3\u05E8\u05D9\u05DA \u05DE\u05E7\u05D9\u05E3, \u05E9\u05D0\u05DC\u05D5\u05EA \u05E0\u05E4\u05D5\u05E6\u05D5\u05EA \u05D5\u05DE\u05D9\u05D3\u05E2 \u05E2\u05DC \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA</p>
+      </div>
+    </div>
+
+    <!-- Quick Tip Banner -->
+    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-2 mb-4" id="help-tip-banner">
+      <i class="bi bi-lightbulb-fill fs-5"></i>
+      <div class="flex-grow-1">
+        <strong>\u05D8\u05D9\u05E4 \u05DE\u05D4\u05D9\u05E8:</strong> <span id="help-tip-text">${tip}</span>
+      </div>
+      <button class="btn btn-sm btn-outline-info" onclick="Pages._helpRotateTip()"><i class="bi bi-arrow-repeat"></i></button>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-4 flex-wrap gap-1" id="help-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" data-help-tab="wizard"><i class="bi bi-rocket-takeoff me-1"></i>\u05EA\u05D7\u05D9\u05DC\u05EA \u05E2\u05D1\u05D5\u05D3\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="faq"><i class="bi bi-chat-dots me-1"></i>\u05E9\u05D0\u05DC\u05D5\u05EA \u05E0\u05E4\u05D5\u05E6\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="shortcuts"><i class="bi bi-keyboard me-1"></i>\u05E7\u05D9\u05E6\u05D5\u05E8\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="system"><i class="bi bi-laptop me-1"></i>\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="changelog"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D2\u05E8\u05E1\u05D0\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="contact"><i class="bi bi-headset me-1"></i>\u05EA\u05DE\u05D9\u05DB\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-help-tab="pages"><i class="bi bi-book me-1"></i>\u05DE\u05E4\u05EA \u05D3\u05E4\u05D9\u05DD</a></li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div id="help-tab-content">
+
+      <!-- WIZARD -->
+      <div class="help-pane" id="help-pane-wizard">
+        <h5 class="fw-bold mb-3"><i class="bi bi-rocket-takeoff me-2 text-primary"></i>\u05DE\u05D3\u05E8\u05D9\u05DA \u05DC\u05DE\u05E9\u05EA\u05DE\u05E9 \u05D7\u05D3\u05E9 \u2014 6 \u05E6\u05E2\u05D3\u05D9\u05DD \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</h5>
+        <p class="text-muted mb-4">\u05E2\u05E7\u05D1\u05D5 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05E9\u05DC\u05D1\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DC\u05D4\u05D2\u05D3\u05E8\u05EA \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05D1\u05E4\u05E2\u05DD \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D4:</p>
+        <div class="row g-3">${wizardHtml}</div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="help-pane d-none" id="help-pane-faq">
+        <div class="mb-3">
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="help-faq-search" placeholder="\u05D7\u05E4\u05E9\u05D5 \u05D1\u05E9\u05D0\u05DC\u05D5\u05EA..." oninput="Pages._helpFilterFaq(this.value)">
+          </div>
+        </div>
+        <div class="accordion" id="help-faq">${faqHtml}</div>
+        <div class="text-muted text-center mt-3 d-none" id="help-faq-empty"><i class="bi bi-search me-1"></i>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA</div>
+      </div>
+
+      <!-- SHORTCUTS -->
+      <div class="help-pane d-none" id="help-pane-shortcuts">
+        <h5 class="fw-bold mb-3"><i class="bi bi-keyboard me-2 text-warning"></i>\u05E7\u05D9\u05E6\u05D5\u05E8\u05D9 \u05DE\u05E7\u05DC\u05D3\u05EA</h5>
+        <div class="card border-0 shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light"><tr><th style="width:160px">\u05E7\u05D9\u05E6\u05D5\u05E8</th><th>\u05E4\u05E2\u05D5\u05DC\u05D4</th></tr></thead>
+              <tbody>${shortcutsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM REQUIREMENTS -->
+      <div class="help-pane d-none" id="help-pane-system">
+        <h5 class="fw-bold mb-3"><i class="bi bi-laptop me-2 text-success"></i>\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <h6 class="fw-bold"><i class="bi bi-globe me-2"></i>\u05D3\u05E4\u05D3\u05E4\u05E0\u05D9\u05DD \u05E0\u05EA\u05DE\u05DB\u05D9\u05DD</h6>
+                <ul class="small mb-0">
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Google Chrome 90+ (\u05DE\u05D5\u05DE\u05DC\u05E5)</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Microsoft Edge 90+</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Firefox 95+</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Safari 15+</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Samsung Internet 16+</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <h6 class="fw-bold"><i class="bi bi-phone me-2"></i>\u05DE\u05D5\u05D1\u05D9\u05D9\u05DC</h6>
+                <ul class="small mb-0">
+                  <li><i class="bi bi-check-circle text-success me-1"></i>Android 8+ \u05E2\u05DD Chrome</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>iOS 15+ \u05E2\u05DD Safari</li>
+                  <li><i class="bi bi-check-circle text-success me-1"></i>\u05DE\u05E1\u05DA \u05DE\u05D5\u05DE\u05DC\u05E5: 360px+</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h6 class="fw-bold"><i class="bi bi-download me-2"></i>\u05D4\u05EA\u05E7\u05E0\u05EA \u05D4\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 (PWA)</h6>
+                <p class="small mb-2">\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05D5\u05DE\u05DB\u05EA \u05D4\u05EA\u05E7\u05E0\u05D4 \u05DB\u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4 \u05E2\u05E6\u05DE\u05D0\u05D9\u05EA \u05E2\u05DC \u05D4\u05DE\u05DB\u05E9\u05D9\u05E8 \u05D0\u05D5 \u05D4\u05D8\u05DC\u05E4\u05D5\u05DF:</p>
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <div class="border rounded p-2 small">
+                      <strong class="d-block mb-1"><i class="bi bi-pc-display me-1"></i>\u05DE\u05D7\u05E9\u05D1 (Chrome)</strong>
+                      \u05DC\u05D7\u05E6\u05D5 \u05E2\u05DC \u05E1\u05DE\u05DC \u05D4\u05D4\u05EA\u05E7\u05E0\u05D4 <i class="bi bi-box-arrow-in-down"></i> \u05D1\u05E9\u05D5\u05E8\u05EA \u05D4\u05DB\u05EA\u05D5\u05D1\u05EA, \u05D0\u05D5 \u05EA\u05E4\u05E8\u05D9\u05D8 > "\u05D4\u05EA\u05E7\u05DF \u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4"
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="border rounded p-2 small">
+                      <strong class="d-block mb-1"><i class="bi bi-phone me-1"></i>Android</strong>
+                      \u05EA\u05E4\u05E8\u05D9\u05D8 Chrome > "\u05D4\u05D5\u05E1\u05E3 \u05DC\u05DE\u05E1\u05DA \u05D4\u05D1\u05D9\u05EA" > \u05D0\u05E9\u05E8\u05D5
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="border rounded p-2 small">
+                      <strong class="d-block mb-1"><i class="bi bi-apple me-1"></i>iPhone / iPad</strong>
+                      Safari > \u05E9\u05D9\u05EA\u05D5\u05E3 <i class="bi bi-box-arrow-up"></i> > "\u05D4\u05D5\u05E1\u05E3 \u05DC\u05DE\u05E1\u05DA \u05D4\u05D1\u05D9\u05EA"
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANGELOG -->
+      <div class="help-pane d-none" id="help-pane-changelog">
+        <h5 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-info"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D2\u05E8\u05E1\u05D0\u05D5\u05EA</h5>
+        <div class="card border-0 shadow-sm"><div class="card-body">${changelogHtml}</div></div>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="help-pane d-none" id="help-pane-contact">
+        <h5 class="fw-bold mb-3"><i class="bi bi-headset me-2 text-danger"></i>\u05E6\u05E8\u05D5 \u05E7\u05E9\u05E8 \u05E2\u05DD \u05D4\u05EA\u05DE\u05D9\u05DB\u05D4</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px">
+                  <i class="bi bi-person-workspace fs-1 text-primary"></i>
+                </div>
+                <h6 class="fw-bold">\u05EA\u05DE\u05D9\u05DB\u05D4 \u05D8\u05DB\u05E0\u05D9\u05EA</h6>
+                <p class="text-muted small">\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA / IT</p>
+                <ul class="list-unstyled small mb-0">
+                  <li class="mb-1"><i class="bi bi-person me-1"></i>\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</li>
+                  <li class="mb-1"><i class="bi bi-building me-1"></i>\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</li>
+                  <li class="mb-1"><i class="bi bi-pc-display me-1"></i>192.168.1.100</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px">
+                  <i class="bi bi-lightbulb fs-1 text-success"></i>
+                </div>
+                <h6 class="fw-bold">\u05D8\u05D9\u05E4\u05D9\u05DD \u05DC\u05E4\u05EA\u05E8\u05D5\u05DF \u05D1\u05E2\u05D9\u05D5\u05EA</h6>
+                <ul class="list-unstyled small text-start mb-0">
+                  <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i>\u05E0\u05E1\u05D5 \u05DC\u05E0\u05E7\u05D5\u05EA \u05DE\u05D8\u05DE\u05D5\u05DF \u05DC\u05E4\u05E0\u05D9 \u05E4\u05E0\u05D9\u05D9\u05D4</li>
+                  <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i>\u05EA\u05D0\u05E8\u05D5 \u05D0\u05EA \u05D4\u05D1\u05E2\u05D9\u05D4 \u05D1\u05E4\u05D9\u05E8\u05D5\u05D8</li>
+                  <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i>\u05E6\u05E8\u05E4\u05D5 \u05E6\u05D9\u05DC\u05D5\u05DD \u05DE\u05E1\u05DA \u05D0\u05DD \u05D0\u05E4\u05E9\u05E8</li>
+                  <li class="mb-1"><i class="bi bi-check2 text-success me-1"></i>\u05E6\u05D9\u05D9\u05E0\u05D5 \u05D3\u05E4\u05D3\u05E4\u05DF \u05D5\u05D2\u05E8\u05E1\u05D4</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGES MAP -->
+      <div class="help-pane d-none" id="help-pane-pages">
+        <h5 class="fw-bold mb-3"><i class="bi bi-book me-2 text-secondary"></i>\u05DE\u05E4\u05EA \u05D3\u05E4\u05D9\u05DD</h5>
+        <div class="card border-0 shadow-sm"><div class="card-body"><div class="row g-2">${allPages.map(x => `<div class="col-6 col-md-3"><a href="#${x.p}" class="text-decoration-none d-flex align-items-center gap-1 p-2 rounded hover-bg"><i class="bi bi-arrow-left-short"></i>${x.l}</a></div>`).join('')}</div></div></div>
+      </div>
+
+    </div>`;
   },
-  helpInit() {},
+
+  helpInit() {
+    // Tab switching
+    document.querySelectorAll('#help-tabs a[data-help-tab]').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('#help-tabs .nav-link').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.help-pane').forEach(p => p.classList.add('d-none'));
+        const pane = document.getElementById('help-pane-' + tab.dataset.helpTab);
+        if (pane) pane.classList.remove('d-none');
+      });
+    });
+  },
+
+  _helpFilterFaq(query) {
+    const q = query.trim().toLowerCase();
+    const items = document.querySelectorAll('#help-faq .accordion-item');
+    let visible = 0;
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const show = !q || text.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    const empty = document.getElementById('help-faq-empty');
+    if (empty) empty.classList.toggle('d-none', visible > 0);
+  },
+
+  _helpRotateTip() {
+    const el = document.getElementById('help-tip-text');
+    if (!el) return;
+    const tip = this._helpTips[Math.floor(Math.random() * this._helpTips.length)];
+    el.textContent = tip;
+  },
 
 
   /* ======================================================================
