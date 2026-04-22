@@ -1,5 +1,416 @@
 /* ===== BHT v5.3 — Organization ===== */
 Object.assign(Pages, {
+
+  /* ======================================================================
+     ORGANIZATION HUB — Main overview page
+     ====================================================================== */
+  organization() {
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-building me-2"></i>\u05D0\u05E8\u05D2\u05D5\u05DF</h1>
+      <p class="text-muted mb-0">\u05DE\u05D9\u05D3\u05E2 \u05DB\u05DC\u05DC\u05D9, \u05DB\u05D9\u05EA\u05D5\u05EA, \u05D5\u05E2\u05D3\u05D5\u05EA \u05D5\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4</p></div>
+    </div>
+
+    <!-- Statistics Dashboard -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-people-fill fs-3 text-primary"></i>
+        <div class="fs-3 fw-bold text-primary" id="org-stat-students">0</div>
+        <small class="text-muted">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-easel-fill fs-3 text-success"></i>
+        <div class="fs-3 fw-bold text-success" id="org-stat-classes">0</div>
+        <small class="text-muted">\u05DB\u05D9\u05EA\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-person-badge-fill fs-3 text-warning"></i>
+        <div class="fs-3 fw-bold text-warning" id="org-stat-staff">0</div>
+        <small class="text-muted">\u05E6\u05D5\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-cash-stack fs-3 text-info"></i>
+        <div class="fs-3 fw-bold text-info" id="org-stat-budget">\u20AA0</div>
+        <small class="text-muted">\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9</small>
+      </div></div>
+    </div>
+
+    <!-- Institution Info Card -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle-fill"></i>
+        <span class="fw-bold">\u05E4\u05E8\u05D8\u05D9 \u05D4\u05DE\u05D5\u05E1\u05D3</span>
+        <button class="btn btn-sm btn-outline-light ms-auto" onclick="Pages.editOrgInfo()"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+      </div>
+      <div class="card-body" id="org-info-card">
+        <div class="row g-3">
+          <div class="col-md-2 text-center">
+            <div id="org-logo" class="border rounded d-flex align-items-center justify-content-center mx-auto" style="width:100px;height:100px;background:#f0f4ff">
+              <i class="bi bi-mortarboard-fill fs-1 text-primary"></i>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="mb-2"><i class="bi bi-building me-2 text-primary"></i><strong>\u05E9\u05DD:</strong> <span id="org-name">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</span></div>
+            <div class="mb-2"><i class="bi bi-geo-alt me-2 text-danger"></i><strong>\u05DB\u05EA\u05D5\u05D1\u05EA:</strong> <span id="org-address">\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 12, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7</span></div>
+            <div class="mb-2"><i class="bi bi-telephone me-2 text-success"></i><strong>\u05D8\u05DC\u05E4\u05D5\u05DF:</strong> <span id="org-phone">02-123-4567</span></div>
+            <div class="mb-2"><i class="bi bi-envelope me-2 text-info"></i><strong>\u05D3\u05D5\u05D0"\u05DC:</strong> <span id="org-email">office@bht.edu</span></div>
+          </div>
+          <div class="col-md-5">
+            <div class="mb-2"><i class="bi bi-person-fill me-2 text-warning"></i><strong>\u05E8\u05D0\u05E9 \u05D4\u05DE\u05D5\u05E1\u05D3:</strong> <span id="org-principal">\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9</span></div>
+            <div class="mb-2"><i class="bi bi-calendar-event me-2 text-secondary"></i><strong>\u05E9\u05E0\u05EA \u05D9\u05E1\u05D5\u05D3:</strong> <span id="org-founded">\u05EA\u05E9\u05E2"\u05D3 (2004)</span></div>
+            <div class="mb-2"><i class="bi bi-clock me-2 text-primary"></i><strong>\u05E9\u05E2\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA:</strong> <span id="org-hours">07:30 - 17:00</span></div>
+            <div class="mb-2"><i class="bi bi-globe me-2 text-info"></i><strong>\u05D0\u05EA\u05E8:</strong> <span id="org-website">www.bht.edu</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- LEFT COLUMN -->
+      <div class="col-lg-7">
+        <!-- Class Management -->
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-easel-fill text-success"></i>
+            <span class="fw-bold">\u05E0\u05D9\u05D4\u05D5\u05DC \u05DB\u05D9\u05EA\u05D5\u05EA</span>
+            <span class="badge bg-success ms-auto" id="org-class-count">0</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover mb-0">
+                <thead class="table-light"><tr>
+                  <th>\u05DB\u05D9\u05EA\u05D4</th>
+                  <th>\u05DE\u05D7\u05E0\u05DA</th>
+                  <th>\u05D7\u05D3\u05E8</th>
+                  <th>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</th>
+                  <th></th>
+                </tr></thead>
+                <tbody id="org-class-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Committee Management -->
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-people-fill text-primary"></i>
+            <span class="fw-bold">\u05D5\u05E2\u05D3\u05D5\u05EA</span>
+            <span class="badge bg-primary ms-auto" id="org-comm-count">0</span>
+          </div>
+          <div class="card-body p-0" id="org-committees-list"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-lg-5">
+        <!-- Academic Year Timeline -->
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-calendar3 text-warning"></i>
+            <span class="fw-bold">\u05E6\u05D9\u05E8 \u05D4\u05D6\u05DE\u05DF \u2014 \u05E9\u05E0\u05D4"\u05DC \u05EA\u05E9\u05E4"\u05D5</span>
+          </div>
+          <div class="card-body" id="org-timeline"></div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-calendar-event text-danger"></i>
+            <span class="fw-bold">\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</span>
+          </div>
+          <div class="card-body p-0" id="org-events-list"></div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-person-lines-fill text-info"></i>
+            <span class="fw-bold">\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</span>
+          </div>
+          <div class="card-body p-0" id="org-contacts-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Institution Modal -->
+    <div class="modal fade" id="org-edit-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">\u05E2\u05E8\u05D9\u05DB\u05EA \u05E4\u05E8\u05D8\u05D9 \u05DE\u05D5\u05E1\u05D3</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div class="row g-3">
+        <div class="col-12"><label class="form-label">\u05E9\u05DD \u05D4\u05DE\u05D5\u05E1\u05D3</label><input class="form-control" id="orgf-name"></div>
+        <div class="col-12"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA</label><input class="form-control" id="orgf-address"></div>
+        <div class="col-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF</label><input class="form-control" id="orgf-phone"></div>
+        <div class="col-6"><label class="form-label">\u05D3\u05D5\u05D0"\u05DC</label><input class="form-control" id="orgf-email"></div>
+        <div class="col-6"><label class="form-label">\u05E8\u05D0\u05E9 \u05D4\u05DE\u05D5\u05E1\u05D3</label><input class="form-control" id="orgf-principal"></div>
+        <div class="col-6"><label class="form-label">\u05E9\u05E0\u05EA \u05D9\u05E1\u05D5\u05D3</label><input class="form-control" id="orgf-founded"></div>
+        <div class="col-6"><label class="form-label">\u05E9\u05E2\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</label><input class="form-control" id="orgf-hours"></div>
+        <div class="col-6"><label class="form-label">\u05D0\u05EA\u05E8</label><input class="form-control" id="orgf-website"></div>
+      </div></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveOrgInfo()">\u05E9\u05DE\u05D5\u05E8</button></div>
+    </div></div></div>
+    `;
+  },
+
+  /* -- Demo data -- */
+  _orgDemoInfo: {
+    name: '\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3',
+    address: '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 12, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7',
+    phone: '02-123-4567',
+    email: 'office@bht.edu',
+    principal: '\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9',
+    founded: '\u05EA\u05E9\u05E2"\u05D3 (2004)',
+    hours: '07:30 - 17:00',
+    website: 'www.bht.edu'
+  },
+
+  _orgDemoClasses: [
+    { name: '\u05D0\u05DC\u05E4\u05D0', teacher: '\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF', room: '101', students: 24, color: 'primary' },
+    { name: '\u05D1\u05D9\u05EA\u05D0', teacher: '\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9', room: '102', students: 22, color: 'success' },
+    { name: '\u05D2\u05D9\u05DE\u05DC', teacher: '\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3', room: '103', students: 20, color: 'warning' },
+    { name: '\u05D3\u05DC\u05EA', teacher: '\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3', room: '201', students: 18, color: 'info' },
+    { name: '\u05D4\u05D0', teacher: '\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4', room: '202', students: 26, color: 'danger' },
+    { name: '\u05D5\u05D0\u05D5', teacher: '\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD', room: '203', students: 19, color: 'secondary' }
+  ],
+
+  _orgDemoCommittees: [
+    { name: '\u05D5\u05E2\u05D3\u05EA \u05D7\u05D9\u05E0\u05D5\u05DA', members: '\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF, \u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9, \u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3', nextMeeting: '2026-04-28', status: '\u05E4\u05E2\u05D9\u05DC', icon: 'mortarboard' },
+    { name: '\u05D5\u05E2\u05D3\u05EA \u05DE\u05E9\u05DE\u05E2\u05EA', members: '\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9, \u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3, \u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4', nextMeeting: '2026-05-05', status: '\u05E4\u05E2\u05D9\u05DC', icon: 'shield-check' },
+    { name: '\u05D5\u05E2\u05D3\u05EA \u05EA\u05E7\u05E6\u05D9\u05D1', members: '\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD, \u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF', nextMeeting: '2026-05-12', status: '\u05E4\u05E2\u05D9\u05DC', icon: 'cash-coin' },
+    { name: '\u05D5\u05E2\u05D3\u05EA \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', members: '\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3, \u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9', nextMeeting: '', status: '\u05DE\u05D5\u05E7\u05E4\u05D0', icon: 'geo-alt' }
+  ],
+
+  _orgDemoTimeline: [
+    { label: '\u05E1\u05DE\u05E1\u05D8\u05E8 \u05D0\u05DC\u05D5\u05DC', start: '2025-09-01', end: '2026-01-31', color: 'primary', icon: 'book' },
+    { label: '\u05D7\u05E0\u05D5\u05DB\u05D4', start: '2025-12-15', end: '2025-12-23', color: 'warning', icon: 'star' },
+    { label: '\u05DE\u05D1\u05D7\u05E0\u05D9 \u05D0\u05DE\u05E6\u05E2 \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D0', start: '2026-01-18', end: '2026-01-29', color: 'danger', icon: 'pencil-square' },
+    { label: '\u05E1\u05DE\u05E1\u05D8\u05E8 \u05D1', start: '2026-02-01', end: '2026-06-20', color: 'success', icon: 'book' },
+    { label: '\u05E4\u05E1\u05D7', start: '2026-04-02', end: '2026-04-09', color: 'warning', icon: 'star' },
+    { label: '\u05DE\u05D1\u05D7\u05E0\u05D9 \u05E1\u05D5\u05E3 \u05E9\u05E0\u05D4', start: '2026-06-07', end: '2026-06-18', color: 'danger', icon: 'pencil-square' },
+    { label: '\u05D7\u05D5\u05E4\u05E9\u05EA \u05E7\u05D9\u05E5', start: '2026-06-21', end: '2026-08-31', color: 'info', icon: 'sun' }
+  ],
+
+  _orgDemoContacts: [
+    { role: '\u05E8\u05D0\u05E9 \u05D4\u05DE\u05D5\u05E1\u05D3', name: '\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9', phone: '050-111-2222', email: 'principal@bht.edu', icon: 'person-fill' },
+    { role: '\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA', name: '\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8', phone: '050-333-4444', email: 'office@bht.edu', icon: 'headset' },
+    { role: '\u05E8\u05DB\u05D6 \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD', name: '\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF', phone: '050-555-6666', email: 'education@bht.edu', icon: 'mortarboard-fill' },
+    { role: '\u05D0\u05D7\u05E8\u05D0\u05D9 \u05EA\u05E4\u05E2\u05D5\u05DC', name: '\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3', phone: '050-777-8888', email: 'ops@bht.edu', icon: 'tools' }
+  ],
+
+  /* -- Init -- */
+  async organizationInit() {
+    // Gather real data where available, fallback to demo
+    let students = [], staff = [], classes = [], committees = [], events = [], budget = [];
+    try {
+      [students, staff, committees, events, budget] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
+        App.getData('\u05E6\u05D5\u05D5\u05EA').catch(() => []),
+        App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA').catch(() => []),
+        App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
+        App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1').catch(() => [])
+      ]);
+    } catch(e) { /* use demo */ }
+
+    const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const activeStaff = staff.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+
+    // Build class list from students data or demo
+    const classMap = {};
+    activeStudents.forEach(s => {
+      const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '';
+      if (cls) {
+        if (!classMap[cls]) classMap[cls] = { name: cls, students: 0, teacher: '', room: '' };
+        classMap[cls].students++;
+      }
+    });
+    classes = Object.values(classMap);
+    if (!classes.length) classes = this._orgDemoClasses;
+
+    // Statistics
+    const totalStudents = activeStudents.length || this._orgDemoClasses.reduce((s, c) => s + c.students, 0);
+    const totalClasses = classes.length;
+    const totalStaff = activeStaff.length || 8;
+    const totalBudget = budget.reduce((s, b) => s + (parseFloat(b['\u05E1\u05DB\u05D5\u05DD'] || b['\u05EA\u05E7\u05E6\u05D9\u05D1'] || 0)), 0);
+
+    document.getElementById('org-stat-students').textContent = totalStudents;
+    document.getElementById('org-stat-classes').textContent = totalClasses;
+    document.getElementById('org-stat-staff').textContent = totalStaff;
+    document.getElementById('org-stat-budget').textContent = '\u20AA' + (totalBudget || 450000).toLocaleString();
+
+    // Load saved org info
+    const saved = App.store?.orgInfo || null;
+    if (saved) {
+      document.getElementById('org-name').textContent = saved.name || this._orgDemoInfo.name;
+      document.getElementById('org-address').textContent = saved.address || this._orgDemoInfo.address;
+      document.getElementById('org-phone').textContent = saved.phone || this._orgDemoInfo.phone;
+      document.getElementById('org-email').textContent = saved.email || this._orgDemoInfo.email;
+      document.getElementById('org-principal').textContent = saved.principal || this._orgDemoInfo.principal;
+      document.getElementById('org-founded').textContent = saved.founded || this._orgDemoInfo.founded;
+      document.getElementById('org-hours').textContent = saved.hours || this._orgDemoInfo.hours;
+      document.getElementById('org-website').textContent = saved.website || this._orgDemoInfo.website;
+    }
+
+    // Render class table
+    document.getElementById('org-class-count').textContent = totalClasses;
+    const colors = ['primary','success','warning','info','danger','secondary'];
+    document.getElementById('org-class-table').innerHTML = classes.map((c, i) => {
+      const clr = c.color || colors[i % colors.length];
+      return `<tr>
+        <td><span class="badge bg-${clr}">${c.name}</span></td>
+        <td>${c.teacher || '--'}</td>
+        <td>${c.room || '--'}</td>
+        <td><span class="badge bg-light text-dark"><i class="bi bi-people me-1"></i>${c.students}</span></td>
+        <td><button class="btn btn-sm btn-outline-primary" onclick="App.navigate('schedule')" title="\u05DE\u05E2\u05E8\u05DB\u05EA"><i class="bi bi-table"></i></button></td>
+      </tr>`;
+    }).join('');
+
+    // Render committees
+    const commData = committees.length ? committees : this._orgDemoCommittees;
+    document.getElementById('org-comm-count').textContent = commData.length;
+    if (!commData.length) {
+      document.getElementById('org-committees-list').innerHTML = '<div class="p-3 text-center text-muted">\u05D0\u05D9\u05DF \u05D5\u05E2\u05D3\u05D5\u05EA</div>';
+    } else {
+      document.getElementById('org-committees-list').innerHTML = '<div class="list-group list-group-flush">' + commData.map(c => {
+        const stColor = (c.status || c['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
+        const stLabel = c.status || c['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC';
+        const nm = c.nextMeeting || c['\u05E4\u05D2\u05D9\u05E9\u05D4_\u05D4\u05D1\u05D0\u05D4'] || '';
+        const members = c.members || c['\u05D7\u05D1\u05E8\u05D9\u05DD'] || '';
+        const icon = c.icon || 'people';
+        return `<div class="list-group-item">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-${icon}-fill text-primary"></i>
+            <span class="fw-bold">${c.name || c['\u05E9\u05DD'] || ''}</span>
+            <span class="badge bg-${stColor} ms-auto">${stLabel}</span>
+          </div>
+          <div class="small text-muted"><i class="bi bi-person me-1"></i>${members}</div>
+          ${nm ? `<div class="small mt-1"><i class="bi bi-calendar-check text-primary me-1"></i>\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D4\u05D1\u05D0\u05D4: <strong>${nm}</strong></div>` : ''}
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    // Render timeline
+    this._renderOrgTimeline();
+
+    // Render upcoming events
+    const today = Utils.todayISO();
+    const upcoming = (events.length ? events : []).filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= today).sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '')).slice(0, 8);
+    const typeColors = { '\u05D0\u05D9\u05E8\u05D5\u05E2': 'primary', '\u05D7\u05D2': 'danger', '\u05D7\u05D5\u05E4\u05E9\u05D4': 'success', '\u05DE\u05D1\u05D7\u05DF': 'warning' };
+    if (!upcoming.length) {
+      document.getElementById('org-events-list').innerHTML = '<div class="p-3 text-center text-muted"><i class="bi bi-calendar-x fs-3 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD<br><a href="#" onclick="App.navigate(\'calendar\');return false" class="small">\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DC\u05D5\u05D7 \u05D4\u05E9\u05E0\u05D4</a></div>';
+    } else {
+      document.getElementById('org-events-list').innerHTML = '<div class="list-group list-group-flush">' + upcoming.map(e => {
+        const tc = typeColors[e['\u05E1\u05D5\u05D2']] || 'secondary';
+        return `<div class="list-group-item d-flex align-items-center gap-2">
+          <span class="badge bg-${tc}">${e['\u05E1\u05D5\u05D2'] || '\u05D0\u05D9\u05E8\u05D5\u05E2'}</span>
+          <span class="flex-grow-1">${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</span>
+          <small class="text-muted">${e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</small>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    // Render contacts
+    const contacts = this._orgDemoContacts;
+    document.getElementById('org-contacts-list').innerHTML = '<div class="list-group list-group-flush">' + contacts.map(c => {
+      return `<div class="list-group-item">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <div class="avatar avatar-sm bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center rounded-circle" style="width:36px;height:36px"><i class="bi bi-${c.icon}"></i></div>
+          <div class="flex-grow-1">
+            <div class="fw-bold small">${c.name}</div>
+            <div class="text-muted" style="font-size:11px">${c.role}</div>
+          </div>
+        </div>
+        <div class="small">
+          <a href="tel:${c.phone}" class="text-decoration-none me-3"><i class="bi bi-telephone me-1"></i>${c.phone}</a>
+          <a href="mailto:${c.email}" class="text-decoration-none"><i class="bi bi-envelope me-1"></i>${c.email}</a>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+
+    Utils.toast('\u05D0\u05E8\u05D2\u05D5\u05DF \u05E0\u05D8\u05E2\u05DF');
+  },
+
+  _renderOrgTimeline() {
+    const items = this._orgDemoTimeline;
+    const today = new Date();
+    const yearStart = new Date('2025-09-01');
+    const yearEnd = new Date('2026-08-31');
+    const totalDays = (yearEnd - yearStart) / (1000 * 60 * 60 * 24);
+
+    let html = '<div class="position-relative" style="min-height:' + (items.length * 52 + 20) + 'px">';
+
+    // Today marker
+    const todayPct = Math.max(0, Math.min(100, ((today - yearStart) / (1000 * 60 * 60 * 24) / totalDays) * 100));
+    html += `<div class="position-absolute" style="right:${todayPct}%;top:0;bottom:0;width:2px;background:red;z-index:2" title="\u05D4\u05D9\u05D5\u05DD"></div>`;
+
+    items.forEach((item, i) => {
+      const s = new Date(item.start);
+      const e = new Date(item.end);
+      const startPct = Math.max(0, ((s - yearStart) / (1000 * 60 * 60 * 24) / totalDays) * 100);
+      const widthPct = Math.max(3, ((e - s) / (1000 * 60 * 60 * 24) / totalDays) * 100);
+      const isPast = e < today;
+      const isCurrent = s <= today && e >= today;
+
+      html += `<div class="position-absolute d-flex align-items-center gap-1" style="top:${i * 52 + 10}px;right:${startPct}%;width:${widthPct}%;height:40px">
+        <div class="rounded-pill bg-${item.color}${isPast ? ' bg-opacity-50' : ''} text-white px-2 py-1 w-100 text-center small fw-bold d-flex align-items-center justify-content-center gap-1 ${isCurrent ? 'shadow' : ''}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;border:${isCurrent ? '2px solid var(--bs-' + item.color + ')' : 'none'}">
+          <i class="bi bi-${item.icon}"></i>
+          <span>${item.label}</span>
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+
+    // Month labels
+    const months = ['\u05E1\u05E4\u05D8','\u05D0\u05D5\u05E7','\u05E0\u05D5\u05D1','\u05D3\u05E6\u05DE','\u05D9\u05E0\u05D5','\u05E4\u05D1\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0','\u05D9\u05D5\u05DC','\u05D0\u05D5\u05D2'];
+    html += '<div class="d-flex justify-content-between mt-2 border-top pt-2">';
+    months.forEach(m => { html += `<span class="text-muted" style="font-size:10px">${m}</span>`; });
+    html += '</div>';
+
+    document.getElementById('org-timeline').innerHTML = html;
+  },
+
+  editOrgInfo() {
+    const info = App.store?.orgInfo || this._orgDemoInfo;
+    document.getElementById('orgf-name').value = info.name || '';
+    document.getElementById('orgf-address').value = info.address || '';
+    document.getElementById('orgf-phone').value = info.phone || '';
+    document.getElementById('orgf-email').value = info.email || '';
+    document.getElementById('orgf-principal').value = info.principal || '';
+    document.getElementById('orgf-founded').value = info.founded || '';
+    document.getElementById('orgf-hours').value = info.hours || '';
+    document.getElementById('orgf-website').value = info.website || '';
+    new bootstrap.Modal(document.getElementById('org-edit-modal')).show();
+  },
+
+  saveOrgInfo() {
+    const info = {
+      name: document.getElementById('orgf-name').value.trim(),
+      address: document.getElementById('orgf-address').value.trim(),
+      phone: document.getElementById('orgf-phone').value.trim(),
+      email: document.getElementById('orgf-email').value.trim(),
+      principal: document.getElementById('orgf-principal').value.trim(),
+      founded: document.getElementById('orgf-founded').value.trim(),
+      hours: document.getElementById('orgf-hours').value.trim(),
+      website: document.getElementById('orgf-website').value.trim()
+    };
+    if (!App.store) App.store = {};
+    App.store.orgInfo = info;
+    try { localStorage.setItem('bht_org_info', JSON.stringify(info)); } catch(e) {}
+
+    // Update display
+    document.getElementById('org-name').textContent = info.name || this._orgDemoInfo.name;
+    document.getElementById('org-address').textContent = info.address || this._orgDemoInfo.address;
+    document.getElementById('org-phone').textContent = info.phone || this._orgDemoInfo.phone;
+    document.getElementById('org-email').textContent = info.email || this._orgDemoInfo.email;
+    document.getElementById('org-principal').textContent = info.principal || this._orgDemoInfo.principal;
+    document.getElementById('org-founded').textContent = info.founded || this._orgDemoInfo.founded;
+    document.getElementById('org-hours').textContent = info.hours || this._orgDemoInfo.hours;
+    document.getElementById('org-website').textContent = info.website || this._orgDemoInfo.website;
+
+    bootstrap.Modal.getInstance(document.getElementById('org-edit-modal'))?.hide();
+    Utils.toast('\u05E4\u05E8\u05D8\u05D9 \u05D4\u05DE\u05D5\u05E1\u05D3 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5');
+  },
+
+
   /* ======================================================================
      TASKS (KANBAN)
      ====================================================================== */
@@ -47,7 +458,7 @@ Object.assign(Pages, {
     const evMap = {}; mEvents.forEach(e => { const d=String(e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').substring(0,10); if (!evMap[d]) evMap[d]=[]; evMap[d].push(e); });
     const first = new Date(this._calYear, this._calMonth, 1); const startDay=first.getDay(); const daysInMonth=new Date(this._calYear,this._calMonth+1,0).getDate(); const today=Utils.todayISO();
     let html='',dayNum=1;
-    for (let week=0;week<6;week++) { if (dayNum>daysInMonth&&week>0) break; html+='<div class="row g-0">'; for (let dow=0;dow<7;dow++) { if ((week===0&&dow<startDay)||dayNum>daysInMonth) { html+='<div class="col border-bottom border-end p-2" style="min-height:80px"></div>'; } else { const ds=this._calYear+'-'+String(this._calMonth+1).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); const isT=ds===today; const evts=evMap[ds]||[]; html+=`<div class="col border-bottom border-end p-2${isT?' bg-primary bg-opacity-10':''}" style="min-height:80px;cursor:pointer" onclick="Pages.showAddEvent('${ds}')"><div class="${isT?'badge bg-primary rounded-circle':'fw-bold small'}">${dayNum}</div>`; evts.forEach(e => { const cs={'חג':'danger','חופשה':'success','מבחן':'warning'}; const c=cs[e['\u05E1\u05D5\u05D2']]||'primary'; html+=`<div class="badge bg-${c} text-wrap mb-1 d-inline-flex align-items-center gap-1" style="font-size:10px" onclick="event.stopPropagation()">${e['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}<span style="cursor:pointer" onclick="Pages.deleteCalEvent('${e.id||e['\u05DE\u05D6\u05D4\u05D4']}')">&times;</span></div> `; }); html+='</div>'; dayNum++; } } html+='</div>'; }
+    for (let week=0;week<6;week++) { if (dayNum>daysInMonth&&week>0) break; html+='<div class="row g-0">'; for (let dow=0;dow<7;dow++) { if ((week===0&&dow<startDay)||dayNum>daysInMonth) { html+='<div class="col border-bottom border-end p-2" style="min-height:80px"></div>'; } else { const ds=this._calYear+'-'+String(this._calMonth+1).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); const isT=ds===today; const evts=evMap[ds]||[]; html+=`<div class="col border-bottom border-end p-2${isT?' bg-primary bg-opacity-10':''}" style="min-height:80px;cursor:pointer" onclick="Pages.showAddEvent('${ds}')"><div class="${isT?'badge bg-primary rounded-circle':'fw-bold small'}">${dayNum}</div>`; evts.forEach(e => { const cs={'\u05D7\u05D2':'danger','\u05D7\u05D5\u05E4\u05E9\u05D4':'success','\u05DE\u05D1\u05D7\u05DF':'warning'}; const c=cs[e['\u05E1\u05D5\u05D2']]||'primary'; html+=`<div class="badge bg-${c} text-wrap mb-1 d-inline-flex align-items-center gap-1" style="font-size:10px" onclick="event.stopPropagation()">${e['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}<span style="cursor:pointer" onclick="Pages.deleteCalEvent('${e.id||e['\u05DE\u05D6\u05D4\u05D4']}')">&times;</span></div> `; }); html+='</div>'; dayNum++; } } html+='</div>'; }
     document.getElementById('cal-grid').innerHTML = html;
   },
   showAddEvent(date) { document.getElementById('cf-date').value = date || Utils.todayISO(); new bootstrap.Modal(document.getElementById('cal-modal')).show(); },
