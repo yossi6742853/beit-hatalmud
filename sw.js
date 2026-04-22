@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v5.8-0422';
+const CACHE_VERSION = 'bht-v5.9-0422';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -53,6 +53,8 @@ const ASSETS = [
   './js/pages/whatsapp.js',
   './js/pages/certificates.js',
   './js/pages/analytics.js',
+  './js/pages/behavior.js',
+  './js/pages/homework.js',
   // Icons & images
   './icons/icon-192.png',
   './icons/icon-512.png',
