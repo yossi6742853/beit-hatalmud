@@ -264,7 +264,7 @@ Object.assign(Pages, {
     }).join('');
 
     // Render committees
-    const commData = committees.length ? committees : this._orgDemoCommittees;
+    const commData = committees.length ? committees : this._commDemoCommittees;
     document.getElementById('org-comm-count').textContent = commData.length;
     if (!commData.length) {
       document.getElementById('org-committees-list').innerHTML = '<div class="p-3 text-center text-muted">\u05D0\u05D9\u05DF \u05D5\u05E2\u05D3\u05D5\u05EA</div>';
@@ -273,15 +273,17 @@ Object.assign(Pages, {
         const stColor = (c.status || c['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
         const stLabel = c.status || c['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC';
         const nm = c.nextMeeting || c['\u05E4\u05D2\u05D9\u05E9\u05D4_\u05D4\u05D1\u05D0\u05D4'] || '';
-        const members = c.members || c['\u05D7\u05D1\u05E8\u05D9\u05DD'] || '';
+        const membersRaw = c.members || c['\u05D7\u05D1\u05E8\u05D9\u05DD'] || '';
+        const membersStr = Array.isArray(membersRaw) ? membersRaw.map(m => m.name || m).join(', ') : membersRaw;
+        const memberCount = Array.isArray(membersRaw) ? membersRaw.length : (typeof membersRaw === 'string' && membersRaw ? membersRaw.split(',').length : 0);
         const icon = c.icon || 'people';
-        return `<div class="list-group-item">
+        return `<div class="list-group-item" style="cursor:pointer" onclick="App.navigate('committees')">
           <div class="d-flex align-items-center gap-2 mb-1">
             <i class="bi bi-${icon}-fill text-primary"></i>
             <span class="fw-bold">${c.name || c['\u05E9\u05DD'] || ''}</span>
             <span class="badge bg-${stColor} ms-auto">${stLabel}</span>
           </div>
-          <div class="small text-muted"><i class="bi bi-person me-1"></i>${members}</div>
+          <div class="small text-muted"><i class="bi bi-person me-1"></i>${memberCount} \u05D7\u05D1\u05E8\u05D9\u05DD</div>
           ${nm ? `<div class="small mt-1"><i class="bi bi-calendar-check text-primary me-1"></i>\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D4\u05D1\u05D0\u05D4: <strong>${nm}</strong></div>` : ''}
         </div>`;
       }).join('') + '</div>';
@@ -2200,22 +2202,559 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     COMMITTEES
+     COMMITTEES — Comprehensive Committee Management
      ====================================================================== */
-  committees() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-people me-2"></i>\u05D5\u05E2\u05D3\u05D5\u05EA</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddComm()"><i class="bi bi-plus-lg me-1"></i>\u05D5\u05E2\u05D3\u05D4 \u05D7\u05D3\u05E9\u05D4</button></div><div id="comm-list">${Utils.skeleton(3)}</div><div class="modal fade" id="committee-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D5\u05E2\u05D3\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05E9\u05DD</label><input class="form-control" id="cmf-name"></div><div class="col-12"><label class="form-label">\u05D7\u05D1\u05E8\u05D9\u05DD</label><input class="form-control" id="cmf-members" placeholder="\u05E9\u05DE\u05D5\u05EA \u05DE\u05D5\u05E4\u05E8\u05D3\u05D9\u05DD \u05D1\u05E4\u05E1\u05D9\u05E7"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="cmf-desc" rows="2"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveCommittee()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
-  },
+
+  // ── Demo Data ──
+  _commDemoCommittees: [
+    { id:'cm1', name:'\u05D5\u05E2\u05D3\u05EA \u05D7\u05D9\u05E0\u05D5\u05DA', purpose:'\u05E4\u05D9\u05EA\u05D5\u05D7 \u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD \u05D5\u05DE\u05E2\u05E7\u05D1 \u05D0\u05D7\u05E8 \u05D0\u05D9\u05DB\u05D5\u05EA \u05D4\u05D4\u05D5\u05E8\u05D0\u05D4', status:'\u05E4\u05E2\u05D9\u05DC', nextMeeting:'2026-04-28', icon:'mortarboard',
+      members:[
+        {name:'\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF',role:'\u05D9\u05D5"\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9',role:'\u05DE\u05D6\u05DB\u05D9\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD',role:'\u05D7\u05D1\u05E8'}
+      ]},
+    { id:'cm2', name:'\u05D5\u05E2\u05D3\u05EA \u05DE\u05E9\u05DE\u05E2\u05EA', purpose:'\u05E9\u05DE\u05D9\u05E8\u05D4 \u05E2\u05DC \u05DE\u05E9\u05DE\u05E2\u05EA \u05D5\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', status:'\u05E4\u05E2\u05D9\u05DC', nextMeeting:'2026-05-05', icon:'shield-check',
+      members:[
+        {name:'\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9',role:'\u05D9\u05D5"\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3',role:'\u05DE\u05D6\u05DB\u05D9\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05E0\u05EA\u05DF',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05E9\u05DE\u05E2\u05D5\u05DF',role:'\u05D7\u05D1\u05E8'}
+      ]},
+    { id:'cm3', name:'\u05D5\u05E2\u05D3\u05EA \u05EA\u05E7\u05E6\u05D9\u05D1', purpose:'\u05E0\u05D9\u05D4\u05D5\u05DC \u05EA\u05E7\u05E6\u05D9\u05D1 \u05D4\u05DE\u05D5\u05E1\u05D3, \u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05D5\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA', status:'\u05E4\u05E2\u05D9\u05DC', nextMeeting:'2026-05-12', icon:'cash-coin',
+      members:[
+        {name:'\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD',role:'\u05D9\u05D5"\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF',role:'\u05D7\u05D1\u05E8'},{name:'\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8',role:'\u05DE\u05D6\u05DB\u05D9\u05E8'}
+      ]},
+    { id:'cm4', name:'\u05D5\u05E2\u05D3\u05EA \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', purpose:'\u05EA\u05DB\u05E0\u05D5\u05DF \u05D5\u05D0\u05E8\u05D2\u05D5\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05D5\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD', status:'\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC', nextMeeting:'', icon:'geo-alt',
+      members:[
+        {name:'\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3',role:'\u05D9\u05D5"\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',role:'\u05DE\u05D6\u05DB\u05D9\u05E8'}
+      ]},
+    { id:'cm5', name:'\u05D5\u05E2\u05D3\u05EA \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA', purpose:'\u05D1\u05D8\u05D9\u05D7\u05D5\u05EA \u05D5\u05D1\u05E8\u05D9\u05D0\u05D5\u05EA \u05E9\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D5\u05D4\u05E6\u05D5\u05D5\u05EA', status:'\u05E4\u05E2\u05D9\u05DC', nextMeeting:'2026-05-20', icon:'heart-pulse',
+      members:[
+        {name:'\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4',role:'\u05D9\u05D5"\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05E0\u05EA\u05DF',role:'\u05D7\u05D1\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3',role:'\u05DE\u05D6\u05DB\u05D9\u05E8'},{name:'\u05D4\u05E8\u05D1 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2',role:'\u05D7\u05D1\u05E8'}
+      ]}
+  ],
+
+  _commDemoMeetings: [
+    { id:'mt1', committeeId:'cm1', date:'2026-04-14', time:'10:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD', agenda:'\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D1', attendees:['\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF','\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9','\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3'], decisions:['\u05D4\u05D5\u05E1\u05E4\u05EA \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D2\u05DE\u05E8\u05D0 \u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9','\u05E2\u05D3\u05DB\u05D5\u05DF \u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'], actionItems:['\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF \u2014 \u05DC\u05D4\u05DB\u05D9\u05DF \u05DE\u05E2\u05E8\u05DA \u05E9\u05E2\u05D5\u05EA \u05D7\u05D3\u05E9','\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9 \u2014 \u05DC\u05EA\u05D0\u05DD \u05D7\u05D5\u05DE\u05E8\u05D9 \u05DC\u05D9\u05DE\u05D5\u05D3'], votes:[{topic:'\u05D4\u05D5\u05E1\u05E4\u05EA \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D2\u05DE\u05E8\u05D0',inFavor:3,against:0,abstain:0}] },
+    { id:'mt2', committeeId:'cm2', date:'2026-04-10', time:'14:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05E0\u05D4\u05DC', agenda:'\u05D3\u05D9\u05D5\u05DF \u05DE\u05E7\u05E8\u05D9 \u05DE\u05E9\u05DE\u05E2\u05EA', attendees:['\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9','\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3','\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4','\u05D4\u05E8\u05D1 \u05E0\u05EA\u05DF'], decisions:['\u05D4\u05D7\u05DE\u05E8\u05EA \u05DB\u05DC\u05DC\u05D9 \u05E9\u05D9\u05DE\u05D5\u05E9 \u05D1\u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD','\u05D4\u05E0\u05D4\u05D2\u05EA \u05EA\u05D5\u05E8\u05E0\u05D5\u05EA \u05D1\u05D4\u05E4\u05E1\u05E7\u05D4'], actionItems:['\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9 \u2014 \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD','\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4 \u2014 \u05DC\u05E2\u05E7\u05D5\u05D1 \u05D0\u05D7\u05E8 \u05D1\u05D9\u05E6\u05D5\u05E2'], votes:[{topic:'\u05D0\u05D9\u05E1\u05D5\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05D1\u05E9\u05E2\u05D5\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3',inFavor:4,against:0,abstain:0}] },
+    { id:'mt3', committeeId:'cm3', date:'2026-04-07', time:'11:00', location:'\u05DE\u05E9\u05E8\u05D3', agenda:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9', attendees:['\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD','\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF','\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8'], decisions:['\u05D4\u05E7\u05E6\u05D0\u05D4 \u05E0\u05D5\u05E1\u05E4\u05EA \u05DC\u05E6\u05D9\u05D5\u05D3 \u05DE\u05D7\u05E9\u05D1\u05D9\u05DD','\u05D4\u05E2\u05DC\u05D0\u05EA \u05E9\u05DB"\u05DC \u05D1-3%'], actionItems:['\u05D9\u05D5\u05E1\u05E3 \u2014 \u05DC\u05D4\u05DB\u05D9\u05DF \u05D4\u05E6\u05E2\u05D4 \u05DC\u05E6\u05D9\u05D5\u05D3','\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD \u2014 \u05DC\u05D0\u05E9\u05E8 \u05EA\u05E7\u05E6\u05D9\u05D1 \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF'], votes:[{topic:'\u05D4\u05E2\u05DC\u05D0\u05EA \u05E9\u05DB"\u05DC',inFavor:2,against:1,abstain:0}] },
+    { id:'mt4', committeeId:'cm1', date:'2026-03-24', time:'10:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD', agenda:'\u05E1\u05D9\u05DB\u05D5\u05DD \u05DE\u05D1\u05D7\u05E0\u05D9 \u05D0\u05DE\u05E6\u05E2 \u05E1\u05DE\u05E1\u05D8\u05E8', attendees:['\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF','\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3','\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD'], decisions:['\u05E6\u05D9\u05D5\u05E0\u05D9 \u05D4\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05EA\u05E7\u05D9\u05E0\u05D9\u05DD','\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05D7\u05D6\u05E8\u05D4 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D7\u05DC\u05E9\u05D9\u05DD'], actionItems:['\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3 \u2014 \u05DC\u05EA\u05D0\u05DD \u05E9\u05E2\u05D5\u05EA \u05D7\u05D6\u05E8\u05D4'], votes:[] },
+    { id:'mt5', committeeId:'cm5', date:'2026-04-01', time:'09:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05E0\u05D4\u05DC', agenda:'\u05D1\u05D3\u05D9\u05E7\u05EA \u05DE\u05E6\u05D1 \u05D1\u05E8\u05D9\u05D0\u05D5\u05EA\u05D9', attendees:['\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4','\u05D4\u05E8\u05D1 \u05E0\u05EA\u05DF','\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3'], decisions:['\u05DE\u05D9\u05E0\u05D5\u05D9 \u05E9\u05DC \u05DE\u05E0\u05D7\u05D4 \u05D1\u05D9\u05EA\u05E1\u05E4\u05E8\u05D9\u05EA','\u05D4\u05D5\u05E1\u05E4\u05EA \u05E9\u05E2\u05D5\u05EA \u05D9\u05D9\u05E2\u05D5\u05E5'], actionItems:['\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4 \u2014 \u05DC\u05D9\u05E6\u05D5\u05E8 \u05E7\u05E9\u05E8 \u05E2\u05DD \u05DE\u05E0\u05D7\u05D4'], votes:[{topic:'\u05DE\u05D9\u05E0\u05D5\u05D9 \u05DE\u05E0\u05D7\u05D4',inFavor:3,against:0,abstain:0}] },
+    { id:'mt6', committeeId:'cm2', date:'2026-03-17', time:'14:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05E0\u05D4\u05DC', agenda:'\u05E0\u05D4\u05DC\u05D9 \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA', attendees:['\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9','\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3','\u05D4\u05E8\u05D1 \u05E9\u05DE\u05E2\u05D5\u05DF'], decisions:['\u05E2\u05D3\u05DB\u05D5\u05DF \u05E0\u05D4\u05DC\u05D9 \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA'], actionItems:['\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3 \u2014 \u05DC\u05D4\u05E4\u05D9\u05E5 \u05E0\u05D5\u05D4\u05DC \u05D7\u05D3\u05E9'], votes:[] },
+    { id:'mt7', committeeId:'cm3', date:'2026-03-10', time:'11:00', location:'\u05DE\u05E9\u05E8\u05D3', agenda:'\u05D3\u05D5"\u05D7 \u05E8\u05D1\u05E2\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9', attendees:['\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD','\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8','\u05D4\u05E8\u05D1 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF'], decisions:['\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D3\u05D5"\u05D7 Q1'], actionItems:['\u05D9\u05D5\u05E1\u05E3 \u2014 \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D3\u05D5"\u05D7 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD'], votes:[] },
+    { id:'mt8', committeeId:'cm1', date:'2026-03-03', time:'10:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD', agenda:'\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05DE\u05D1\u05D7\u05E0\u05D9 \u05D0\u05DE\u05E6\u05E2 \u05E1\u05DE\u05E1\u05D8\u05E8', attendees:['\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF','\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9'], decisions:['\u05E7\u05D1\u05D9\u05E2\u05EA \u05DC\u05D5"\u05D6 \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD','\u05D4\u05D5\u05E1\u05E4\u05EA \u05DE\u05D1\u05D7\u05DF \u05D1\u05E2"\u05E4'], actionItems:['\u05D4\u05E8\u05D1 \u05DB\u05D4\u05DF \u2014 \u05DC\u05D4\u05DB\u05D9\u05DF \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD','\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9 \u2014 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD'], votes:[{topic:'\u05D4\u05D5\u05E1\u05E4\u05EA \u05DE\u05D1\u05D7\u05DF \u05D1\u05E2"\u05E4',inFavor:2,against:0,abstain:0}] },
+    { id:'mt9', committeeId:'cm5', date:'2026-03-15', time:'09:00', location:'\u05D7\u05D3\u05E8 \u05DE\u05E0\u05D4\u05DC', agenda:'\u05DE\u05E2\u05E7\u05D1 \u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05D7\u05D5\u05E5-\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05D5\u05EA', attendees:['\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4','\u05D4\u05E8\u05D1 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2','\u05D4\u05E8\u05D1 \u05D9\u05D5\u05E1\u05E3'], decisions:['\u05D4\u05E8\u05D7\u05D1\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05E1\u05E4\u05D5\u05E8\u05D8'], actionItems:['\u05D4\u05E8\u05D1 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2 \u2014 \u05DC\u05D0\u05EA\u05E8 \u05DE\u05D0\u05DE\u05DF'], votes:[{topic:'\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05E1\u05E4\u05D5\u05E8\u05D8',inFavor:2,against:1,abstain:0}] },
+    { id:'mt10', committeeId:'cm4', date:'2026-02-20', time:'15:00', location:'\u05DE\u05E9\u05E8\u05D3', agenda:'\u05EA\u05DB\u05E0\u05D5\u05DF \u05D8\u05D9\u05D5\u05DC \u05E1\u05D5\u05E3 \u05E9\u05E0\u05D4', attendees:['\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3','\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9','\u05D4\u05E8\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF'], decisions:['\u05D8\u05D9\u05D5\u05DC \u05DC\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u2014 \u05D0\u05D5\u05E9\u05E8','\u05EA\u05E7\u05E6\u05D9\u05D1 2,500 \u05E9"\u05D7'], actionItems:['\u05D4\u05E8\u05D1 \u05DC\u05D5\u05D9 \u2014 \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1','\u05D4\u05E8\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF \u2014 \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD'], votes:[{topic:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D8\u05D9\u05D5\u05DC',inFavor:3,against:0,abstain:0}] }
+  ],
+
   _commtData: [],
-  async committeesInit() { this._commtData = await App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA'); this.renderCommittees(); },
-  renderCommittees() {
-    if (!this._commtData.length) { document.getElementById('comm-list').innerHTML = '<div class="empty-state"><i class="bi bi-people"></i><h5>\u05D0\u05D9\u05DF \u05D5\u05E2\u05D3\u05D5\u05EA</h5></div>'; return; }
-    document.getElementById('comm-list').innerHTML = `<div class="row g-3">${this._commtData.map(c => `<div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-people-fill me-2 text-primary"></i>${c['\u05E9\u05DD']||''}</h6><div class="small text-muted mb-2">${c['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</div><div class="small"><i class="bi bi-person me-1"></i><strong>\u05D7\u05D1\u05E8\u05D9\u05DD:</strong> ${c['\u05D7\u05D1\u05E8\u05D9\u05DD']||'--'}</div>${c['\u05E4\u05D2\u05D9\u05E9\u05D4_\u05D4\u05D1\u05D0\u05D4']?`<div class="small mt-1"><i class="bi bi-calendar me-1"></i>\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D4\u05D1\u05D0\u05D4: ${c['\u05E4\u05D2\u05D9\u05E9\u05D4_\u05D4\u05D1\u05D0\u05D4']}</div>`:''}</div></div>`).join('')}</div>`;
+  _commMeetings: [],
+  _commFilter: '',
+  _commView: 'cards', // 'cards' | 'meeting-log'
+  _commSelectedId: null,
+
+  committees() {
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-people me-2"></i>\u05D5\u05E2\u05D3\u05D5\u05EA</h1>
+        <p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D5\u05E2\u05D3\u05D5\u05EA, \u05D7\u05D1\u05E8\u05D9\u05DD, \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA \u05D5\u05D4\u05E6\u05D1\u05E2\u05D5\u05EA</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="Pages.showScheduleMeetingModal()"><i class="bi bi-calendar-plus me-1"></i>\u05E7\u05D1\u05E2 \u05D9\u05E9\u05D9\u05D1\u05D4</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddComm()"><i class="bi bi-plus-lg me-1"></i>\u05D5\u05E2\u05D3\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-people-fill fs-3 text-primary"></i>
+        <div class="fs-3 fw-bold text-primary" id="comm-stat-total">0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05D5\u05E2\u05D3\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+        <div class="fs-3 fw-bold text-success" id="comm-stat-active">0</div>
+        <small class="text-muted">\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-calendar-event fs-3 text-info"></i>
+        <div class="fs-3 fw-bold text-info" id="comm-stat-upcoming">0</div>
+        <small class="text-muted">\u05D9\u05E9\u05D9\u05D1\u05D5\u05EA \u05E7\u05E8\u05D5\u05D1\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-person-check-fill fs-3 text-warning"></i>
+        <div class="fs-3 fw-bold text-warning" id="comm-stat-members">0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05D7\u05D1\u05E8\u05D9\u05DD</small>
+      </div></div>
+    </div>
+
+    <!-- View Toggle + Filter -->
+    <div class="card p-3 mb-4">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label small">\u05E1\u05D9\u05E0\u05D5\u05DF \u05DC\u05E4\u05D9 \u05E1\u05D8\u05D8\u05D5\u05E1</label>
+          <select class="form-select form-select-sm" id="comm-filter-status" onchange="Pages._commFilter=this.value;Pages.renderCommittees()">
+            <option value="">\u05D4\u05DB\u05DC</option>
+            <option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</option>
+            <option value="\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</option>
+          </select>
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-4 text-end">
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary active" id="comm-view-cards" onclick="Pages._commView='cards';Pages.renderCommittees()"><i class="bi bi-grid-3x2-gap-fill me-1"></i>\u05DB\u05E8\u05D8\u05D9\u05E1\u05D9\u05DD</button>
+            <button class="btn btn-outline-primary" id="comm-view-log" onclick="Pages._commView='meeting-log';Pages.renderCommittees()"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="comm-list">${Utils.skeleton(3)}</div>
+
+    <!-- Add/Edit Committee Modal -->
+    <div class="modal fade" id="committee-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title" id="comm-modal-title">\u05D5\u05E2\u05D3\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12"><label class="form-label">\u05E9\u05DD \u05D4\u05D5\u05E2\u05D3\u05D4</label><input class="form-control" id="cmf-name"></div>
+              <div class="col-12"><label class="form-label">\u05DE\u05D8\u05E8\u05D4</label><textarea class="form-control" id="cmf-purpose" rows="2" placeholder="\u05EA\u05D7\u05D5\u05DD \u05D0\u05D7\u05E8\u05D9\u05D5\u05EA \u05D5\u05DE\u05D8\u05E8\u05D5\u05EA \u05D4\u05D5\u05E2\u05D3\u05D4"></textarea></div>
+              <div class="col-md-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+                <select class="form-select" id="cmf-status">
+                  <option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option>
+                  <option value="\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option>
+                </select>
+              </div>
+              <div class="col-md-6"><label class="form-label">\u05D9\u05E9\u05D9\u05D1\u05D4 \u05D4\u05D1\u05D0\u05D4</label><input type="date" class="form-control" id="cmf-next-meeting"></div>
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveCommittee()">\u05E9\u05DE\u05D5\u05E8</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member Management Modal -->
+    <div class="modal fade" id="comm-member-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D7\u05D1\u05E8\u05D9\u05DD</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div id="comm-member-list" class="mb-3"></div>
+            <hr>
+            <h6>\u05D4\u05D5\u05E1\u05E4\u05EA \u05D7\u05D1\u05E8</h6>
+            <div class="row g-2">
+              <div class="col-7"><input class="form-control form-control-sm" id="cmm-name" placeholder="\u05E9\u05DD \u05DE\u05DC\u05D0"></div>
+              <div class="col-3">
+                <select class="form-select form-select-sm" id="cmm-role">
+                  <option value="\u05D7\u05D1\u05E8">\u05D7\u05D1\u05E8</option>
+                  <option value="\u05D9\u05D5&quot;\u05E8">\u05D9\u05D5"\u05E8</option>
+                  <option value="\u05DE\u05D6\u05DB\u05D9\u05E8">\u05DE\u05D6\u05DB\u05D9\u05E8</option>
+                </select>
+              </div>
+              <div class="col-2"><button class="btn btn-sm btn-primary w-100" onclick="Pages.addCommMember()"><i class="bi bi-plus-lg"></i></button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Meeting Modal -->
+    <div class="modal fade" id="comm-schedule-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title">\u05E7\u05D1\u05D9\u05E2\u05EA \u05D9\u05E9\u05D9\u05D1\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12"><label class="form-label">\u05D5\u05E2\u05D3\u05D4</label>
+                <select class="form-select" id="cms-committee"></select>
+              </div>
+              <div class="col-md-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="cms-date"></div>
+              <div class="col-md-6"><label class="form-label">\u05E9\u05E2\u05D4</label><input type="time" class="form-control" id="cms-time"></div>
+              <div class="col-12"><label class="form-label">\u05DE\u05D9\u05E7\u05D5\u05DD</label><input class="form-control" id="cms-location" placeholder="\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD / \u05DE\u05E9\u05E8\u05D3 / \u05D6\u05D5\u05DD"></div>
+              <div class="col-12"><label class="form-label">\u05E1\u05D3\u05E8 \u05D9\u05D5\u05DD</label><textarea class="form-control" id="cms-agenda" rows="3" placeholder="\u05E0\u05D5\u05E9\u05D0\u05D9\u05DD \u05DC\u05D3\u05D9\u05D5\u05DF..."></textarea></div>
+            </div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveScheduledMeeting()">\u05E7\u05D1\u05E2</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meeting Minutes Modal -->
+    <div class="modal fade" id="comm-minutes-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title" id="comm-minutes-title">\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05D9\u05E9\u05D9\u05D1\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body" id="comm-minutes-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Committee Detail Modal -->
+    <div class="modal fade" id="comm-detail-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header"><h5 class="modal-title" id="comm-detail-title">\u05E4\u05E8\u05D8\u05D9 \u05D5\u05E2\u05D3\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-body" id="comm-detail-body"></div>
+        </div>
+      </div>
+    </div>
+    `;
   },
-  showAddComm() { new bootstrap.Modal(document.getElementById('committee-modal')).show(); },
-  async saveCommittee() { const row = {'\u05E9\u05DD':document.getElementById('cmf-name').value.trim(),'\u05D7\u05D1\u05E8\u05D9\u05DD':document.getElementById('cmf-members').value.trim(),'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('cmf-desc').value.trim()}; if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD','warning'); return; } try { await App.apiCall('add','\u05D5\u05E2\u05D3\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('committee-modal')).hide(); Utils.toast('\u05D5\u05E2\u05D3\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.committeesInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  async committeesInit() {
+    try {
+      const raw = await App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA');
+      this._commtData = raw && raw.length ? raw : this._commDemoCommittees;
+    } catch(e) {
+      this._commtData = this._commDemoCommittees;
+    }
+    this._commMeetings = this._commDemoMeetings;
+    this.renderCommittees();
+  },
+
+  _commGetAllMembers() {
+    const all = new Set();
+    this._commtData.forEach(c => {
+      const members = c.members || [];
+      if (Array.isArray(members)) members.forEach(m => all.add(m.name || m));
+      else if (typeof members === 'string') members.split(',').forEach(n => all.add(n.trim()));
+    });
+    return all;
+  },
+
+  renderCommittees() {
+    const data = this._commtData;
+    const filter = this._commFilter;
+    const filtered = filter ? data.filter(c => (c.status || '\u05E4\u05E2\u05D9\u05DC') === filter) : data;
+    const today = Utils.todayISO();
+
+    // Stats
+    const active = data.filter(c => (c.status || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC').length;
+    const upcoming = data.filter(c => c.nextMeeting && c.nextMeeting >= today).length;
+    const totalMembers = this._commGetAllMembers().size;
+    document.getElementById('comm-stat-total').textContent = data.length;
+    document.getElementById('comm-stat-active').textContent = active;
+    document.getElementById('comm-stat-upcoming').textContent = upcoming;
+    document.getElementById('comm-stat-members').textContent = totalMembers;
+
+    // Toggle active class on view buttons
+    document.getElementById('comm-view-cards').classList.toggle('active', this._commView === 'cards');
+    document.getElementById('comm-view-log').classList.toggle('active', this._commView === 'meeting-log');
+
+    if (this._commView === 'meeting-log') {
+      this._renderCommMeetingLog();
+      return;
+    }
+
+    // Cards view
+    if (!filtered.length) {
+      document.getElementById('comm-list').innerHTML = '<div class="empty-state"><i class="bi bi-people"></i><h5>\u05D0\u05D9\u05DF \u05D5\u05E2\u05D3\u05D5\u05EA</h5></div>';
+      return;
+    }
+
+    document.getElementById('comm-list').innerHTML = `<div class="row g-3">${filtered.map(c => {
+      const stColor = (c.status || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
+      const stLabel = c.status || '\u05E4\u05E2\u05D9\u05DC';
+      const icon = c.icon || 'people';
+      const members = Array.isArray(c.members) ? c.members : [];
+      const memberCount = members.length || (typeof c.members === 'string' ? c.members.split(',').length : 0);
+      const nm = c.nextMeeting || '';
+      const meetingCount = this._commMeetings.filter(m => m.committeeId === c.id).length;
+      const chair = members.find(m => m.role === '\u05D9\u05D5"\u05E8');
+
+      return `<div class="col-md-6 col-xl-4">
+        <div class="card h-100 border-start border-4 border-${stColor}" style="cursor:pointer" onclick="Pages.showCommDetail('${c.id}')">
+          <div class="card-body">
+            <div class="d-flex align-items-start justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle bg-${stColor} bg-opacity-10 d-flex align-items-center justify-content-center" style="width:40px;height:40px">
+                  <i class="bi bi-${icon}-fill text-${stColor} fs-5"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">${c.name || c['\u05E9\u05DD'] || ''}</h6>
+                  ${chair ? `<small class="text-muted">\u05D9\u05D5"\u05E8: ${chair.name}</small>` : ''}
+                </div>
+              </div>
+              <span class="badge bg-${stColor}">${stLabel}</span>
+            </div>
+            <p class="small text-muted mb-2">${c.purpose || c['\u05EA\u05D9\u05D0\u05D5\u05E8'] || ''}</p>
+            <div class="d-flex flex-wrap gap-2 mb-2">
+              <span class="badge bg-light text-dark"><i class="bi bi-person me-1"></i>${memberCount} \u05D7\u05D1\u05E8\u05D9\u05DD</span>
+              <span class="badge bg-light text-dark"><i class="bi bi-journal-text me-1"></i>${meetingCount} \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA</span>
+            </div>
+            ${nm ? `<div class="small"><i class="bi bi-calendar-check text-primary me-1"></i>\u05D9\u05E9\u05D9\u05D1\u05D4 \u05D4\u05D1\u05D0\u05D4: <strong>${nm}</strong>${nm < today ? ' <span class="badge bg-warning text-dark">\u05E2\u05D1\u05E8</span>' : ''}</div>` : '<div class="small text-muted"><i class="bi bi-calendar-x me-1"></i>\u05DC\u05D0 \u05E0\u05E7\u05D1\u05E2\u05D4 \u05D9\u05E9\u05D9\u05D1\u05D4</div>'}
+            ${members.length ? `<div class="mt-2 d-flex flex-wrap gap-1">${members.slice(0,4).map(m => {
+              const initials = (m.name || m).split(' ').slice(0,2).map(w=>w[0]).join('');
+              const roleColor = m.role === '\u05D9\u05D5"\u05E8' ? 'primary' : m.role === '\u05DE\u05D6\u05DB\u05D9\u05E8' ? 'info' : 'secondary';
+              return `<span class="badge bg-${roleColor} bg-opacity-10 text-${roleColor}" title="${m.name||m} \u2014 ${m.role||'\u05D7\u05D1\u05E8'}">${initials}</span>`;
+            }).join('')}${members.length > 4 ? `<span class="badge bg-light text-dark">+${members.length-4}</span>` : ''}</div>` : ''}
+          </div>
+          <div class="card-footer bg-transparent border-top-0 pt-0">
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-primary flex-fill" onclick="event.stopPropagation();Pages.showCommMembers('${c.id}')" title="\u05D7\u05D1\u05E8\u05D9\u05DD"><i class="bi bi-person-gear"></i></button>
+              <button class="btn btn-sm btn-outline-info flex-fill" onclick="event.stopPropagation();Pages.showScheduleMeetingModal('${c.id}')" title="\u05E7\u05D1\u05E2 \u05D9\u05E9\u05D9\u05D1\u05D4"><i class="bi bi-calendar-plus"></i></button>
+              <button class="btn btn-sm btn-outline-danger flex-fill" onclick="event.stopPropagation();Pages.deleteCommittee('${c.id}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  },
+
+  // ── Meeting Log View ──
+  _renderCommMeetingLog() {
+    const meetings = [...this._commMeetings].sort((a,b) => b.date.localeCompare(a.date));
+    if (!meetings.length) {
+      document.getElementById('comm-list').innerHTML = '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA</h5></div>';
+      return;
+    }
+    const commMap = {};
+    this._commtData.forEach(c => commMap[c.id] = c);
+
+    document.getElementById('comm-list').innerHTML = `
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light"><tr>
+              <th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E9\u05E2\u05D4</th><th>\u05D5\u05E2\u05D3\u05D4</th><th>\u05DE\u05D9\u05E7\u05D5\u05DD</th><th>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</th><th>\u05D4\u05D7\u05DC\u05D8\u05D5\u05EA</th><th>\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</th><th>\u05D4\u05E6\u05D1\u05E2\u05D5\u05EA</th><th></th>
+            </tr></thead>
+            <tbody>${meetings.map(mt => {
+              const comm = commMap[mt.committeeId] || {};
+              return `<tr style="cursor:pointer" onclick="Pages.showMeetingMinutes('${mt.id}')">
+                <td class="fw-bold">${mt.date}</td>
+                <td>${mt.time || '--'}</td>
+                <td><span class="badge bg-primary bg-opacity-10 text-primary">${comm.name || '--'}</span></td>
+                <td><i class="bi bi-geo-alt me-1"></i>${mt.location || '--'}</td>
+                <td><span class="badge bg-light text-dark">${(mt.attendees||[]).length}</span></td>
+                <td><span class="badge bg-light text-dark">${(mt.decisions||[]).length}</span></td>
+                <td><span class="badge bg-light text-dark">${(mt.actionItems||[]).length}</span></td>
+                <td>${(mt.votes||[]).length ? `<span class="badge bg-warning text-dark"><i class="bi bi-hand-thumbs-up me-1"></i>${mt.votes.length}</span>` : '<span class="text-muted">--</span>'}</td>
+                <td><button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();Pages.showMeetingMinutes('${mt.id}')"><i class="bi bi-eye"></i></button></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+  },
+
+  // ── Committee Detail Modal ──
+  showCommDetail(commId) {
+    const c = this._commtData.find(x => x.id === commId);
+    if (!c) return;
+    const meetings = this._commMeetings.filter(m => m.committeeId === commId).sort((a,b) => b.date.localeCompare(a.date));
+    const members = Array.isArray(c.members) ? c.members : [];
+    const stColor = (c.status || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
+
+    document.getElementById('comm-detail-title').textContent = c.name || '';
+    document.getElementById('comm-detail-body').innerHTML = `
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-${stColor} fs-6">${c.status || '\u05E4\u05E2\u05D9\u05DC'}</span>
+        ${c.nextMeeting ? `<span class="badge bg-info bg-opacity-10 text-info"><i class="bi bi-calendar me-1"></i>\u05D9\u05E9\u05D9\u05D1\u05D4 \u05D4\u05D1\u05D0\u05D4: ${c.nextMeeting}</span>` : ''}
+      </div>
+      <p class="text-muted">${c.purpose || c['\u05EA\u05D9\u05D0\u05D5\u05E8'] || ''}</p>
+
+      <h6 class="fw-bold mt-3 mb-2"><i class="bi bi-person-lines-fill me-2 text-primary"></i>\u05D7\u05D1\u05E8\u05D9\u05DD (${members.length})</h6>
+      ${members.length ? `<div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E9\u05DD</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th></tr></thead><tbody>${members.map(m => {
+        const roleColor = m.role === '\u05D9\u05D5"\u05E8' ? 'primary' : m.role === '\u05DE\u05D6\u05DB\u05D9\u05E8' ? 'info' : 'secondary';
+        return `<tr><td>${m.name || m}</td><td><span class="badge bg-${roleColor}">${m.role || '\u05D7\u05D1\u05E8'}</span></td></tr>`;
+      }).join('')}</tbody></table></div>` : '<p class="text-muted">\u05D0\u05D9\u05DF \u05D7\u05D1\u05E8\u05D9\u05DD</p>'}
+
+      <h6 class="fw-bold mt-3 mb-2"><i class="bi bi-journal-text me-2 text-info"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA (${meetings.length})</h6>
+      ${meetings.length ? `<div class="list-group list-group-flush">${meetings.map(mt => `
+        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="cursor:pointer" onclick="Pages.showMeetingMinutes('${mt.id}');bootstrap.Modal.getInstance(document.getElementById('comm-detail-modal')).hide()">
+          <div>
+            <strong>${mt.date}</strong> ${mt.time || ''} <span class="text-muted">\u2014 ${mt.location || ''}</span>
+            <div class="small text-muted">${mt.agenda || ''}</div>
+          </div>
+          <div class="d-flex gap-1">
+            <span class="badge bg-light text-dark" title="\u05D4\u05D7\u05DC\u05D8\u05D5\u05EA">${(mt.decisions||[]).length} <i class="bi bi-check2"></i></span>
+            ${(mt.votes||[]).length ? `<span class="badge bg-warning text-dark" title="\u05D4\u05E6\u05D1\u05E2\u05D5\u05EA">${mt.votes.length} <i class="bi bi-hand-thumbs-up"></i></span>` : ''}
+          </div>
+        </div>`).join('')}</div>` : '<p class="text-muted">\u05D0\u05D9\u05DF \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA</p>'}
+    `;
+    new bootstrap.Modal(document.getElementById('comm-detail-modal')).show();
+  },
+
+  // ── Meeting Minutes Modal ──
+  showMeetingMinutes(meetingId) {
+    const mt = this._commMeetings.find(m => m.id === meetingId);
+    if (!mt) return;
+    const comm = this._commtData.find(c => c.id === mt.committeeId) || {};
+
+    document.getElementById('comm-minutes-title').textContent = `\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u2014 ${comm.name || ''} \u2014 ${mt.date}`;
+    document.getElementById('comm-minutes-body').innerHTML = `
+      <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="card bg-light p-2 text-center"><i class="bi bi-calendar3 text-primary me-1"></i><strong>${mt.date}</strong> ${mt.time || ''}</div></div>
+        <div class="col-md-4"><div class="card bg-light p-2 text-center"><i class="bi bi-geo-alt text-primary me-1"></i>${mt.location || '--'}</div></div>
+        <div class="col-md-4"><div class="card bg-light p-2 text-center"><i class="bi bi-people text-primary me-1"></i>${(mt.attendees||[]).length} \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</div></div>
+      </div>
+
+      <h6 class="fw-bold"><i class="bi bi-card-text me-2 text-muted"></i>\u05E1\u05D3\u05E8 \u05D9\u05D5\u05DD</h6>
+      <p class="mb-3">${mt.agenda || '--'}</p>
+
+      <h6 class="fw-bold"><i class="bi bi-person-check me-2 text-muted"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</h6>
+      <div class="d-flex flex-wrap gap-1 mb-3">${(mt.attendees||[]).map(a => `<span class="badge bg-primary bg-opacity-10 text-primary">${a}</span>`).join('')}</div>
+
+      <h6 class="fw-bold"><i class="bi bi-check-circle me-2 text-success"></i>\u05D4\u05D7\u05DC\u05D8\u05D5\u05EA</h6>
+      ${(mt.decisions||[]).length ? `<ul class="list-group list-group-flush mb-3">${mt.decisions.map(d => `<li class="list-group-item"><i class="bi bi-check2 text-success me-2"></i>${d}</li>`).join('')}</ul>` : '<p class="text-muted mb-3">\u05D0\u05D9\u05DF \u05D4\u05D7\u05DC\u05D8\u05D5\u05EA</p>'}
+
+      <h6 class="fw-bold"><i class="bi bi-list-task me-2 text-warning"></i>\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05E2\u05D5\u05DC\u05D4</h6>
+      ${(mt.actionItems||[]).length ? `<ul class="list-group list-group-flush mb-3">${mt.actionItems.map(ai => `<li class="list-group-item"><i class="bi bi-arrow-return-left text-warning me-2"></i>${ai}</li>`).join('')}</ul>` : '<p class="text-muted mb-3">\u05D0\u05D9\u05DF \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</p>'}
+
+      ${(mt.votes||[]).length ? `
+      <h6 class="fw-bold"><i class="bi bi-hand-thumbs-up me-2 text-info"></i>\u05D4\u05E6\u05D1\u05E2\u05D5\u05EA</h6>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th>\u05E0\u05D5\u05E9\u05D0</th><th>\u05D1\u05E2\u05D3</th><th>\u05E0\u05D2\u05D3</th><th>\u05E0\u05DE\u05E0\u05E2</th><th>\u05EA\u05D5\u05E6\u05D0\u05D4</th></tr></thead>
+      <tbody>${mt.votes.map(v => {
+        const total = v.inFavor + v.against + v.abstain;
+        const passed = v.inFavor > v.against;
+        return `<tr>
+          <td class="fw-bold">${v.topic}</td>
+          <td><span class="badge bg-success">${v.inFavor}</span></td>
+          <td><span class="badge bg-danger">${v.against}</span></td>
+          <td><span class="badge bg-secondary">${v.abstain}</span></td>
+          <td><span class="badge bg-${passed ? 'success' : 'danger'}">${passed ? '\u05D0\u05D5\u05E9\u05E8' : '\u05E0\u05D3\u05D7\u05D4'}</span></td>
+        </tr>`;
+      }).join('')}</tbody></table></div>` : ''}
+    `;
+    new bootstrap.Modal(document.getElementById('comm-minutes-modal')).show();
+  },
+
+  // ── Add/Edit Committee ──
+  showAddComm(commId) {
+    this._commSelectedId = commId || null;
+    const c = commId ? this._commtData.find(x => x.id === commId) : null;
+    document.getElementById('comm-modal-title').textContent = c ? '\u05E2\u05E8\u05D9\u05DB\u05EA \u05D5\u05E2\u05D3\u05D4' : '\u05D5\u05E2\u05D3\u05D4 \u05D7\u05D3\u05E9\u05D4';
+    document.getElementById('cmf-name').value = c ? (c.name || '') : '';
+    document.getElementById('cmf-purpose').value = c ? (c.purpose || '') : '';
+    document.getElementById('cmf-status').value = c ? (c.status || '\u05E4\u05E2\u05D9\u05DC') : '\u05E4\u05E2\u05D9\u05DC';
+    document.getElementById('cmf-next-meeting').value = c ? (c.nextMeeting || '') : '';
+    new bootstrap.Modal(document.getElementById('committee-modal')).show();
+  },
+
+  async saveCommittee() {
+    const name = document.getElementById('cmf-name').value.trim();
+    const purpose = document.getElementById('cmf-purpose').value.trim();
+    const status = document.getElementById('cmf-status').value;
+    const nextMeeting = document.getElementById('cmf-next-meeting').value;
+
+    if (!name) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD','warning'); return; }
+
+    if (this._commSelectedId) {
+      // Update existing
+      const c = this._commtData.find(x => x.id === this._commSelectedId);
+      if (c) { c.name = name; c.purpose = purpose; c.status = status; c.nextMeeting = nextMeeting; }
+    } else {
+      // Add new
+      const newId = 'cm' + Date.now();
+      this._commtData.push({ id: newId, name, purpose, status, nextMeeting, icon:'people', members:[] });
+    }
+
+    try {
+      const row = {'\u05E9\u05DD': name, '\u05EA\u05D9\u05D0\u05D5\u05E8': purpose, '\u05E1\u05D8\u05D8\u05D5\u05E1': status, '\u05E4\u05D2\u05D9\u05E9\u05D4_\u05D4\u05D1\u05D0\u05D4': nextMeeting};
+      if (this._commSelectedId) {
+        await App.apiCall('update','\u05D5\u05E2\u05D3\u05D5\u05EA',{id: this._commSelectedId, row});
+      } else {
+        await App.apiCall('add','\u05D5\u05E2\u05D3\u05D5\u05EA',{row});
+      }
+    } catch(e) { /* demo mode */ }
+
+    bootstrap.Modal.getInstance(document.getElementById('committee-modal')).hide();
+    Utils.toast(this._commSelectedId ? '\u05D5\u05E2\u05D3\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4' : '\u05D5\u05E2\u05D3\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4');
+    this._commSelectedId = null;
+    this.renderCommittees();
+  },
+
   async deleteCommittee(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D5\u05E2\u05D3\u05D4 \u05D6\u05D5?')) return;
-    try { await App.apiCall('delete','\u05D5\u05E2\u05D3\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.committeesInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    this._commtData = this._commtData.filter(c => c.id !== id);
+    this._commMeetings = this._commMeetings.filter(m => m.committeeId !== id);
+    try { await App.apiCall('delete','\u05D5\u05E2\u05D3\u05D5\u05EA',{id}); } catch(e) {}
+    Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+    this.renderCommittees();
+  },
+
+  // ── Member Management ──
+  showCommMembers(commId) {
+    this._commSelectedId = commId;
+    this._renderCommMemberList();
+    new bootstrap.Modal(document.getElementById('comm-member-modal')).show();
+  },
+
+  _renderCommMemberList() {
+    const c = this._commtData.find(x => x.id === this._commSelectedId);
+    if (!c) return;
+    const members = Array.isArray(c.members) ? c.members : [];
+    document.getElementById('comm-member-list').innerHTML = members.length ? `
+      <div class="list-group list-group-flush">${members.map((m, i) => {
+        const roleColor = m.role === '\u05D9\u05D5"\u05E8' ? 'primary' : m.role === '\u05DE\u05D6\u05DB\u05D9\u05E8' ? 'info' : 'secondary';
+        const initials = (m.name || '').split(' ').slice(0,2).map(w=>w[0]||'').join('');
+        return `<div class="list-group-item d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-${roleColor} rounded-circle" style="width:32px;height:32px;line-height:32px;font-size:0.75rem">${initials}</span>
+            <div><strong>${m.name || m}</strong><br><small class="text-muted">${m.role || '\u05D7\u05D1\u05E8'}</small></div>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" onclick="Pages.removeCommMember(${i})"><i class="bi bi-x-lg"></i></button>
+        </div>`;
+      }).join('')}</div>` : '<p class="text-muted text-center">\u05D0\u05D9\u05DF \u05D7\u05D1\u05E8\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</p>';
+  },
+
+  addCommMember() {
+    const name = document.getElementById('cmm-name').value.trim();
+    const role = document.getElementById('cmm-role').value;
+    if (!name) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD','warning'); return; }
+    const c = this._commtData.find(x => x.id === this._commSelectedId);
+    if (!c) return;
+    if (!Array.isArray(c.members)) c.members = [];
+    c.members.push({name, role});
+    document.getElementById('cmm-name').value = '';
+    this._renderCommMemberList();
+    this.renderCommittees();
+    Utils.toast('\u05D7\u05D1\u05E8 \u05E0\u05D5\u05E1\u05E3');
+  },
+
+  removeCommMember(index) {
+    const c = this._commtData.find(x => x.id === this._commSelectedId);
+    if (!c || !Array.isArray(c.members)) return;
+    c.members.splice(index, 1);
+    this._renderCommMemberList();
+    this.renderCommittees();
+    Utils.toast('\u05D7\u05D1\u05E8 \u05D4\u05D5\u05E1\u05E8');
+  },
+
+  // ── Schedule Meeting ──
+  showScheduleMeetingModal(commId) {
+    const sel = document.getElementById('cms-committee');
+    sel.innerHTML = this._commtData.map(c => `<option value="${c.id}" ${c.id === commId ? 'selected' : ''}>${c.name || c['\u05E9\u05DD'] || ''}</option>`).join('');
+    document.getElementById('cms-date').value = '';
+    document.getElementById('cms-time').value = '';
+    document.getElementById('cms-location').value = '';
+    document.getElementById('cms-agenda').value = '';
+    new bootstrap.Modal(document.getElementById('comm-schedule-modal')).show();
+  },
+
+  saveScheduledMeeting() {
+    const committeeId = document.getElementById('cms-committee').value;
+    const date = document.getElementById('cms-date').value;
+    const time = document.getElementById('cms-time').value;
+    const location = document.getElementById('cms-location').value.trim();
+    const agenda = document.getElementById('cms-agenda').value.trim();
+
+    if (!committeeId || !date) { Utils.toast('\u05D7\u05E1\u05E8 \u05D5\u05E2\u05D3\u05D4 \u05D5\u05EA\u05D0\u05E8\u05D9\u05DA','warning'); return; }
+
+    const newMeeting = {
+      id: 'mt' + Date.now(),
+      committeeId, date, time, location, agenda,
+      attendees: [], decisions: [], actionItems: [], votes: []
+    };
+    this._commMeetings.push(newMeeting);
+
+    // Update committee next meeting if this is upcoming
+    const c = this._commtData.find(x => x.id === committeeId);
+    if (c && (!c.nextMeeting || date < c.nextMeeting || c.nextMeeting < Utils.todayISO())) {
+      c.nextMeeting = date;
+    }
+
+    bootstrap.Modal.getInstance(document.getElementById('comm-schedule-modal')).hide();
+    Utils.toast('\u05D9\u05E9\u05D9\u05D1\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4');
+    this.renderCommittees();
   },
 
 
