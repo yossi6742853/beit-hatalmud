@@ -870,36 +870,519 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     PETTY CASH
+     PETTY CASH — Comprehensive Module v2.0
      ====================================================================== */
+
+  /* ---------- Category definitions ---------- */
+  _pcCategories: {
+    '\u05E6\u05D9\u05D5\u05D3 \u05DE\u05E9\u05E8\u05D3': { icon: 'bi-pen', color: '#2563eb' },
+    '\u05E0\u05D9\u05E7\u05D9\u05D5\u05DF': { icon: 'bi-stars', color: '#16a34a' },
+    '\u05DE\u05D6\u05D5\u05DF': { icon: 'bi-cup-hot', color: '#f59e0b' },
+    '\u05E0\u05E1\u05D9\u05E2\u05D5\u05EA': { icon: 'bi-bus-front', color: '#8b5cf6' },
+    '\u05EA\u05D9\u05E7\u05D5\u05E0\u05D9\u05DD': { icon: 'bi-wrench-adjustable', color: '#dc2626' },
+    '\u05E9\u05D5\u05E0\u05D5\u05EA': { icon: 'bi-three-dots', color: '#06b6d4' }
+  },
+
+  _pcStartingBalance: 2000,
+
+  /* ---------- Demo data: 30 transactions ---------- */
+  _pcDemoData() {
+    const cats = Object.keys(this._pcCategories);
+    const descs = {
+      '\u05E6\u05D9\u05D5\u05D3 \u05DE\u05E9\u05E8\u05D3': ['\u05E0\u05D9\u05D9\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD','\u05D8\u05D5\u05E0\u05E8\u05D9\u05DD \u05DC\u05DE\u05D3\u05E4\u05E1\u05EA','\u05DE\u05D7\u05D1\u05E8\u05D5\u05EA','\u05E7\u05DC\u05E1\u05E8\u05D9\u05DD','\u05E0\u05D9\u05D9\u05E8 \u05D4\u05E2\u05EA\u05E7\u05D4','\u05EA\u05D9\u05E7\u05D9\u05D5\u05EA'],
+      '\u05E0\u05D9\u05E7\u05D9\u05D5\u05DF': ['\u05D7\u05D5\u05DE\u05E8\u05D9 \u05E0\u05D9\u05E7\u05D9\u05D5\u05DF','\u05E1\u05D1\u05D5\u05DF \u05DC\u05E8\u05E6\u05E4\u05D4','\u05DE\u05D2\u05D1\u05D5\u05E0\u05D9\u05DD','\u05E9\u05E7\u05D9\u05D5\u05EA \u05E0\u05D9\u05D9\u05DC\u05D5\u05DF','\u05D0\u05E1\u05E4\u05E7\u05EA \u05DE\u05D9\u05DD'],
+      '\u05DE\u05D6\u05D5\u05DF': ['\u05DB\u05D9\u05D1\u05D5\u05D3 \u05DC\u05E6\u05D5\u05D5\u05EA','\u05D7\u05D8\u05D9\u05E4\u05D9\u05DD \u05DC\u05D0\u05D9\u05E8\u05D5\u05E2','\u05E9\u05EA\u05D9\u05D9\u05D4 \u05D5\u05E2\u05D5\u05D2\u05D9\u05D5\u05EA','\u05D7\u05DC\u05D1 \u05D5\u05D2\u05D1\u05D9\u05E0\u05D4','\u05DE\u05D9\u05DD \u05DE\u05D9\u05E0\u05E8\u05DC\u05D9\u05DD'],
+      '\u05E0\u05E1\u05D9\u05E2\u05D5\u05EA': ['\u05DE\u05D5\u05E0\u05D9\u05EA \u05DC\u05D8\u05D9\u05D5\u05DC','\u05D3\u05DC\u05E7 \u05DC\u05E8\u05DB\u05D1','\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05D4\u05E1\u05E2\u05D4 \u05DC\u05D9\u05E9\u05D9\u05D1\u05D4'],
+      '\u05EA\u05D9\u05E7\u05D5\u05E0\u05D9\u05DD': ['\u05EA\u05D9\u05E7\u05D5\u05DF \u05DE\u05D6\u05D2\u05DF','\u05D4\u05D7\u05DC\u05E4\u05EA \u05DE\u05E0\u05E2\u05D5\u05DC','\u05E6\u05D1\u05D9\u05E2\u05EA \u05E7\u05D9\u05E8','\u05EA\u05D9\u05E7\u05D5\u05DF \u05D7\u05E9\u05DE\u05DC','\u05E9\u05E8\u05D1\u05E8\u05D1'],
+      '\u05E9\u05D5\u05E0\u05D5\u05EA': ['\u05DE\u05EA\u05E0\u05D4 \u05DC\u05DE\u05D1\u05E7\u05E8','\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D7\u05D3-\u05E4\u05E2\u05DE\u05D9\u05D5\u05EA','\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05D8\u05DF','\u05E6\u05D3\u05E7\u05D4']
+    };
+    const now = new Date();
+    const entries = [];
+    // 30 transactions spread over 6 months
+    for (let i = 0; i < 30; i++) {
+      const mOff = Math.floor(i / 5);
+      const day = 1 + (i * 3) % 28;
+      const mo = new Date(now.getFullYear(), now.getMonth() - mOff, day);
+      const moStr = `${mo.getFullYear()}-${String(mo.getMonth()+1).padStart(2,'0')}-${String(mo.getDate()).padStart(2,'0')}`;
+      const isIncome = (i % 7 === 0); // ~4 incomes out of 30
+      const cat = isIncome ? '' : cats[i % cats.length];
+      const descArr = isIncome ? ['\u05D4\u05E4\u05E7\u05D3\u05D4 \u05DE\u05D4\u05E0\u05D4\u05DC\u05D4','\u05D4\u05D7\u05D6\u05E8 \u05E2\u05D5\u05D3\u05E3','\u05D4\u05E9\u05DC\u05DE\u05D4 \u05DE\u05D4\u05D5\u05E8\u05D9\u05DD','\u05DE\u05D9\u05DE\u05D5\u05DF \u05E7\u05D5\u05E4\u05D4'] : (descs[cat] || ['\u05E4\u05E2\u05D5\u05DC\u05D4']);
+      const receiptNum = isIncome ? '' : String(1000 + i);
+      entries.push({
+        '\u05DE\u05D6\u05D4\u05D4': 'pc-' + (i + 1),
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': moStr,
+        '\u05E1\u05D5\u05D2': isIncome ? '\u05D4\u05DB\u05E0\u05E1\u05D4' : '\u05D4\u05D5\u05E6\u05D0\u05D4',
+        '\u05EA\u05D9\u05D0\u05D5\u05E8': descArr[i % descArr.length],
+        '\u05E1\u05DB\u05D5\u05DD': isIncome ? (300 + Math.round(Math.random() * 700)) : (15 + Math.round(Math.random() * 250)),
+        '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': cat,
+        '\u05E7\u05D1\u05DC\u05D4': receiptNum
+      });
+    }
+    // Sort by date ascending
+    entries.sort((a, b) => a['\u05EA\u05D0\u05E8\u05D9\u05DA'].localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA']));
+    return entries;
+  },
+
+  /* ---------- Main page render ---------- */
   pettycash() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-cash-coin me-2"></i>\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddPc()"><i class="bi bi-plus-lg me-1"></i>\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4</button></div><div class="row g-2 mb-3"><div class="col-md-3 col-6"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="pc-in">\u20AA0</div><small>\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA</small></div></div><div class="col-md-3 col-6"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="pc-out">\u20AA0</div><small>\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</small></div></div><div class="col-md-3 col-6"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="pc-balance">\u20AA0</div><small>\u05D9\u05EA\u05E8\u05D4</small></div></div><div class="col-md-3 col-6"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="pc-count">0</div><small>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</small></div></div></div><div id="pc-list">${Utils.skeleton(3)}</div><div class="modal fade" id="pc-modal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label">\u05E1\u05D5\u05D2</label><select class="form-select" id="pcf-type"><option>\u05D4\u05DB\u05E0\u05E1\u05D4</option><option>\u05D4\u05D5\u05E6\u05D0\u05D4</option></select></div><div class="mb-3"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="pcf-desc"></div><div class="mb-3"><label class="form-label">\u05E1\u05DB\u05D5\u05DD</label><input type="number" class="form-control" id="pcf-amount"></div></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary btn-sm" onclick="Pages.savePc()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    const catOpts = Object.keys(this._pcCategories).map(c => `<option value="${c}">${c}</option>`).join('');
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-cash-coin me-2"></i>\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4</h1></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" onclick="Pages.showCashCount()"><i class="bi bi-calculator me-1"></i>\u05E1\u05E4\u05D9\u05E8\u05EA \u05E7\u05D5\u05E4\u05D4</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddPc()"><i class="bi bi-plus-lg me-1"></i>\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+      </div>
+    </div>
+
+    <!-- Balance card -->
+    <div class="card mb-3 border-0 shadow-sm" style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
+      <div class="card-body text-white text-center py-4">
+        <div class="text-white-50 mb-1">\u05D9\u05EA\u05E8\u05EA \u05E7\u05D5\u05E4\u05D4 \u05E0\u05D5\u05DB\u05D7\u05D9\u05EA</div>
+        <div class="display-4 fw-bold" id="pc-balance">\u20AA0</div>
+        <div class="d-flex justify-content-center gap-4 mt-3">
+          <div><i class="bi bi-arrow-down-circle text-success-subtle fs-5 me-1"></i><span id="pc-in" class="fw-semibold">0</span><br><small class="text-white-50">\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA</small></div>
+          <div><i class="bi bi-arrow-up-circle text-danger-subtle fs-5 me-1"></i><span id="pc-out" class="fw-semibold">0</span><br><small class="text-white-50">\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</small></div>
+          <div><i class="bi bi-receipt fs-5 me-1"></i><span id="pc-count" class="fw-semibold">0</span><br><small class="text-white-50">\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trend arrows row -->
+    <div class="row g-2 mb-3">
+      <div class="col-md-4 col-6"><div class="card p-3 text-center" id="pc-trend-in"><div class="fs-5 fw-bold text-success" id="pc-month-in">\u20AA0</div><small>\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05D4\u05D7\u05D5\u05D3\u05E9</small><div id="pc-trend-in-arrow"></div></div></div>
+      <div class="col-md-4 col-6"><div class="card p-3 text-center" id="pc-trend-out"><div class="fs-5 fw-bold text-danger" id="pc-month-out">\u20AA0</div><small>\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D4\u05D7\u05D5\u05D3\u05E9</small><div id="pc-trend-out-arrow"></div></div></div>
+      <div class="col-md-4 col-12"><div class="card p-3 text-center"><div class="fs-5 fw-bold text-primary" id="pc-month-net">\u20AA0</div><small>\u05E0\u05D8\u05D5 \u05D4\u05D7\u05D5\u05D3\u05E9</small></div></div>
+    </div>
+
+    <!-- Category breakdown cards -->
+    <div class="row g-2 mb-3" id="pc-cat-cards"></div>
+
+    <!-- Charts row -->
+    <div class="row g-3 mb-3">
+      <div class="col-md-7"><div class="card p-3"><h6 class="mb-3"><i class="bi bi-bar-chart me-1"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9</h6><canvas id="pc-monthly-chart" height="220"></canvas></div></div>
+      <div class="col-md-5"><div class="card p-3"><h6 class="mb-3"><i class="bi bi-pie-chart me-1"></i>\u05E4\u05D9\u05DC\u05D5\u05D7 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</h6><canvas id="pc-cat-chart" height="220"></canvas></div></div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="card p-2 mb-3">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <input type="text" class="form-control form-control-sm" id="pc-filter-text" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." style="max-width:200px" oninput="Pages.filterPcTable()">
+        <select class="form-select form-select-sm" id="pc-filter-type" style="max-width:130px" onchange="Pages.filterPcTable()">
+          <option value="">\u05DB\u05DC \u05D4\u05E1\u05D5\u05D2\u05D9\u05DD</option>
+          <option value="\u05D4\u05DB\u05E0\u05E1\u05D4">\u05D4\u05DB\u05E0\u05E1\u05D4</option>
+          <option value="\u05D4\u05D5\u05E6\u05D0\u05D4">\u05D4\u05D5\u05E6\u05D0\u05D4</option>
+        </select>
+        <select class="form-select form-select-sm" id="pc-filter-cat" style="max-width:150px" onchange="Pages.filterPcTable()">
+          <option value="">\u05DB\u05DC \u05D4\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D5\u05EA</option>
+          ${catOpts}
+        </select>
+      </div>
+    </div>
+
+    <!-- Transaction log table -->
+    <div id="pc-list">${Utils.skeleton(3)}</div>
+
+    <!-- Add/Edit Transaction Modal -->
+    <div class="modal fade" id="pc-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="pc-modal-title">\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">\u05E1\u05D5\u05D2</label>
+                <select class="form-select" id="pcf-type" onchange="Pages.pcTypeChanged()">
+                  <option value="\u05D4\u05DB\u05E0\u05E1\u05D4">\u05D4\u05DB\u05E0\u05E1\u05D4</option>
+                  <option value="\u05D4\u05D5\u05E6\u05D0\u05D4">\u05D4\u05D5\u05E6\u05D0\u05D4</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label>
+                <input type="date" class="form-control" id="pcf-date">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">\u05E1\u05DB\u05D5\u05DD (\u20AA)</label>
+                <input type="number" class="form-control" id="pcf-amount" min="0" step="0.01">
+              </div>
+              <div class="col-md-6" id="pcf-cat-wrap">
+                <label class="form-label">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label>
+                <select class="form-select" id="pcf-cat">
+                  ${catOpts}
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label>
+                <input class="form-control" id="pcf-desc" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05E4\u05E2\u05D5\u05DC\u05D4">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">\u05DE\u05E1\u05E4\u05E8 \u05E7\u05D1\u05DC\u05D4</label>
+                <input class="form-control" id="pcf-receipt" placeholder="\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+            <button class="btn btn-primary btn-sm" onclick="Pages.savePc()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cash Count Modal -->
+    <div class="modal fade" id="pc-count-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-calculator me-2"></i>\u05E1\u05E4\u05D9\u05E8\u05EA \u05E7\u05D5\u05E4\u05D4</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted">\u05D4\u05D6\u05D9\u05E0\u05D5 \u05D0\u05EA \u05DB\u05DE\u05D5\u05EA \u05D4\u05E9\u05D8\u05E8\u05D5\u05EA \u05D5\u05D4\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05E9\u05D1\u05E7\u05D5\u05E4\u05D4:</p>
+            <div class="row g-2 mb-3">
+              <div class="col-4"><label class="form-label">\u20AA200</label><input type="number" class="form-control form-control-sm pc-denom" data-val="200" min="0" value="0" oninput="Pages.calcCashCount()"></div>
+              <div class="col-4"><label class="form-label">\u20AA100</label><input type="number" class="form-control form-control-sm pc-denom" data-val="100" min="0" value="0" oninput="Pages.calcCashCount()"></div>
+              <div class="col-4"><label class="form-label">\u20AA50</label><input type="number" class="form-control form-control-sm pc-denom" data-val="50" min="0" value="0" oninput="Pages.calcCashCount()"></div>
+              <div class="col-4"><label class="form-label">\u20AA20</label><input type="number" class="form-control form-control-sm pc-denom" data-val="20" min="0" value="0" oninput="Pages.calcCashCount()"></div>
+              <div class="col-4"><label class="form-label">\u20AA10</label><input type="number" class="form-control form-control-sm pc-denom" data-val="10" min="0" value="0" oninput="Pages.calcCashCount()"></div>
+              <div class="col-4"><label class="form-label">\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA</label><input type="number" class="form-control form-control-sm" id="pc-coins" min="0" value="0" step="0.5" oninput="Pages.calcCashCount()"></div>
+            </div>
+            <hr>
+            <div class="row text-center">
+              <div class="col-4">
+                <div class="text-muted small">\u05E1\u05E4\u05D9\u05E8\u05D4 \u05E4\u05D9\u05D6\u05D9\u05EA</div>
+                <div class="fs-4 fw-bold text-primary" id="pc-physical-count">\u20AA0</div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small">\u05D9\u05EA\u05E8\u05D4 \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA</div>
+                <div class="fs-4 fw-bold" id="pc-system-bal">\u20AA0</div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small">\u05D4\u05E4\u05E8\u05E9</div>
+                <div class="fs-4 fw-bold" id="pc-diff">\u20AA0</div>
+              </div>
+            </div>
+            <div class="alert mt-3 d-none" id="pc-count-alert"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">\u05E1\u05D2\u05D5\u05E8</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
   },
+
   _pcData: [],
-  async pettycashInit() { this._pcData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4'); this.renderPc(); },
+  _pcEditId: null,
+  _pcMonthlyChart: null,
+  _pcCatChart: null,
+
+  async pettycashInit() {
+    try {
+      this._pcData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+    } catch(e) {
+      this._pcData = [];
+    }
+    if (!this._pcData || !this._pcData.length) this._pcData = this._pcDemoData();
+    this.renderPc();
+  },
+
   renderPc() {
-    let tIn=0, tOut=0; this._pcData.forEach(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; if (r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4') tIn+=a; else tOut+=a; });
-    document.getElementById('pc-in').textContent = '\u20AA'+tIn.toLocaleString();
-    document.getElementById('pc-out').textContent = '\u20AA'+tOut.toLocaleString();
-    document.getElementById('pc-balance').textContent = '\u20AA'+(tIn-tOut).toLocaleString();
-    document.getElementById('pc-count').textContent = this._pcData.length;
-    if (!this._pcData.length) { document.getElementById('pc-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-coin"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5></div>'; return; }
-    let bal=0; document.getElementById('pc-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05D9\u05EA\u05E8\u05D4</th><th></th></tr></thead><tbody>${this._pcData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const pcId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); if (r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4') bal+=a; else bal-=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'bg-success':'bg-danger'}">${r['\u05E1\u05D5\u05D2']}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold ${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'text-success':'text-danger'}">${r['\u05E1\u05D5\u05D2']==='\u05D4\u05DB\u05E0\u05E1\u05D4'?'+':'-'}\u20AA${a}</td><td class="fw-bold">\u20AA${bal}</td><td><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editPc('${pcId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deletePc('${pcId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
+    const data = this._pcData;
+    const startBal = this._pcStartingBalance;
+    let tIn = startBal, tOut = 0;
+    const now = new Date();
+    const curMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    let mIn = 0, mOut = 0, prevMIn = 0, prevMOut = 0;
+    const prevMonth = now.getMonth() === 0
+      ? `${now.getFullYear()-1}-12`
+      : `${now.getFullYear()}-${String(now.getMonth()).padStart(2,'0')}`;
+    const catTotals = {};
+
+    data.forEach(r => {
+      const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+      const isIn = r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4';
+      const mo = (r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').substring(0, 7);
+      if (isIn) { tIn += a; } else { tOut += a; }
+      if (mo === curMonth) { if (isIn) mIn += a; else mOut += a; }
+      if (mo === prevMonth) { if (isIn) prevMIn += a; else prevMOut += a; }
+      if (!isIn && r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']) {
+        catTotals[r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']] = (catTotals[r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']] || 0) + a;
+      }
+    });
+
+    const balance = tIn - tOut;
+
+    // Balance card
+    document.getElementById('pc-balance').textContent = '\u20AA' + balance.toLocaleString();
+    document.getElementById('pc-in').textContent = '\u20AA' + tIn.toLocaleString();
+    document.getElementById('pc-out').textContent = '\u20AA' + tOut.toLocaleString();
+    document.getElementById('pc-count').textContent = data.length;
+
+    // Month trends
+    document.getElementById('pc-month-in').textContent = '\u20AA' + mIn.toLocaleString();
+    document.getElementById('pc-month-out').textContent = '\u20AA' + mOut.toLocaleString();
+    document.getElementById('pc-month-net').textContent = '\u20AA' + (mIn - mOut).toLocaleString();
+    const trendArrow = (cur, prev) => {
+      if (prev === 0) return '';
+      const pct = Math.round(((cur - prev) / prev) * 100);
+      if (pct > 0) return `<small class="text-danger"><i class="bi bi-arrow-up"></i> ${pct}%</small>`;
+      if (pct < 0) return `<small class="text-success"><i class="bi bi-arrow-down"></i> ${Math.abs(pct)}%</small>`;
+      return '<small class="text-muted">\u2014</small>';
+    };
+    document.getElementById('pc-trend-in-arrow').innerHTML = trendArrow(mIn, prevMIn);
+    document.getElementById('pc-trend-out-arrow').innerHTML = trendArrow(mOut, prevMOut);
+
+    // Category cards
+    const catHtml = Object.entries(this._pcCategories).map(([name, cfg]) => {
+      const total = catTotals[name] || 0;
+      return `<div class="col-md-2 col-4"><div class="card p-2 text-center h-100">
+        <i class="bi ${cfg.icon} fs-4" style="color:${cfg.color}"></i>
+        <div class="fw-bold small mt-1">${name}</div>
+        <div class="text-muted small">\u20AA${total.toLocaleString()}</div>
+      </div></div>`;
+    }).join('');
+    document.getElementById('pc-cat-cards').innerHTML = catHtml;
+
+    // Render table
+    this._renderPcTable(data, startBal);
+
+    // Charts
+    this._renderPcMonthlyChart(data);
+    this._renderPcCatChart(catTotals);
   },
-  showAddPc() { this._pcEditId=null; document.getElementById('pcf-type').value='\u05D4\u05DB\u05E0\u05E1\u05D4'; document.getElementById('pcf-desc').value=''; document.getElementById('pcf-amount').value=''; new bootstrap.Modal(document.getElementById('pc-modal')).show(); },
-  async savePc() { const row = {'\u05E1\u05D5\u05D2':document.getElementById('pcf-type').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('pcf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('pcf-amount').value,'\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}; if (!row['\u05EA\u05D9\u05D0\u05D5\u05E8']||!row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; } try { if (this._pcEditId) { await App.apiCall('update','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{id:this._pcEditId,row}); this._pcEditId=null; } else { await App.apiCall('add','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{row}); } bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  _renderPcTable(data, startBal) {
+    if (!data.length) {
+      document.getElementById('pc-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-coin"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5></div>';
+      return;
+    }
+    let bal = startBal;
+    const cats = this._pcCategories;
+    const rows = data.map(r => {
+      const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+      const isIn = r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4';
+      const pcId = r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r);
+      if (isIn) bal += a; else bal -= a;
+      const catCfg = cats[r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']] || {};
+      const catBadge = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']
+        ? `<span class="badge" style="background:${catCfg.color || '#6c757d'}"><i class="bi ${catCfg.icon || ''} me-1"></i>${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']}</span>`
+        : '<span class="text-muted">\u2014</span>';
+      return `<tr data-type="${r['\u05E1\u05D5\u05D2']}" data-cat="${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || ''}" data-desc="${(r['\u05EA\u05D9\u05D0\u05D5\u05E8']||'').toLowerCase()}">
+        <td><small>${r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</small></td>
+        <td><span class="badge ${isIn ? 'bg-success' : 'bg-danger'}">${r['\u05E1\u05D5\u05D2']}</span></td>
+        <td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || ''}</td>
+        <td>${catBadge}</td>
+        <td class="fw-bold ${isIn ? 'text-success' : 'text-danger'}">${isIn ? '+' : '-'}\u20AA${a.toLocaleString()}</td>
+        <td><small>${r['\u05E7\u05D1\u05DC\u05D4'] || ''}</small></td>
+        <td class="fw-bold">\u20AA${bal.toLocaleString()}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editPc('${pcId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="Pages.deletePc('${pcId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`;
+    }).join('');
+    document.getElementById('pc-list').innerHTML = `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+      <thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E7\u05D1\u05DC\u05D4</th><th>\u05D9\u05EA\u05E8\u05D4</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>`;
+  },
+
+  filterPcTable() {
+    const text = (document.getElementById('pc-filter-text').value || '').toLowerCase();
+    const type = document.getElementById('pc-filter-type').value;
+    const cat = document.getElementById('pc-filter-cat').value;
+    document.querySelectorAll('#pc-list tbody tr').forEach(tr => {
+      const matchText = !text || (tr.dataset.desc || '').includes(text);
+      const matchType = !type || tr.dataset.type === type;
+      const matchCat = !cat || tr.dataset.cat === cat;
+      tr.style.display = (matchText && matchType && matchCat) ? '' : 'none';
+    });
+  },
+
+  /* ---------- Monthly bar chart (income vs expenses) ---------- */
+  _renderPcMonthlyChart(data) {
+    const months = {};
+    data.forEach(r => {
+      const mo = (r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').substring(0, 7);
+      if (!mo) return;
+      if (!months[mo]) months[mo] = { in: 0, out: 0 };
+      const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+      if (r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4') months[mo].in += a;
+      else months[mo].out += a;
+    });
+    const labels = Object.keys(months).sort();
+    const incomeData = labels.map(l => months[l].in);
+    const expenseData = labels.map(l => months[l].out);
+    const ctx = document.getElementById('pc-monthly-chart');
+    if (!ctx) return;
+    if (this._pcMonthlyChart) this._pcMonthlyChart.destroy();
+    this._pcMonthlyChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: '\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA', data: incomeData, backgroundColor: 'rgba(22,163,74,0.7)', borderRadius: 4 },
+          { label: '\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA', data: expenseData, backgroundColor: 'rgba(220,38,38,0.7)', borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '\u20AA' + v } } }
+      }
+    });
+  },
+
+  /* ---------- Category pie chart ---------- */
+  _renderPcCatChart(catTotals) {
+    const cats = this._pcCategories;
+    const labels = Object.keys(cats).filter(c => catTotals[c] > 0);
+    const values = labels.map(c => catTotals[c]);
+    const colors = labels.map(c => cats[c].color);
+    const ctx = document.getElementById('pc-cat-chart');
+    if (!ctx) return;
+    if (this._pcCatChart) this._pcCatChart.destroy();
+    if (!labels.length) { ctx.parentElement.innerHTML += '<div class="text-center text-muted mt-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>'; return; }
+    this._pcCatChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12 } },
+          tooltip: { callbacks: { label: ctx2 => `${ctx2.label}: \u20AA${ctx2.raw.toLocaleString()} (${Math.round(ctx2.raw / values.reduce((a,b)=>a+b,0) * 100)}%)` } }
+        }
+      }
+    });
+  },
+
+  /* ---------- Add / Edit ---------- */
+  showAddPc() {
+    this._pcEditId = null;
+    document.getElementById('pc-modal-title').textContent = '\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4';
+    document.getElementById('pcf-type').value = '\u05D4\u05D5\u05E6\u05D0\u05D4';
+    document.getElementById('pcf-desc').value = '';
+    document.getElementById('pcf-amount').value = '';
+    document.getElementById('pcf-date').value = Utils.todayISO();
+    document.getElementById('pcf-receipt').value = '';
+    document.getElementById('pcf-cat').value = Object.keys(this._pcCategories)[0];
+    this.pcTypeChanged();
+    new bootstrap.Modal(document.getElementById('pc-modal')).show();
+  },
+
+  pcTypeChanged() {
+    const isIncome = document.getElementById('pcf-type').value === '\u05D4\u05DB\u05E0\u05E1\u05D4';
+    document.getElementById('pcf-cat-wrap').style.display = isIncome ? 'none' : '';
+  },
+
+  async savePc() {
+    const type = document.getElementById('pcf-type').value;
+    const row = {
+      '\u05E1\u05D5\u05D2': type,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('pcf-desc').value.trim(),
+      '\u05E1\u05DB\u05D5\u05DD': document.getElementById('pcf-amount').value,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('pcf-date').value || Utils.todayISO(),
+      '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': type === '\u05D4\u05D5\u05E6\u05D0\u05D4' ? document.getElementById('pcf-cat').value : '',
+      '\u05E7\u05D1\u05DC\u05D4': document.getElementById('pcf-receipt').value.trim()
+    };
+    if (!row['\u05EA\u05D9\u05D0\u05D5\u05E8'] || !row['\u05E1\u05DB\u05D5\u05DD']) {
+      Utils.toast('\u05D7\u05E1\u05E8 \u05EA\u05D9\u05D0\u05D5\u05E8 \u05D5\u05E1\u05DB\u05D5\u05DD', 'warning');
+      return;
+    }
+    try {
+      if (this._pcEditId) {
+        await App.apiCall('update', '\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4', { id: this._pcEditId, row });
+        this._pcEditId = null;
+      } else {
+        await App.apiCall('add', '\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide();
+      Utils.toast('\u05E0\u05E9\u05DE\u05E8');
+      this.pettycashInit();
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
+  },
+
+  /* ---------- Delete ---------- */
   async deletePc(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5?')) return;
-    try { await App.apiCall('delete','\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.pettycashInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05D6\u05D5?')) return;
+    try {
+      await App.apiCall('delete', '\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4', { id });
+      Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+      this.pettycashInit();
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
   },
+
+  /* ---------- Edit ---------- */
   editPc(id) {
-    var item = this._pcData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    const item = this._pcData.find(r => (r.id || r['\u05DE\u05D6\u05D4\u05D4'] || '') == id);
     if (!item) return;
-    document.getElementById('pcf-type').value = item['\u05E1\u05D5\u05D2'] || '\u05D4\u05DB\u05E0\u05E1\u05D4';
+    this._pcEditId = id;
+    document.getElementById('pc-modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05E4\u05E2\u05D5\u05DC\u05D4';
+    document.getElementById('pcf-type').value = item['\u05E1\u05D5\u05D2'] || '\u05D4\u05D5\u05E6\u05D0\u05D4';
     document.getElementById('pcf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
     document.getElementById('pcf-amount').value = item['\u05E1\u05DB\u05D5\u05DD'] || '';
-    this._pcEditId = id;
+    document.getElementById('pcf-date').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+    document.getElementById('pcf-cat').value = item['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || Object.keys(this._pcCategories)[0];
+    document.getElementById('pcf-receipt').value = item['\u05E7\u05D1\u05DC\u05D4'] || '';
+    this.pcTypeChanged();
     new bootstrap.Modal(document.getElementById('pc-modal')).show();
+  },
+
+  /* ---------- Cash Count / Reconciliation ---------- */
+  showCashCount() {
+    // Reset denomination fields
+    document.querySelectorAll('.pc-denom').forEach(el => el.value = '0');
+    document.getElementById('pc-coins').value = '0';
+    // Calculate system balance
+    let bal = this._pcStartingBalance;
+    this._pcData.forEach(r => {
+      const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+      if (r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4') bal += a; else bal -= a;
+    });
+    document.getElementById('pc-system-bal').textContent = '\u20AA' + bal.toLocaleString();
+    document.getElementById('pc-physical-count').textContent = '\u20AA0';
+    document.getElementById('pc-diff').textContent = '\u20AA0';
+    document.getElementById('pc-diff').className = 'fs-4 fw-bold';
+    document.getElementById('pc-count-alert').classList.add('d-none');
+    new bootstrap.Modal(document.getElementById('pc-count-modal')).show();
+  },
+
+  calcCashCount() {
+    let total = 0;
+    document.querySelectorAll('.pc-denom').forEach(el => {
+      total += (parseInt(el.value) || 0) * parseInt(el.dataset.val);
+    });
+    total += parseFloat(document.getElementById('pc-coins').value) || 0;
+
+    // System balance
+    let sysBal = this._pcStartingBalance;
+    this._pcData.forEach(r => {
+      const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+      if (r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4') sysBal += a; else sysBal -= a;
+    });
+
+    const diff = total - sysBal;
+    document.getElementById('pc-physical-count').textContent = '\u20AA' + total.toLocaleString();
+    document.getElementById('pc-diff').textContent = (diff >= 0 ? '+' : '') + '\u20AA' + diff.toLocaleString();
+    document.getElementById('pc-diff').className = 'fs-4 fw-bold ' + (diff === 0 ? 'text-success' : 'text-danger');
+
+    const alert = document.getElementById('pc-count-alert');
+    alert.classList.remove('d-none');
+    if (diff === 0) {
+      alert.className = 'alert mt-3 alert-success';
+      alert.innerHTML = '<i class="bi bi-check-circle me-2"></i>\u05DE\u05E6\u05D5\u05D9\u05DF! \u05D4\u05E7\u05D5\u05E4\u05D4 \u05DE\u05D0\u05D5\u05D6\u05E0\u05EA.';
+    } else {
+      alert.className = 'alert mt-3 alert-warning';
+      alert.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>\u05D4\u05E4\u05E8\u05E9 \u05E9\u05DC ${diff > 0 ? '\u05E2\u05D5\u05D3\u05E3' : '\u05D7\u05E1\u05E8'} \u20AA${Math.abs(diff).toLocaleString()}`;
+    }
   },
 
 
