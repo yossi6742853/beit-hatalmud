@@ -1031,11 +1031,14 @@ const App = {
      AUTO-SAVE INDICATOR
      ============================== */
   initAutoSaveIndicator() {
-    const orig = localStorage.setItem.bind(localStorage);
-    localStorage.setItem = (...args) => {
-      orig(...args);
-      this.showSaveIndicator();
-    };
+    try {
+      const orig = Storage.prototype.setItem;
+      const self = this;
+      Storage.prototype.setItem = function(...args) {
+        orig.apply(this, args);
+        self.showSaveIndicator();
+      };
+    } catch(e) { /* ignore if override fails */ }
   },
 
   showSaveIndicator() {

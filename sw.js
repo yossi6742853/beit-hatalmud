@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v5.5-0422';
+const CACHE_VERSION = 'bht-v5.6-0422b';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
