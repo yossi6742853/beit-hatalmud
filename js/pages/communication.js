@@ -624,83 +624,217 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     AI ASSISTANT
+     AI ASSISTANT — Comprehensive Chat Interface
      ====================================================================== */
   ai_assistant() {
+    const chips = [
+      {text:'\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9?', icon:'bi-people', color:'primary'},
+      {text:'\u05DE\u05D9 \u05E0\u05E2\u05D3\u05E8 \u05D4\u05D9\u05D5\u05DD?', icon:'bi-person-x', color:'danger'},
+      {text:'\u05E1\u05D8\u05D8\u05D5\u05E1 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD', icon:'bi-cash-coin', color:'success'},
+      {text:'\u05E6\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D9\u05EA\u05D4 \u05D0', icon:'bi-mortarboard', color:'info'},
+      {text:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA', icon:'bi-list-task', color:'warning'},
+      {text:'\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05D4\u05E9\u05D1\u05D5\u05E2', icon:'bi-calendar-event', color:'secondary'},
+      {text:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF', icon:'bi-exclamation-triangle', color:'danger'},
+      {text:'\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9', icon:'bi-clipboard-data', color:'primary'}
+    ];
+    const chipsHtml = chips.map(c =>
+      `<button class="btn btn-outline-${c.color} btn-sm rounded-pill px-3 py-1" onclick="Pages.askSample('${c.text}')"><i class="bi ${c.icon} me-1"></i>${c.text}</button>`
+    ).join('');
+
     return `
-    <div class="page-header"><h1><i class="bi bi-robot me-2"></i>\u05E2\u05D5\u05D6\u05E8 \u05D7\u05DB\u05DD</h1><p>\u05E9\u05D0\u05DC \u05E9\u05D0\u05DC\u05D5\u05EA \u05E2\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3, \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p></div>
-    <div class="row g-3">
-      <div class="col-lg-8">
-        <div class="card p-3">
-          <div id="ai-chat" style="height:450px;overflow-y:auto;border:1px solid var(--bht-border);border-radius:12px;padding:1rem;background:var(--bht-body-bg)">
-            <div class="text-center py-4">
-              <i class="bi bi-robot fs-1 text-primary"></i>
-              <h5 class="mt-2">\u05E9\u05DC\u05D5\u05DD! \u05D0\u05E0\u05D9 \u05D4\u05E2\u05D5\u05D6\u05E8 \u05D4\u05D7\u05DB\u05DD \u05E9\u05DC \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h5>
-              <p class="text-muted small">\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05E2\u05DC \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD, \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p>
-            </div>
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-robot me-2"></i>\u05E2\u05D5\u05D6\u05E8 \u05D7\u05DB\u05DD</h1>
+        <p class="text-muted mb-0">\u05E9\u05D0\u05DC \u05E9\u05D0\u05DC\u05D5\u05EA \u05E2\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3, \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" onclick="Pages.clearAiChat()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05E9\u05D9\u05D7\u05D4</button>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:500px">
+      <!-- Chat messages area -->
+      <div id="ai-chat" style="flex:1;overflow-y:auto;padding:1.25rem;background:var(--bht-body-bg)">
+        <div id="ai-welcome" class="text-center py-5">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width:80px;height:80px">
+            <i class="bi bi-robot fs-1 text-primary"></i>
           </div>
-          <div class="input-group mt-3">
-            <input type="text" class="form-control form-control-lg" id="ai-input" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05E9\u05D0\u05DC\u05D4..." onkeydown="if(event.key==='Enter')Pages.sendAi()">
-            <button class="btn btn-primary px-4" onclick="Pages.sendAi()"><i class="bi bi-send-fill"></i></button>
+          <h4 class="fw-bold mb-2">\u05E9\u05DC\u05D5\u05DD! \u05D0\u05E0\u05D9 \u05D4\u05E2\u05D5\u05D6\u05E8 \u05D4\u05D7\u05DB\u05DD \u05E9\u05DC \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h4>
+          <p class="text-muted mb-4">\u05E9\u05D0\u05DC \u05D0\u05D5\u05EA\u05D9 \u05DB\u05DC \u05E9\u05D0\u05DC\u05D4 \u05E2\u05DC \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DB\u05E1\u05E4\u05D9\u05DD, \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05D5\u05E2\u05D5\u05D3</p>
+          <div class="d-flex flex-wrap justify-content-center gap-2 px-3" id="ai-chips">
+            ${chipsHtml}
           </div>
         </div>
       </div>
-      <div class="col-lg-4">
-        <div class="card p-3">
-          <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2 text-warning"></i>\u05E9\u05D0\u05DC\u05D5\u05EA \u05DC\u05D3\u05D5\u05D2\u05DE\u05D4</h6>
-          <div class="d-grid gap-2">
-            <button class="btn btn-outline-primary btn-sm text-start" onclick="Pages.askSample('\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9 \u05D1\u05DE\u05D5\u05E1\u05D3?')"><i class="bi bi-people me-2"></i>\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9 \u05D1\u05DE\u05D5\u05E1\u05D3?</button>
-            <button class="btn btn-outline-success btn-sm text-start" onclick="Pages.askSample('\u05DE\u05D4 \u05DE\u05E6\u05D1 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E9\u05D1\u05D5\u05E2?')"><i class="bi bi-calendar-check me-2"></i>\u05DE\u05D4 \u05DE\u05E6\u05D1 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E9\u05D1\u05D5\u05E2?</button>
-            <button class="btn btn-outline-danger btn-sm text-start" onclick="Pages.askSample('\u05DB\u05DE\u05D4 \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D9\u05E9?')"><i class="bi bi-cash me-2"></i>\u05DB\u05DE\u05D4 \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D9\u05E9?</button>
-            <button class="btn btn-outline-warning btn-sm text-start" onclick="Pages.askSample('\u05EA\u05DF \u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05DC\u05DC\u05D9 \u05E9\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3')"><i class="bi bi-bar-chart me-2"></i>\u05EA\u05DF \u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05DC\u05DC\u05D9</button>
-            <button class="btn btn-outline-info btn-sm text-start" onclick="Pages.askSample('\u05DE\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05E0\u05DE\u05D5\u05DB\u05D4?')"><i class="bi bi-exclamation-triangle me-2"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF</button>
-            <button class="btn btn-outline-secondary btn-sm text-start" onclick="Pages.askSample('\u05EA\u05DB\u05D9\u05DF \u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA')"><i class="bi bi-star me-2"></i>\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</button>
-          </div>
-        </div>
-        <div class="card p-3 mt-3">
-          <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-2"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</h6>
-          <button class="btn btn-outline-danger btn-sm" onclick="Pages.clearAiChat()"><i class="bi bi-trash me-1"></i>\u05E0\u05E7\u05D4 \u05E9\u05D9\u05D7\u05D4</button>
+
+      <!-- Input bar -->
+      <div class="border-top p-3" style="background:var(--bht-card-bg)">
+        <div class="input-group input-group-lg">
+          <button class="btn btn-outline-secondary" disabled title="\u05DE\u05D9\u05E7\u05E8\u05D5\u05E4\u05D5\u05DF (\u05D1\u05E7\u05E8\u05D5\u05D1)"><i class="bi bi-mic"></i></button>
+          <input type="text" class="form-control" id="ai-input" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05E9\u05D0\u05DC\u05D4..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Pages.sendAi()}" style="font-size:1rem">
+          <button class="btn btn-primary px-4" onclick="Pages.sendAi()" id="ai-send-btn"><i class="bi bi-send-fill"></i> \u05E9\u05DC\u05D7</button>
         </div>
       </div>
     </div>`;
   },
+
   _aiHistory: [],
+
+  _aiFormatTime(date) {
+    return date.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'});
+  },
+
+  _aiRenderBubble(role, text, time) {
+    if (role === 'user') {
+      return `<div class="d-flex justify-content-start mb-3 ai-msg-row">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle flex-shrink-0 me-2" style="width:36px;height:36px;font-size:0.85rem"><i class="bi bi-person-fill"></i></div>
+        <div>
+          <div class="bg-primary text-white rounded-3 p-2 px-3 shadow-sm" style="max-width:min(80%,520px);border-bottom-right-radius:4px!important">${text}</div>
+          <small class="text-muted d-block mt-1" style="font-size:0.7rem">${time}</small>
+        </div>
+      </div>`;
+    }
+    return `<div class="d-flex justify-content-end mb-3 ai-msg-row">
+      <div class="order-1">
+        <div class="bg-white border rounded-3 p-2 px-3 shadow-sm" style="max-width:min(85%,600px);border-bottom-left-radius:4px!important">${text}</div>
+        <small class="text-muted d-block mt-1 text-end" style="font-size:0.7rem">${time}</small>
+      </div>
+      <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle flex-shrink-0 ms-2 order-2" style="width:36px;height:36px;font-size:0.85rem"><i class="bi bi-robot"></i></div>
+    </div>`;
+  },
+
+  _aiRenderAll() {
+    const chat = document.getElementById('ai-chat');
+    if (!chat) return;
+    if (!this._aiHistory.length) {
+      const welcome = document.getElementById('ai-welcome');
+      if (!welcome) location.hash = '#ai_assistant';
+      return;
+    }
+    chat.innerHTML = this._aiHistory.map(m => this._aiRenderBubble(m.role, m.text, m.time || '')).join('');
+    chat.scrollTop = chat.scrollHeight;
+  },
+
   ai_assistantInit() {
     document.getElementById('ai-input')?.focus();
     try {
       this._aiHistory = JSON.parse(sessionStorage.getItem('bht_ai_history') || '[]');
       if (this._aiHistory.length) {
-        const chat = document.getElementById('ai-chat');
-        chat.innerHTML = this._aiHistory.map(m =>
-          m.role === 'user'
-            ? `<div class="d-flex justify-content-start mb-3"><div class="bg-primary text-white rounded-3 p-2 px-3" style="max-width:80%">${m.text}</div></div>`
-            : `<div class="d-flex justify-content-end mb-3"><div class="bg-light rounded-3 p-2 px-3 border" style="max-width:85%">${m.text}</div></div>`
-        ).join('');
-        chat.scrollTop = chat.scrollHeight;
+        this._aiRenderAll();
+      } else {
+        // Pre-loaded demo conversation
+        const now = new Date();
+        const t1 = this._aiFormatTime(new Date(now.getTime() - 120000));
+        const t2 = this._aiFormatTime(new Date(now.getTime() - 110000));
+        const t3 = this._aiFormatTime(new Date(now.getTime() - 100000));
+        this._aiHistory = [
+          {role:'user', text:'\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9 \u05D1\u05DE\u05D5\u05E1\u05D3?', time:t1},
+          {role:'ai', text:'\u05DB\u05E8\u05D2\u05E2 \u05D9\u05E9 <strong>45 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</strong> \u05D1\u05DE\u05D5\u05E1\u05D3, \u05DE\u05D7\u05D5\u05DC\u05E7\u05D9\u05DD \u05DC-4 \u05DB\u05D9\u05EA\u05D5\u05EA:<br>\u2022 \u05DB\u05D9\u05EA\u05D4 \u05D0\u05DC\u05E4\u05D0 \u2014 14 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD<br>\u2022 \u05DB\u05D9\u05EA\u05D4 \u05D1\u05D9\u05EA\u05D0 \u2014 12 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD<br>\u2022 \u05DB\u05D9\u05EA\u05D4 \u05D2\u05D9\u05DE\u05DC \u2014 10 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD<br>\u2022 \u05DB\u05D9\u05EA\u05D4 \u05D3\u05DC\u05EA \u2014 9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', time:t2},
+          {role:'user', text:'\u05DE\u05D9 \u05E0\u05E2\u05D3\u05E8 \u05D4\u05D9\u05D5\u05DD?', time:t3}
+        ];
+        sessionStorage.setItem('bht_ai_history', JSON.stringify(this._aiHistory));
+        // Remove welcome, render demo
+        const welcome = document.getElementById('ai-welcome');
+        if (welcome) welcome.remove();
+        this._aiRenderAll();
+        // Simulate typing answer to last demo question
+        this._aiSimulateTyping('\u05DC\u05E4\u05D9 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E9\u05DC \u05D4\u05D9\u05D5\u05DD, <strong>3 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05E2\u05D3\u05E8\u05D9\u05DD</strong>:<br>\u2022 \u05D9\u05D5\u05E1\u05D9 \u05DB\u05D4\u05DF \u2014 \u05DB\u05D9\u05EA\u05D4 \u05D0\u05DC\u05E4\u05D0 (\u05D7\u05D5\u05DC\u05D4)<br>\u2022 \u05D3\u05D5\u05D3 \u05DC\u05D5\u05D9 \u2014 \u05DB\u05D9\u05EA\u05D4 \u05D1\u05D9\u05EA\u05D0 (\u05DC\u05DC\u05D0 \u05E1\u05D9\u05D1\u05D4)<br>\u2022 \u05DE\u05E9\u05D4 \u05D0\u05D1\u05E8\u05D4\u05DD \u2014 \u05DB\u05D9\u05EA\u05D4 \u05D2\u05D9\u05DE\u05DC (\u05D0\u05D9\u05E9\u05D9)');
       }
     } catch(e) {}
   },
-  askSample(q) { document.getElementById('ai-input').value = q; this.sendAi(); },
-  clearAiChat() { this._aiHistory = []; sessionStorage.removeItem('bht_ai_history'); document.getElementById('ai-chat').innerHTML = '<div class="text-center py-4 text-muted"><i class="bi bi-robot fs-1"></i><p>\u05E9\u05D9\u05D7\u05D4 \u05E0\u05D5\u05E7\u05EA\u05D4</p></div>'; },
+
+  _aiSimulateTyping(finalHtml) {
+    const chat = document.getElementById('ai-chat');
+    if (!chat) return;
+    const typingId = 'ai-typing-' + Date.now();
+    chat.innerHTML += `<div class="d-flex justify-content-end mb-3" id="${typingId}">
+      <div class="order-1">
+        <div class="bg-white border rounded-3 p-2 px-3 shadow-sm" style="max-width:min(85%,600px)">
+          <span class="ai-typing-dots"><span>.</span><span>.</span><span>.</span></span>
+        </div>
+      </div>
+      <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle flex-shrink-0 ms-2 order-2" style="width:36px;height:36px;font-size:0.85rem"><i class="bi bi-robot"></i></div>
+    </div>`;
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      const el = document.getElementById(typingId);
+      const time = this._aiFormatTime(new Date());
+      if (el) {
+        el.outerHTML = this._aiRenderBubble('ai', finalHtml, time);
+        this._aiHistory.push({role:'ai', text:finalHtml, time});
+        sessionStorage.setItem('bht_ai_history', JSON.stringify(this._aiHistory));
+        chat.scrollTop = chat.scrollHeight;
+      }
+    }, 1500);
+  },
+
+  askSample(q) {
+    const input = document.getElementById('ai-input');
+    if (input) input.value = q;
+    this.sendAi();
+  },
+
+  clearAiChat() {
+    this._aiHistory = [];
+    sessionStorage.removeItem('bht_ai_history');
+    const chat = document.getElementById('ai-chat');
+    if (chat) {
+      const chips = [
+        {text:'\u05DB\u05DE\u05D4 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E9?', icon:'bi-people', color:'primary'},
+        {text:'\u05DE\u05D9 \u05E0\u05E2\u05D3\u05E8 \u05D4\u05D9\u05D5\u05DD?', icon:'bi-person-x', color:'danger'},
+        {text:'\u05E1\u05D8\u05D8\u05D5\u05E1 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD', icon:'bi-cash-coin', color:'success'},
+        {text:'\u05E6\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D9\u05EA\u05D4 \u05D0', icon:'bi-mortarboard', color:'info'},
+        {text:'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA', icon:'bi-list-task', color:'warning'},
+        {text:'\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05D4\u05E9\u05D1\u05D5\u05E2', icon:'bi-calendar-event', color:'secondary'},
+        {text:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF', icon:'bi-exclamation-triangle', color:'danger'},
+        {text:'\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9', icon:'bi-clipboard-data', color:'primary'}
+      ];
+      chat.innerHTML = `<div id="ai-welcome" class="text-center py-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width:80px;height:80px">
+          <i class="bi bi-robot fs-1 text-primary"></i>
+        </div>
+        <h4 class="fw-bold mb-2">\u05E9\u05D9\u05D7\u05D4 \u05E0\u05D5\u05E7\u05EA\u05D4</h4>
+        <p class="text-muted mb-4">\u05D0\u05E4\u05E9\u05E8 \u05DC\u05E9\u05D0\u05D5\u05DC \u05E9\u05D0\u05DC\u05D4 \u05D7\u05D3\u05E9\u05D4 \u05D0\u05D5 \u05DC\u05D1\u05D7\u05D5\u05E8 \u05DE\u05D4\u05D4\u05E6\u05E2\u05D5\u05EA</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 px-3">
+          ${chips.map(c => `<button class="btn btn-outline-${c.color} btn-sm rounded-pill px-3 py-1" onclick="Pages.askSample('${c.text}')"><i class="bi ${c.icon} me-1"></i>${c.text}</button>`).join('')}
+        </div>
+      </div>`;
+    }
+    Utils.toast('\u05D4\u05E9\u05D9\u05D7\u05D4 \u05E0\u05D5\u05E7\u05EA\u05D4', 'success');
+  },
+
   async sendAi() {
     const input = document.getElementById('ai-input');
     const q = input?.value?.trim();
     if (!q) return;
     input.value = '';
     const chat = document.getElementById('ai-chat');
+    if (!chat) return;
 
-    // Remove welcome message
-    const welcome = chat.querySelector('.text-center.py-4');
+    // Remove welcome message if present
+    const welcome = document.getElementById('ai-welcome');
     if (welcome) welcome.remove();
 
-    // Add user message
-    chat.innerHTML += `<div class="d-flex justify-content-start mb-3"><div class="bg-primary text-white rounded-3 p-2 px-3" style="max-width:80%">${q}</div></div>`;
-    this._aiHistory.push({role:'user', text:q});
+    // Add user message bubble
+    const userTime = this._aiFormatTime(new Date());
+    chat.innerHTML += this._aiRenderBubble('user', q, userTime);
+    this._aiHistory.push({role:'user', text:q, time:userTime});
+    sessionStorage.setItem('bht_ai_history', JSON.stringify(this._aiHistory));
 
-    // Add loading
+    // Add typing indicator
     const loadingId = 'ai-loading-' + Date.now();
-    chat.innerHTML += `<div class="d-flex justify-content-end mb-3" id="${loadingId}"><div class="bg-light rounded-3 p-2 px-3 border"><div class="spinner-border spinner-border-sm text-primary me-2"></div>\u05D7\u05D5\u05E9\u05D1...</div></div>`;
+    chat.innerHTML += `<div class="d-flex justify-content-end mb-3" id="${loadingId}">
+      <div class="order-1">
+        <div class="bg-white border rounded-3 p-2 px-3 shadow-sm" style="max-width:min(85%,600px)">
+          <span class="ai-typing-dots"><span>.</span><span>.</span><span>.</span></span>
+        </div>
+      </div>
+      <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle flex-shrink-0 ms-2 order-2" style="width:36px;height:36px;font-size:0.85rem"><i class="bi bi-robot"></i></div>
+    </div>`;
     chat.scrollTop = chat.scrollHeight;
+
+    // Disable send button
+    const sendBtn = document.getElementById('ai-send-btn');
+    if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'; }
 
     try {
       // Build context from real data
@@ -748,17 +882,23 @@ Object.assign(Pages, {
 
       // Format response (convert **bold** to <strong>, newlines to <br>)
       const formatted = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+      const aiTime = this._aiFormatTime(new Date());
 
       const el = document.getElementById(loadingId);
-      if (el) el.innerHTML = '<div class="bg-light rounded-3 p-2 px-3 border" style="max-width:85%">' + formatted + '</div>';
+      if (el) el.outerHTML = this._aiRenderBubble('ai', formatted, aiTime);
 
-      this._aiHistory.push({role:'ai', text:formatted});
+      this._aiHistory.push({role:'ai', text:formatted, time:aiTime});
       sessionStorage.setItem('bht_ai_history', JSON.stringify(this._aiHistory));
     } catch(e) {
+      const aiTime = this._aiFormatTime(new Date());
       const el = document.getElementById(loadingId);
-      if (el) el.innerHTML = '<div class="bg-danger bg-opacity-10 text-danger rounded-3 p-2 px-3 border border-danger" style="max-width:85%">\u05E9\u05D2\u05D9\u05D0\u05D4: ' + (e.message || '\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05EA\u05D7\u05D1\u05E8') + '</div>';
+      if (el) el.outerHTML = this._aiRenderBubble('ai', '<span class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>\u05E9\u05D2\u05D9\u05D0\u05D4: ' + (e.message || '\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05EA\u05D7\u05D1\u05E8') + '</span>', aiTime);
     }
+
+    // Re-enable send button
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<i class="bi bi-send-fill"></i> \u05E9\u05DC\u05D7'; }
     chat.scrollTop = chat.scrollHeight;
+    input?.focus();
   },
 
 
