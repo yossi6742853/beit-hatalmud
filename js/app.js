@@ -963,7 +963,94 @@ const App = {
       bootstrap.Modal.getInstance(document.getElementById('quick-note-modal'))?.hide();
       Utils.toast('\u05D4\u05E2\u05E8\u05D4 \u05E0\u05E9\u05DE\u05E8\u05D4!');
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
-  }
+  },
+
+  /* ==============================
+     COMMAND PALETTE (Ctrl+K)
+     ============================== */
+  initCommandPalette() {
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        this.toggleCommandPalette();
+      }
+      if (e.key === 'Escape') {
+        document.getElementById('command-palette')?.remove();
+      }
+    });
+  },
+
+  toggleCommandPalette() {
+    let existing = document.getElementById('command-palette');
+    if (existing) { existing.remove(); return; }
+
+    const pages = [];
+    document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
+      pages.push({
+        page: link.dataset.page,
+        label: link.querySelector('span')?.textContent || link.dataset.page,
+        icon: link.querySelector('i')?.className || 'bi bi-circle'
+      });
+    });
+
+    const div = document.createElement('div');
+    div.id = 'command-palette';
+    div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:15vh;backdrop-filter:blur(4px)';
+    div.innerHTML = `
+      <div style="background:var(--bs-body-bg,#fff);border-radius:12px;width:90%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden">
+        <div style="padding:16px;border-bottom:1px solid var(--bs-border-color,#dee2e6)">
+          <input type="text" id="cmd-search" class="form-control form-control-lg" placeholder="\u05D7\u05E4\u05E9 \u05E2\u05DE\u05D5\u05D3..." autofocus style="border:none;box-shadow:none;font-size:1.1rem">
+        </div>
+        <div id="cmd-results" style="max-height:400px;overflow-y:auto;padding:8px"></div>
+      </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', (e) => { if (e.target === div) div.remove(); });
+
+    const input = document.getElementById('cmd-search');
+    const results = document.getElementById('cmd-results');
+    const render = (filter) => {
+      const filtered = filter ? pages.filter(p => p.label.includes(filter) || p.page.includes(filter)) : pages;
+      results.innerHTML = filtered.map(p => `
+        <div class="cmd-item" data-page="${p.page}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-primary-bg-subtle,#e7f1ff)'" onmouseout="this.style.background=''">
+          <i class="${p.icon}" style="font-size:1.2rem;width:24px;text-align:center"></i>
+          <span>${p.label}</span>
+        </div>`).join('');
+      results.querySelectorAll('.cmd-item').forEach(item => {
+        item.addEventListener('click', () => {
+          location.hash = item.dataset.page;
+          div.remove();
+        });
+      });
+    };
+    render('');
+    input.addEventListener('input', () => render(input.value.trim()));
+    setTimeout(() => input.focus(), 50);
+  },
+
+  /* ==============================
+     AUTO-SAVE INDICATOR
+     ============================== */
+  initAutoSaveIndicator() {
+    const orig = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = (...args) => {
+      orig(...args);
+      this.showSaveIndicator();
+    };
+  },
+
+  showSaveIndicator() {
+    let el = document.getElementById('auto-save-indicator');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'auto-save-indicator';
+      el.style.cssText = 'position:fixed;bottom:20px;left:20px;background:#198754;color:#fff;padding:6px 16px;border-radius:20px;font-size:.85rem;z-index:9998;opacity:0;transition:opacity .3s;pointer-events:none';
+      el.innerHTML = '<i class="bi bi-check-circle me-1"></i>\u05E0\u05E9\u05DE\u05E8';
+      document.body.appendChild(el);
+    }
+    el.style.opacity = '1';
+    clearTimeout(this._saveTimeout);
+    this._saveTimeout = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  },
 };
 
 /* ===== Start ===== */
