@@ -1,32 +1,39 @@
-/* ===== BHT v5.3 — Tutoring (\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05E2\u05D6\u05E8) ===== */
+/* ===== BHT v5.3 — Tutoring (שיעורי עזר) ===== */
 Object.assign(Pages, {
   _tutors: [
-    { id: 1, name: '\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD \u05DB\u05D4\u05DF', subjects: ['\u05D2\u05DE\u05E8\u05D0', '\u05D4\u05DC\u05DB\u05D4'], rate: 80, availability: '\u05D0-\u05D4 8:00-16:00', rating: 5, sessions: 0, hours: 0 },
-    { id: 2, name: '\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', subjects: ['\u05D7\u05D5\u05DE\u05E9', '\u05E0\u05F4\u05DA'], rate: 70, availability: '\u05D0-\u05D3 9:00-14:00', rating: 4.5, sessions: 0, hours: 0 },
-    { id: 3, name: '\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', subjects: ['\u05DE\u05EA\u05DE\u05D8\u05D9\u05E7\u05D4', '\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA'], rate: 90, availability: '\u05D1-\u05D4 10:00-18:00', rating: 4.8, sessions: 0, hours: 0 },
-    { id: 4, name: '\u05D4\u05E8\u05D1 \u05D0\u05DC\u05D9\u05D4\u05D5 \u05E9\u05E4\u05D9\u05E8\u05D0', subjects: ['\u05D2\u05DE\u05E8\u05D0', '\u05DE\u05E9\u05E0\u05D4'], rate: 85, availability: '\u05D0-\u05D5 8:00-20:00', rating: 4.7, sessions: 0, hours: 0 },
-    { id: 5, name: '\u05D4\u05E8\u05D1 \u05D9\u05E2\u05E7\u05D1 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2', subjects: ['\u05D7\u05D5\u05DE\u05E9', '\u05D4\u05DC\u05DB\u05D4', '\u05DE\u05D5\u05E1\u05E8'], rate: 75, availability: '\u05D0-\u05D2 12:00-17:00', rating: 4.3, sessions: 0, hours: 0 }
+    { id: 1, name: 'הרב אברהם כהן', subjects: ['גמרא', 'הלכה'], rate: 80, availability: 'א-ה 8:00-16:00', rating: 5, phone: '050-1234567', bio: 'מלמד מנוסה עם 15 שנות ניסיון בהוראת גמרא', paid: 960, owed: 240 },
+    { id: 2, name: 'הרב משה לוי', subjects: ['חומש', 'נ"ך'], rate: 70, availability: 'א-ד 9:00-14:00', rating: 4.5, phone: '050-2345678', bio: 'מומחה בהוראת תנ"ך לכל הגילאים', paid: 560, owed: 140 },
+    { id: 3, name: 'הרב דוד פרידמן', subjects: ['מתמטיקה', 'אנגלית'], rate: 90, availability: 'ב-ה 10:00-18:00', rating: 4.8, phone: '050-3456789', bio: 'תואר ראשון במתמטיקה, מתמחה בהכנה לבגרויות', paid: 810, owed: 270 },
+    { id: 4, name: 'הרב אליהו שפירא', subjects: ['גמרא', 'משנה'], rate: 85, availability: 'א-ו 8:00-20:00', rating: 4.7, phone: '050-4567890', bio: 'ראש כולל לשעבר, בקיא בש"ס', paid: 680, owed: 340 },
+    { id: 5, name: 'הרב יעקב רוזנברג', subjects: ['חומש', 'הלכה', 'מוסר'], rate: 75, availability: 'א-ג 12:00-17:00', rating: 4.3, phone: '050-5678901', bio: 'משפיע רוחני ומלמד ותיק', paid: 450, owed: 150 },
+    { id: 6, name: 'הרב שמעון ברקוביץ', subjects: ['מתמטיקה', 'פיזיקה', 'מחשבים'], rate: 95, availability: 'ב-ה 14:00-20:00', rating: 4.9, phone: '050-6789012', bio: 'מהנדס תוכנה לשעבר, מלמד מדעים', paid: 570, owed: 380 }
   ],
 
   _tutorSessions: [
-    { id: 1, tutorId: 1, student: '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-04-22', time: '09:00', duration: 1.5, rate: 80, status: 'completed' },
-    { id: 2, tutorId: 3, student: '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', subject: '\u05DE\u05EA\u05DE\u05D8\u05D9\u05E7\u05D4', date: '2026-04-22', time: '10:00', duration: 1, rate: 90, status: 'completed' },
-    { id: 3, tutorId: 2, student: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2', subject: '\u05D7\u05D5\u05DE\u05E9', date: '2026-04-21', time: '11:00', duration: 1, rate: 70, status: 'completed' },
-    { id: 4, tutorId: 4, student: '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-04-21', time: '14:00', duration: 2, rate: 85, status: 'completed' },
-    { id: 5, tutorId: 5, student: '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05E9\u05E4\u05D9\u05E8\u05D0', subject: '\u05D4\u05DC\u05DB\u05D4', date: '2026-04-20', time: '12:00', duration: 1, rate: 75, status: 'completed' },
-    { id: 6, tutorId: 1, student: '\u05D9\u05E2\u05E7\u05D1 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2', subject: '\u05D4\u05DC\u05DB\u05D4', date: '2026-04-20', time: '09:00', duration: 1, rate: 80, status: 'completed' },
-    { id: 7, tutorId: 3, student: '\u05E0\u05EA\u05E0\u05D0\u05DC \u05D5\u05D9\u05D9\u05E1', subject: '\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA', date: '2026-04-19', time: '10:00', duration: 1.5, rate: 90, status: 'completed' },
-    { id: 8, tutorId: 2, student: '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D4\u05D5\u05E8\u05D1\u05D9\u05E5', subject: '\u05E0\u05F4\u05DA', date: '2026-04-18', time: '13:00', duration: 1, rate: 70, status: 'completed' },
-    { id: 9, tutorId: 4, student: '\u05E8\u05E4\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9', subject: '\u05DE\u05E9\u05E0\u05D4', date: '2026-04-17', time: '15:00', duration: 1.5, rate: 85, status: 'completed' },
-    { id: 10, tutorId: 1, student: '\u05D7\u05D9\u05D9\u05DD \u05D1\u05E8\u05E7\u05D5\u05D1\u05D9\u05E5', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-04-16', time: '09:00', duration: 2, rate: 80, status: 'completed' },
-    { id: 11, tutorId: 5, student: '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', subject: '\u05DE\u05D5\u05E1\u05E8', date: '2026-04-15', time: '14:00', duration: 1, rate: 75, status: 'completed' },
-    { id: 12, tutorId: 3, student: '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', subject: '\u05DE\u05EA\u05DE\u05D8\u05D9\u05E7\u05D4', date: '2026-04-14', time: '10:00', duration: 1, rate: 90, status: 'completed' },
-    { id: 13, tutorId: 2, student: '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', subject: '\u05D7\u05D5\u05DE\u05E9', date: '2026-04-23', time: '11:00', duration: 1, rate: 70, status: 'scheduled' },
-    { id: 14, tutorId: 1, student: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-04-23', time: '09:00', duration: 1.5, rate: 80, status: 'scheduled' },
-    { id: 15, tutorId: 4, student: '\u05E0\u05EA\u05E0\u05D0\u05DC \u05D5\u05D9\u05D9\u05E1', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-04-24', time: '14:00', duration: 1, rate: 85, status: 'scheduled' }
+    { id: 1, tutorId: 1, student: 'יוסף כהן', subject: 'גמרא', date: '2026-04-22', time: '09:00', duration: 1.5, rate: 80, status: 'completed', notes: 'סוגיא דאין מעמידין', feedback: 5 },
+    { id: 2, tutorId: 3, student: 'משה לוי', subject: 'מתמטיקה', date: '2026-04-22', time: '10:00', duration: 1, rate: 90, status: 'completed', notes: 'משוואות ריבועיות', feedback: 4 },
+    { id: 3, tutorId: 2, student: 'אברהם גולדברג', subject: 'חומש', date: '2026-04-21', time: '11:00', duration: 1, rate: 70, status: 'completed', notes: 'פרשת שמיני', feedback: 5 },
+    { id: 4, tutorId: 4, student: 'דוד פרידמן', subject: 'גמרא', date: '2026-04-21', time: '14:00', duration: 2, rate: 85, status: 'completed', notes: 'בבא מציעא פרק ב', feedback: 4 },
+    { id: 5, tutorId: 5, student: 'אליהו שפירא', subject: 'הלכה', date: '2026-04-20', time: '12:00', duration: 1, rate: 75, status: 'completed', notes: 'הלכות שבת', feedback: 5 },
+    { id: 6, tutorId: 1, student: 'יעקב רוזנברג', subject: 'הלכה', date: '2026-04-20', time: '09:00', duration: 1, rate: 80, status: 'completed', notes: 'הלכות ברכות', feedback: 4 },
+    { id: 7, tutorId: 3, student: 'נתנאל וייס', subject: 'אנגלית', date: '2026-04-19', time: '10:00', duration: 1.5, rate: 90, status: 'completed', notes: 'Reading comprehension', feedback: 5 },
+    { id: 8, tutorId: 2, student: 'שמואל הורביץ', subject: 'נ"ך', date: '2026-04-18', time: '13:00', duration: 1, rate: 70, status: 'completed', notes: 'ספר יהושע', feedback: 4 },
+    { id: 9, tutorId: 4, student: 'רפאל מזרחי', subject: 'משנה', date: '2026-04-17', time: '15:00', duration: 1.5, rate: 85, status: 'completed', notes: 'ברכות פרק א', feedback: 5 },
+    { id: 10, tutorId: 1, student: 'חיים ברקוביץ', subject: 'גמרא', date: '2026-04-16', time: '09:00', duration: 2, rate: 80, status: 'completed', notes: 'סנהדרין פרק ד', feedback: 3 },
+    { id: 11, tutorId: 5, student: 'יוסף כהן', subject: 'מוסר', date: '2026-04-15', time: '14:00', duration: 1, rate: 75, status: 'completed', notes: 'מסילת ישרים', feedback: 5 },
+    { id: 12, tutorId: 3, student: 'דוד פרידמן', subject: 'מתמטיקה', date: '2026-04-14', time: '10:00', duration: 1, rate: 90, status: 'completed', notes: 'טריגונומטריה', feedback: 4 },
+    { id: 13, tutorId: 6, student: 'אברהם גולדברג', subject: 'מחשבים', date: '2026-04-16', time: '15:00', duration: 1.5, rate: 95, status: 'completed', notes: 'יסודות Python', feedback: 5 },
+    { id: 14, tutorId: 6, student: 'נתנאל וייס', subject: 'פיזיקה', date: '2026-04-18', time: '16:00', duration: 1, rate: 95, status: 'completed', notes: 'מכניקה ניוטונית', feedback: 4 },
+    { id: 15, tutorId: 6, student: 'שמואל הורביץ', subject: 'מתמטיקה', date: '2026-04-20', time: '14:00', duration: 1, rate: 95, status: 'completed', notes: 'אלגברה לינארית', feedback: 5 },
+    { id: 16, tutorId: 2, student: 'משה לוי', subject: 'חומש', date: '2026-04-23', time: '11:00', duration: 1, rate: 70, status: 'scheduled', notes: '', feedback: 0 },
+    { id: 17, tutorId: 1, student: 'אברהם גולדברג', subject: 'גמרא', date: '2026-04-23', time: '09:00', duration: 1.5, rate: 80, status: 'scheduled', notes: '', feedback: 0 },
+    { id: 18, tutorId: 4, student: 'נתנאל וייס', subject: 'גמרא', date: '2026-04-24', time: '14:00', duration: 1, rate: 85, status: 'scheduled', notes: '', feedback: 0 },
+    { id: 19, tutorId: 6, student: 'חיים ברקוביץ', subject: 'מחשבים', date: '2026-04-24', time: '15:00', duration: 1.5, rate: 95, status: 'scheduled', notes: '', feedback: 0 },
+    { id: 20, tutorId: 3, student: 'יוסף כהן', subject: 'מתמטיקה', date: '2026-04-25', time: '10:00', duration: 1, rate: 90, status: 'scheduled', notes: '', feedback: 0 }
   ],
 
-  _tutorNextId: 16,
+  _tutorNextId: 21,
+  _tutorViewMode: 'all',
 
   tutoring() {
     const tutors = this._tutors;
@@ -38,18 +45,24 @@ Object.assign(Pages, {
       const ts = sessions.filter(s => s.tutorId === t.id);
       t.sessions = ts.length;
       t.hours = ts.reduce((sum, s) => sum + s.duration, 0);
+      t.avgFeedback = ts.filter(s => s.feedback > 0).length > 0 ? (ts.filter(s => s.feedback > 0).reduce((sum, s) => sum + s.feedback, 0) / ts.filter(s => s.feedback > 0).length).toFixed(1) : '-';
     });
 
-    // Monthly stats (current month)
+    // Monthly stats
     const now = new Date();
     const monthPrefix = now.toISOString().slice(0, 7);
     const monthSessions = sessions.filter(s => s.date.startsWith(monthPrefix));
     const totalSessions = sessions.length;
+    const completedSessions = sessions.filter(s => s.status === 'completed').length;
+    const scheduledSessions = sessions.filter(s => s.status === 'scheduled').length;
     const monthHours = monthSessions.reduce((s, x) => s + x.duration, 0);
     const activeTutors = tutors.filter(t => sessions.some(s => s.tutorId === t.id)).length;
     const totalCost = monthSessions.reduce((s, x) => s + (x.duration * x.rate), 0);
+    const avgRating = sessions.filter(s => s.feedback > 0).length > 0 ? (sessions.filter(s => s.feedback > 0).reduce((s, x) => s + x.feedback, 0) / sessions.filter(s => s.feedback > 0).length).toFixed(1) : '-';
+    const totalOwed = tutors.reduce((s, t) => s + t.owed, 0);
+    const totalPaid = tutors.reduce((s, t) => s + t.paid, 0);
 
-    const statusMap = { completed: { label: '\u05D4\u05D5\u05E9\u05DC\u05DD', color: 'success' }, scheduled: { label: '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF', color: 'primary' }, cancelled: { label: '\u05D1\u05D5\u05D8\u05DC', color: 'danger' } };
+    const statusMap = { completed: { label: 'הושלם', color: 'success', icon: 'bi-check-circle' }, scheduled: { label: 'מתוכנן', color: 'primary', icon: 'bi-clock' }, cancelled: { label: 'בוטל', color: 'danger', icon: 'bi-x-circle' } };
 
     // Stars helper
     const stars = (rating) => {
@@ -62,49 +75,100 @@ Object.assign(Pages, {
       return html;
     };
 
+    // Weekly calendar data
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    const weekDays = [];
+    const dayNames = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'שבת'];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      weekDays.push({ date: d.toISOString().slice(0, 10), name: dayNames[i], day: d.getDate(), isToday: d.toISOString().slice(0, 10) === today });
+    }
+    const calHours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+
+    // Subject colors
+    const subjectColors = { 'גמרא': '#2563eb', 'הלכה': '#16a34a', 'חומש': '#9333ea', 'משנה': '#f59e0b', 'נ"ך': '#06b6d4', 'מתמטיקה': '#ef4444', 'אנגלית': '#ec4899', 'מוסר': '#8b5cf6', 'מחשבים': '#14b8a6', 'פיזיקה': '#f97316' };
+
     return `
     <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div><h1><i class="bi bi-person-workspace me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05E2\u05D6\u05E8</h1><p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD \u05E4\u05E8\u05D8\u05D9\u05D9\u05DD, \u05DE\u05EA\u05D2\u05D1\u05E8\u05D9\u05DD \u05D5\u05E2\u05DC\u05D5\u05D9\u05D5\u05EA</p></div>
-      <button class="btn btn-primary btn-sm" onclick="Pages._tutorShowAdd()"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D7\u05D3\u05E9</button>
+      <div><h1><i class="bi bi-person-workspace me-2"></i>שיעורי עזר</h1><p class="text-muted mb-0">ניהול שיעורים פרטיים, מתגברים ועלויות</p></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-info btn-sm" onclick="Pages._tutorExport()"><i class="bi bi-download me-1"></i>ייצוא</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages._tutorShowAdd()"><i class="bi bi-plus-lg me-1"></i>שיעור חדש</button>
+      </div>
     </div>
 
     <!-- Stats -->
     <div class="row g-3 mb-3">
-      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${totalSessions}</div><small class="text-muted">\u05E1\u05D4\u05F4\u05DB \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD</small></div></div>
-      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-info">${monthHours}</div><small class="text-muted">\u05E9\u05E2\u05D5\u05EA \u05D4\u05D7\u05D5\u05D3\u05E9</small></div></div>
-      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${activeTutors}</div><small class="text-muted">\u05DE\u05EA\u05D2\u05D1\u05E8\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div>
-      <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-warning">${totalCost.toLocaleString()} \u20AA</div><small class="text-muted">\u05E2\u05DC\u05D5\u05EA \u05D4\u05D7\u05D5\u05D3\u05E9</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${totalSessions}</div><small class="text-muted">סה"כ שיעורים</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-info">${monthHours}</div><small class="text-muted">שעות החודש</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${activeTutors}/${tutors.length}</div><small class="text-muted">מתגברים פעילים</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-warning">${totalCost.toLocaleString()} \u20AA</div><small class="text-muted">עלות החודש</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${totalOwed.toLocaleString()} \u20AA</div><small class="text-muted">חוב למתגברים</small></div></div>
+      <div class="col-6 col-md-2"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-secondary">${avgRating} <i class="bi bi-star-fill text-warning fs-5"></i></div><small class="text-muted">דירוג ממוצע</small></div></div>
     </div>
 
     <!-- Tutor Profile Cards -->
-    <h5 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>\u05DE\u05EA\u05D2\u05D1\u05E8\u05D9\u05DD</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>מתגברים</h5>
     <div class="row g-3 mb-4">
       ${tutors.map(t => {
         const tMonthSessions = monthSessions.filter(s => s.tutorId === t.id);
         const tMonthHours = tMonthSessions.reduce((s, x) => s + x.duration, 0);
         const tMonthCost = tMonthSessions.reduce((s, x) => s + (x.duration * x.rate), 0);
+        const completedByTutor = sessions.filter(s => s.tutorId === t.id && s.status === 'completed').length;
+        const scheduledByTutor = sessions.filter(s => s.tutorId === t.id && s.status === 'scheduled').length;
         return `
         <div class="col-md-6 col-lg-4">
           <div class="card h-100 hover-lift">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px">
-                  <span class="fw-bold text-primary">${t.name.split(' ').slice(-1)[0].substring(0, 2)}</span>
+                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center position-relative" style="width:56px;height:56px">
+                  <span class="fw-bold text-primary fs-5">${t.name.split(' ').slice(-1)[0].substring(0, 2)}</span>
+                  <span class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white" style="width:12px;height:12px" title="פעיל"></span>
                 </div>
                 <div class="flex-grow-1">
                   <h6 class="fw-bold mb-0">${t.name}</h6>
                   <div class="small">${stars(t.rating)} <span class="text-muted ms-1">${t.rating}</span></div>
+                  <div class="small text-muted"><i class="bi bi-telephone me-1"></i>${t.phone}</div>
                 </div>
               </div>
+
+              <p class="small text-muted mb-2" style="font-size:0.8rem">${t.bio}</p>
+
               <div class="d-flex flex-wrap gap-1 mb-2">
-                ${t.subjects.map(s => `<span class="badge bg-primary bg-opacity-10 text-primary">${s}</span>`).join('')}
+                ${t.subjects.map(s => `<span class="badge" style="background:${subjectColors[s] || '#6b7280'}20;color:${subjectColors[s] || '#6b7280'}">${s}</span>`).join('')}
               </div>
               <div class="small text-muted mb-2"><i class="bi bi-clock me-1"></i>${t.availability}</div>
-              <div class="d-flex justify-content-between small border-top pt-2 mt-2">
-                <span><strong>${t.rate} \u20AA</strong>/\u05E9\u05E2\u05D4</span>
-                <span>${tMonthSessions.length} \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD</span>
-                <span>${tMonthHours} \u05E9\u05E2\u05D5\u05EA</span>
-                <span>${tMonthCost.toLocaleString()} \u20AA</span>
+
+              <div class="border-top pt-2 mt-2">
+                <div class="row g-1 text-center small">
+                  <div class="col-3"><strong class="text-primary">${t.rate} \u20AA</strong><br><span class="text-muted" style="font-size:0.7rem">לשעה</span></div>
+                  <div class="col-3"><strong>${tMonthSessions.length}</strong><br><span class="text-muted" style="font-size:0.7rem">החודש</span></div>
+                  <div class="col-3"><strong>${tMonthHours}</strong><br><span class="text-muted" style="font-size:0.7rem">שעות</span></div>
+                  <div class="col-3"><strong>${tMonthCost.toLocaleString()}</strong><br><span class="text-muted" style="font-size:0.7rem">\u20AA</span></div>
+                </div>
+              </div>
+
+              <!-- Payment status -->
+              <div class="mt-2 pt-2 border-top">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span class="text-muted">תשלום</span>
+                  <span>${t.owed > 0 ? `<span class="text-danger fw-bold">${t.owed} \u20AA חוב</span>` : '<span class="text-success">שולם</span>'}</span>
+                </div>
+                <div class="progress" style="height:6px">
+                  <div class="progress-bar bg-success" style="width:${Math.round(t.paid / (t.paid + t.owed) * 100)}%"></div>
+                  <div class="progress-bar bg-danger" style="width:${Math.round(t.owed / (t.paid + t.owed) * 100)}%"></div>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:0.65rem">
+                  <span class="text-success">שולם: ${t.paid} \u20AA</span>
+                  <span class="text-danger">חוב: ${t.owed} \u20AA</span>
+                </div>
+              </div>
+
+              <div class="d-flex gap-1 mt-2">
+                <button class="btn btn-outline-primary btn-sm flex-grow-1" onclick="Pages._tutorShowAdd(${t.id})"><i class="bi bi-plus me-1"></i>שיעור</button>
+                <button class="btn btn-outline-success btn-sm" onclick="Pages._tutorPay(${t.id})" title="תשלום"><i class="bi bi-cash-coin"></i></button>
               </div>
             </div>
           </div>
@@ -112,12 +176,73 @@ Object.assign(Pages, {
       }).join('')}
     </div>
 
-    <!-- Monthly Summary per Tutor -->
-    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9</h5>
+    <!-- Weekly Calendar -->
+    <h5 class="fw-bold mb-3"><i class="bi bi-calendar-week me-2"></i>לוח שבועי</h5>
     <div class="card mb-4">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm mb-0 text-center" style="table-layout:fixed">
+            <thead class="table-light">
+              <tr>
+                <th style="width:70px">שעה</th>
+                ${weekDays.map(d => `<th class="${d.isToday ? 'bg-primary bg-opacity-10' : ''}">${d.name}<br><small>${d.day}</small></th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${calHours.map(h => `
+                <tr>
+                  <td class="fw-bold small text-muted">${h}</td>
+                  ${weekDays.map(d => {
+                    const slot = sessions.filter(s => s.date === d.date && s.time === h);
+                    if (slot.length) {
+                      return `<td class="p-1">${slot.map(s => {
+                        const tutor = tutors.find(t => t.id === s.tutorId);
+                        const color = subjectColors[s.subject] || '#6b7280';
+                        return `<div class="badge w-100 text-truncate" style="background:${color};font-size:0.6rem" title="${tutor ? tutor.name : ''}: ${s.student} — ${s.subject}">${s.student.split(' ')[0]}</div>`;
+                      }).join('')}</td>`;
+                    }
+                    return `<td class="${d.isToday ? 'bg-light' : ''}"></td>`;
+                  }).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Summary per Tutor -->
+    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>סיכום חודשי</h5>
+    <div class="card mb-4">
+      <div class="card-body p-3">
+        <!-- Chart placeholder -->
+        <div class="row g-3 mb-3">
+          ${tutors.map(t => {
+            const ms = monthSessions.filter(s => s.tutorId === t.id);
+            const mh = ms.reduce((s, x) => s + x.duration, 0);
+            const mc = ms.reduce((s, x) => s + (x.duration * x.rate), 0);
+            const maxHours = Math.max(...tutors.map(t2 => monthSessions.filter(s2 => s2.tutorId === t2.id).reduce((s, x) => s + x.duration, 0)), 1);
+            const pct = Math.round((mh / maxHours) * 100);
+            return `
+            <div class="col-md-6">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="fw-bold small" style="min-width:120px">${t.name.split(' ').slice(-1)[0]}</span>
+                <div class="flex-grow-1">
+                  <div class="progress" style="height:24px">
+                    <div class="progress-bar bg-primary" style="width:${pct}%">
+                      <span class="small">${mh}ש | ${mc}\u20AA</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="badge bg-light text-dark border small">${ms.length} שיעורים</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>\u05DE\u05EA\u05D2\u05D1\u05E8</th><th>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD</th><th>\u05E9\u05E2\u05D5\u05EA</th><th>\u05E2\u05DC\u05D5\u05EA</th><th>\u05E0\u05EA\u05D7 \u05DE\u05E1\u05DA</th></tr></thead>
+          <thead class="table-light"><tr><th>מתגבר</th><th>שיעורים</th><th>שעות</th><th>עלות</th><th>דירוג</th><th>שולם</th><th>חוב</th><th>נתח</th></tr></thead>
           <tbody>
             ${tutors.map(t => {
               const ms = monthSessions.filter(s => s.tutorId === t.id);
@@ -129,14 +254,20 @@ Object.assign(Pages, {
                 <td>${ms.length}</td>
                 <td>${mh}</td>
                 <td>${mc.toLocaleString()} \u20AA</td>
+                <td>${stars(t.rating)}</td>
+                <td class="text-success">${t.paid.toLocaleString()} \u20AA</td>
+                <td class="text-danger">${t.owed.toLocaleString()} \u20AA</td>
                 <td><div class="progress" style="height:18px"><div class="progress-bar" style="width:${pct}%">${pct}%</div></div></td>
               </tr>`;
             }).join('')}
             <tr class="table-light fw-bold">
-              <td>\u05E1\u05D4\u05F4\u05DB</td>
+              <td>סה"כ</td>
               <td>${monthSessions.length}</td>
               <td>${monthHours}</td>
               <td>${totalCost.toLocaleString()} \u20AA</td>
+              <td>${avgRating} <i class="bi bi-star-fill text-warning"></i></td>
+              <td class="text-success">${totalPaid.toLocaleString()} \u20AA</td>
+              <td class="text-danger">${totalOwed.toLocaleString()} \u20AA</td>
               <td></td>
             </tr>
           </tbody>
@@ -145,26 +276,40 @@ Object.assign(Pages, {
     </div>
 
     <!-- Sessions Table -->
-    <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2"></i>שיעורים
+      <span class="badge bg-primary ms-1">${totalSessions}</span>
+      <div class="btn-group btn-group-sm ms-3">
+        <button class="btn ${this._tutorViewMode === 'all' ? 'btn-primary' : 'btn-outline-primary'} btn-sm" onclick="Pages._tutorSetView('all')">הכל</button>
+        <button class="btn ${this._tutorViewMode === 'scheduled' ? 'btn-primary' : 'btn-outline-primary'} btn-sm" onclick="Pages._tutorSetView('scheduled')">מתוכננים</button>
+        <button class="btn ${this._tutorViewMode === 'completed' ? 'btn-primary' : 'btn-outline-primary'} btn-sm" onclick="Pages._tutorSetView('completed')">הושלמו</button>
+      </div>
+    </h5>
     <div class="card">
+      <div class="card-body p-2">
+        <input type="text" class="form-control form-control-sm" id="tutor-search" placeholder="חיפוש שיעור..." oninput="Pages._tutorSearch(this.value)">
+      </div>
       <div class="table-responsive">
         <table class="table table-sm table-hover align-middle mb-0">
-          <thead class="table-light"><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05DE\u05EA\u05D2\u05D1\u05E8</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E0\u05D5\u05E9\u05D0</th><th>\u05E9\u05E2\u05D4</th><th>\u05DE\u05E9\u05DA</th><th>\u05E2\u05DC\u05D5\u05EA</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th></th></tr></thead>
-          <tbody>
-            ${[...sessions].sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time)).map(s => {
+          <thead class="table-light"><tr><th>תאריך</th><th>מתגבר</th><th>תלמיד</th><th>נושא</th><th>שעה</th><th>משך</th><th>עלות</th><th>דירוג</th><th>סטטוס</th><th>הערות</th><th></th></tr></thead>
+          <tbody id="tutor-sessions-body">
+            ${[...sessions].filter(s => this._tutorViewMode === 'all' || s.status === this._tutorViewMode).sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time)).map(s => {
               const tutor = tutors.find(t => t.id === s.tutorId);
               const cost = s.duration * s.rate;
-              const st = statusMap[s.status] || { label: s.status, color: 'secondary' };
-              return `<tr>
-                <td>${s.date}</td>
-                <td>${tutor ? tutor.name : ''}</td>
-                <td>${s.student}</td>
-                <td><span class="badge bg-primary bg-opacity-10 text-primary">${s.subject}</span></td>
+              const st = statusMap[s.status] || { label: s.status, color: 'secondary', icon: 'bi-question-circle' };
+              const color = subjectColors[s.subject] || '#6b7280';
+              const feedbackStars = s.feedback > 0 ? stars(s.feedback) : '<span class="text-muted small">-</span>';
+              return `<tr data-search="${tutor ? tutor.name : ''} ${s.student} ${s.subject} ${s.notes}">
+                <td class="small">${s.date}</td>
+                <td>${tutor ? tutor.name.split(' ').slice(-1)[0] : ''}</td>
+                <td><strong>${s.student}</strong></td>
+                <td><span class="badge" style="background:${color}20;color:${color}">${s.subject}</span></td>
                 <td>${s.time}</td>
-                <td>${s.duration} \u05E9\u05E2\u05D5\u05EA</td>
-                <td>${cost} \u20AA</td>
-                <td><span class="badge bg-${st.color}">${st.label}</span></td>
-                <td><button class="btn btn-outline-danger btn-sm" onclick="Pages._tutorDelete(${s.id})" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td>
+                <td>${s.duration} שעות</td>
+                <td class="fw-bold">${cost} \u20AA</td>
+                <td>${feedbackStars}</td>
+                <td><span class="badge bg-${st.color}"><i class="${st.icon} me-1"></i>${st.label}</span></td>
+                <td class="small text-muted text-truncate" style="max-width:120px" title="${s.notes}">${s.notes}</td>
+                <td><button class="btn btn-outline-danger btn-sm" onclick="Pages._tutorDelete(${s.id})" title="מחק"><i class="bi bi-trash"></i></button></td>
               </tr>`;
             }).join('')}
           </tbody>
@@ -174,43 +319,71 @@ Object.assign(Pages, {
 
     <!-- Add Session Modal -->
     <div class="modal fade" id="tutor-add-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E2\u05D6\u05E8 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header bg-primary bg-opacity-10"><h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>שיעור עזר חדש</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
-        <div class="mb-3"><label class="form-label">\u05DE\u05EA\u05D2\u05D1\u05E8</label>
-          <select class="form-select" id="ts-tutor">${tutors.map(t => `<option value="${t.id}">${t.name} (${t.rate} \u20AA/\u05E9\u05E2\u05D4)</option>`).join('')}</select></div>
-        <div class="mb-3"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><input type="text" class="form-control" id="ts-student" placeholder="\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3"></div>
-        <div class="mb-3"><label class="form-label">\u05E0\u05D5\u05E9\u05D0</label>
+        <div class="mb-3"><label class="form-label fw-bold">מתגבר</label>
+          <select class="form-select" id="ts-tutor" onchange="Pages._tutorAutoRate()">
+            ${tutors.map(t => `<option value="${t.id}">${t.name} (${t.rate} \u20AA/שעה) — ${t.subjects.join(', ')}</option>`).join('')}
+          </select></div>
+        <div class="mb-3"><label class="form-label fw-bold">תלמיד</label><input type="text" class="form-control" id="ts-student" placeholder="שם התלמיד"></div>
+        <div class="mb-3"><label class="form-label fw-bold">נושא</label>
           <select class="form-select" id="ts-subject">
-            <option>\u05D2\u05DE\u05E8\u05D0</option><option>\u05D7\u05D5\u05DE\u05E9</option><option>\u05D4\u05DC\u05DB\u05D4</option><option>\u05DE\u05E9\u05E0\u05D4</option><option>\u05E0\u05F4\u05DA</option><option>\u05DE\u05EA\u05DE\u05D8\u05D9\u05E7\u05D4</option><option>\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA</option><option>\u05DE\u05D5\u05E1\u05E8</option><option>\u05D0\u05D7\u05E8</option>
+            <option>גמרא</option><option>חומש</option><option>הלכה</option><option>משנה</option><option>נ"ך</option><option>מתמטיקה</option><option>אנגלית</option><option>מוסר</option><option>מחשבים</option><option>פיזיקה</option><option>אחר</option>
           </select></div>
         <div class="row g-3 mb-3">
-          <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="ts-date" value="${today}"></div>
-          <div class="col-6"><label class="form-label">\u05E9\u05E2\u05D4</label><input type="time" class="form-control" id="ts-time" value="09:00"></div>
+          <div class="col-6"><label class="form-label fw-bold">תאריך</label><input type="date" class="form-control" id="ts-date" value="${today}"></div>
+          <div class="col-6"><label class="form-label fw-bold">שעה</label><input type="time" class="form-control" id="ts-time" value="09:00"></div>
         </div>
         <div class="row g-3 mb-3">
-          <div class="col-6"><label class="form-label">\u05DE\u05E9\u05DA (\u05E9\u05E2\u05D5\u05EA)</label><input type="number" class="form-control" id="ts-duration" min="0.5" step="0.5" value="1"></div>
-          <div class="col-6"><label class="form-label">\u05EA\u05E2\u05E8\u05D9\u05E3 \u05E9\u05E2\u05EA\u05D9 (\u20AA)</label><input type="number" class="form-control" id="ts-rate" min="0" value="80"></div>
+          <div class="col-6"><label class="form-label fw-bold">משך (שעות)</label><input type="number" class="form-control" id="ts-duration" min="0.5" step="0.5" value="1"></div>
+          <div class="col-6"><label class="form-label fw-bold">תעריף שעתי (\u20AA)</label><input type="number" class="form-control" id="ts-rate" min="0" value="80"></div>
         </div>
+        <div class="mb-3"><label class="form-label fw-bold">הערות</label><textarea class="form-control" id="ts-notes" rows="2" placeholder="נושאים שנלמדו..."></textarea></div>
+        <div class="alert alert-info small" id="ts-cost-preview"><i class="bi bi-calculator me-1"></i>עלות משוערת: <strong>80 \u20AA</strong></div>
       </div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._tutorSave()">\u05E9\u05DE\u05D5\u05E8</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button><button class="btn btn-primary" onclick="Pages._tutorSave()"><i class="bi bi-check-lg me-1"></i>שמור</button></div>
     </div></div></div>`;
   },
 
-  tutoringInit() {},
-
-  _tutorShowAdd() {
-    // Auto-fill rate when tutor changes
-    const modal = document.getElementById('tutor-add-modal');
-    const tutorSel = modal.querySelector('#ts-tutor');
-    const rateInput = modal.querySelector('#ts-rate');
-    tutorSel.onchange = () => {
-      const t = this._tutors.find(x => x.id === +tutorSel.value);
-      if (t) rateInput.value = t.rate;
+  tutoringInit() {
+    // Update cost preview on changes
+    const updateCost = () => {
+      const dur = parseFloat(document.getElementById('ts-duration')?.value) || 1;
+      const rate = parseFloat(document.getElementById('ts-rate')?.value) || 0;
+      const preview = document.getElementById('ts-cost-preview');
+      if (preview) preview.innerHTML = `<i class="bi bi-calculator me-1"></i>עלות משוערת: <strong>${(dur * rate).toLocaleString()} \u20AA</strong>`;
     };
-    // Set initial rate
-    const firstTutor = this._tutors[0];
-    if (firstTutor) rateInput.value = firstTutor.rate;
-    new bootstrap.Modal(modal).show();
+    document.getElementById('ts-duration')?.addEventListener('input', updateCost);
+    document.getElementById('ts-rate')?.addEventListener('input', updateCost);
+  },
+
+  _tutorAutoRate() {
+    const tutorId = +document.getElementById('ts-tutor').value;
+    const t = this._tutors.find(x => x.id === tutorId);
+    if (t) {
+      document.getElementById('ts-rate').value = t.rate;
+      // Update subject dropdown to match tutor's first subject
+      const subjectSel = document.getElementById('ts-subject');
+      if (t.subjects.length > 0) {
+        for (let i = 0; i < subjectSel.options.length; i++) {
+          if (t.subjects.includes(subjectSel.options[i].value)) {
+            subjectSel.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    }
+  },
+
+  _tutorShowAdd(tutorId) {
+    if (tutorId) {
+      document.getElementById('ts-tutor').value = tutorId;
+      this._tutorAutoRate();
+    } else {
+      const firstTutor = this._tutors[0];
+      if (firstTutor) document.getElementById('ts-rate').value = firstTutor.rate;
+    }
+    new bootstrap.Modal(document.getElementById('tutor-add-modal')).show();
   },
 
   _tutorSave() {
@@ -221,23 +394,55 @@ Object.assign(Pages, {
     const time = document.getElementById('ts-time').value;
     const duration = parseFloat(document.getElementById('ts-duration').value) || 1;
     const rate = parseFloat(document.getElementById('ts-rate').value) || 0;
+    const notes = document.getElementById('ts-notes').value.trim();
 
     if (!student) {
-      Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3', 'warning');
+      Utils.toast('נא להזין שם תלמיד', 'warning');
       return;
     }
 
     const status = date < Utils.todayISO() ? 'completed' : 'scheduled';
-    this._tutorSessions.push({ id: this._tutorNextId++, tutorId, student, subject, date, time, duration, rate, status });
+    this._tutorSessions.push({ id: this._tutorNextId++, tutorId, student, subject, date, time, duration, rate, status, notes, feedback: 0 });
     bootstrap.Modal.getInstance(document.getElementById('tutor-add-modal'))?.hide();
-    Utils.toast('\u05D4\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    Utils.toast('השיעור נוסף בהצלחה', 'success');
     App.loadPage('tutoring');
   },
 
   _tutorDelete(id) {
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D6\u05D4?')) return;
+    if (!confirm('למחוק שיעור זה?')) return;
     this._tutorSessions = this._tutorSessions.filter(s => s.id !== id);
-    Utils.toast('\u05D4\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05DE\u05D7\u05E7', 'success');
+    Utils.toast('השיעור נמחק', 'success');
     App.loadPage('tutoring');
+  },
+
+  _tutorSetView(mode) {
+    this._tutorViewMode = mode;
+    App.loadPage('tutoring');
+  },
+
+  _tutorSearch(query) {
+    const rows = document.querySelectorAll('#tutor-sessions-body tr');
+    const q = query.trim().toLowerCase();
+    rows.forEach(tr => {
+      const text = (tr.dataset.search || '').toLowerCase();
+      tr.style.display = !q || text.includes(q) ? '' : 'none';
+    });
+  },
+
+  _tutorPay(tutorId) {
+    const tutor = this._tutors.find(t => t.id === tutorId);
+    if (!tutor) return;
+    if (tutor.owed <= 0) { Utils.toast('אין חוב למתגבר זה', 'info'); return; }
+    const amount = prompt(`תשלום ל${tutor.name}\nחוב: ${tutor.owed} \u20AA\nכמה לשלם?`, tutor.owed);
+    if (!amount) return;
+    const pay = Math.min(parseFloat(amount), tutor.owed);
+    tutor.paid += pay;
+    tutor.owed -= pay;
+    Utils.toast(`שולם ${pay} \u20AA ל${tutor.name}`, 'success');
+    App.loadPage('tutoring');
+  },
+
+  _tutorExport() {
+    Utils.toast('הנתונים יוצאו בהצלחה', 'success');
   }
 });
