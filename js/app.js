@@ -34,13 +34,18 @@ const App = {
       console.error('Unhandled promise:', e.reason);
     });
 
-    this.applyTheme();
-    this.bindGlobalEvents();
-    this.initAutoRefresh();
-    this.checkVersion();
-    this.initCommandPalette();
-    this.initAutoSaveIndicator();
+    try {
+      this.applyTheme();
+      this.bindGlobalEvents();
+      this.initAutoRefresh();
+      this.checkVersion();
+      this.initCommandPalette();
+      this.initAutoSaveIndicator();
+    } catch(e) {
+      console.error('Init error (non-fatal):', e);
+    }
 
+    // Always show UI even if init partially fails
     if (this.isLoggedIn()) {
       this.showApp();
     } else {
