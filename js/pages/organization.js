@@ -793,30 +793,623 @@ Object.assign(Pages, {
      CALENDAR
      ====================================================================== */
   calendar() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div class="d-flex gap-2 align-items-center"><button class="btn btn-sm btn-outline-secondary" onclick="Pages.changeMonth(-1)"><i class="bi bi-chevron-right"></i></button><h5 class="mb-0 fw-bold" id="cal-title">--</h5><button class="btn btn-sm btn-outline-secondary" onclick="Pages.changeMonth(1)"><i class="bi bi-chevron-left"></i></button><button class="btn btn-sm btn-outline-primary" onclick="Pages.goToday()">\u05D4\u05D9\u05D5\u05DD</button></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddEvent()"><i class="bi bi-plus-lg me-1"></i>\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D7\u05D3\u05E9</button></div><div class="d-flex gap-2 mb-2 small"><span class="badge bg-primary">\u05D0\u05D9\u05E8\u05D5\u05E2</span><span class="badge bg-danger">\u05D7\u05D2</span><span class="badge bg-success">\u05D7\u05D5\u05E4\u05E9\u05D4</span><span class="badge bg-warning">\u05DE\u05D1\u05D7\u05DF</span></div><div class="card p-0 overflow-hidden"><div class="row g-0 text-center bg-light border-bottom" style="font-weight:600;font-size:13px"><div class="col py-2">\u05E8\u05D0\u05E9\u05D5\u05DF</div><div class="col py-2">\u05E9\u05E0\u05D9</div><div class="col py-2">\u05E9\u05DC\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E8\u05D1\u05D9\u05E2\u05D9</div><div class="col py-2">\u05D7\u05DE\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E9\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E9\u05D1\u05EA</div></div><div id="cal-grid"></div></div><div id="cal-events" class="mt-3"></div><div class="modal fade" id="cal-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05DB\u05D5\u05EA\u05E8\u05EA</label><input class="form-control" id="cf-title"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="cf-date"></div><div class="col-6"><label class="form-label">\u05E1\u05D5\u05D2</label><select class="form-select" id="cf-type"><option>\u05D0\u05D9\u05E8\u05D5\u05E2</option><option>\u05D7\u05D2</option><option>\u05D7\u05D5\u05E4\u05E9\u05D4</option><option>\u05DE\u05D1\u05D7\u05DF</option></select></div><div class="col-12"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><textarea class="form-control" id="cf-notes" rows="2"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveCalEvent()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-calendar3 me-2"></i>\u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4</h1>
+        <p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD, \u05D7\u05D2\u05D9\u05DD, \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05D5\u05E4\u05D2\u05D9\u05E9\u05D5\u05EA</p>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary" id="cal-view-month" onclick="Pages._calView='month';Pages.renderCalView()"><i class="bi bi-grid-3x3 me-1"></i>\u05D7\u05D5\u05D3\u05E9\u05D9</button>
+          <button class="btn btn-outline-secondary" id="cal-view-week" onclick="Pages._calView='week';Pages.renderCalView()"><i class="bi bi-calendar-week me-1"></i>\u05E9\u05D1\u05D5\u05E2\u05D9</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddEvent()"><i class="bi bi-plus-lg me-1"></i>\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D7\u05D3\u05E9</button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-calendar-check fs-3 text-primary"></i>
+        <div class="fs-3 fw-bold text-primary" id="cal-stat-total">0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-calendar-month fs-3 text-success"></i>
+        <div class="fs-3 fw-bold text-success" id="cal-stat-month">0</div>
+        <small class="text-muted">\u05D4\u05D7\u05D5\u05D3\u05E9</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-clock fs-3 text-warning"></i>
+        <div class="fs-3 fw-bold text-warning" id="cal-stat-upcoming">0</div>
+        <small class="text-muted">\u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-tags fs-3 text-info"></i>
+        <div class="fs-3 fw-bold text-info" id="cal-stat-categories">0</div>
+        <small class="text-muted">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D5\u05EA</small>
+      </div></div>
+    </div>
+
+    <div class="row g-3">
+      <!-- Main Calendar Area -->
+      <div class="col-lg-9">
+        <!-- Navigation -->
+        <div class="card mb-3">
+          <div class="card-body py-2 d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-2 align-items-center">
+              <button class="btn btn-sm btn-outline-secondary" onclick="Pages.changeMonth(-1)"><i class="bi bi-chevron-right"></i></button>
+              <h5 class="mb-0 fw-bold" id="cal-title">--</h5>
+              <button class="btn btn-sm btn-outline-secondary" onclick="Pages.changeMonth(1)"><i class="bi bi-chevron-left"></i></button>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages.goToday()">\u05D4\u05D9\u05D5\u05DD</button>
+            </div>
+            <div class="d-flex gap-2 small flex-wrap">
+              <span class="badge bg-primary" style="cursor:pointer" onclick="Pages._calFilter=Pages._calFilter==='event'?'':'event';Pages.renderCalView()"><i class="bi bi-circle-fill me-1" style="font-size:8px"></i>\u05D0\u05D9\u05E8\u05D5\u05E2</span>
+              <span class="badge bg-success" style="cursor:pointer" onclick="Pages._calFilter=Pages._calFilter==='meeting'?'':'meeting';Pages.renderCalView()"><i class="bi bi-circle-fill me-1" style="font-size:8px"></i>\u05E4\u05D2\u05D9\u05E9\u05D4</span>
+              <span class="badge bg-danger" style="cursor:pointer" onclick="Pages._calFilter=Pages._calFilter==='holiday'?'':'holiday';Pages.renderCalView()"><i class="bi bi-circle-fill me-1" style="font-size:8px"></i>\u05D7\u05D2</span>
+              <span class="badge bg-warning text-dark" style="cursor:pointer" onclick="Pages._calFilter=Pages._calFilter==='exam'?'':'exam';Pages.renderCalView()"><i class="bi bi-circle-fill me-1" style="font-size:8px"></i>\u05DE\u05D1\u05D7\u05DF</span>
+              <span class="badge bg-secondary" style="cursor:pointer" onclick="Pages._calFilter=Pages._calFilter==='other'?'':'other';Pages.renderCalView()"><i class="bi bi-circle-fill me-1" style="font-size:8px"></i>\u05D0\u05D7\u05E8</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="card p-0 overflow-hidden">
+          <div class="row g-0 text-center bg-light border-bottom" style="font-weight:600;font-size:13px">
+            <div class="col py-2">\u05E8\u05D0\u05E9\u05D5\u05DF</div><div class="col py-2">\u05E9\u05E0\u05D9</div><div class="col py-2">\u05E9\u05DC\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E8\u05D1\u05D9\u05E2\u05D9</div><div class="col py-2">\u05D7\u05DE\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E9\u05D9\u05E9\u05D9</div><div class="col py-2">\u05E9\u05D1\u05EA</div>
+          </div>
+          <div id="cal-grid"></div>
+        </div>
+
+        <!-- Day Detail Panel -->
+        <div class="card mt-3 d-none" id="cal-day-panel">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-calendar-day me-2"></i><span id="cal-day-title"></span></h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" id="cal-day-add-btn" onclick="Pages.showAddEvent()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E8\u05D5\u05E2</button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('cal-day-panel').classList.add('d-none')"><i class="bi bi-x-lg"></i></button>
+            </div>
+          </div>
+          <div class="card-body p-0" id="cal-day-events"></div>
+        </div>
+      </div>
+
+      <!-- Upcoming Events Sidebar -->
+      <div class="col-lg-3">
+        <div class="card">
+          <div class="card-header bg-light">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</h6>
+          </div>
+          <div class="card-body p-0" id="cal-upcoming" style="max-height:600px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create/Edit Event Modal -->
+    <div class="modal fade" id="cal-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cal-modal-title"><i class="bi bi-calendar-plus me-2"></i>\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D7\u05D3\u05E9</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-medium">\u05DB\u05D5\u05EA\u05E8\u05EA <span class="text-danger">*</span></label>
+            <input class="form-control" id="cf-title" placeholder="\u05E9\u05DD \u05D4\u05D0\u05D9\u05E8\u05D5\u05E2">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-medium">\u05EA\u05D0\u05E8\u05D9\u05DA <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="cf-date">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-medium">\u05E1\u05D5\u05D2</label>
+            <select class="form-select" id="cf-type">
+              <option value="\u05D0\u05D9\u05E8\u05D5\u05E2">\u05D0\u05D9\u05E8\u05D5\u05E2</option>
+              <option value="\u05E4\u05D2\u05D9\u05E9\u05D4">\u05E4\u05D2\u05D9\u05E9\u05D4</option>
+              <option value="\u05D7\u05D2">\u05D7\u05D2</option>
+              <option value="\u05DE\u05D1\u05D7\u05DF">\u05DE\u05D1\u05D7\u05DF</option>
+              <option value="\u05D0\u05D7\u05E8">\u05D0\u05D7\u05E8</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-medium">\u05E9\u05E2\u05EA \u05D4\u05EA\u05D7\u05DC\u05D4</label>
+            <input type="time" class="form-control" id="cf-start-time">
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-medium">\u05E9\u05E2\u05EA \u05E1\u05D9\u05D5\u05DD</label>
+            <input type="time" class="form-control" id="cf-end-time">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-medium">\u05DE\u05D9\u05E7\u05D5\u05DD</label>
+            <input class="form-control" id="cf-location" placeholder="\u05DE\u05D9\u05E7\u05D5\u05DD \u05D4\u05D0\u05D9\u05E8\u05D5\u05E2">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-medium">\u05EA\u05D9\u05D0\u05D5\u05E8</label>
+            <textarea class="form-control" id="cf-notes" rows="2" placeholder="\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD..."></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-medium">\u05D7\u05D6\u05E8\u05D4</label>
+            <select class="form-select" id="cf-recurring">
+              <option value="">\u05DC\u05DC\u05D0 \u05D7\u05D6\u05E8\u05D4</option>
+              <option value="weekly">\u05E9\u05D1\u05D5\u05E2\u05D9</option>
+              <option value="biweekly">\u05D3\u05D5-\u05E9\u05D1\u05D5\u05E2\u05D9</option>
+              <option value="monthly">\u05D7\u05D5\u05D3\u05E9\u05D9</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+        <button class="btn btn-primary" onclick="Pages.saveCalEvent()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+      </div>
+    </div></div></div>
+
+    <!-- Event Detail Modal -->
+    <div class="modal fade" id="cal-event-detail" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header" id="cal-detail-header">
+        <h5 class="modal-title" id="cal-detail-title"></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="cal-detail-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm" id="cal-detail-delete"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05E7</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">\u05E1\u05D2\u05D5\u05E8</button>
+      </div>
+    </div></div></div>`;
   },
-  _calYear: 0, _calMonth: 0, _calEvents: [],
-  async calendarInit() { const d=new Date(); this._calYear=d.getFullYear(); this._calMonth=d.getMonth(); this.loadCalendar(); },
-  changeMonth(dir) { this._calMonth+=dir; if (this._calMonth>11){this._calMonth=0;this._calYear++;} if(this._calMonth<0){this._calMonth=11;this._calYear--;} this.loadCalendar(); },
-  goToday() { const d=new Date(); this._calYear=d.getFullYear(); this._calMonth=d.getMonth(); this.loadCalendar(); },
+
+  _calYear: 0, _calMonth: 0, _calEvents: [], _calView: 'month', _calFilter: '', _calSelectedDay: '',
+  _calTypeColors: {
+    '\u05D0\u05D9\u05E8\u05D5\u05E2': { bg: 'primary', icon: 'bi-calendar-event', label: '\u05D0\u05D9\u05E8\u05D5\u05E2' },
+    '\u05E4\u05D2\u05D9\u05E9\u05D4': { bg: 'success', icon: 'bi-people', label: '\u05E4\u05D2\u05D9\u05E9\u05D4' },
+    '\u05D7\u05D2': { bg: 'danger', icon: 'bi-star', label: '\u05D7\u05D2' },
+    '\u05DE\u05D1\u05D7\u05DF': { bg: 'warning', icon: 'bi-pencil-square', label: '\u05DE\u05D1\u05D7\u05DF' },
+    '\u05D0\u05D7\u05E8': { bg: 'secondary', icon: 'bi-bookmark', label: '\u05D0\u05D7\u05E8' },
+    '\u05D7\u05D5\u05E4\u05E9\u05D4': { bg: 'success', icon: 'bi-people', label: '\u05D7\u05D5\u05E4\u05E9\u05D4' }
+  },
+  _calMonthNames: ['\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8\u05D9\u05DC','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0\u05D9','\u05D9\u05D5\u05DC\u05D9','\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8','\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8','\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8','\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8','\u05D3\u05E6\u05DE\u05D1\u05E8'],
+  _calDayNames: ['\u05E8\u05D0\u05E9\u05D5\u05DF','\u05E9\u05E0\u05D9','\u05E9\u05DC\u05D9\u05E9\u05D9','\u05E8\u05D1\u05D9\u05E2\u05D9','\u05D7\u05DE\u05D9\u05E9\u05D9','\u05E9\u05D9\u05E9\u05D9','\u05E9\u05D1\u05EA'],
+
+  // Demo data: 20 events across 3 months
+  _calDemoEvents: (() => {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const pad = (n) => String(n).padStart(2,'0');
+    const mkDate = (mo, d) => { const dt = new Date(y, mo, d); return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate()); };
+    return [
+      { id:'demo1', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,3), '\u05E1\u05D5\u05D2':'\u05E4\u05D2\u05D9\u05E9\u05D4', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'10:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'11:30', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA \u05E9\u05D1\u05D5\u05E2\u05D9\u05EA \u05E7\u05D1\u05D5\u05E2\u05D4' },
+      { id:'demo2', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05D7\u05D5\u05D3\u05E9\u05D9', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,7), '\u05E1\u05D5\u05D2':'\u05DE\u05D1\u05D7\u05DF', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'09:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'10:30', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D0', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05D1\u05D2\u05DE\u05E8\u05D0 \u05E4\u05E8\u05E7 \u05D2' },
+      { id:'demo3', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,10), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'18:30', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'20:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05E8\u05D0\u05E9\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9 \u05DB\u05D9\u05EA\u05D4 \u05D0' },
+      { id:'demo4', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D8\u05D9\u05D5\u05DC \u05DC\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,12), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'08:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'17:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9 \u05DC\u05DE\u05E7\u05D5\u05DE\u05D5\u05EA \u05E7\u05D3\u05D5\u05E9\u05D9\u05DD' },
+      { id:'demo5', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05EA \u05D4\u05E0\u05D4\u05DC\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,14), '\u05E1\u05D5\u05D2':'\u05E4\u05D2\u05D9\u05E9\u05D4', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'14:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'15:30', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DE\u05E9\u05E8\u05D3 \u05D4\u05DE\u05D5\u05E1\u05D3', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA \u05E9\u05DC \u05D4\u05E0\u05D4\u05DC\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3' },
+      { id:'demo6', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D4\u05E2\u05E9\u05E8\u05D4 \u05DC\u05E6\u05D5\u05D5\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,16), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'19:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'20:30', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D7\u05D3\u05E8 \u05DB\u05E0\u05E1\u05D9\u05DD', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D4\u05E2\u05E9\u05E8\u05D4 \u05DC\u05DB\u05DC \u05D4\u05E6\u05D5\u05D5\u05EA' },
+      { id:'demo7', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05D0\u05DE\u05E6\u05E2 \u05E9\u05E0\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,18), '\u05E1\u05D5\u05D2':'\u05DE\u05D1\u05D7\u05DF', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'09:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'12:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D1', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05DE\u05E1\u05DB\u05DD \u05D1\u05DB\u05DC \u05D4\u05DE\u05E7\u05E6\u05D5\u05E2\u05D5\u05EA' },
+      { id:'demo8', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF \u05DC\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,20), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'10:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'13:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05E8\u05D0\u05E9\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D9\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05DC\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3' },
+      { id:'demo9', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E1\u05D9\u05D5\u05DD \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D0', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,25), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DE\u05D5\u05E1\u05D3', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E1\u05D9\u05D5\u05DD \u05E8\u05E9\u05DE\u05D9 \u05E9\u05DC \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D0' },
+      { id:'demo10', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D7\u05DC\u05D5\u05E7\u05EA \u05EA\u05E2\u05D5\u05D3\u05D5\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m,27), '\u05E1\u05D5\u05D2':'\u05D0\u05D7\u05E8', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'11:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'12:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DE\u05E9\u05E8\u05D3', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D7\u05DC\u05D5\u05E7\u05EA \u05EA\u05E2\u05D5\u05D3\u05D5\u05EA \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E6\u05D8\u05D9\u05D9\u05E0\u05D9\u05DD' },
+      { id:'demo11', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05EA \u05E6\u05D5\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,2), '\u05E1\u05D5\u05D2':'\u05E4\u05D2\u05D9\u05E9\u05D4', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'10:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'11:30', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D7\u05D3\u05E8 \u05DE\u05D5\u05E8\u05D9\u05DD', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05EA \u05E6\u05D5\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA' },
+      { id:'demo12', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05E8\u05E6\u05D0\u05D4 \u05DE\u05E8\u05DB\u05D6\u05D9\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,5), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'19:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'21:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05DE\u05E8\u05DB\u05D6\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D4\u05E8\u05E6\u05D0\u05D4 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u05D5\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD' },
+      { id:'demo13', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05D1\u05D2\u05DE\u05E8\u05D0', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,8), '\u05E1\u05D5\u05D2':'\u05DE\u05D1\u05D7\u05DF', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'09:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'11:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D0', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05DE\u05E1\u05DB\u05DD \u05D1\u05D2\u05DE\u05E8\u05D0 \u05E4\u05E8\u05E7 \u05D4' },
+      { id:'demo14', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D9\u05D5\u05DD \u05E9\u05D9\u05D0 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,12), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'16:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'18:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05E8\u05D0\u05E9\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E4\u05D5\u05E8\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD' },
+      { id:'demo15', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E1\u05D9\u05D5\u05E8 \u05DC\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,18), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'09:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'14:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF \u05D9\u05E9\u05E8\u05D0\u05DC', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E1\u05D9\u05D5\u05E8 \u05DC\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF \u05D9\u05E9\u05E8\u05D0\u05DC \u05EA\u05DC \u05D0\u05D1\u05D9\u05D1' },
+      { id:'demo16', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D9\u05D5\u05DD \u05D4\u05E2\u05E6\u05DE\u05D0\u05D5\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+1,22), '\u05E1\u05D5\u05D2':'\u05D7\u05D2', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DE\u05D5\u05E1\u05D3', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D9\u05D5\u05DD \u05D7\u05D5\u05E4\u05E9\u05D4 \u05D5\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA' },
+      { id:'demo17', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05EA \u05D4\u05E0\u05D4\u05DC\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+2,1), '\u05E1\u05D5\u05D2':'\u05E4\u05D2\u05D9\u05E9\u05D4', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'14:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'16:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D7\u05D3\u05E8 \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E4\u05D2\u05D9\u05E9\u05EA \u05D4\u05E0\u05D4\u05DC\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA' },
+      { id:'demo18', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D7\u05DC\u05D5\u05E7\u05EA \u05E4\u05E8\u05E1\u05D9\u05DD', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+2,8), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'12:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'13:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05E8\u05D0\u05E9\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D8\u05E7\u05E1 \u05D7\u05DC\u05D5\u05E7\u05EA \u05E4\u05E8\u05E1\u05D9\u05DD \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD' },
+      { id:'demo19', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05E1\u05D5\u05E3 \u05E9\u05E0\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+2,15), '\u05E1\u05D5\u05D2':'\u05DE\u05D1\u05D7\u05DF', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'09:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'12:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05D1\u05D7\u05DF \u05DE\u05E1\u05DB\u05DD \u05E1\u05D5\u05E3 \u05E9\u05E0\u05D4' },
+      { id:'demo20', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D8\u05E7\u05E1 \u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA':mkDate(m+2,20), '\u05E1\u05D5\u05D2':'\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4':'18:00', '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD':'21:00', '\u05DE\u05D9\u05E7\u05D5\u05DD':'\u05D0\u05D5\u05DC\u05DD \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD', '\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05D8\u05E7\u05E1 \u05D7\u05D2\u05D9\u05D2\u05D9 \u05DC\u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05EA \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD' }
+    ];
+  })(),
+
+  async calendarInit() {
+    const d = new Date();
+    this._calYear = d.getFullYear();
+    this._calMonth = d.getMonth();
+    this._calView = 'month';
+    this._calFilter = '';
+    this._calSelectedDay = '';
+    // Set active view button
+    document.getElementById('cal-view-month')?.classList.add('active');
+    document.getElementById('cal-view-week')?.classList.remove('active');
+    await this.loadCalendar();
+  },
+
+  changeMonth(dir) {
+    if (this._calView === 'week') {
+      // Move by 7 days
+      const curr = new Date(this._calYear, this._calMonth, this._calWeekStart || 1);
+      curr.setDate(curr.getDate() + dir * 7);
+      this._calYear = curr.getFullYear();
+      this._calMonth = curr.getMonth();
+      this._calWeekStart = curr.getDate();
+    } else {
+      this._calMonth += dir;
+      if (this._calMonth > 11) { this._calMonth = 0; this._calYear++; }
+      if (this._calMonth < 0) { this._calMonth = 11; this._calYear--; }
+    }
+    this.loadCalendar();
+  },
+
+  goToday() {
+    const d = new Date();
+    this._calYear = d.getFullYear();
+    this._calMonth = d.getMonth();
+    this._calWeekStart = d.getDate() - d.getDay();
+    this.loadCalendar();
+  },
+
+  _calGetTypeInfo(type) {
+    const filterMap = { '\u05D0\u05D9\u05E8\u05D5\u05E2':'event', '\u05E4\u05D2\u05D9\u05E9\u05D4':'meeting', '\u05D7\u05D5\u05E4\u05E9\u05D4':'meeting', '\u05D7\u05D2':'holiday', '\u05DE\u05D1\u05D7\u05DF':'exam', '\u05D0\u05D7\u05E8':'other' };
+    return { ...(this._calTypeColors[type] || this._calTypeColors['\u05D0\u05D7\u05E8']), filterKey: filterMap[type] || 'other' };
+  },
+
+  _calFilterEvents(events) {
+    if (!this._calFilter) return events;
+    return events.filter(e => {
+      const info = this._calGetTypeInfo(e['\u05E1\u05D5\u05D2'] || '');
+      return info.filterKey === this._calFilter;
+    });
+  },
+
   async loadCalendar() {
-    const months = ['\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8\u05D9\u05DC','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0\u05D9','\u05D9\u05D5\u05DC\u05D9','\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8','\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8','\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8','\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8','\u05D3\u05E6\u05DE\u05D1\u05E8'];
-    document.getElementById('cal-title').textContent = months[this._calMonth]+' '+this._calYear;
-    this._calEvents = await App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4');
-    const monthStr = this._calYear+'-'+String(this._calMonth+1).padStart(2,'0');
-    const mEvents = this._calEvents.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(monthStr));
-    const evMap = {}; mEvents.forEach(e => { const d=String(e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').substring(0,10); if (!evMap[d]) evMap[d]=[]; evMap[d].push(e); });
-    const first = new Date(this._calYear, this._calMonth, 1); const startDay=first.getDay(); const daysInMonth=new Date(this._calYear,this._calMonth+1,0).getDate(); const today=Utils.todayISO();
-    let html='',dayNum=1;
-    for (let week=0;week<6;week++) { if (dayNum>daysInMonth&&week>0) break; html+='<div class="row g-0">'; for (let dow=0;dow<7;dow++) { if ((week===0&&dow<startDay)||dayNum>daysInMonth) { html+='<div class="col border-bottom border-end p-2" style="min-height:80px"></div>'; } else { const ds=this._calYear+'-'+String(this._calMonth+1).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); const isT=ds===today; const evts=evMap[ds]||[]; html+=`<div class="col border-bottom border-end p-2${isT?' bg-primary bg-opacity-10':''}" style="min-height:80px;cursor:pointer" onclick="Pages.showAddEvent('${ds}')"><div class="${isT?'badge bg-primary rounded-circle':'fw-bold small'}">${dayNum}</div>`; evts.forEach(e => { const cs={'\u05D7\u05D2':'danger','\u05D7\u05D5\u05E4\u05E9\u05D4':'success','\u05DE\u05D1\u05D7\u05DF':'warning'}; const c=cs[e['\u05E1\u05D5\u05D2']]||'primary'; html+=`<div class="badge bg-${c} text-wrap mb-1 d-inline-flex align-items-center gap-1" style="font-size:10px" onclick="event.stopPropagation()">${e['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}<span style="cursor:pointer" onclick="Pages.deleteCalEvent('${e.id||e['\u05DE\u05D6\u05D4\u05D4']}')">&times;</span></div> `; }); html+='</div>'; dayNum++; } } html+='</div>'; }
+    let serverEvents = [];
+    try { serverEvents = await App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4'); } catch(e) { /* use demo */ }
+    // Merge server events with demo data (demo only if server is empty)
+    this._calEvents = serverEvents.length ? serverEvents : this._calDemoEvents;
+    this.renderCalView();
+  },
+
+  renderCalView() {
+    // Update view toggle buttons
+    document.getElementById('cal-view-month')?.classList.toggle('active', this._calView === 'month');
+    document.getElementById('cal-view-week')?.classList.toggle('active', this._calView === 'week');
+
+    // Update title
+    if (this._calView === 'month') {
+      document.getElementById('cal-title').textContent = this._calMonthNames[this._calMonth] + ' ' + this._calYear;
+    } else {
+      const ws = new Date(this._calYear, this._calMonth, this._calWeekStart || 1);
+      const we = new Date(ws); we.setDate(we.getDate() + 6);
+      document.getElementById('cal-title').textContent = ws.getDate() + '-' + we.getDate() + ' ' + this._calMonthNames[this._calMonth] + ' ' + this._calYear;
+    }
+
+    // Update stats
+    this._updateCalStats();
+
+    // Render grid
+    if (this._calView === 'month') {
+      this._renderMonthGrid();
+    } else {
+      this._renderWeekGrid();
+    }
+
+    // Render upcoming sidebar
+    this._renderUpcoming();
+
+    // Hide day panel
+    document.getElementById('cal-day-panel')?.classList.add('d-none');
+  },
+
+  _updateCalStats() {
+    const today = Utils.todayISO();
+    const allEvents = this._calEvents;
+    const monthStr = this._calYear + '-' + String(this._calMonth + 1).padStart(2, '0');
+    const monthEvents = allEvents.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').startsWith(monthStr));
+    const upcoming = allEvents.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= today);
+    const categories = new Set(allEvents.map(e => e['\u05E1\u05D5\u05D2'] || '\u05D0\u05D7\u05E8'));
+
+    document.getElementById('cal-stat-total').textContent = allEvents.length;
+    document.getElementById('cal-stat-month').textContent = monthEvents.length;
+    document.getElementById('cal-stat-upcoming').textContent = upcoming.length;
+    document.getElementById('cal-stat-categories').textContent = categories.size;
+  },
+
+  _renderMonthGrid() {
+    const monthStr = this._calYear + '-' + String(this._calMonth + 1).padStart(2, '0');
+    let filtered = this._calFilterEvents(this._calEvents);
+    const mEvents = filtered.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').startsWith(monthStr));
+    const evMap = {};
+    mEvents.forEach(e => {
+      const d = String(e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').substring(0, 10);
+      if (!evMap[d]) evMap[d] = [];
+      evMap[d].push(e);
+    });
+
+    const first = new Date(this._calYear, this._calMonth, 1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(this._calYear, this._calMonth + 1, 0).getDate();
+    const today = Utils.todayISO();
+
+    let html = '';
+    let dayNum = 1;
+    for (let week = 0; week < 6; week++) {
+      if (dayNum > daysInMonth && week > 0) break;
+      html += '<div class="row g-0">';
+      for (let dow = 0; dow < 7; dow++) {
+        if ((week === 0 && dow < startDay) || dayNum > daysInMonth) {
+          html += '<div class="col border-bottom border-end p-1" style="min-height:90px"></div>';
+        } else {
+          const ds = this._calYear + '-' + String(this._calMonth + 1).padStart(2, '0') + '-' + String(dayNum).padStart(2, '0');
+          const isT = ds === today;
+          const isSel = ds === this._calSelectedDay;
+          const evts = evMap[ds] || [];
+          const bgClass = isT ? ' bg-primary bg-opacity-10' : isSel ? ' bg-info bg-opacity-10' : '';
+          html += `<div class="col border-bottom border-end p-1${bgClass}" style="min-height:90px;cursor:pointer;transition:background .15s" onclick="Pages.selectCalDay('${ds}')" onmouseenter="this.style.backgroundColor='rgba(var(--bs-primary-rgb),0.05)'" onmouseleave="this.style.backgroundColor=''">`;
+          html += `<div class="d-flex justify-content-between align-items-center mb-1">`;
+          html += `<span class="${isT ? 'badge bg-primary rounded-circle' : 'fw-bold small'}">${dayNum}</span>`;
+          if (evts.length > 0) html += `<span class="badge bg-light text-dark border" style="font-size:9px">${evts.length}</span>`;
+          html += '</div>';
+
+          // Show event dots (max 3 visible, then +N)
+          const maxShow = 3;
+          evts.slice(0, maxShow).forEach(e => {
+            const info = this._calGetTypeInfo(e['\u05E1\u05D5\u05D2'] || '');
+            const time = e['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+            html += `<div class="rounded px-1 mb-1 text-white text-truncate bg-${info.bg}" style="font-size:10px;line-height:1.5;cursor:pointer" onclick="event.stopPropagation();Pages.showEventDetail('${e.id || e['\u05DE\u05D6\u05D4\u05D4'] || ''}')" title="${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}">${time ? '<span class="opacity-75">' + time + '</span> ' : ''}${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</div>`;
+          });
+          if (evts.length > maxShow) {
+            html += `<div class="text-muted text-center" style="font-size:9px">+${evts.length - maxShow} \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD</div>`;
+          }
+          html += '</div>';
+          dayNum++;
+        }
+      }
+      html += '</div>';
+    }
     document.getElementById('cal-grid').innerHTML = html;
   },
-  showAddEvent(date) { document.getElementById('cf-date').value = date || Utils.todayISO(); new bootstrap.Modal(document.getElementById('cal-modal')).show(); },
-  async saveCalEvent() { const row = {'\u05DB\u05D5\u05EA\u05E8\u05EA':document.getElementById('cf-title').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('cf-date').value,'\u05E1\u05D5\u05D2':document.getElementById('cf-type').value,'\u05D4\u05E2\u05E8\u05D5\u05EA':document.getElementById('cf-notes').value.trim()}; if (!row['\u05DB\u05D5\u05EA\u05E8\u05EA']) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05D5\u05EA\u05E8\u05EA','warning'); return; } try { await App.apiCall('add','\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4',{row}); bootstrap.Modal.getInstance(document.getElementById('cal-modal')).hide(); Utils.toast('\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E0\u05D5\u05E1\u05E3'); this.loadCalendar(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
-  async deleteCalEvent(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete','\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.loadCalendar(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+
+  _renderWeekGrid() {
+    const today = Utils.todayISO();
+    const ws = new Date(this._calYear, this._calMonth, this._calWeekStart || 1);
+    // Adjust to start of week (Sunday)
+    ws.setDate(ws.getDate() - ws.getDay());
+    let filtered = this._calFilterEvents(this._calEvents);
+
+    let html = '';
+    for (let dow = 0; dow < 7; dow++) {
+      const d = new Date(ws);
+      d.setDate(d.getDate() + dow);
+      const ds = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      const isT = ds === today;
+      const dayEvents = filtered.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').substring(0, 10) === ds);
+      const bgClass = isT ? 'bg-primary bg-opacity-10' : '';
+
+      html += `<div class="row g-0 border-bottom ${bgClass}" style="cursor:pointer" onclick="Pages.selectCalDay('${ds}')">`;
+      html += `<div class="col-2 col-md-1 p-2 text-center border-end">
+        <div class="small text-muted">${this._calDayNames[dow]}</div>
+        <div class="${isT ? 'badge bg-primary rounded-circle fs-5' : 'fs-5 fw-bold'}">${d.getDate()}</div>
+      </div>`;
+      html += '<div class="col p-2">';
+      if (dayEvents.length === 0) {
+        html += '<div class="text-muted small p-1">\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD</div>';
+      } else {
+        dayEvents.forEach(e => {
+          const info = this._calGetTypeInfo(e['\u05E1\u05D5\u05D2'] || '');
+          const time = e['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+          const endTime = e['\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD'] || '';
+          const loc = e['\u05DE\u05D9\u05E7\u05D5\u05DD'] || '';
+          html += `<div class="d-flex align-items-center gap-2 p-1 rounded mb-1" style="background:rgba(var(--bs-${info.bg}-rgb),0.1);cursor:pointer" onclick="event.stopPropagation();Pages.showEventDetail('${e.id || e['\u05DE\u05D6\u05D4\u05D4'] || ''}')">
+            <div class="rounded-circle bg-${info.bg}" style="width:10px;height:10px;min-width:10px"></div>
+            <div class="flex-grow-1">
+              <div class="fw-medium small">${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</div>
+              <div class="text-muted" style="font-size:11px">
+                ${time ? '<i class="bi bi-clock me-1"></i>' + time + (endTime ? ' - ' + endTime : '') : ''}
+                ${loc ? ' <i class="bi bi-geo-alt me-1"></i>' + loc : ''}
+              </div>
+            </div>
+            <span class="badge bg-${info.bg}" style="font-size:10px">${info.label}</span>
+          </div>`;
+        });
+      }
+      html += '</div></div>';
+    }
+    document.getElementById('cal-grid').innerHTML = html;
   },
+
+  selectCalDay(dateStr) {
+    this._calSelectedDay = dateStr;
+    const panel = document.getElementById('cal-day-panel');
+    panel.classList.remove('d-none');
+
+    // Format date for display
+    const d = new Date(dateStr + 'T00:00:00');
+    const dayName = this._calDayNames[d.getDay()];
+    document.getElementById('cal-day-title').textContent = dayName + ', ' + d.getDate() + ' ' + this._calMonthNames[d.getMonth()] + ' ' + d.getFullYear();
+    document.getElementById('cal-day-add-btn').setAttribute('onclick', `Pages.showAddEvent('${dateStr}')`);
+
+    // Get events for this day
+    const filtered = this._calFilterEvents(this._calEvents);
+    const dayEvents = filtered.filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').substring(0, 10) === dateStr);
+
+    if (dayEvents.length === 0) {
+      document.getElementById('cal-day-events').innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-calendar-x fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D6\u05D4</div>';
+      return;
+    }
+
+    document.getElementById('cal-day-events').innerHTML = '<div class="list-group list-group-flush">' + dayEvents.map(e => {
+      const info = this._calGetTypeInfo(e['\u05E1\u05D5\u05D2'] || '');
+      const time = e['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+      const endTime = e['\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD'] || '';
+      const loc = e['\u05DE\u05D9\u05E7\u05D5\u05DD'] || '';
+      const notes = e['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '';
+      return `<div class="list-group-item list-group-item-action" style="cursor:pointer;border-right:4px solid var(--bs-${info.bg})" onclick="Pages.showEventDetail('${e.id || e['\u05DE\u05D6\u05D4\u05D4'] || ''}')">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h6 class="mb-1 fw-bold"><i class="bi ${info.icon} me-1 text-${info.bg}"></i>${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</h6>
+            <div class="small text-muted">
+              ${time ? '<i class="bi bi-clock me-1"></i>' + time + (endTime ? ' - ' + endTime : '') + '  ' : ''}
+              ${loc ? '<i class="bi bi-geo-alt me-1"></i>' + loc : ''}
+            </div>
+            ${notes ? '<div class="small mt-1 text-muted">' + notes.substring(0, 80) + (notes.length > 80 ? '...' : '') + '</div>' : ''}
+          </div>
+          <span class="badge bg-${info.bg}">${info.label}</span>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+
+    // Re-render grid to show selection highlight (month view only)
+    if (this._calView === 'month') this._renderMonthGrid();
+  },
+
+  _renderUpcoming() {
+    const today = Utils.todayISO();
+    const upcoming = this._calEvents
+      .filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= today)
+      .sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+      .slice(0, 10);
+
+    const container = document.getElementById('cal-upcoming');
+    if (!upcoming.length) {
+      container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-calendar-check fs-2 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>';
+      return;
+    }
+
+    container.innerHTML = '<div class="list-group list-group-flush">' + upcoming.map(e => {
+      const info = this._calGetTypeInfo(e['\u05E1\u05D5\u05D2'] || '');
+      const eventDate = e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      const time = e['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+      const daysUntil = Math.ceil((new Date(eventDate + 'T00:00:00') - new Date(today + 'T00:00:00')) / 86400000);
+      let countdown = '';
+      if (daysUntil === 0) countdown = '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>';
+      else if (daysUntil === 1) countdown = '<span class="badge bg-warning text-dark">\u05DE\u05D7\u05E8</span>';
+      else countdown = `<span class="badge bg-light text-dark border">${daysUntil} \u05D9\u05DE\u05D9\u05DD</span>`;
+
+      const d = new Date(eventDate + 'T00:00:00');
+      const dayName = this._calDayNames[d.getDay()];
+      const dateDisplay = d.getDate() + '/' + (d.getMonth() + 1);
+
+      return `<div class="list-group-item list-group-item-action px-3 py-2" style="cursor:pointer;border-right:3px solid var(--bs-${info.bg})" onclick="Pages.showEventDetail('${e.id || e['\u05DE\u05D6\u05D4\u05D4'] || ''}')">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="fw-medium small text-truncate">${e['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</span>
+          ${countdown}
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted" style="font-size:11px"><i class="bi bi-calendar me-1"></i>${dayName}, ${dateDisplay}${time ? ' | ' + time : ''}</span>
+          <span class="badge bg-${info.bg}" style="font-size:9px">${info.label}</span>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+  },
+
+  showEventDetail(eventId) {
+    const ev = this._calEvents.find(e => (e.id || e['\u05DE\u05D6\u05D4\u05D4'] || '') === eventId);
+    if (!ev) return;
+
+    const info = this._calGetTypeInfo(ev['\u05E1\u05D5\u05D2'] || '');
+    const header = document.getElementById('cal-detail-header');
+    header.className = 'modal-header bg-' + info.bg + ' text-white';
+    document.getElementById('cal-detail-title').innerHTML = '<i class="bi ' + info.icon + ' me-2"></i>' + (ev['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '');
+
+    const time = ev['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+    const endTime = ev['\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD'] || '';
+    const loc = ev['\u05DE\u05D9\u05E7\u05D5\u05DD'] || '';
+    const notes = ev['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '';
+    const dateStr = ev['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+    const d = dateStr ? new Date(dateStr + 'T00:00:00') : null;
+    const dateDisplay = d ? this._calDayNames[d.getDay()] + ', ' + d.getDate() + ' ' + this._calMonthNames[d.getMonth()] + ' ' + d.getFullYear() : '';
+
+    let bodyHtml = '<div class="p-1">';
+    bodyHtml += `<div class="mb-3"><span class="badge bg-${info.bg} fs-6"><i class="bi ${info.icon} me-1"></i>${info.label}</span></div>`;
+    bodyHtml += `<div class="row g-3">`;
+    bodyHtml += `<div class="col-12"><div class="d-flex align-items-center gap-2"><i class="bi bi-calendar text-${info.bg} fs-5"></i><div><div class="small text-muted">\u05EA\u05D0\u05E8\u05D9\u05DA</div><div class="fw-medium">${dateDisplay}</div></div></div></div>`;
+    if (time) {
+      bodyHtml += `<div class="col-12"><div class="d-flex align-items-center gap-2"><i class="bi bi-clock text-${info.bg} fs-5"></i><div><div class="small text-muted">\u05E9\u05E2\u05D4</div><div class="fw-medium">${time}${endTime ? ' - ' + endTime : ''}</div></div></div></div>`;
+    }
+    if (loc) {
+      bodyHtml += `<div class="col-12"><div class="d-flex align-items-center gap-2"><i class="bi bi-geo-alt text-${info.bg} fs-5"></i><div><div class="small text-muted">\u05DE\u05D9\u05E7\u05D5\u05DD</div><div class="fw-medium">${loc}</div></div></div></div>`;
+    }
+    if (notes) {
+      bodyHtml += `<div class="col-12"><div class="d-flex align-items-start gap-2"><i class="bi bi-text-paragraph text-${info.bg} fs-5"></i><div><div class="small text-muted">\u05EA\u05D9\u05D0\u05D5\u05E8</div><div>${notes}</div></div></div></div>`;
+    }
+    bodyHtml += '</div></div>';
+
+    document.getElementById('cal-detail-body').innerHTML = bodyHtml;
+    document.getElementById('cal-detail-delete').setAttribute('onclick', `Pages.deleteCalEvent('${eventId}')`);
+    new bootstrap.Modal(document.getElementById('cal-event-detail')).show();
+  },
+
+  showAddEvent(date) {
+    document.getElementById('cf-title').value = '';
+    document.getElementById('cf-date').value = date || Utils.todayISO();
+    document.getElementById('cf-type').value = '\u05D0\u05D9\u05E8\u05D5\u05E2';
+    document.getElementById('cf-start-time').value = '';
+    document.getElementById('cf-end-time').value = '';
+    document.getElementById('cf-location').value = '';
+    document.getElementById('cf-notes').value = '';
+    document.getElementById('cf-recurring').value = '';
+    document.getElementById('cal-modal-title').innerHTML = '<i class="bi bi-calendar-plus me-2"></i>\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D7\u05D3\u05E9';
+    new bootstrap.Modal(document.getElementById('cal-modal')).show();
+  },
+
+  async saveCalEvent() {
+    const title = document.getElementById('cf-title').value.trim();
+    const date = document.getElementById('cf-date').value;
+    const type = document.getElementById('cf-type').value;
+    const startTime = document.getElementById('cf-start-time').value;
+    const endTime = document.getElementById('cf-end-time').value;
+    const location = document.getElementById('cf-location').value.trim();
+    const notes = document.getElementById('cf-notes').value.trim();
+    const recurring = document.getElementById('cf-recurring').value;
+
+    if (!title) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05D5\u05EA\u05E8\u05EA', 'warning'); return; }
+    if (!date) { Utils.toast('\u05D7\u05E1\u05E8 \u05EA\u05D0\u05E8\u05D9\u05DA', 'warning'); return; }
+
+    // Build events to add (handle recurring)
+    const eventsToAdd = [];
+    const baseRow = {
+      '\u05DB\u05D5\u05EA\u05E8\u05EA': title,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': date,
+      '\u05E1\u05D5\u05D2': type,
+      '\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4': startTime,
+      '\u05E9\u05E2\u05EA_\u05E1\u05D9\u05D5\u05DD': endTime,
+      '\u05DE\u05D9\u05E7\u05D5\u05DD': location,
+      '\u05D4\u05E2\u05E8\u05D5\u05EA': notes
+    };
+    eventsToAdd.push(baseRow);
+
+    if (recurring) {
+      const intervalDays = recurring === 'weekly' ? 7 : recurring === 'biweekly' ? 14 : 30;
+      const count = recurring === 'monthly' ? 6 : 12; // 6 months or 12 weeks
+      const baseDate = new Date(date + 'T00:00:00');
+      for (let i = 1; i <= count; i++) {
+        const nd = new Date(baseDate);
+        if (recurring === 'monthly') {
+          nd.setMonth(nd.getMonth() + i);
+        } else {
+          nd.setDate(nd.getDate() + intervalDays * i);
+        }
+        const ds = nd.getFullYear() + '-' + String(nd.getMonth() + 1).padStart(2, '0') + '-' + String(nd.getDate()).padStart(2, '0');
+        eventsToAdd.push({ ...baseRow, '\u05EA\u05D0\u05E8\u05D9\u05DA': ds });
+      }
+    }
+
+    try {
+      for (const row of eventsToAdd) {
+        await App.apiCall('add', '\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('cal-modal'))?.hide();
+      Utils.toast(`\u05E0\u05D5\u05E1\u05E4\u05D5 ${eventsToAdd.length} \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD`);
+      await this.loadCalendar();
+    } catch (e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger');
+    }
+  },
+
+  async deleteCalEvent(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D6\u05D4?')) return;
+    try {
+      await App.apiCall('delete', '\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4', { id });
+      // Close detail modal if open
+      bootstrap.Modal.getInstance(document.getElementById('cal-event-detail'))?.hide();
+      Utils.toast('\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E0\u05DE\u05D7\u05E7');
+      await this.loadCalendar();
+    } catch (e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
+  },
+
+  _calWeekStart: 1,
 
 
   /* ======================================================================
