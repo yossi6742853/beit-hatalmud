@@ -315,7 +315,7 @@ Object.assign(Pages, {
   },
 
   /* ======================================================================
-     SALARY OVERVIEW
+     SALARY OVERVIEW (inline panel in staff page)
      ====================================================================== */
   _renderSalaryView(container) {
     const staff = (this._staffData || []).filter(s => (s['סטטוס'] || 'פעיל') === 'פעיל');
@@ -334,7 +334,10 @@ Object.assign(Pages, {
     container.innerHTML = `<div class="card p-3">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="fw-bold mb-0"><i class="bi bi-cash-stack me-2 text-success"></i>סקירת שכר</h6>
-        <button class="btn btn-sm btn-outline-dark" onclick="Pages.toggleStaffView('salary')"><i class="bi bi-x-lg"></i></button>
+        <div class="d-flex gap-2">
+          <a href="#staff_salary" class="btn btn-sm btn-primary"><i class="bi bi-box-arrow-up-left me-1"></i>ניהול שכר מלא</a>
+          <button class="btn btn-sm btn-outline-dark" onclick="Pages.toggleStaffView('salary')"><i class="bi bi-x-lg"></i></button>
+        </div>
       </div>
       <div class="row g-3 mb-3">
         <div class="col-6 col-md-3"><div class="card p-2 text-center border-primary"><div class="fs-5 fw-bold">${Utils.formatCurrency(totalBase)}</div><small class="text-muted">בסיס</small></div></div>
@@ -739,49 +742,674 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     STAFF SALARY PAGE (standalone)
+     STAFF SALARY PAGE — Comprehensive Payroll Management
      ====================================================================== */
-  staff_salary() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-cash-stack me-2"></i>שכר צוות</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddSalary()"><i class="bi bi-plus-lg me-1"></i>תשלום חדש</button></div><div class="row g-3 mb-3"><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="sal-total">\u20AA0</div><small class="text-muted">סה"כ משכורות</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="sal-paid">\u20AA0</div><small class="text-muted">שולם</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="sal-pending">\u20AA0</div><small class="text-muted">לתשלום</small></div></div><div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="sal-count">0</div><small class="text-muted">רשומות</small></div></div></div><div class="card p-3 mb-3"><div class="row g-2"><div class="col-md-4"><input type="month" class="form-control" id="sal-month"></div><div class="col-md-4"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="sal-search" placeholder="חיפוש עובד..."></div></div></div></div><div id="sal-list">${Utils.skeleton(4)}</div><div class="modal fade" id="sal-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">תשלום חדש</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">עובד</label><select class="form-select" id="salf-staff"></select></div><div class="col-6"><label class="form-label">חודש</label><input type="month" class="form-control" id="salf-month"></div><div class="col-6"><label class="form-label">סכום</label><input type="number" class="form-control" id="salf-amount"></div><div class="col-12"><label class="form-label">הערות</label><input class="form-control" id="salf-notes"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button><button class="btn btn-primary" onclick="Pages.saveSalary()">שמור</button></div></div></div></div>`;
-  },
+
+  /* ---------- Demo salary data for 10 staff ---------- */
+  _salaryDemoData: [
+    { שם:'אברהם כהן', תפקיד:'מורה', משכורת_בסיס:8500, בונוס_הוראה:500, בונוס_ותק:300, בונוס_אחר:0, מס_הכנסה:930, ביטוח_לאומי:340, קרן_פנסיה:510, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
+    { שם:'יצחק לוי', תפקיד:'רב', משכורת_בסיס:9500, בונוס_הוראה:0, בונוס_ותק:400, בונוס_אחר:200, מס_הכנסה:1010, ביטוח_לאומי:380, קרן_פנסיה:570, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
+    { שם:'יעקב ישראלי', תפקיד:'מנהל', משכורת_בסיס:12000, בונוס_הוראה:0, בונוס_ותק:800, בונוס_אחר:700, מס_הכנסה:1620, ביטוח_לאומי:540, קרן_פנסיה:720, ניכוי_אחר:100, סטטוס_תשלום:'שולם' },
+    { שם:'משה פרידמן', תפקיד:'מורה', משכורת_בסיס:7800, בונוס_הוראה:300, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:810, ביטוח_לאומי:312, קרן_פנסיה:468, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
+    { שם:'דוד שוורץ', תפקיד:'עוזר הוראה', משכורת_בסיס:5500, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:440, ביטוח_לאומי:220, קרן_פנסיה:330, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
+    { שם:'שמעון גולדשטיין', תפקיד:'רב', משכורת_בסיס:9000, בונוס_הוראה:0, בונוס_ותק:200, בונוס_אחר:200, מס_הכנסה:940, ביטוח_לאומי:360, קרן_פנסיה:540, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
+    { שם:'ראובן ברגר', תפקיד:'תחזוקה', משכורת_בסיס:6500, בונוס_הוראה:0, בונוס_ותק:100, בונוס_אחר:100, מס_הכנסה:570, ביטוח_לאומי:260, קרן_פנסיה:390, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
+    { שם:'נפתלי וייס', תפקיד:'מנהל', משכורת_בסיס:11000, בונוס_הוראה:0, בונוס_ותק:600, בונוס_אחר:0, מס_הכנסה:1392, ביטוח_לאומי:464, קרן_פנסיה:660, ניכוי_אחר:200, סטטוס_תשלום:'שולם' },
+    { שם:'גד רוזנברג', תפקיד:'עוזר הוראה', משכורת_בסיס:5000, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:400, ביטוח_לאומי:200, קרן_פנסיה:300, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
+    { שם:'אשר הלפרין', תפקיד:'תחזוקה', משכורת_בסיס:6200, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:150, מס_הכנסה:540, ביטוח_לאומי:254, קרן_פנסיה:372, ניכוי_אחר:0, סטטוס_תשלום:'שולם' }
+  ],
+
+  /* ---------- Monthly historical demo (12 months) ---------- */
+  _salaryMonthlyDemo: (() => {
+    const months = [];
+    const d = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const md = new Date(d.getFullYear(), d.getMonth() - i, 1);
+      const label = md.toLocaleDateString('he-IL', { month: 'short', year: 'numeric' });
+      const key = `${md.getFullYear()}-${String(md.getMonth() + 1).padStart(2, '0')}`;
+      // Slight variation per month
+      const base = 81000 + Math.round((Math.sin(i * 0.8) * 3000));
+      const bonuses = 2800 + Math.round(Math.sin(i * 1.2) * 800);
+      const deductions = Math.round(base * 0.12 + bonuses * 0.05);
+      months.push({ label, key, base, bonuses, deductions, net: base + bonuses - deductions });
+    }
+    return months;
+  })(),
+
   _salData: [],
+  _salPaymentFilter: 'all',
+  _salChartInstance: null,
+
+  staff_salary() {
+    const now = new Date();
+    const curMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-cash-stack me-2"></i>ניהול שכר צוות</h1>
+        <p class="text-muted mb-0">לוח בקרת שכר מקיף - חודש ${now.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' })}</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-primary btn-sm" onclick="Pages.showBonusDeductionModal()"><i class="bi bi-plus-lg me-1"></i>בונוס / ניכוי</button>
+        <button class="btn btn-outline-info btn-sm" onclick="Pages.showAnnualSummary()"><i class="bi bi-graph-up me-1"></i>סיכום שנתי</button>
+        <a href="#staff" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right me-1"></i>חזרה לצוות</a>
+      </div>
+    </div>
+
+    <!-- Payroll Dashboard Cards -->
+    <div class="row g-3 mb-3" id="sal-dashboard">
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card p-3">
+          <div class="stat-icon gradient-primary"><i class="bi bi-wallet2"></i></div>
+          <div class="stat-value" id="sal-total-payroll">--</div>
+          <div class="stat-label">עלות שכר חודשית</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card p-3">
+          <div class="stat-icon gradient-success"><i class="bi bi-cash-coin"></i></div>
+          <div class="stat-value" id="sal-total-net">--</div>
+          <div class="stat-label">נטו לתשלום</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card p-3">
+          <div class="stat-icon gradient-danger"><i class="bi bi-receipt-cutoff"></i></div>
+          <div class="stat-value" id="sal-total-deductions">--</div>
+          <div class="stat-label">סה"כ ניכויים</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card stat-card p-3">
+          <div class="stat-icon gradient-warning"><i class="bi bi-gift"></i></div>
+          <div class="stat-value" id="sal-total-bonuses">--</div>
+          <div class="stat-label">סה"כ בונוסים</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="card p-3 mb-3">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <div class="search-box flex-grow-1">
+          <i class="bi bi-search"></i>
+          <input type="text" class="form-control" id="sal-search" placeholder="חיפוש עובד...">
+        </div>
+        <input type="month" class="form-control" style="max-width:180px" id="sal-month" value="${curMonth}">
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary active" onclick="Pages.filterSalPayment('all',this)">הכל</button>
+          <button class="btn btn-outline-success" onclick="Pages.filterSalPayment('שולם',this)"><i class="bi bi-check-circle me-1"></i>שולם</button>
+          <button class="btn btn-outline-warning" onclick="Pages.filterSalPayment('ממתין',this)"><i class="bi bi-clock me-1"></i>ממתין</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salary Table -->
+    <div class="card mb-3" id="sal-table-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0"><i class="bi bi-table me-2"></i>טבלת משכורות</h6>
+        <span class="badge bg-primary" id="sal-count-badge">0 עובדים</span>
+      </div>
+      <div class="table-responsive" id="sal-list">${Utils.skeleton(4)}</div>
+    </div>
+
+    <!-- Monthly Comparison Chart -->
+    <div class="card p-3 mb-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2 text-info"></i>השוואת עלויות שכר חודשית</h6>
+      <div style="height:300px;position:relative">
+        <canvas id="sal-monthly-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Annual Summary Panel (hidden by default) -->
+    <div id="sal-annual-panel" class="mb-3" style="display:none"></div>
+
+    <!-- Bonus/Deduction Modal -->
+    <div class="modal fade" id="sal-bonus-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>הוספת בונוס / ניכוי</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">עובד</label>
+                <select class="form-select" id="salf-bd-staff"></select>
+              </div>
+              <div class="col-6">
+                <label class="form-label">סוג</label>
+                <select class="form-select" id="salf-bd-type">
+                  <option value="בונוס_הוראה">בונוס הוראה</option>
+                  <option value="בונוס_ותק">בונוס ותק</option>
+                  <option value="בונוס_אחר">בונוס אחר</option>
+                  <option value="ניכוי_אחר">ניכוי אחר</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label">סכום</label>
+                <input type="number" class="form-control" id="salf-bd-amount" min="0" dir="ltr">
+              </div>
+              <div class="col-12">
+                <label class="form-label">סיבה</label>
+                <input class="form-control" id="salf-bd-reason" placeholder="סיבה לשינוי">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+            <button class="btn btn-primary" onclick="Pages.saveBonusDeduction()"><i class="bi bi-check-lg me-1"></i>שמור</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payslip Modal -->
+    <div class="modal fade" id="sal-payslip-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>תלוש משכורת</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages.printPayslip()"><i class="bi bi-printer me-1"></i>הדפסה</button>
+              <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+          </div>
+          <div class="modal-body" id="sal-payslip-content"></div>
+        </div>
+      </div>
+    </div>`;
+  },
+
   async staff_salaryInit() {
-    this._salData = await App.getData('שכר_צוות');
-    const d = new Date(); document.getElementById('sal-month').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    document.getElementById('sal-month').addEventListener('change', () => this.renderSalary());
+    // Load real data or fallback to demo
+    let realData = [];
+    try { realData = await App.getData('שכר_צוות'); } catch (e) {}
+    if (realData && realData.length > 0) {
+      this._salData = realData;
+    } else {
+      this._salData = this._salaryDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+    }
+    this._salPaymentFilter = 'all';
     document.getElementById('sal-search').addEventListener('input', Utils.debounce(() => this.renderSalary(), 200));
+    document.getElementById('sal-month').addEventListener('change', () => this.renderSalary());
+    this.renderSalary();
+    this._renderSalaryChart();
+  },
+
+  /* ---------- Helpers ---------- */
+  _salCalcRow(r) {
+    const base = parseFloat(r['משכורת_בסיס']) || 0;
+    const b1 = parseFloat(r['בונוס_הוראה']) || 0;
+    const b2 = parseFloat(r['בונוס_ותק']) || 0;
+    const b3 = parseFloat(r['בונוס_אחר']) || 0;
+    const totalBonus = b1 + b2 + b3;
+    const gross = base + totalBonus;
+    const tax = parseFloat(r['מס_הכנסה']) || 0;
+    const insurance = parseFloat(r['ביטוח_לאומי']) || 0;
+    const pension = parseFloat(r['קרן_פנסיה']) || 0;
+    const otherDed = parseFloat(r['ניכוי_אחר']) || 0;
+    const totalDeductions = tax + insurance + pension + otherDed;
+    const net = gross - totalDeductions;
+    return { base, b1, b2, b3, totalBonus, gross, tax, insurance, pension, otherDed, totalDeductions, net };
+  },
+
+  /* ---------- Filter payment status ---------- */
+  filterSalPayment(filter, btn) {
+    this._salPaymentFilter = filter;
+    if (btn) {
+      btn.closest('.btn-group').querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
     this.renderSalary();
   },
+
+  /* ---------- Main render ---------- */
   renderSalary() {
-    const month = document.getElementById('sal-month')?.value || '';
     const search = (document.getElementById('sal-search')?.value || '').trim().toLowerCase();
-    let filtered = (this._salData || []).filter(r => {
-      if (month && !(r['חודש'] || '').startsWith(month)) return false;
-      if (search && !(r['שם'] || '').toLowerCase().includes(search)) return false;
+    const payFilter = this._salPaymentFilter || 'all';
+
+    let data = (this._salData || []).filter(r => {
+      if (search && !(r['שם'] || '').toLowerCase().includes(search) && !(r['תפקיד'] || '').toLowerCase().includes(search)) return false;
+      if (payFilter !== 'all' && (r['סטטוס_תשלום'] || 'ממתין') !== payFilter) return false;
       return true;
     });
-    const total = filtered.reduce((s, r) => s + (parseFloat(r['סכום']) || 0), 0);
-    const paid = filtered.filter(r => (r['סטטוס'] || '') === 'שולם').reduce((s, r) => s + (parseFloat(r['סכום']) || 0), 0);
-    document.getElementById('sal-total').textContent = Utils.formatCurrency(total);
-    document.getElementById('sal-paid').textContent = Utils.formatCurrency(paid);
-    document.getElementById('sal-pending').textContent = Utils.formatCurrency(total - paid);
-    document.getElementById('sal-count').textContent = filtered.length;
-    if (!filtered.length) { document.getElementById('sal-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-stack"></i><h5>אין משכורות</h5></div>'; return; }
-    document.getElementById('sal-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>עובד</th><th>חודש</th><th>סכום</th><th>סטטוס</th><th>הערות</th><th>פעולות</th></tr></thead><tbody>${filtered.map(r => { const isPaid = (r['סטטוס'] || '') === 'שולם'; return `<tr><td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(r['שם'] || '', 'sm')}<span class="fw-bold">${r['שם'] || ''}</span></div></td><td>${r['חודש'] || ''}</td><td class="fw-bold">${Utils.formatCurrency(parseFloat(r['סכום']) || 0)}</td><td><span class="badge bg-${isPaid ? 'success' : 'warning'}">${r['סטטוס'] || 'לתשלום'}</span></td><td class="small">${r['הערות'] || ''}</td><td>${!isPaid ? `<button class="btn btn-sm btn-outline-success" onclick="Pages.markSalPaid('${Utils.rowId(r)}')"><i class="bi bi-check-lg"></i></button>` : ''}</td></tr>` }).join('')}</tbody></table></div>`;
+
+    // Calculate totals
+    let sumBase = 0, sumBonus = 0, sumDeduct = 0, sumNet = 0;
+    const rows = data.map(r => {
+      const c = this._salCalcRow(r);
+      sumBase += c.base;
+      sumBonus += c.totalBonus;
+      sumDeduct += c.totalDeductions;
+      sumNet += c.net;
+      return { ...r, ...c };
+    });
+
+    // Update dashboard
+    const totalPayroll = sumBase + sumBonus;
+    document.getElementById('sal-total-payroll').textContent = Utils.formatCurrency(totalPayroll);
+    document.getElementById('sal-total-net').textContent = Utils.formatCurrency(sumNet);
+    document.getElementById('sal-total-deductions').textContent = Utils.formatCurrency(sumDeduct);
+    document.getElementById('sal-total-bonuses').textContent = Utils.formatCurrency(sumBonus);
+    document.getElementById('sal-count-badge').textContent = `${rows.length} עובדים`;
+
+    if (!rows.length) {
+      document.getElementById('sal-list').innerHTML = '<div class="empty-state p-4"><i class="bi bi-cash-stack"></i><h5>אין נתוני שכר</h5></div>';
+      return;
+    }
+
+    document.getElementById('sal-list').innerHTML = `
+      <table class="table table-bht mb-0">
+        <thead>
+          <tr>
+            <th>עובד</th>
+            <th>תפקיד</th>
+            <th>בסיס</th>
+            <th>בונוסים</th>
+            <th class="text-muted">מס</th>
+            <th class="text-muted">ביט"ל</th>
+            <th class="text-muted">פנסיה</th>
+            <th>ניכויים</th>
+            <th>נטו</th>
+            <th>סטטוס</th>
+            <th>פעולות</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((r, idx) => {
+            const name = r['שם'] || '';
+            const role = r['תפקיד'] || '';
+            const isPaid = (r['סטטוס_תשלום'] || 'ממתין') === 'שולם';
+            const roleDef = this._staffRoles.find(rd => rd.key === role);
+            const roleColor = roleDef ? roleDef.color : 'secondary';
+            return `<tr>
+              <td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(name, 'sm')}<span class="fw-bold">${name}</span></div></td>
+              <td><span class="badge bg-${roleColor}">${role}</span></td>
+              <td>${Utils.formatCurrency(r.base)}</td>
+              <td class="text-success fw-bold">${r.totalBonus > 0 ? '+' + Utils.formatCurrency(r.totalBonus) : '-'}</td>
+              <td class="text-muted small">${Utils.formatCurrency(r.tax)}</td>
+              <td class="text-muted small">${Utils.formatCurrency(r.insurance)}</td>
+              <td class="text-muted small">${Utils.formatCurrency(r.pension)}</td>
+              <td class="text-danger fw-bold">-${Utils.formatCurrency(r.totalDeductions)}</td>
+              <td class="fw-bold fs-6">${Utils.formatCurrency(r.net)}</td>
+              <td>
+                <button class="btn btn-sm btn-${isPaid ? 'success' : 'warning'}" onclick="Pages.toggleSalPayStatus(${idx})" title="${isPaid ? 'שולם - לחץ לשינוי' : 'ממתין - לחץ לסמן כשולם'}">
+                  <i class="bi bi-${isPaid ? 'check-circle-fill' : 'clock-fill'} me-1"></i>${isPaid ? 'שולם' : 'ממתין'}
+                </button>
+              </td>
+              <td>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-sm btn-outline-info" onclick="Pages.showPayslip(${idx})" title="תלוש משכורת"><i class="bi bi-file-earmark-text"></i></button>
+                  <button class="btn btn-sm btn-outline-primary" onclick="Pages.showBonusDeductionModal(${idx})" title="בונוס/ניכוי"><i class="bi bi-plus-circle"></i></button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot class="table-light">
+          <tr class="fw-bold">
+            <td colspan="2">סה"כ (${rows.length} עובדים)</td>
+            <td>${Utils.formatCurrency(sumBase)}</td>
+            <td class="text-success">${Utils.formatCurrency(sumBonus)}</td>
+            <td class="text-muted small" colspan="3">${Utils.formatCurrency(sumDeduct)}</td>
+            <td class="text-danger">-${Utils.formatCurrency(sumDeduct)}</td>
+            <td class="fs-6">${Utils.formatCurrency(sumNet)}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>`;
   },
-  async showAddSalary() {
-    const staff = await App.getData('צוות');
-    document.getElementById('salf-staff').innerHTML = '<option value="">בחר</option>' + (staff || []).map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
-    const d = new Date(); document.getElementById('salf-month').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    new bootstrap.Modal(document.getElementById('sal-modal')).show();
+
+  /* ---------- Toggle payment status ---------- */
+  toggleSalPayStatus(idx) {
+    const r = this._salData[idx];
+    if (!r) return;
+    const current = r['סטטוס_תשלום'] || 'ממתין';
+    r['סטטוס_תשלום'] = current === 'שולם' ? 'ממתין' : 'שולם';
+    // Persist if has row id
+    const rid = Utils.rowId(r);
+    if (rid && r._row) {
+      App.apiCall('update', 'שכר_צוות', { id: rid, row: { 'סטטוס_תשלום': r['סטטוס_תשלום'] } }).catch(() => {});
+    }
+    Utils.toast(r['סטטוס_תשלום'] === 'שולם' ? `${r['שם']} - סומן כשולם` : `${r['שם']} - סומן כממתין`);
+    this.renderSalary();
   },
-  async saveSalary() {
-    const sel = document.getElementById('salf-staff');
-    const row = { 'שם': sel.selectedOptions[0]?.text || '', 'חודש': document.getElementById('salf-month').value, 'סכום': document.getElementById('salf-amount').value, 'סטטוס': 'לתשלום', 'הערות': document.getElementById('salf-notes').value.trim() };
-    if (!row['שם'] || !row['סכום']) { Utils.toast('חסר נתונים', 'warning'); return; }
-    try { await App.apiCall('add', 'שכר_צוות', { row }); bootstrap.Modal.getInstance(document.getElementById('sal-modal')).hide(); Utils.toast('משכורת נוספה'); this.staff_salaryInit(); } catch (e) { Utils.toast('שגיאה', 'danger'); }
+
+  /* ---------- Monthly comparison chart ---------- */
+  _renderSalaryChart() {
+    const canvas = document.getElementById('sal-monthly-chart');
+    if (!canvas) return;
+    if (this._salChartInstance) { this._salChartInstance.destroy(); this._salChartInstance = null; }
+
+    const months = this._salaryMonthlyDemo;
+    this._salChartInstance = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: months.map(m => m.label),
+        datasets: [
+          {
+            label: 'בסיס',
+            data: months.map(m => m.base),
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'בונוסים',
+            data: months.map(m => m.bonuses),
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'ניכויים',
+            data: months.map(m => m.deductions),
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { family: 'Heebo' } } },
+          tooltip: {
+            rtl: true,
+            textDirection: 'rtl',
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${Utils.formatCurrency(ctx.parsed.y)}`
+            }
+          }
+        },
+        scales: {
+          x: { stacked: false, ticks: { font: { family: 'Heebo', size: 11 } } },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: { family: 'Heebo' },
+              callback: val => Utils.formatCurrency(val)
+            }
+          }
+        }
+      }
+    });
   },
-  async markSalPaid(id) { try { await App.apiCall('update', 'שכר_צוות', { id, row: { 'סטטוס': 'שולם' } }); Utils.toast('סומן כשולם'); this.staff_salaryInit(); } catch (e) { Utils.toast('שגיאה', 'danger'); } },
+
+  /* ---------- Payslip generator ---------- */
+  showPayslip(idx) {
+    const r = this._salData[idx];
+    if (!r) return;
+    const c = this._salCalcRow(r);
+    const name = r['שם'] || '';
+    const role = r['תפקיד'] || '';
+    const now = new Date();
+    const monthStr = now.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' });
+    const dateStr = now.toLocaleDateString('he-IL');
+
+    const content = document.getElementById('sal-payslip-content');
+    content.innerHTML = `
+      <div id="payslip-printable" style="direction:rtl;font-family:Heebo,sans-serif">
+        <!-- Header -->
+        <div class="text-center border-bottom pb-3 mb-3">
+          <h4 class="fw-bold mb-1"><i class="bi bi-building me-2"></i>בית התלמוד</h4>
+          <h5 class="text-muted">תלוש משכורת - ${monthStr}</h5>
+          <small class="text-muted">תאריך הנפקה: ${dateStr}</small>
+        </div>
+
+        <!-- Employee Info -->
+        <div class="row g-2 mb-3 p-2 bg-light rounded">
+          <div class="col-md-4"><strong>שם עובד:</strong> ${name}</div>
+          <div class="col-md-4"><strong>תפקיד:</strong> ${role}</div>
+          <div class="col-md-4"><strong>סטטוס:</strong> <span class="badge bg-${(r['סטטוס_תשלום'] || 'ממתין') === 'שולם' ? 'success' : 'warning'}">${r['סטטוס_תשלום'] || 'ממתין'}</span></div>
+        </div>
+
+        <!-- Earnings -->
+        <div class="card mb-3">
+          <div class="card-header bg-success bg-opacity-10"><h6 class="fw-bold mb-0 text-success"><i class="bi bi-arrow-up-circle me-2"></i>הכנסות</h6></div>
+          <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+              <tbody>
+                <tr><td>משכורת בסיס</td><td class="text-start fw-bold">${Utils.formatCurrency(c.base)}</td></tr>
+                ${c.b1 > 0 ? `<tr><td>בונוס הוראה</td><td class="text-start text-success">+${Utils.formatCurrency(c.b1)}</td></tr>` : ''}
+                ${c.b2 > 0 ? `<tr><td>בונוס ותק</td><td class="text-start text-success">+${Utils.formatCurrency(c.b2)}</td></tr>` : ''}
+                ${c.b3 > 0 ? `<tr><td>בונוס אחר</td><td class="text-start text-success">+${Utils.formatCurrency(c.b3)}</td></tr>` : ''}
+                <tr class="table-success fw-bold"><td>סה"כ ברוטו</td><td class="text-start">${Utils.formatCurrency(c.gross)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Deductions -->
+        <div class="card mb-3">
+          <div class="card-header bg-danger bg-opacity-10"><h6 class="fw-bold mb-0 text-danger"><i class="bi bi-arrow-down-circle me-2"></i>ניכויים</h6></div>
+          <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+              <tbody>
+                <tr><td>מס הכנסה</td><td class="text-start text-danger">-${Utils.formatCurrency(c.tax)}</td></tr>
+                <tr><td>ביטוח לאומי</td><td class="text-start text-danger">-${Utils.formatCurrency(c.insurance)}</td></tr>
+                <tr><td>קרן פנסיה</td><td class="text-start text-danger">-${Utils.formatCurrency(c.pension)}</td></tr>
+                ${c.otherDed > 0 ? `<tr><td>ניכוי אחר</td><td class="text-start text-danger">-${Utils.formatCurrency(c.otherDed)}</td></tr>` : ''}
+                <tr class="table-danger fw-bold"><td>סה"כ ניכויים</td><td class="text-start">-${Utils.formatCurrency(c.totalDeductions)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Net Pay -->
+        <div class="card border-primary mb-3">
+          <div class="card-body text-center py-3">
+            <div class="text-muted mb-1">נטו לתשלום</div>
+            <div class="fs-2 fw-bold text-primary">${Utils.formatCurrency(c.net)}</div>
+          </div>
+        </div>
+
+        <!-- Summary Bar -->
+        <div class="d-flex gap-2 mb-2">
+          <div class="flex-grow-1">
+            <div class="progress" style="height:24px">
+              <div class="progress-bar bg-success" style="width:${Math.round(c.net / c.gross * 100)}%" title="נטו">${Math.round(c.net / c.gross * 100)}% נטו</div>
+              <div class="progress-bar bg-danger" style="width:${Math.round(c.totalDeductions / c.gross * 100)}%" title="ניכויים">${Math.round(c.totalDeductions / c.gross * 100)}% ניכויים</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3 text-muted small border-top pt-2">
+          <i class="bi bi-info-circle me-1"></i>מסמך זה הונפק אוטומטית ממערכת בית התלמוד
+        </div>
+      </div>`;
+
+    new bootstrap.Modal(document.getElementById('sal-payslip-modal')).show();
+  },
+
+  printPayslip() {
+    const content = document.getElementById('payslip-printable');
+    if (!content) return;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`<!DOCTYPE html><html dir="rtl" lang="he"><head>
+      <meta charset="utf-8"><title>תלוש משכורת</title>
+      <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+      <style>body{font-family:Heebo,sans-serif;padding:30px;direction:rtl}@media print{body{padding:10px}.btn{display:none!important}}</style>
+    </head><body>${content.outerHTML}
+      <script>setTimeout(()=>{window.print();window.close()},500)<\/script>
+    </body></html>`);
+    printWindow.document.close();
+  },
+
+  /* ---------- Bonus / Deduction Modal ---------- */
+  showBonusDeductionModal(preselectedIdx) {
+    const select = document.getElementById('salf-bd-staff');
+    if (!select) return;
+    select.innerHTML = '<option value="">בחר עובד</option>' +
+      (this._salData || []).map((s, i) => `<option value="${i}" ${i === preselectedIdx ? 'selected' : ''}>${s['שם'] || ''}</option>`).join('');
+    document.getElementById('salf-bd-amount').value = '';
+    document.getElementById('salf-bd-reason').value = '';
+    document.getElementById('salf-bd-type').value = 'בונוס_הוראה';
+    new bootstrap.Modal(document.getElementById('sal-bonus-modal')).show();
+  },
+
+  saveBonusDeduction() {
+    const idx = parseInt(document.getElementById('salf-bd-staff').value);
+    const type = document.getElementById('salf-bd-type').value;
+    const amount = parseFloat(document.getElementById('salf-bd-amount').value) || 0;
+    const reason = document.getElementById('salf-bd-reason').value.trim();
+
+    if (isNaN(idx) || !this._salData[idx]) { Utils.toast('בחר עובד', 'warning'); return; }
+    if (amount <= 0) { Utils.toast('הזן סכום חיובי', 'warning'); return; }
+
+    const r = this._salData[idx];
+    const prev = parseFloat(r[type]) || 0;
+    r[type] = prev + amount;
+
+    // Persist if possible
+    const rid = Utils.rowId(r);
+    if (rid && r._row) {
+      App.apiCall('update', 'שכר_צוות', { id: rid, row: { [type]: r[type] } }).catch(() => {});
+    }
+
+    const typeLabel = type.replace(/_/g, ' ');
+    Utils.toast(`${r['שם']}: ${typeLabel} +${Utils.formatCurrency(amount)}${reason ? ' (' + reason + ')' : ''}`);
+    bootstrap.Modal.getInstance(document.getElementById('sal-bonus-modal')).hide();
+    this.renderSalary();
+  },
+
+  /* ---------- Annual Summary ---------- */
+  showAnnualSummary() {
+    const panel = document.getElementById('sal-annual-panel');
+    if (!panel) return;
+    if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+
+    const data = this._salData || [];
+    const months = this._salaryMonthlyDemo;
+
+    // Calculate annual totals from monthly demo
+    const annualBase = months.reduce((s, m) => s + m.base, 0);
+    const annualBonuses = months.reduce((s, m) => s + m.bonuses, 0);
+    const annualDeductions = months.reduce((s, m) => s + m.deductions, 0);
+    const annualNet = months.reduce((s, m) => s + m.net, 0);
+    const annualTotal = annualBase + annualBonuses;
+
+    // Current month stats
+    let curMonthNet = 0, curMonthGross = 0;
+    data.forEach(r => {
+      const c = this._salCalcRow(r);
+      curMonthNet += c.net;
+      curMonthGross += c.gross;
+    });
+
+    const avgMonthly = annualTotal / 12;
+    const avgSalary = data.length > 0 ? curMonthNet / data.length : 0;
+    const budgetAnnual = 1200000; // Assumed annual budget
+    const budgetUsed = Math.round(annualTotal / budgetAnnual * 100);
+
+    // Breakdown by role
+    const roleBreakdown = {};
+    data.forEach(r => {
+      const role = r['תפקיד'] || 'אחר';
+      const c = this._salCalcRow(r);
+      if (!roleBreakdown[role]) roleBreakdown[role] = { count: 0, totalGross: 0, totalNet: 0 };
+      roleBreakdown[role].count++;
+      roleBreakdown[role].totalGross += c.gross;
+      roleBreakdown[role].totalNet += c.net;
+    });
+
+    panel.style.display = '';
+    panel.innerHTML = `
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-graph-up me-2 text-info"></i>סיכום שנתי - ${new Date().getFullYear()}</h6>
+        <button class="btn btn-sm btn-outline-dark" onclick="document.getElementById('sal-annual-panel').style.display='none'"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <!-- Annual KPIs -->
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3">
+          <div class="card p-3 text-center border-primary">
+            <div class="fs-4 fw-bold">${Utils.formatCurrency(annualTotal)}</div>
+            <small class="text-muted">עלות שנתית כוללת</small>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card p-3 text-center border-success">
+            <div class="fs-4 fw-bold">${Utils.formatCurrency(avgMonthly)}</div>
+            <small class="text-muted">ממוצע חודשי</small>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card p-3 text-center border-info">
+            <div class="fs-4 fw-bold">${Utils.formatCurrency(avgSalary)}</div>
+            <small class="text-muted">שכר ממוצע לעובד</small>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card p-3 text-center border-${budgetUsed > 90 ? 'danger' : budgetUsed > 70 ? 'warning' : 'success'}">
+            <div class="fs-4 fw-bold">${budgetUsed}%</div>
+            <small class="text-muted">ניצול תקציב שנתי</small>
+            <div class="progress mt-1" style="height:6px">
+              <div class="progress-bar bg-${budgetUsed > 90 ? 'danger' : budgetUsed > 70 ? 'warning' : 'success'}" style="width:${Math.min(budgetUsed, 100)}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Annual Breakdown -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="card p-2 text-center bg-primary bg-opacity-10">
+            <div class="fw-bold fs-5">${Utils.formatCurrency(annualBase)}</div>
+            <small>בסיס שנתי</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-2 text-center bg-success bg-opacity-10">
+            <div class="fw-bold fs-5 text-success">${Utils.formatCurrency(annualBonuses)}</div>
+            <small>בונוסים שנתיים</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-2 text-center bg-danger bg-opacity-10">
+            <div class="fw-bold fs-5 text-danger">${Utils.formatCurrency(annualDeductions)}</div>
+            <small>ניכויים שנתיים</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Breakdown Table -->
+      <h6 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2"></i>פילוח לפי תפקיד</h6>
+      <div class="table-responsive">
+        <table class="table table-bht mb-0">
+          <thead><tr><th>תפקיד</th><th>עובדים</th><th>ברוטו חודשי</th><th>נטו חודשי</th><th>ברוטו שנתי (x12)</th></tr></thead>
+          <tbody>${Object.entries(roleBreakdown).map(([role, d]) => {
+            const roleDef = this._staffRoles.find(rd => rd.key === role);
+            const color = roleDef ? roleDef.color : 'secondary';
+            return `<tr>
+              <td><span class="badge bg-${color}">${role}</span></td>
+              <td>${d.count}</td>
+              <td>${Utils.formatCurrency(d.totalGross)}</td>
+              <td>${Utils.formatCurrency(d.totalNet)}</td>
+              <td class="fw-bold">${Utils.formatCurrency(d.totalGross * 12)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+
+  /* ---------- Legacy add salary (kept for backward compat) ---------- */
+  async showAddSalary() { this.showBonusDeductionModal(); },
+  async saveSalary() { this.saveBonusDeduction(); },
+  async markSalPaid(id) {
+    try {
+      await App.apiCall('update', 'שכר_צוות', { id, row: { 'סטטוס_תשלום': 'שולם' } });
+      Utils.toast('סומן כשולם');
+      this.staff_salaryInit();
+    } catch (e) { Utils.toast('שגיאה', 'danger'); }
+  },
 
   /* ======================================================================
      LEGACY — Staff Attendance (old toggle, kept for backward compat)
