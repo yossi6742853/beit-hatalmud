@@ -1084,33 +1084,747 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     TRIPS
+     TRIPS — Comprehensive Trips/Excursions Management
      ====================================================================== */
+  _tripDemoData: [
+    { id:'t1', '\u05D9\u05E2\u05D3':'\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u05D4\u05E2\u05EA\u05D9\u05E7\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-05-10', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-05-10', '\u05DB\u05D9\u05EA\u05D4':'\u05D0', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':120, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E1\u05D9\u05D5\u05E8 \u05D1\u05E8\u05D5\u05D1\u05E2 \u05D4\u05D9\u05D4\u05D5\u05D3\u05D9 \u05D5\u05D4\u05DB\u05D5\u05EA\u05DC \u05D4\u05DE\u05E2\u05E8\u05D1\u05D9', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05D6\u05D4', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':22, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':18, '\u05EA\u05E9\u05DC\u05D5\u05DD':1800, '\u05D3\u05D9\u05E8\u05D5\u05D2':4 },
+    { id:'t2', '\u05D9\u05E2\u05D3':'\u05DE\u05E6\u05D3\u05D4 \u05D5\u05DE\u05E2\u05E8\u05D5\u05EA \u05D4\u05E8 \u05D4\u05D6\u05D9\u05EA\u05D9\u05DD', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-05-20', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-05-21', '\u05DB\u05D9\u05EA\u05D4':'\u05D1', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D0\u05D5\u05E9\u05E8', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':250, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D8\u05D9\u05D5\u05DC \u05D3\u05D5-\u05D9\u05D5\u05DE\u05D9 \u05E2\u05DD \u05DC\u05D9\u05E0\u05D4 \u05D1\u05E6\u05E4\u05EA', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05D1\u05D5\u05E7\u05E8 + \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD + \u05E2\u05E8\u05D1', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':18, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':16, '\u05EA\u05E9\u05DC\u05D5\u05DD':3500, '\u05D3\u05D9\u05E8\u05D5\u05D2':0 },
+    { id:'t3', '\u05D9\u05E2\u05D3':'\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF \u05D9\u05E9\u05E8\u05D0\u05DC \u05EA\u05DC \u05D0\u05D1\u05D9\u05D1', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-06-05', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-06-05', '\u05DB\u05D9\u05EA\u05D4':'\u05D2', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':85, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E1\u05D9\u05D5\u05E8 \u05D1\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF \u05D5\u05E1\u05D3\u05E0\u05D4', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':15, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':10, '\u05EA\u05E9\u05DC\u05D5\u05DD':0, '\u05D3\u05D9\u05E8\u05D5\u05D2':0 },
+    { id:'t4', '\u05D9\u05E2\u05D3':'\u05E4\u05D0\u05E8\u05E7 \u05D4\u05DE\u05D9\u05DD \u05DC\u05D5\u05E0\u05D4 \u05E4\u05D0\u05E8\u05E7', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-06-18', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-06-18', '\u05DB\u05D9\u05EA\u05D4':'\u05D0+\u05D1', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':95, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D9\u05D5\u05DD \u05DB\u05D9\u05E3 \u05D1\u05E4\u05D0\u05E8\u05E7 \u05D4\u05DE\u05D9\u05DD', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':35, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':20, '\u05EA\u05E9\u05DC\u05D5\u05DD':0, '\u05D3\u05D9\u05E8\u05D5\u05D2':0 },
+    { id:'t5', '\u05D9\u05E2\u05D3':'\u05D7\u05D5\u05D5\u05EA \u05D7\u05D9\u05DC \u05D4\u05D0\u05D5\u05D5\u05D9\u05E8', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-03-15', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-03-15', '\u05DB\u05D9\u05EA\u05D4':'\u05D0', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05D5\u05E6\u05E2', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':75, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D8\u05D9\u05D5\u05DC \u05DC\u05D7\u05D5\u05D5\u05EA \u05D7\u05D9\u05DC \u05D4\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E2\u05DD \u05D4\u05D3\u05E8\u05DB\u05D4', '\u05D4\u05E1\u05E2\u05D4':'\u05DE\u05D9\u05E0\u05D9\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':20, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':20, '\u05EA\u05E9\u05DC\u05D5\u05DD':1500, '\u05D3\u05D9\u05E8\u05D5\u05D2':5 },
+    { id:'t6', '\u05D9\u05E2\u05D3':'\u05DE\u05D9\u05E0\u05D9 \u05D9\u05E9\u05E8\u05D0\u05DC \u05DC\u05D8\u05E8\u05D5\u05DF', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-02-20', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-02-20', '\u05DB\u05D9\u05EA\u05D4':'\u05D1', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05D5\u05E6\u05E2', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':60, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E1\u05D9\u05D5\u05E8 \u05DE\u05D5\u05D3\u05E8\u05DA \u05D1\u05DE\u05D9\u05E0\u05D9 \u05D9\u05E9\u05E8\u05D0\u05DC', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':17, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':17, '\u05EA\u05E9\u05DC\u05D5\u05DD':1020, '\u05D3\u05D9\u05E8\u05D5\u05D2':4 },
+    { id:'t7', '\u05D9\u05E2\u05D3':'\u05E7\u05D1\u05E8 \u05E8\u05D7\u05DC \u05D0\u05DE\u05E0\u05D5', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2026-01-12', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2026-01-12', '\u05DB\u05D9\u05EA\u05D4':'\u05D2', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05D5\u05E6\u05E2', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':50, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D1\u05D9\u05E7\u05D5\u05E8 \u05D1\u05E7\u05D1\u05E8 \u05E8\u05D7\u05DC \u05D5\u05EA\u05E4\u05D9\u05DC\u05D4', '\u05D4\u05E1\u05E2\u05D4':'\u05DE\u05D9\u05E0\u05D9\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':14, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':14, '\u05EA\u05E9\u05DC\u05D5\u05DD':700, '\u05D3\u05D9\u05E8\u05D5\u05D2':5 },
+    { id:'t8', '\u05D9\u05E2\u05D3':'\u05E2\u05D9\u05DF \u05D2\u05D3\u05D9 \u05D5\u05E0\u05D7\u05DC \u05D3\u05D5\u05D3', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':'2025-12-08', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':'2025-12-08', '\u05DB\u05D9\u05EA\u05D4':'\u05D0+\u05D1+\u05D2', '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05D5\u05E6\u05E2', '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3':90, '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D8\u05D9\u05D5\u05DC \u05DE\u05E9\u05D5\u05EA\u05E3 \u05DC\u05DB\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3', '\u05D4\u05E1\u05E2\u05D4':'\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA':'\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD + \u05E2\u05E8\u05D1', '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD':45, '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD':45, '\u05EA\u05E9\u05DC\u05D5\u05DD':4050, '\u05D3\u05D9\u05E8\u05D5\u05D2':5 }
+  ],
+
   trips() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-geo-alt-fill me-2"></i>\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddTrip()"><i class="bi bi-plus-lg me-1"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9</button></div><div class="row g-3" id="trip-cards">${Utils.skeleton(3)}</div><div class="modal fade" id="trip-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05D9\u05E2\u05D3</label><input class="form-control" id="tf-dest"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05EA\u05D7\u05DC\u05D4</label><input type="date" class="form-control" id="tf-start"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05E1\u05D9\u05D5\u05DD</label><input type="date" class="form-control" id="tf-end"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="tf-desc" rows="2"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveTrip()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div>
+        <h1><i class="bi bi-geo-alt-fill me-2"></i>\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h1>
+        <p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD, \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD \u05D5\u05EA\u05E7\u05E6\u05D9\u05D1</p>
+      </div>
+      <div class="d-flex gap-2">
+        <div class="btn-group btn-group-sm" id="trip-view-toggle">
+          <button class="btn btn-outline-primary active" onclick="Pages.setTripView('cards')"><i class="bi bi-grid-3x2-gap-fill"></i></button>
+          <button class="btn btn-outline-primary" onclick="Pages.setTripView('timeline')"><i class="bi bi-clock-history"></i></button>
+          <button class="btn btn-outline-primary" onclick="Pages.setTripView('gallery')"><i class="bi bi-images"></i></button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddTrip()"><i class="bi bi-plus-lg me-1"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9</button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-geo-alt-fill fs-3 text-primary"></i>
+        <div class="fs-3 fw-bold text-primary" id="trip-stat-total">0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-calendar-event fs-3 text-info"></i>
+        <div class="fs-3 fw-bold text-info" id="trip-stat-upcoming">0</div>
+        <small class="text-muted">\u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+        <div class="fs-3 fw-bold text-success" id="trip-stat-completed">0</div>
+        <small class="text-muted">\u05D1\u05D5\u05E6\u05E2\u05D5</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <i class="bi bi-cash-stack fs-3 text-warning"></i>
+        <div class="fs-3 fw-bold text-warning" id="trip-stat-spent">\u20AA0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</small>
+      </div></div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="card p-3 mb-4">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small">\u05E1\u05D9\u05E0\u05D5\u05DF \u05DC\u05E4\u05D9 \u05E1\u05D8\u05D8\u05D5\u05E1</label>
+          <select class="form-select form-select-sm" id="trip-filter-status" onchange="Pages.renderTrips()">
+            <option value="">\u05D4\u05DB\u05DC</option>
+            <option value="\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF">\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF</option>
+            <option value="\u05D0\u05D5\u05E9\u05E8">\u05D0\u05D5\u05E9\u05E8</option>
+            <option value="\u05D1\u05D5\u05E6\u05E2">\u05D1\u05D5\u05E6\u05E2</option>
+            <option value="\u05D1\u05D5\u05D8\u05DC">\u05D1\u05D5\u05D8\u05DC</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small">\u05E1\u05D9\u05E0\u05D5\u05DF \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</label>
+          <select class="form-select form-select-sm" id="trip-filter-class" onchange="Pages.renderTrips()">
+            <option value="">\u05D4\u05DB\u05DC</option>
+            <option value="\u05D0">\u05DB\u05D9\u05EA\u05D4 \u05D0'</option>
+            <option value="\u05D1">\u05DB\u05D9\u05EA\u05D4 \u05D1'</option>
+            <option value="\u05D2">\u05DB\u05D9\u05EA\u05D4 \u05D2'</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small">\u05D7\u05D9\u05E4\u05D5\u05E9</label>
+          <input type="search" class="form-control form-control-sm" id="trip-search" placeholder="\u05D7\u05E4\u05E9 \u05D9\u05E2\u05D3..." oninput="Pages.renderTrips()">
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary btn-sm w-100" onclick="Pages.resetTripFilters()"><i class="bi bi-x-circle me-1"></i>\u05E0\u05E7\u05D4</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main content area -->
+    <div id="trip-cards">${Utils.skeleton(3)}</div>
+
+    <!-- Budget Summary -->
+    <div class="card p-3 mt-4" id="trip-budget-section">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-warning me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E7\u05E6\u05D9\u05D1\u05D9</h6>
+      <div class="row g-3" id="trip-budget-content"></div>
+    </div>
+
+    <!-- Create/Edit Trip Modal -->
+    <div class="modal fade" id="trip-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" id="trip-form-tabs">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tf-tab-details">\u05E4\u05E8\u05D8\u05D9\u05DD</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-logistics">\u05DC\u05D5\u05D2\u05D9\u05E1\u05D8\u05D9\u05E7\u05D4</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-budget">\u05EA\u05E7\u05E6\u05D9\u05D1</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tf-tab-details">
+            <div class="row g-3">
+              <div class="col-md-8"><label class="form-label">\u05D9\u05E2\u05D3</label><input class="form-control" id="tf-dest" placeholder="\u05DC\u05D3\u05D5\u05D2\u05DE\u05D4: \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u05D4\u05E2\u05EA\u05D9\u05E7\u05D4"></div>
+              <div class="col-md-4"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label>
+                <select class="form-select" id="tf-class">
+                  <option value="">\u05D1\u05D7\u05E8...</option>
+                  <option value="\u05D0">\u05DB\u05D9\u05EA\u05D4 \u05D0'</option>
+                  <option value="\u05D1">\u05DB\u05D9\u05EA\u05D4 \u05D1'</option>
+                  <option value="\u05D2">\u05DB\u05D9\u05EA\u05D4 \u05D2'</option>
+                  <option value="\u05D0+\u05D1">\u05D0'+\u05D1'</option>
+                  <option value="\u05D0+\u05D1+\u05D2">\u05DB\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3</option>
+                </select>
+              </div>
+              <div class="col-md-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05EA\u05D7\u05DC\u05D4</label><input type="date" class="form-control" id="tf-start"></div>
+              <div class="col-md-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05E1\u05D9\u05D5\u05DD</label><input type="date" class="form-control" id="tf-end"></div>
+              <div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="tf-desc" rows="3" placeholder="\u05EA\u05D0\u05E8 \u05D0\u05EA \u05D4\u05D8\u05D9\u05D5\u05DC..."></textarea></div>
+              <div class="col-md-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+                <select class="form-select" id="tf-status">
+                  <option value="\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF">\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF</option>
+                  <option value="\u05D0\u05D5\u05E9\u05E8">\u05D0\u05D5\u05E9\u05E8</option>
+                  <option value="\u05D1\u05D5\u05E6\u05E2">\u05D1\u05D5\u05E6\u05E2</option>
+                  <option value="\u05D1\u05D5\u05D8\u05DC">\u05D1\u05D5\u05D8\u05DC</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tf-tab-logistics">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label"><i class="bi bi-bus-front me-1"></i>\u05D4\u05E1\u05E2\u05D4</label>
+                <select class="form-select" id="tf-transport">
+                  <option value="\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1">\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1</option>
+                  <option value="\u05DE\u05D9\u05E0\u05D9\u05D1\u05D5\u05E1">\u05DE\u05D9\u05E0\u05D9\u05D1\u05D5\u05E1</option>
+                  <option value="\u05E8\u05DB\u05D1\u05EA">\u05E8\u05DB\u05D1\u05EA</option>
+                  <option value="\u05D4\u05DC\u05D9\u05DB\u05D4 \u05D1\u05E8\u05D2\u05DC">\u05D4\u05DC\u05D9\u05DB\u05D4 \u05D1\u05E8\u05D2\u05DC</option>
+                  <option value="\u05D0\u05D7\u05E8">\u05D0\u05D7\u05E8</option>
+                </select>
+              </div>
+              <div class="col-md-6"><label class="form-label"><i class="bi bi-egg-fried me-1"></i>\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA</label>
+                <select class="form-select" id="tf-meals">
+                  <option value="\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD">\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD</option>
+                  <option value="\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05D6\u05D4">\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05D6\u05D4</option>
+                  <option value="\u05D0\u05E8\u05D5\u05D7\u05EA \u05D1\u05D5\u05E7\u05E8 + \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD">\u05D0\u05E8\u05D5\u05D7\u05EA \u05D1\u05D5\u05E7\u05E8 + \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD</option>
+                  <option value="\u05D0\u05E8\u05D5\u05D7\u05EA \u05D1\u05D5\u05E7\u05E8 + \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD + \u05E2\u05E8\u05D1">\u05D1\u05D5\u05E7\u05E8 + \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD + \u05E2\u05E8\u05D1</option>
+                  <option value="\u05DC\u05DC\u05D0 \u05D0\u05E8\u05D5\u05D7\u05D5\u05EA">\u05DC\u05DC\u05D0 \u05D0\u05E8\u05D5\u05D7\u05D5\u05EA</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label"><i class="bi bi-people me-1"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD (\u05DE\u05E1\u05E4\u05E8)</label>
+                <input type="number" class="form-control" id="tf-participants" min="0" placeholder="0">
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tf-tab-budget">
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label">\u05E2\u05DC\u05D5\u05EA \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 (\u20AA)</label><input type="number" class="form-control" id="tf-cost" min="0" step="5" placeholder="0"></div>
+              <div class="col-md-6">
+                <label class="form-label">\u05E2\u05DC\u05D5\u05EA \u05DB\u05D5\u05DC\u05DC\u05EA \u05DE\u05D7\u05D5\u05E9\u05D1\u05EA</label>
+                <div class="form-control bg-light" id="tf-total-calc">\u20AA0</div>
+              </div>
+              <div class="col-md-6"><label class="form-label">\u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05E0\u05D2\u05D1\u05D4 (\u20AA)</label><input type="number" class="form-control" id="tf-paid" min="0" step="10" placeholder="0"></div>
+              <div class="col-md-6">
+                <label class="form-label">\u05D9\u05EA\u05E8\u05D4</label>
+                <div class="form-control bg-light" id="tf-remaining-calc">\u20AA0</div>
+              </div>
+            </div>
+            <div class="mt-3 p-3 bg-light rounded">
+              <small class="text-muted"><i class="bi bi-info-circle me-1"></i>\u05D4\u05E2\u05DC\u05D5\u05EA \u05D4\u05DB\u05D5\u05DC\u05DC\u05EA \u05DE\u05D7\u05D5\u05E9\u05D1\u05EA \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA: \u05E2\u05DC\u05D5\u05EA \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 x \u05DE\u05E1\u05E4\u05E8 \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+        <button class="btn btn-primary" onclick="Pages.saveTrip()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+      </div>
+    </div></div></div>
+
+    <!-- Participants Modal -->
+    <div class="modal fade" id="trip-participants-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title"><i class="bi bi-people me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="mb-0" id="trip-part-title"></h6>
+          <div class="d-flex gap-2">
+            <span class="badge bg-success" id="trip-part-approved">0 \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD</span>
+            <span class="badge bg-warning" id="trip-part-pending">0 \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD</span>
+          </div>
+        </div>
+        <div class="progress mb-3" style="height:8px">
+          <div class="progress-bar bg-success" id="trip-part-progress" style="width:0%"></div>
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="search" class="form-control" id="trip-part-search" placeholder="\u05D7\u05E4\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..." oninput="Pages.filterTripParticipants()">
+        </div>
+        <div class="list-group" id="trip-part-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">\u05E1\u05D2\u05D5\u05E8</button>
+      </div>
+    </div></div></div>`;
   },
+
   _tripData: [],
-  async tripsInit() { this._tripData = await App.getData('\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD'); this.renderTrips(); },
+  _tripEditId: null,
+  _tripView: 'cards',
+  _tripParticipants: {},
+
+  async tripsInit() {
+    let data = await App.getData('\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD');
+    if (!data || !data.length) data = this._tripDemoData;
+    this._tripData = data;
+    this._updateTripStats();
+    this.renderTrips();
+    this._renderTripBudget();
+    this._setupTripBudgetCalc();
+  },
+
+  _updateTripStats() {
+    const data = this._tripData;
+    const today = new Date().toISOString().slice(0, 10);
+    const total = data.length;
+    const completed = data.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05E6\u05E2').length;
+    const upcoming = data.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D1\u05D5\u05E6\u05E2' && t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D1\u05D5\u05D8\u05DC').length;
+    const totalSpent = data.reduce((s, t) => {
+      const cost = Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0);
+      const parts = Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+      return s + (cost * parts);
+    }, 0);
+
+    const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    el('trip-stat-total', total);
+    el('trip-stat-upcoming', upcoming);
+    el('trip-stat-completed', completed);
+    el('trip-stat-spent', '\u20AA' + totalSpent.toLocaleString());
+  },
+
+  _getFilteredTrips() {
+    let data = [...this._tripData];
+    const statusFilter = document.getElementById('trip-filter-status')?.value || '';
+    const classFilter = document.getElementById('trip-filter-class')?.value || '';
+    const search = (document.getElementById('trip-search')?.value || '').trim().toLowerCase();
+
+    if (statusFilter) data = data.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === statusFilter);
+    if (classFilter) data = data.filter(t => (t['\u05DB\u05D9\u05EA\u05D4'] || '').includes(classFilter));
+    if (search) data = data.filter(t => (t['\u05D9\u05E2\u05D3'] || '').toLowerCase().includes(search) || (t['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '').toLowerCase().includes(search));
+    return data;
+  },
+
+  resetTripFilters() {
+    const el = id => document.getElementById(id);
+    if (el('trip-filter-status')) el('trip-filter-status').value = '';
+    if (el('trip-filter-class')) el('trip-filter-class').value = '';
+    if (el('trip-search')) el('trip-search').value = '';
+    this.renderTrips();
+  },
+
+  setTripView(view) {
+    this._tripView = view;
+    document.querySelectorAll('#trip-view-toggle .btn').forEach(b => b.classList.remove('active'));
+    const idx = { cards: 0, timeline: 1, gallery: 2 }[view] || 0;
+    document.querySelectorAll('#trip-view-toggle .btn')[idx]?.classList.add('active');
+    this.renderTrips();
+  },
+
   renderTrips() {
-    if (!this._tripData.length) { document.getElementById('trip-cards').innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-geo-alt"></i><h5>\u05D0\u05D9\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h5></div></div>'; return; }
+    const data = this._getFilteredTrips();
+    const container = document.getElementById('trip-cards');
+    if (!container) return;
+
+    if (!data.length) {
+      container.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-geo-alt fs-1 text-muted"></i><h5 class="mt-3">\u05D0\u05D9\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p></div>';
+      return;
+    }
+
+    if (this._tripView === 'timeline') {
+      this._renderTripTimeline(data, container);
+    } else if (this._tripView === 'gallery') {
+      this._renderTripGallery(data, container);
+    } else {
+      this._renderTripCards(data, container);
+    }
+  },
+
+  _renderTripCards(data, container) {
     const stC = {'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF':'primary','\u05D0\u05D5\u05E9\u05E8':'success','\u05D1\u05D5\u05E6\u05E2':'info','\u05D1\u05D5\u05D8\u05DC':'danger'};
-    document.getElementById('trip-cards').innerHTML = this._tripData.map(t => { const tId=t.id||t['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(t); return `<div class="col-md-6"><div class="card p-3"><div class="d-flex justify-content-between"><h6 class="fw-bold"><i class="bi bi-geo-alt-fill text-primary me-1"></i>${t['\u05D9\u05E2\u05D3']||''}</h6><div class="d-flex align-items-center gap-2"><span class="badge bg-${stC[t['\u05E1\u05D8\u05D8\u05D5\u05E1']]||'secondary'}">${t['\u05E1\u05D8\u05D8\u05D5\u05E1']||''}</span><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editTrip('${tId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteTrip('${tId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div><div class="small text-muted"><i class="bi bi-calendar me-1"></i>${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4']||''} ${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']?' - '+t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD']:''}</div>${t['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mb-0 mt-1">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}</div></div>`; }).join('');
+    const stI = {'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF':'bi-hourglass-split','\u05D0\u05D5\u05E9\u05E8':'bi-check-circle','\u05D1\u05D5\u05E6\u05E2':'bi-trophy','\u05D1\u05D5\u05D8\u05DC':'bi-x-circle'};
+    const today = new Date().toISOString().slice(0, 10);
+
+    container.innerHTML = '<div class="row g-3">' + data.map(t => {
+      const tId = t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t);
+      const status = t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF';
+      const color = stC[status] || 'secondary';
+      const icon = stI[status] || 'bi-geo-alt';
+      const cost = Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0);
+      const parts = Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+      const approved = Number(t['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] || 0);
+      const totalCost = cost * parts;
+      const paid = Number(t['\u05EA\u05E9\u05DC\u05D5\u05DD'] || 0);
+      const paidPct = totalCost > 0 ? Math.round((paid / totalCost) * 100) : 0;
+      const permPct = parts > 0 ? Math.round((approved / parts) * 100) : 0;
+      const startDate = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+      const endDate = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] || '';
+      const daysUntil = startDate ? Math.ceil((new Date(startDate) - new Date()) / 86400000) : null;
+      const daysLabel = daysUntil !== null && daysUntil > 0 ? `<span class="badge bg-warning text-dark">\u05D1\u05E2\u05D5\u05D3 ${daysUntil} \u05D9\u05DE\u05D9\u05DD</span>` : '';
+
+      return `<div class="col-md-6">
+        <div class="card h-100 border-start border-4 border-${color}" style="transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-1"><i class="bi bi-geo-alt-fill text-${color} me-1"></i>${t['\u05D9\u05E2\u05D3'] || ''}</h6>
+                <div class="d-flex flex-wrap gap-1 mb-1">
+                  <span class="badge bg-${color}"><i class="bi ${icon} me-1"></i>${status}</span>
+                  ${t['\u05DB\u05D9\u05EA\u05D4'] ? `<span class="badge bg-secondary">\u05DB\u05D9\u05EA\u05D4 ${t['\u05DB\u05D9\u05EA\u05D4']}</span>` : ''}
+                  ${daysLabel}
+                </div>
+              </div>
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#" onclick="Pages.editTrip('${tId}');return false"><i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="Pages.showTripParticipants('${tId}');return false"><i class="bi bi-people me-2"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-danger" href="#" onclick="Pages.deleteTrip('${tId}');return false"><i class="bi bi-trash me-2"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-6"><small class="text-muted"><i class="bi bi-calendar me-1"></i>${startDate}${endDate && endDate !== startDate ? ' - ' + endDate : ''}</small></div>
+              <div class="col-6 text-end"><small class="text-muted"><i class="bi bi-bus-front me-1"></i>${t['\u05D4\u05E1\u05E2\u05D4'] || '--'}</small></div>
+            </div>
+
+            ${t['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? `<p class="small text-muted mb-2">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>` : ''}
+
+            <div class="row g-2 mb-2">
+              <div class="col-4 text-center">
+                <div class="border rounded p-2"><div class="fw-bold text-primary">${parts}</div><small class="text-muted">\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</small></div>
+              </div>
+              <div class="col-4 text-center">
+                <div class="border rounded p-2"><div class="fw-bold text-success">\u20AA${cost}</div><small class="text-muted">\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</small></div>
+              </div>
+              <div class="col-4 text-center">
+                <div class="border rounded p-2"><div class="fw-bold text-warning">\u20AA${totalCost.toLocaleString()}</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div>
+              </div>
+            </div>
+
+            <!-- Permission slips progress -->
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <small>\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD</small>
+                <small class="fw-bold">${approved}/${parts} (${permPct}%)</small>
+              </div>
+              <div class="progress" style="height:6px">
+                <div class="progress-bar bg-success" style="width:${permPct}%"></div>
+              </div>
+            </div>
+
+            <!-- Payment progress -->
+            <div>
+              <div class="d-flex justify-content-between mb-1">
+                <small>\u05EA\u05E9\u05DC\u05D5\u05DD</small>
+                <small class="fw-bold">\u20AA${paid.toLocaleString()} / \u20AA${totalCost.toLocaleString()} (${paidPct}%)</small>
+              </div>
+              <div class="progress" style="height:6px">
+                <div class="progress-bar bg-warning" style="width:${paidPct}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
   },
-  showAddTrip() { this._tripEditId=null; document.getElementById('tf-dest').value=''; document.getElementById('tf-start').value=''; document.getElementById('tf-end').value=''; document.getElementById('tf-desc').value=''; new bootstrap.Modal(document.getElementById('trip-modal')).show(); },
-  async saveTrip() { const row = {'\u05D9\u05E2\u05D3':document.getElementById('tf-dest').value.trim(),'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4':document.getElementById('tf-start').value,'\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD':document.getElementById('tf-end').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('tf-desc').value.trim(),'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}; if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3','warning'); return; } try { if (this._tripEditId) { await App.apiCall('update','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{id:this._tripEditId,row}); this._tripEditId=null; } else { await App.apiCall('add','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{row}); } bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  _renderTripTimeline(data, container) {
+    const sorted = [...data].sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || ''));
+    const stC = {'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF':'primary','\u05D0\u05D5\u05E9\u05E8':'success','\u05D1\u05D5\u05E6\u05E2':'info','\u05D1\u05D5\u05D8\u05DC':'danger'};
+    const today = new Date().toISOString().slice(0, 10);
+
+    container.innerHTML = `
+    <div class="position-relative" style="padding-right:30px">
+      <div class="position-absolute" style="right:14px;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--bs-primary),var(--bs-info))"></div>
+      ${sorted.map(t => {
+        const tId = t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t);
+        const status = t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
+        const color = stC[status] || 'secondary';
+        const startDate = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
+        const isPast = startDate < today;
+        const cost = Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0);
+        const parts = Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+
+        return `<div class="d-flex align-items-start mb-4 ${isPast ? 'opacity-75' : ''}">
+          <div class="flex-grow-1">
+            <div class="card border-${color}">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="fw-bold mb-0"><i class="bi bi-geo-alt-fill text-${color} me-1"></i>${t['\u05D9\u05E2\u05D3'] || ''}</h6>
+                  <span class="badge bg-${color}">${status}</span>
+                </div>
+                <div class="d-flex gap-3 small text-muted">
+                  <span><i class="bi bi-calendar me-1"></i>${startDate}</span>
+                  ${t['\u05DB\u05D9\u05EA\u05D4'] ? `<span><i class="bi bi-easel me-1"></i>\u05DB\u05D9\u05EA\u05D4 ${t['\u05DB\u05D9\u05EA\u05D4']}</span>` : ''}
+                  <span><i class="bi bi-people me-1"></i>${parts} \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</span>
+                  <span><i class="bi bi-cash me-1"></i>\u20AA${(cost * parts).toLocaleString()}</span>
+                </div>
+                ${t['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? `<p class="small mb-0 mt-1">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="position-relative d-flex flex-column align-items-center" style="width:30px;flex-shrink:0">
+            <div class="rounded-circle bg-${color} border border-3 border-white" style="width:16px;height:16px;z-index:1"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  },
+
+  _renderTripGallery(data, container) {
+    const completed = data.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05E6\u05E2');
+    const upcoming = data.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D1\u05D5\u05E6\u05E2' && t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D1\u05D5\u05D8\u05DC');
+
+    const starRating = (rating) => {
+      const r = Number(rating) || 0;
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        html += `<i class="bi bi-star${i <= r ? '-fill text-warning' : ' text-muted'}"></i>`;
+      }
+      return html;
+    };
+
+    const galleryCard = (t, isPast) => {
+      const tId = t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t);
+      const cost = Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0);
+      const parts = Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+      const colors = ['#667eea', '#764ba2', '#43e97b', '#fa709a', '#a18cd1', '#fbc2eb', '#fccb90', '#84fab0'];
+      const bgColor = colors[Math.abs((t['\u05D9\u05E2\u05D3'] || '').length) % colors.length];
+
+      return `<div class="col-md-4 col-sm-6">
+        <div class="card h-100 overflow-hidden">
+          <div class="position-relative" style="height:140px;background:linear-gradient(135deg,${bgColor},${bgColor}88);display:flex;align-items:center;justify-content:center">
+            <i class="bi bi-geo-alt-fill" style="font-size:3rem;color:rgba(255,255,255,.5)"></i>
+            <div class="position-absolute bottom-0 start-0 end-0 p-2" style="background:linear-gradient(transparent,rgba(0,0,0,.6))">
+              <h6 class="text-white mb-0 fw-bold">${t['\u05D9\u05E2\u05D3'] || ''}</h6>
+            </div>
+          </div>
+          <div class="card-body p-3">
+            <div class="d-flex justify-content-between mb-2">
+              <small class="text-muted"><i class="bi bi-calendar me-1"></i>${t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || ''}</small>
+              ${t['\u05DB\u05D9\u05EA\u05D4'] ? `<span class="badge bg-secondary">\u05DB\u05D9\u05EA\u05D4 ${t['\u05DB\u05D9\u05EA\u05D4']}</span>` : ''}
+            </div>
+            ${t['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? `<p class="small text-muted mb-2">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>` : ''}
+            <div class="d-flex justify-content-between align-items-center">
+              <small><i class="bi bi-people me-1"></i>${parts} \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</small>
+              <small class="fw-bold text-primary">\u20AA${(cost * parts).toLocaleString()}</small>
+            </div>
+            ${isPast ? `<div class="mt-2 text-center">${starRating(t['\u05D3\u05D9\u05E8\u05D5\u05D2'])}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+    };
+
+    let html = '';
+    if (upcoming.length) {
+      html += `<h5 class="fw-bold mb-3"><i class="bi bi-calendar-event text-primary me-2"></i>\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</h5>
+        <div class="row g-3 mb-4">${upcoming.map(t => galleryCard(t, false)).join('')}</div>`;
+    }
+    if (completed.length) {
+      html += `<h5 class="fw-bold mb-3"><i class="bi bi-trophy text-success me-2"></i>\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD \u05E9\u05D1\u05D5\u05E6\u05E2\u05D5</h5>
+        <div class="row g-3">${completed.map(t => galleryCard(t, true)).join('')}</div>`;
+    }
+    container.innerHTML = html;
+  },
+
+  _renderTripBudget() {
+    const el = document.getElementById('trip-budget-content');
+    if (!el) return;
+    const data = this._tripData;
+
+    const totalBudget = data.reduce((s, t) => s + (Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0) * Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0)), 0);
+    const totalPaid = data.reduce((s, t) => s + Number(t['\u05EA\u05E9\u05DC\u05D5\u05DD'] || 0), 0);
+    const totalRemaining = totalBudget - totalPaid;
+    const paidPct = totalBudget > 0 ? Math.round((totalPaid / totalBudget) * 100) : 0;
+
+    el.innerHTML = `
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="fs-4 fw-bold text-primary">\u20AA${totalBudget.toLocaleString()}</div>
+          <small class="text-muted">\u05EA\u05E7\u05E6\u05D9\u05D1 \u05DB\u05D5\u05DC\u05DC</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="fs-4 fw-bold text-success">\u20AA${totalPaid.toLocaleString()}</div>
+          <small class="text-muted">\u05E0\u05D2\u05D1\u05D4</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="fs-4 fw-bold text-danger">\u20AA${totalRemaining.toLocaleString()}</div>
+          <small class="text-muted">\u05D9\u05EA\u05E8\u05D4 \u05DC\u05D2\u05D1\u05D9\u05D9\u05D4</small>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="d-flex justify-content-between mb-1">
+          <small>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D2\u05D1\u05D9\u05D9\u05D4</small>
+          <small class="fw-bold">${paidPct}%</small>
+        </div>
+        <div class="progress" style="height:10px">
+          <div class="progress-bar bg-success" style="width:${paidPct}%"></div>
+        </div>
+      </div>
+      <div class="col-12 mt-2">
+        <table class="table table-sm table-hover mb-0">
+          <thead><tr><th>\u05D8\u05D9\u05D5\u05DC</th><th>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</th><th>\u05E2\u05DC\u05D5\u05EA \u05DB\u05D5\u05DC\u05DC\u05EA</th><th>\u05E0\u05D2\u05D1\u05D4</th><th>\u05D9\u05EA\u05E8\u05D4</th></tr></thead>
+          <tbody>${data.map(t => {
+            const cost = Number(t['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0) * Number(t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+            const paid = Number(t['\u05EA\u05E9\u05DC\u05D5\u05DD'] || 0);
+            const rem = cost - paid;
+            return `<tr>
+              <td class="fw-bold">${t['\u05D9\u05E2\u05D3'] || ''}</td>
+              <td>${t['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0}</td>
+              <td>\u20AA${cost.toLocaleString()}</td>
+              <td class="text-success">\u20AA${paid.toLocaleString()}</td>
+              <td class="${rem > 0 ? 'text-danger' : 'text-success'}">\u20AA${rem.toLocaleString()}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
+  },
+
+  _setupTripBudgetCalc() {
+    const costEl = document.getElementById('tf-cost');
+    const partEl = document.getElementById('tf-participants');
+    const paidEl = document.getElementById('tf-paid');
+    const calcTotal = () => {
+      const c = Number(costEl?.value || 0);
+      const p = Number(partEl?.value || 0);
+      const paid = Number(paidEl?.value || 0);
+      const total = c * p;
+      const totalEl = document.getElementById('tf-total-calc');
+      const remEl = document.getElementById('tf-remaining-calc');
+      if (totalEl) totalEl.textContent = '\u20AA' + total.toLocaleString();
+      if (remEl) remEl.textContent = '\u20AA' + (total - paid).toLocaleString();
+    };
+    costEl?.addEventListener('input', calcTotal);
+    partEl?.addEventListener('input', calcTotal);
+    paidEl?.addEventListener('input', calcTotal);
+  },
+
+  showAddTrip() {
+    this._tripEditId = null;
+    document.getElementById('tf-dest').value = '';
+    document.getElementById('tf-class').value = '';
+    document.getElementById('tf-start').value = '';
+    document.getElementById('tf-end').value = '';
+    document.getElementById('tf-desc').value = '';
+    document.getElementById('tf-status').value = '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF';
+    document.getElementById('tf-transport').value = '\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1';
+    document.getElementById('tf-meals').value = '\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD';
+    document.getElementById('tf-participants').value = '';
+    document.getElementById('tf-cost').value = '';
+    document.getElementById('tf-paid').value = '';
+    document.getElementById('tf-total-calc').textContent = '\u20AA0';
+    document.getElementById('tf-remaining-calc').textContent = '\u20AA0';
+    document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9';
+    // Reset to first tab
+    const firstTab = document.querySelector('#trip-form-tabs .nav-link');
+    if (firstTab) new bootstrap.Tab(firstTab).show();
+    new bootstrap.Modal(document.getElementById('trip-modal')).show();
+  },
+
+  async saveTrip() {
+    const row = {
+      '\u05D9\u05E2\u05D3': document.getElementById('tf-dest').value.trim(),
+      '\u05DB\u05D9\u05EA\u05D4': document.getElementById('tf-class').value,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4': document.getElementById('tf-start').value,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD': document.getElementById('tf-end').value,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('tf-desc').value.trim(),
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('tf-status').value,
+      '\u05D4\u05E1\u05E2\u05D4': document.getElementById('tf-transport').value,
+      '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA': document.getElementById('tf-meals').value,
+      '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD': Number(document.getElementById('tf-participants').value) || 0,
+      '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3': Number(document.getElementById('tf-cost').value) || 0,
+      '\u05EA\u05E9\u05DC\u05D5\u05DD': Number(document.getElementById('tf-paid').value) || 0,
+      '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD': 0
+    };
+    if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3', 'warning'); return; }
+    try {
+      if (this._tripEditId) {
+        await App.apiCall('update', '\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', { id: this._tripEditId, row });
+        this._tripEditId = null;
+      } else {
+        await App.apiCall('add', '\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide();
+      Utils.toast('\u05E0\u05E9\u05DE\u05E8');
+      this.tripsInit();
+    } catch (e) {
+      // If API fails (demo mode), update local data
+      if (this._tripEditId) {
+        const idx = this._tripData.findIndex(t => (t.id || Utils.rowId(t)) == this._tripEditId);
+        if (idx >= 0) Object.assign(this._tripData[idx], row);
+        this._tripEditId = null;
+      } else {
+        row.id = 't' + Date.now();
+        this._tripData.push(row);
+      }
+      bootstrap.Modal.getInstance(document.getElementById('trip-modal'))?.hide();
+      Utils.toast('\u05E0\u05E9\u05DE\u05E8 (\u05DE\u05E7\u05D5\u05DE\u05D9)');
+      this._updateTripStats();
+      this.renderTrips();
+      this._renderTripBudget();
+    }
+  },
+
   async deleteTrip(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D9\u05D5\u05DC \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete','\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.tripsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D9\u05D5\u05DC \u05D6\u05D4?')) return;
+    try {
+      await App.apiCall('delete', '\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', { id });
+      Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+      this.tripsInit();
+    } catch (e) {
+      // Demo mode fallback
+      this._tripData = this._tripData.filter(t => (t.id || Utils.rowId(t)) != id);
+      Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+      this._updateTripStats();
+      this.renderTrips();
+      this._renderTripBudget();
+    }
   },
+
   editTrip(id) {
-    var item = this._tripData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    const item = this._tripData.find(r => String(r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r)) === String(id));
     if (!item) return;
+    this._tripEditId = id;
     document.getElementById('tf-dest').value = item['\u05D9\u05E2\u05D3'] || '';
+    document.getElementById('tf-class').value = item['\u05DB\u05D9\u05EA\u05D4'] || '';
     document.getElementById('tf-start').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
     document.getElementById('tf-end').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] || '';
     document.getElementById('tf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
-    this._tripEditId = id;
+    document.getElementById('tf-status').value = item['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF';
+    document.getElementById('tf-transport').value = item['\u05D4\u05E1\u05E2\u05D4'] || '\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1';
+    document.getElementById('tf-meals').value = item['\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA'] || '\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD';
+    document.getElementById('tf-participants').value = item['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || '';
+    document.getElementById('tf-cost').value = item['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+    document.getElementById('tf-paid').value = item['\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
+    // Trigger budget calc
+    const total = (Number(item['\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3'] || 0)) * (Number(item['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0));
+    const paid = Number(item['\u05EA\u05E9\u05DC\u05D5\u05DD'] || 0);
+    document.getElementById('tf-total-calc').textContent = '\u20AA' + total.toLocaleString();
+    document.getElementById('tf-remaining-calc').textContent = '\u20AA' + (total - paid).toLocaleString();
+    document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05EA \u05D8\u05D9\u05D5\u05DC';
+    const firstTab = document.querySelector('#trip-form-tabs .nav-link');
+    if (firstTab) new bootstrap.Tab(firstTab).show();
     new bootstrap.Modal(document.getElementById('trip-modal')).show();
+  },
+
+  showTripParticipants(tripId) {
+    const trip = this._tripData.find(t => String(t.id || Utils.rowId(t)) === String(tripId));
+    if (!trip) return;
+
+    const titleEl = document.getElementById('trip-part-title');
+    if (titleEl) titleEl.textContent = trip['\u05D9\u05E2\u05D3'] || '';
+
+    const parts = Number(trip['\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD'] || 0);
+    const approved = Number(trip['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] || 0);
+    const pending = parts - approved;
+
+    document.getElementById('trip-part-approved').textContent = approved + ' \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD';
+    document.getElementById('trip-part-pending').textContent = pending + ' \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD';
+    const pct = parts > 0 ? Math.round((approved / parts) * 100) : 0;
+    document.getElementById('trip-part-progress').style.width = pct + '%';
+
+    // Generate demo student list
+    const demoNames = [
+      '\u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF', '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9',
+      '\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05D2\u05E8', '\u05D9\u05D5\u05E1\u05E3 \u05D7\u05D9\u05D9\u05DD',
+      '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05D7\u05D9\u05D9\u05DD \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2', '\u05E0\u05EA\u05E0\u05D0\u05DC \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2',
+      '\u05D0\u05E8\u05D9\u05D4 \u05E7\u05E4\u05DC\u05DF', '\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF \u05D3\u05D9\u05D9\u05DF', '\u05E8\u05E4\u05D0\u05DC \u05D0\u05D3\u05DC\u05E8',
+      '\u05DE\u05E0\u05D7\u05DD \u05E9\u05D8\u05E8\u05DF', '\u05D9\u05D4\u05D5\u05E0\u05EA\u05DF \u05E4\u05E8\u05DC', '\u05E9\u05DC\u05DE\u05D4 \u05D5\u05D9\u05E0\u05E8'
+    ];
+
+    const listEl = document.getElementById('trip-part-list');
+    this._tripPartTripId = tripId;
+    this._tripPartNames = demoNames.slice(0, parts);
+
+    let html = '';
+    for (let i = 0; i < Math.min(parts, demoNames.length); i++) {
+      const isApproved = i < approved;
+      html += `<div class="list-group-item d-flex justify-content-between align-items-center trip-part-item">
+        <div class="d-flex align-items-center gap-2">
+          <div class="avatar avatar-sm" style="width:32px;height:32px;font-size:.75rem;background:${isApproved ? 'var(--bs-success)' : 'var(--bs-warning)'}">${demoNames[i][0]}</div>
+          <span>${demoNames[i]}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-${isApproved ? 'success' : 'warning'}">${isApproved ? '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05EA\u05E7\u05D1\u05DC' : '\u05DE\u05DE\u05EA\u05D9\u05DF \u05DC\u05D0\u05D9\u05E9\u05D5\u05E8'}</span>
+          <button class="btn btn-sm btn-outline-${isApproved ? 'success' : 'primary'}" onclick="Pages.toggleTripPermission('${tripId}',${i})" title="${isApproved ? '\u05D1\u05D8\u05DC \u05D0\u05D9\u05E9\u05D5\u05E8' : '\u05D0\u05E9\u05E8 \u05D0\u05D9\u05E9\u05D5\u05E8'}">
+            <i class="bi bi-${isApproved ? 'check-circle-fill' : 'circle'}"></i>
+          </button>
+        </div>
+      </div>`;
+    }
+    listEl.innerHTML = html;
+
+    new bootstrap.Modal(document.getElementById('trip-participants-modal')).show();
+  },
+
+  filterTripParticipants() {
+    const search = (document.getElementById('trip-part-search')?.value || '').toLowerCase();
+    document.querySelectorAll('.trip-part-item').forEach(el => {
+      const name = el.querySelector('span')?.textContent?.toLowerCase() || '';
+      el.style.display = name.includes(search) ? '' : 'none';
+    });
+  },
+
+  toggleTripPermission(tripId, idx) {
+    const trip = this._tripData.find(t => String(t.id || Utils.rowId(t)) === String(tripId));
+    if (!trip) return;
+    const approved = Number(trip['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] || 0);
+    // Toggle: if idx < approved, we are un-approving; otherwise approving
+    if (idx < approved) {
+      trip['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] = approved - 1;
+    } else {
+      trip['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] = approved + 1;
+    }
+    // Re-render participants modal
+    this.showTripParticipants(tripId);
+    this._updateTripStats();
+    this.renderTrips();
   },
 
 
