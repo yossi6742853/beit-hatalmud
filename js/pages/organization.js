@@ -412,30 +412,380 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     TASKS (KANBAN)
+     TASKS (KANBAN) — Full Kanban Board v2
      ====================================================================== */
   tasks() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-kanban me-2"></i>\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</h1></div><div class="d-flex gap-2"><div class="input-group input-group-sm" style="width:300px"><input class="form-control" id="quick-task" placeholder="\u05DE\u05E9\u05D9\u05DE\u05D4 \u05D7\u05D3\u05E9\u05D4..." onkeydown="if(event.key==='Enter')Pages.quickAddTask()"><button class="btn btn-primary" onclick="Pages.quickAddTask()"><i class="bi bi-plus-lg"></i></button></div></div></div><div class="row g-3"><div class="col-md-4"><div class="card p-3" style="min-height:300px"><h6 class="fw-bold text-center mb-3"><span class="badge bg-secondary">\u05D7\u05D3\u05E9</span> <span id="task-new-c" class="badge bg-light text-dark"></span></h6><div id="task-new"></div></div></div><div class="col-md-4"><div class="card p-3" style="min-height:300px"><h6 class="fw-bold text-center mb-3"><span class="badge bg-primary">\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA</span> <span id="task-prog-c" class="badge bg-light text-dark"></span></h6><div id="task-prog"></div></div></div><div class="col-md-4"><div class="card p-3" style="min-height:300px"><h6 class="fw-bold text-center mb-3"><span class="badge bg-success">\u05D4\u05D5\u05E9\u05DC\u05DD</span> <span id="task-done-c" class="badge bg-light text-dark"></span></h6><div id="task-done"></div></div></div></div>`;
+    return `
+      <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div><h1><i class="bi bi-kanban me-2"></i>\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</h1></div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <div class="input-group input-group-sm" style="width:220px">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input class="form-control" id="task-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." oninput="Pages.filterTasks()">
+          </div>
+          <select class="form-select form-select-sm" id="task-filter-priority" style="width:130px" onchange="Pages.filterTasks()">
+            <option value="">\u05DB\u05DC \u05D4\u05E2\u05D3\u05D9\u05E4\u05D5\u05D9\u05D5\u05EA</option>
+            <option value="\u05D3\u05D7\u05D5\u05E3">\u05D3\u05D7\u05D5\u05E3</option>
+            <option value="\u05D2\u05D1\u05D5\u05D4">\u05D2\u05D1\u05D5\u05D4</option>
+            <option value="\u05E8\u05D2\u05D9\u05DC">\u05E8\u05D2\u05D9\u05DC</option>
+            <option value="\u05E0\u05DE\u05D5\u05DA">\u05E0\u05DE\u05D5\u05DA</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="Pages.showAddTaskModal()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05E9\u05D9\u05DE\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-primary"><div class="fs-3 fw-bold text-primary" id="task-stat-total">0</div><small class="text-muted">\u05E1\u05D4"\u05DB \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-warning"><div class="fs-3 fw-bold text-warning" id="task-stat-prog">0</div><small class="text-muted">\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-success"><div class="fs-3 fw-bold text-success" id="task-stat-done">0</div><small class="text-muted">\u05D4\u05D5\u05E9\u05DC\u05DE\u05D5 \u05D4\u05D9\u05D5\u05DD</small></div></div>
+        <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-danger"><div class="fs-3 fw-bold text-danger" id="task-stat-overdue">0</div><small class="text-muted">\u05D1\u05D0\u05D9\u05D7\u05D5\u05E8</small></div></div>
+      </div>
+
+      <!-- Kanban Columns -->
+      <div class="row g-3" id="task-kanban">
+        <!-- \u05DC\u05D1\u05D9\u05E6\u05D5\u05E2 -->
+        <div class="col-md-4">
+          <div class="card h-100" style="background:#f8f9fa;border-top:3px solid var(--bs-secondary)">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-2">
+              <span class="fw-bold"><i class="bi bi-circle me-1 text-secondary"></i>\u05DC\u05D1\u05D9\u05E6\u05D5\u05E2</span>
+              <span class="badge bg-secondary rounded-pill" id="task-new-c">0</span>
+            </div>
+            <div class="card-body p-2" id="task-new" style="min-height:250px;max-height:70vh;overflow-y:auto"></div>
+          </div>
+        </div>
+        <!-- \u05D1\u05EA\u05D4\u05DC\u05D9\u05DA -->
+        <div class="col-md-4">
+          <div class="card h-100" style="background:#eff6ff;border-top:3px solid var(--bs-primary)">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-2">
+              <span class="fw-bold"><i class="bi bi-play-circle me-1 text-primary"></i>\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA</span>
+              <span class="badge bg-primary rounded-pill" id="task-prog-c">0</span>
+            </div>
+            <div class="card-body p-2" id="task-prog" style="min-height:250px;max-height:70vh;overflow-y:auto"></div>
+          </div>
+        </div>
+        <!-- \u05D4\u05D5\u05E9\u05DC\u05DD -->
+        <div class="col-md-4">
+          <div class="card h-100" style="background:#f0fdf4;border-top:3px solid var(--bs-success)">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-2">
+              <span class="fw-bold"><i class="bi bi-check-circle me-1 text-success"></i>\u05D4\u05D5\u05E9\u05DC\u05DD</span>
+              <span class="badge bg-success rounded-pill" id="task-done-c">0</span>
+            </div>
+            <div class="card-body p-2" id="task-done" style="min-height:250px;max-height:70vh;overflow-y:auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Task Modal -->
+      <div class="modal fade" id="task-modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>\u05DE\u05E9\u05D9\u05DE\u05D4 \u05D7\u05D3\u05E9\u05D4</h5>
+              <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label fw-bold">\u05DB\u05D5\u05EA\u05E8\u05EA <span class="text-danger">*</span></label>
+                  <input class="form-control" id="tf-title" placeholder="\u05E9\u05DD \u05D4\u05DE\u05E9\u05D9\u05DE\u05D4">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label>
+                  <textarea class="form-control" id="tf-desc" rows="2" placeholder="\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD..."></textarea>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">\u05D0\u05D7\u05E8\u05D0\u05D9</label>
+                  <input class="form-control" id="tf-assignee" placeholder="\u05E9\u05DD \u05D4\u05D0\u05D7\u05E8\u05D0\u05D9">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA</label>
+                  <select class="form-select" id="tf-priority">
+                    <option value="\u05E8\u05D2\u05D9\u05DC">\u05E8\u05D2\u05D9\u05DC</option>
+                    <option value="\u05E0\u05DE\u05D5\u05DA">\u05E0\u05DE\u05D5\u05DA</option>
+                    <option value="\u05D2\u05D1\u05D5\u05D4">\u05D2\u05D1\u05D5\u05D4</option>
+                    <option value="\u05D3\u05D7\u05D5\u05E3">\u05D3\u05D7\u05D5\u05E3</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D9\u05E2\u05D3</label>
+                  <input type="date" class="form-control" id="tf-due">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+                  <select class="form-select" id="tf-status">
+                    <option value="\u05D7\u05D3\u05E9">\u05DC\u05D1\u05D9\u05E6\u05D5\u05E2</option>
+                    <option value="\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA">\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA</option>
+                    <option value="\u05D4\u05D5\u05E9\u05DC\u05DD">\u05D4\u05D5\u05E9\u05DC\u05DD</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+              <button class="btn btn-primary" onclick="Pages.saveNewTask()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
   },
+
   _taskData: [],
-  async tasksInit() { this._taskData = await App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA'); this.renderTasks(); },
-  renderTasks() {
-    const cols = {'\u05D7\u05D3\u05E9':[],'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA':[],'\u05D4\u05D5\u05E9\u05DC\u05DD':[]};
-    (this._taskData||[]).forEach(t => { const s=t['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D7\u05D3\u05E9'; if (cols[s]) cols[s].push(t); else cols['\u05D7\u05D3\u05E9'].push(t); });
-    const prC = {'\u05D3\u05D7\u05D5\u05E3':'danger','\u05D2\u05D1\u05D5\u05D4':'warning','\u05E8\u05D2\u05D9\u05DC':'primary','\u05E0\u05DE\u05D5\u05DA':'secondary'};
-    const renderCol = (tasks) => !tasks.length ? '<div class="text-muted text-center small py-3">\u05E8\u05D9\u05E7</div>' : tasks.map(t => { const pc=prC[t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA']]||'secondary'; const due=t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3']||''; const ov=due&&due<Utils.todayISO()&&t['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05D4\u05D5\u05E9\u05DC\u05DD'; return `<div class="card mb-2 ${ov?'border-danger':''}" style="border-right:4px solid var(--bs-${pc})"><div class="card-body p-2"><div class="d-flex justify-content-between"><h6 class="card-title mb-1 small fw-bold">${t['\u05DB\u05D5\u05EA\u05E8\u05EA']||''}</h6><span class="badge bg-${pc}" style="font-size:9px">${t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA']||''}</span></div>${t['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="card-text small text-muted mb-1">${t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}<div class="small text-muted">${t['\u05D0\u05D7\u05E8\u05D0\u05D9']?'<i class="bi bi-person me-1"></i>'+t['\u05D0\u05D7\u05E8\u05D0\u05D9']:''}${due?' <i class="bi bi-calendar ms-1 me-1"></i>'+due:''}</div><div class="mt-1 btn-group btn-group-sm">${t['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA'?`<button class="btn btn-outline-primary" onclick="Pages.moveTask('${t.id||t['\u05DE\u05D6\u05D4\u05D4']}','\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA')"><i class="bi bi-play"></i></button>`:''}${t['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05D4\u05D5\u05E9\u05DC\u05DD'?`<button class="btn btn-outline-success" onclick="Pages.moveTask('${t.id||t['\u05DE\u05D6\u05D4\u05D4']}','\u05D4\u05D5\u05E9\u05DC\u05DD')"><i class="bi bi-check"></i></button>`:''}<button class="btn btn-outline-danger" onclick="Pages.deleteTask('${t.id||t['\u05DE\u05D6\u05D4\u05D4']}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></div></div></div>`; }).join('');
-    document.getElementById('task-new').innerHTML = renderCol(cols['\u05D7\u05D3\u05E9']);
-    document.getElementById('task-prog').innerHTML = renderCol(cols['\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA']);
-    document.getElementById('task-done').innerHTML = renderCol(cols['\u05D4\u05D5\u05E9\u05DC\u05DD']);
-    document.getElementById('task-new-c').textContent = cols['\u05D7\u05D3\u05E9'].length||'';
-    document.getElementById('task-prog-c').textContent = cols['\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA'].length||'';
-    document.getElementById('task-done-c').textContent = cols['\u05D4\u05D5\u05E9\u05DC\u05DD'].length||'';
+  _taskFilteredData: null,
+
+  async tasksInit() {
+    this._taskData = await App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []);
+    // If no data at all, seed with demo tasks
+    if (!this._taskData || this._taskData.length === 0) {
+      this._taskData = this._getDemoTasks();
+    }
+    this._taskFilteredData = null;
+    this.filterTasks();
   },
-  async quickAddTask() { const inp=document.getElementById('quick-task'); const title=(inp?inp.value:'').trim(); if (!title) return; try { await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row:{'\u05DB\u05D5\u05EA\u05E8\u05EA':title,'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9','\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC','\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}}); if (inp) inp.value=''; Utils.toast('\u05DE\u05E9\u05D9\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
-  async moveTask(id, status) { try { await App.apiCall('update','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':status}}); Utils.toast('\u05E2\u05D5\u05D3\u05DB\u05DF'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  _getDemoTasks() {
+    const today = Utils.todayISO();
+    const d = (offset) => { const dt = new Date(); dt.setDate(dt.getDate() + offset); return dt.toISOString().substring(0,10); };
+    return [
+      { id:'demo1', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05DB\u05E0\u05EA \u05DC\u05D5\u05D7 \u05E9\u05E0\u05D4 \u05EA\u05E9\u05E4"\u05D5', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05D4\u05DB\u05D9\u05DF \u05D0\u05EA \u05DC\u05D5\u05D7 \u05D4\u05E9\u05E0\u05D4 \u05DC\u05E9\u05E0\u05EA \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD \u05D4\u05D1\u05D0\u05D4', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D9\u05D5\u05E1\u05E3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D3\u05D7\u05D5\u05E3', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(3), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9' },
+      { id:'demo2', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E8\u05DB\u05D9\u05E9\u05EA \u05E1\u05E4\u05E8\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D2\u05DE\u05E8\u05D5\u05EA \u05DC\u05E9\u05E0\u05D4 \u05D4\u05D1\u05D0\u05D4', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D2\u05D1\u05D5\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(7), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9' },
+      { id:'demo3', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E2\u05D3\u05DB\u05D5\u05DF \u05E4\u05E8\u05D8\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05E9\u05DC\u05D5\u05D7 \u05D8\u05E4\u05E1\u05D9\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u05E2\u05DD \u05E2\u05D3\u05DB\u05D5\u05E0\u05D9\u05DD', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D9\u05D5\u05E1\u05E3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(5), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9' },
+      { id:'demo4', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05EA\u05D9\u05E7\u05D5\u05DF \u05DE\u05D6\u05D2\u05DF', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D8\u05DB\u05E0\u05D0\u05D9 \u05DC\u05EA\u05D9\u05E7\u05D5\u05DF \u05D4\u05DE\u05D6\u05D2\u05DF', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D3\u05D5\u05D3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E0\u05DE\u05D5\u05DA', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(14), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9' },
+      { id:'demo5', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05DB\u05E0\u05EA \u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05EA\u05DB\u05E0\u05DF \u05D8\u05D9\u05D5\u05DC \u05DC\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D0\u05D1\u05E8\u05D4\u05DD', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D2\u05D1\u05D5\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(-2), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9' },
+      { id:'demo6', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05DB\u05E0\u05EA \u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05D3\u05E9\u05D9', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D4\u05DB\u05E0\u05EA \u05D7\u05D5\u05DE\u05E8 \u05DC\u05DE\u05D1\u05D7\u05DF \u05D4\u05D7\u05D5\u05D3\u05E9\u05D9', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D3\u05D7\u05D5\u05E3', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(2), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA' },
+      { id:'demo7', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E9\u05D9\u05D7\u05D5\u05EA \u05E2\u05DD \u05D4\u05D5\u05E8\u05D9\u05DD', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E9\u05D9\u05D7\u05D5\u05EA \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05D5\u05EA \u05E2\u05DD \u05D4\u05D5\u05E8\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D9\u05D5\u05E1\u05E3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D2\u05D1\u05D5\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(1), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA' },
+      { id:'demo8', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05DB\u05E0\u05EA \u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D4\u05DB\u05E0\u05EA \u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D0\u05D7\u05E8\u05D5\u05DF', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D3\u05D5\u05D3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(4), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA' },
+      { id:'demo9', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E2\u05D3\u05DB\u05D5\u05DF \u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05D4\u05EA\u05D0\u05D9\u05DD \u05DE\u05E2\u05E8\u05DB\u05EA \u05DC\u05E9\u05D1\u05D5\u05E2 \u05D4\u05D1\u05D0', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D0\u05D1\u05E8\u05D4\u05DD', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(-1), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA' },
+      { id:'demo10', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D2\u05D1\u05D9\u05D9\u05EA \u05E9\u05DB"\u05DC \u05D7\u05D5\u05D3\u05E9 \u05D0\u05D7\u05E8\u05D5\u05DF', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D2\u05D1\u05D9\u05D9\u05EA \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D0\u05D7\u05E8\u05D5\u05DF', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D9\u05D5\u05E1\u05E3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D3\u05D7\u05D5\u05E3', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(-3), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA' },
+      { id:'demo11', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E1\u05D9\u05D3\u05D5\u05E8 \u05D0\u05E8\u05DB\u05D9\u05D5\u05DF', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E1\u05D9\u05D3\u05D5\u05E8 \u05EA\u05D9\u05E7\u05D9\u05D5\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D3\u05D5\u05D3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E0\u05DE\u05D5\u05DA', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(-5), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD' },
+      { id:'demo12', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05D3\u05E4\u05E1\u05EA \u05D7\u05D5\u05D1\u05E8\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D4\u05D3\u05E4\u05E1\u05EA \u05D7\u05D5\u05D1\u05E8\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DC\u05DE\u05D5\u05E1\u05D3', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D9\u05D5\u05E1\u05E3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D2\u05D1\u05D5\u05D4', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(-4), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD' },
+      { id:'demo13', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05E8\u05D9\u05E9\u05D5\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05D7\u05D3\u05E9\u05D4', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05E8\u05D9\u05E9\u05D5\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05D4\u05DE\u05D7\u05E9\u05D1\u05D9\u05DD \u05D4\u05D7\u05D3\u05E9\u05D4', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05D3\u05D7\u05D5\u05E3', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':today, '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD' },
+      { id:'demo14', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D4\u05D6\u05DE\u05E0\u05EA \u05D3\u05D5\u05D1\u05E8\u05D9\u05DD \u05DC\u05D0\u05D9\u05E8\u05D5\u05E2', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05D4\u05D6\u05DE\u05E0\u05EA \u05D3\u05D5\u05D1\u05E8\u05D9\u05DD \u05DC\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E1\u05D5\u05E3 \u05D4\u05E9\u05D1\u05D5\u05E2', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D0\u05D1\u05E8\u05D4\u05DD', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':today, '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD' },
+      { id:'demo15', '\u05DB\u05D5\u05EA\u05E8\u05EA':'\u05D1\u05D3\u05D9\u05E7\u05EA \u05DE\u05D6\u05D2\u05E0\u05D9\u05DD', '\u05EA\u05D9\u05D0\u05D5\u05E8':'\u05DC\u05D1\u05D3\u05D5\u05E7 \u05EA\u05E7\u05D9\u05E0\u05D5\u05EA \u05DE\u05D6\u05D2\u05E0\u05D9\u05DD \u05D1\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA', '\u05D0\u05D7\u05E8\u05D0\u05D9':'\u05D3\u05D5\u05D3', '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E0\u05DE\u05D5\u05DA', '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3':d(10), '\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD' },
+    ];
+  },
+
+  filterTasks() {
+    const search = (document.getElementById('task-search')?.value || '').trim().toLowerCase();
+    const priority = document.getElementById('task-filter-priority')?.value || '';
+    let data = this._taskData || [];
+    if (search) {
+      data = data.filter(t =>
+        (t['\u05DB\u05D5\u05EA\u05E8\u05EA']||'').toLowerCase().includes(search) ||
+        (t['\u05EA\u05D9\u05D0\u05D5\u05E8']||'').toLowerCase().includes(search) ||
+        (t['\u05D0\u05D7\u05E8\u05D0\u05D9']||'').toLowerCase().includes(search)
+      );
+    }
+    if (priority) {
+      data = data.filter(t => t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'] === priority);
+    }
+    this._taskFilteredData = data;
+    this.renderTasks();
+  },
+
+  renderTasks() {
+    const data = this._taskFilteredData || this._taskData || [];
+    const allData = this._taskData || [];
+    const today = Utils.todayISO();
+
+    // Build columns
+    const cols = { '\u05D7\u05D3\u05E9':[], '\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA':[], '\u05D4\u05D5\u05E9\u05DC\u05DD':[] };
+    data.forEach(t => {
+      const s = t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D7\u05D3\u05E9';
+      if (cols[s]) cols[s].push(t); else cols['\u05D7\u05D3\u05E9'].push(t);
+    });
+
+    // Stats (always from full data)
+    const overdue = allData.filter(t => {
+      const due = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3'] || '';
+      return due && due < today && t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D4\u05D5\u05E9\u05DC\u05DD';
+    }).length;
+    const doneToday = allData.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05D5\u05E9\u05DC\u05DD' && (t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3'] || t['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') === today).length;
+    const inProgress = allData.filter(t => t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA').length;
+
+    const el = (id) => document.getElementById(id);
+    if (el('task-stat-total')) el('task-stat-total').textContent = allData.length;
+    if (el('task-stat-prog')) el('task-stat-prog').textContent = inProgress;
+    if (el('task-stat-done')) el('task-stat-done').textContent = doneToday;
+    if (el('task-stat-overdue')) el('task-stat-overdue').textContent = overdue;
+
+    // Priority colors & icons
+    const prC = { '\u05D3\u05D7\u05D5\u05E3':'danger', '\u05D2\u05D1\u05D5\u05D4':'warning', '\u05E8\u05D2\u05D9\u05DC':'primary', '\u05E0\u05DE\u05D5\u05DA':'secondary' };
+    const prI = { '\u05D3\u05D7\u05D5\u05E3':'bi-exclamation-triangle-fill', '\u05D2\u05D1\u05D5\u05D4':'bi-arrow-up', '\u05E8\u05D2\u05D9\u05DC':'bi-dash', '\u05E0\u05DE\u05D5\u05DA':'bi-arrow-down' };
+
+    // Avatar helper
+    const avatar = (name) => {
+      if (!name) return '';
+      const initials = name.trim().split(/\s+/).map(w => w[0]).join('').substring(0,2);
+      const colors = ['#2563eb','#0f9d58','#ea4335','#f9ab00','#8b5cf6','#06b6d4','#ec4899'];
+      const ci = name.split('').reduce((a,c) => a+c.charCodeAt(0), 0) % colors.length;
+      return `<span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white fw-bold" style="width:26px;height:26px;font-size:11px;background:${colors[ci]}" title="${name}">${initials}</span>`;
+    };
+
+    // Due date display helper
+    const dueDisplay = (due) => {
+      if (!due) return '';
+      const diff = Math.ceil((new Date(due) - new Date(today)) / 86400000);
+      let cls = 'text-muted', icon = 'bi-calendar', label = due;
+      if (diff < 0) { cls = 'text-danger fw-bold'; icon = 'bi-exclamation-circle-fill'; label = `\u05D1\u05D0\u05D9\u05D7\u05D5\u05E8 (${Math.abs(diff)} \u05D9\u05DE\u05D9\u05DD)`; }
+      else if (diff === 0) { cls = 'text-warning fw-bold'; label = '\u05D4\u05D9\u05D5\u05DD'; }
+      else if (diff === 1) { cls = 'text-info'; label = '\u05DE\u05D7\u05E8'; }
+      else if (diff <= 3) { cls = 'text-info'; label = `\u05D1\u05E2\u05D5\u05D3 ${diff} \u05D9\u05DE\u05D9\u05DD`; }
+      return `<span class="${cls}" style="font-size:11px"><i class="bi ${icon} me-1"></i>${label}</span>`;
+    };
+
+    // Render a single task card
+    const renderCard = (t) => {
+      const pc = prC[t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA']] || 'secondary';
+      const pi = prI[t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA']] || 'bi-dash';
+      const due = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3'] || '';
+      const isOverdue = due && due < today && t['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05D4\u05D5\u05E9\u05DC\u05DD';
+      const isDone = t['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05D5\u05E9\u05DC\u05DD';
+      const tid = t.id || t['\u05DE\u05D6\u05D4\u05D4'];
+      const status = t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D7\u05D3\u05E9';
+
+      // Movement buttons
+      let moveLeft = '', moveRight = '';
+      if (status === '\u05D7\u05D3\u05E9') {
+        moveRight = `<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="Pages.moveTask('${tid}','\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA')" title="\u05D4\u05E2\u05D1\u05E8 \u05DC\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA"><i class="bi bi-arrow-left"></i></button>`;
+      } else if (status === '\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA') {
+        moveLeft = `<button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="Pages.moveTask('${tid}','\u05D7\u05D3\u05E9')" title="\u05D4\u05D7\u05D6\u05E8 \u05DC\u05DC\u05D1\u05D9\u05E6\u05D5\u05E2"><i class="bi bi-arrow-right"></i></button>`;
+        moveRight = `<button class="btn btn-sm btn-outline-success py-0 px-1" onclick="Pages.moveTask('${tid}','\u05D4\u05D5\u05E9\u05DC\u05DD')" title="\u05D4\u05E2\u05D1\u05E8 \u05DC\u05D4\u05D5\u05E9\u05DC\u05DD"><i class="bi bi-arrow-left"></i></button>`;
+      } else {
+        moveLeft = `<button class="btn btn-sm btn-outline-primary py-0 px-1" onclick="Pages.moveTask('${tid}','\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA')" title="\u05D4\u05D7\u05D6\u05E8 \u05DC\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA"><i class="bi bi-arrow-right"></i></button>`;
+      }
+
+      return `
+        <div class="card mb-2 shadow-sm task-card ${isOverdue ? 'border-danger border-2' : ''} ${isDone ? 'opacity-75' : ''}"
+             style="border-right:4px solid var(--bs-${pc});transition:all .2s"
+             draggable="true"
+             ondragstart="Pages._dragTaskStart(event,'${tid}','${status}')"
+             ondragend="Pages._dragTaskEnd(event)">
+          <div class="card-body p-2">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <h6 class="card-title mb-0 small fw-bold ${isDone ? 'text-decoration-line-through text-muted' : ''}" style="line-height:1.4">${t['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}</h6>
+              <span class="badge bg-${pc} ms-1 d-flex align-items-center gap-1" style="font-size:10px;white-space:nowrap"><i class="bi ${pi}"></i>${t['\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA'] || ''}</span>
+            </div>
+            ${t['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? `<p class="card-text small text-muted mb-1" style="line-height:1.3">${t['\u05EA\u05D9\u05D0\u05D5\u05E8'].length > 60 ? t['\u05EA\u05D9\u05D0\u05D5\u05E8'].substring(0,60)+'...' : t['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>` : ''}
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div class="d-flex align-items-center gap-2">
+                ${avatar(t['\u05D0\u05D7\u05E8\u05D0\u05D9'])}
+                ${dueDisplay(due)}
+              </div>
+              <div class="d-flex gap-1">
+                ${moveLeft}${moveRight}
+                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="Pages.deleteTask('${tid}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash3"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    };
+
+    // Render columns
+    const renderCol = (tasks) => !tasks.length
+      ? '<div class="text-muted text-center small py-4"><i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>\u05D0\u05D9\u05DF \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</div>'
+      : tasks.map(renderCard).join('');
+
+    if (el('task-new')) el('task-new').innerHTML = renderCol(cols['\u05D7\u05D3\u05E9']);
+    if (el('task-prog')) el('task-prog').innerHTML = renderCol(cols['\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA']);
+    if (el('task-done')) el('task-done').innerHTML = renderCol(cols['\u05D4\u05D5\u05E9\u05DC\u05DD']);
+    if (el('task-new-c')) el('task-new-c').textContent = cols['\u05D7\u05D3\u05E9'].length;
+    if (el('task-prog-c')) el('task-prog-c').textContent = cols['\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA'].length;
+    if (el('task-done-c')) el('task-done-c').textContent = cols['\u05D4\u05D5\u05E9\u05DC\u05DD'].length;
+
+    // Setup drop zones
+    document.querySelectorAll('#task-kanban .card-body[id^="task-"]').forEach(zone => {
+      zone.ondragover = (e) => { e.preventDefault(); zone.style.background = 'rgba(37,99,235,0.08)'; };
+      zone.ondragleave = () => { zone.style.background = ''; };
+      zone.ondrop = (e) => { e.preventDefault(); zone.style.background = ''; Pages._dropTask(e, zone.id); };
+    });
+  },
+
+  // Drag & drop support
+  _dragTaskId: null,
+  _dragTaskStatus: null,
+  _dragTaskStart(e, id, status) {
+    this._dragTaskId = id;
+    this._dragTaskStatus = status;
+    e.target.closest('.task-card').style.opacity = '0.4';
+    e.dataTransfer.effectAllowed = 'move';
+  },
+  _dragTaskEnd(e) {
+    e.target.closest('.task-card').style.opacity = '';
+  },
+  _dropTask(e, zoneId) {
+    if (!this._dragTaskId) return;
+    const statusMap = { 'task-new':'\u05D7\u05D3\u05E9', 'task-prog':'\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA', 'task-done':'\u05D4\u05D5\u05E9\u05DC\u05DD' };
+    const newStatus = statusMap[zoneId];
+    if (newStatus && newStatus !== this._dragTaskStatus) {
+      this.moveTask(this._dragTaskId, newStatus);
+    }
+    this._dragTaskId = null;
+    this._dragTaskStatus = null;
+  },
+
+  showAddTaskModal() {
+    ['tf-title','tf-desc','tf-assignee'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    const due = document.getElementById('tf-due'); if (due) due.value = '';
+    const pri = document.getElementById('tf-priority'); if (pri) pri.value = '\u05E8\u05D2\u05D9\u05DC';
+    const st = document.getElementById('tf-status'); if (st) st.value = '\u05D7\u05D3\u05E9';
+    new bootstrap.Modal(document.getElementById('task-modal')).show();
+  },
+
+  async saveNewTask() {
+    const title = (document.getElementById('tf-title')?.value || '').trim();
+    if (!title) { Utils.toast('\u05D7\u05E1\u05E8\u05D4 \u05DB\u05D5\u05EA\u05E8\u05EA','warning'); return; }
+    const row = {
+      '\u05DB\u05D5\u05EA\u05E8\u05EA': title,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': (document.getElementById('tf-desc')?.value || '').trim(),
+      '\u05D0\u05D7\u05E8\u05D0\u05D9': (document.getElementById('tf-assignee')?.value || '').trim(),
+      '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA': document.getElementById('tf-priority')?.value || '\u05E8\u05D2\u05D9\u05DC',
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3': document.getElementById('tf-due')?.value || '',
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('tf-status')?.value || '\u05D7\u05D3\u05E9',
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO()
+    };
+    try {
+      await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row});
+      bootstrap.Modal.getInstance(document.getElementById('task-modal'))?.hide();
+      Utils.toast('\u05DE\u05E9\u05D9\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4');
+      this.tasksInit();
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger');
+    }
+  },
+
+  async quickAddTask() {
+    const inp = document.getElementById('quick-task');
+    const title = (inp ? inp.value : '').trim();
+    if (!title) return;
+    try {
+      await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row:{'\u05DB\u05D5\u05EA\u05E8\u05EA':title,'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9','\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC','\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}});
+      if (inp) inp.value = '';
+      Utils.toast('\u05DE\u05E9\u05D9\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4');
+      this.tasksInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+  },
+
+  async moveTask(id, status) {
+    // Optimistic update for responsiveness
+    const task = (this._taskData || []).find(t => (t.id || t['\u05DE\u05D6\u05D4\u05D4']) === id);
+    if (task) { task['\u05E1\u05D8\u05D8\u05D5\u05E1'] = status; this.filterTasks(); }
+    try {
+      await App.apiCall('update','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':status}});
+      Utils.toast('\u05E2\u05D5\u05D3\u05DB\u05DF');
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger');
+      this.tasksInit(); // Revert on failure
+    }
+  },
+
   async deleteTask(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05D9\u05DE\u05D4 \u05D6\u05D5?')) return;
-    try { await App.apiCall('delete','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.tasksInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    try {
+      await App.apiCall('delete','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{id});
+      Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+      this.tasksInit();
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
 
 
