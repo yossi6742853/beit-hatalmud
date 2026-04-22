@@ -83,78 +83,181 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     COMMUNICATIONS
+     COMMUNICATIONS  (v5.4 — full upgrade)
      ====================================================================== */
   communications() {
-    return `<div class="page-header"><h1><i class="bi bi-chat-dots me-2"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h1></div>
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-chat-dots me-2"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h1><p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05D5\u05E1\u05E4\u05E8 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</p></div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-3" id="comm-stats-row"></div>
+
+    <!-- Tabs -->
     <ul class="nav nav-tabs mb-3" id="comm-tabs">
-      <li class="nav-item"><a class="nav-link active" href="#" data-comm-tab="history" onclick="Pages._commTab='history';Pages.renderComm();return false"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="send" onclick="Pages._commTab='send';Pages.renderComm();return false"><i class="bi bi-send me-1"></i>\u05E9\u05DC\u05D9\u05D7\u05D4</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="templates" onclick="Pages._commTab='templates';Pages.renderComm();return false"><i class="bi bi-file-earmark-text me-1"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link active" href="#" data-comm-tab="compose" onclick="Pages._commTab='compose';Pages.renderComm();return false"><i class="bi bi-pencil-square me-1"></i>\u05D7\u05D9\u05D1\u05D5\u05E8</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="templates" onclick="Pages._commTab='templates';Pages.renderComm();return false"><i class="bi bi-whatsapp me-1"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="history" onclick="Pages._commTab='history';Pages.renderComm();return false"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="contacts" onclick="Pages._commTab='contacts';Pages.renderComm();return false"><i class="bi bi-person-lines-fill me-1"></i>\u05E1\u05E4\u05E8 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</a></li>
     </ul>
     <div id="comm-content">${Utils.skeleton(3)}</div>`;
   },
-  _commData: [], _commTab: 'history', _commParents: [], _commStudents: [], _commClasses: [], _commSelectedClasses: new Set(),
+
+  /* --- Communication state --- */
+  _commData: [],
+  _commTab: 'compose',
+  _commParents: [],
+  _commStudents: [],
+  _commClasses: [],
+  _commSelectedClasses: new Set(),
+  _commRecipientMode: 'class',   // 'class' | 'all' | 'individual'
+  _commSelectedIndividuals: new Set(),
+  _commDelivery: 'whatsapp',     // 'whatsapp' | 'sms' | 'email'
+  _commContactSearch: '',
+  _commHistorySearch: '',
+
+  /* --- 7 WhatsApp Templates --- */
   _waTemplates: [
-    {title:'\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD', icon:'bi-emoji-smile', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D1\u05E8\u05D5\u05DB\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3!\n\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05D4\u05EA\u05E7\u05D1\u05DC \u05DC\u05DB\u05D9\u05EA\u05D4 {\u05DB\u05D9\u05EA\u05D4}.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E9\u05EA\u05E3 \u05E4\u05E2\u05D5\u05DC\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', icon:'bi-cash', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D6\u05D5\u05D4\u05D9 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05E2\u05DC \u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D9.\n\u05E1\u05DB\u05D5\u05DD: {\u05E1\u05DB\u05D5\u05DD}\n\u05E0\u05D0 \u05DC\u05D4\u05E1\u05D3\u05D9\u05E8 \u05D1\u05D4\u05E7\u05D3\u05DD.\n\u05EA\u05D5\u05D3\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-exclamation-triangle', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E9\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05E8\u05D5\u05D1', icon:'bi-calendar-event', text:'\u05E9\u05DC\u05D5\u05DD,\n\u05DC\u05D9\u05D3\u05D9\u05E2\u05EA\u05DB\u05DD, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05E8\u05D5\u05D1 \u05D1\u05DE\u05D5\u05E1\u05D3:\n{\u05D0\u05D9\u05E8\u05D5\u05E2}\n\u05EA\u05D0\u05E8\u05D9\u05DA: {\u05EA\u05D0\u05E8\u05D9\u05DA}\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E8\u05D0\u05D5\u05EA\u05DB\u05DD!\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05D1\u05D5\u05E2\u05D9', icon:'bi-clipboard-data', text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05D1\u05D5\u05E2\u05D9 \u05E2\u05D1\u05D5\u05E8 {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3}:\n\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA: {\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA}\n\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: {\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA}\n\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA: {\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05E6\u05D5\u05D5\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05D4\u05D5\u05D3\u05E2\u05EA \u05D7\u05D5\u05E4\u05E9\u05D4', icon:'bi-sun', text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD,\n\u05DC\u05D9\u05D3\u05D9\u05E2\u05EA\u05DB\u05DD, \u05D4\u05DE\u05D5\u05E1\u05D3 \u05D9\u05D4\u05D9\u05D4 \u05E1\u05D2\u05D5\u05E8 \u05D1:\n{\u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD}\n\u05E1\u05D9\u05D1\u05D4: {\u05E1\u05D9\u05D1\u05D4}\n\u05D7\u05D6\u05E8\u05D4 \u05DC\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD: {\u05D7\u05D6\u05E8\u05D4}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
-    {title:'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA', icon:'bi-chat-text', text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3,\n{\u05D4\u05D5\u05D3\u05E2\u05D4}\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D4\u05E0\u05D4\u05DC\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'}
+    {title:'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-exclamation-triangle', color:'danger',
+     text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E9\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', icon:'bi-cash-coin', color:'warning',
+     text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D6\u05D5\u05D4\u05D9 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05E2\u05DC \u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D4\u05E0\u05D5\u05DB\u05D7\u05D9.\n\u05E1\u05DB\u05D5\u05DD: {\u05E1\u05DB\u05D5\u05DD}\n\u05E0\u05D0 \u05DC\u05D4\u05E1\u05D3\u05D9\u05E8 \u05D1\u05D4\u05E7\u05D3\u05DD.\n\u05EA\u05D5\u05D3\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4', icon:'bi-calendar-event', color:'primary',
+     text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05D4\u05E0\u05DA\u05DD \u05DE\u05D5\u05D6\u05DE\u05E0\u05D9\u05DD \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D1\u05DE\u05D5\u05E1\u05D3.\n\u05EA\u05D0\u05E8\u05D9\u05DA: {\u05EA\u05D0\u05E8\u05D9\u05DA}\n\u05E9\u05E2\u05D4: {\u05E9\u05E2\u05D4}\n\u05E0\u05D5\u05E9\u05D0: {\u05E0\u05D5\u05E9\u05D0}\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E8\u05D0\u05D5\u05EA\u05DB\u05DD!\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05EA\u05E2\u05D5\u05D3\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', icon:'bi-clipboard-data', color:'info',
+     text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05E2\u05D1\u05D5\u05E8 {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DE\u05D5\u05DB\u05E0\u05D4.\n\u05E0\u05D9\u05EA\u05DF \u05DC\u05E6\u05E4\u05D5\u05EA \u05D1\u05D4 \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05E6\u05D5\u05D5\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D0\u05D9\u05E8\u05D5\u05E2 / \u05D8\u05D9\u05D5\u05DC', icon:'bi-bus-front', color:'success',
+     text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD,\n\u05DC\u05D9\u05D3\u05D9\u05E2\u05EA\u05DB\u05DD, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E7\u05E8\u05D5\u05D1 \u05D1\u05DE\u05D5\u05E1\u05D3:\n{\u05D0\u05D9\u05E8\u05D5\u05E2}\n\u05EA\u05D0\u05E8\u05D9\u05DA: {\u05EA\u05D0\u05E8\u05D9\u05DA}\n\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD.\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05D5\u05D3\u05E2\u05EA \u05D7\u05D9\u05E8\u05D5\u05DD', icon:'bi-megaphone-fill', color:'danger',
+     text:'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D3\u05D7\u05D5\u05E4\u05D4!\n\n{\u05D4\u05D5\u05D3\u05E2\u05D4}\n\n\u05DC\u05E4\u05E8\u05D8\u05D9\u05DD \u05E0\u05D0 \u05DC\u05D9\u05E6\u05D5\u05E8 \u05E7\u05E9\u05E8 \u05E2\u05DD \u05D4\u05DE\u05D5\u05E1\u05D3.\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
+    {title:'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D7\u05D5\u05E4\u05E9\u05D9\u05EA', icon:'bi-chat-text', color:'secondary',
+     text:'\u05E9\u05DC\u05D5\u05DD \u05DC\u05D4\u05D5\u05E8\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3,\n\n{\u05D4\u05D5\u05D3\u05E2\u05D4}\n\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D4\u05E0\u05D4\u05DC\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'}
   ],
+
+  /* --- 15 demo sent messages --- */
+  _commDemoMessages: [
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'22/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D0','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D3\u05D5\u05D3 \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3. \u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'22/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05D5\u05D3\u05E2\u05EA \u05D7\u05D5\u05E4\u05E9\u05D4','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D4\u05DE\u05D5\u05E1\u05D3 \u05D9\u05D4\u05D9\u05D4 \u05E1\u05D2\u05D5\u05E8 \u05DE\u05D7\u05E8 \u05D1\u05E9\u05DC \u05D0\u05D9\u05E8\u05D5\u05E2 \u05DE\u05D9\u05D5\u05D7\u05D3.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'21/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF','\u05E0\u05D5\u05E9\u05D0':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 - 1,200 \u05E9"\u05D7','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'sms','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'21/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D1','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DC\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9 \u05D4\u05E7\u05E8\u05D5\u05D1 \u05D1\u05E9\u05E2\u05D4 18:00','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'email','\u05E0\u05E7\u05E8\u05D0':false},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'20/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05D9\u05E2\u05E7\u05D1 \u05DC\u05D5\u05D9','\u05E0\u05D5\u05E9\u05D0':'\u05EA\u05E2\u05D5\u05D3\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05E9\u05DC \u05D0\u05D1\u05E8\u05D4\u05DD \u05DE\u05D5\u05DB\u05E0\u05D4 \u05DC\u05E6\u05E4\u05D9\u05D9\u05D4.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'20/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E0\u05D5\u05E9\u05D0':'\u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05D4 \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05EA \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD \u05D1-30/06. \u05D8\u05E7\u05E1\u05D9\u05DD \u05DC\u05D4\u05D7\u05D6\u05E8\u05D4 \u05D1\u05E9\u05D1\u05D5\u05E2 \u05D4\u05D1\u05D0.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'19/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05D3\u05D1\u05D5\u05E8\u05D4 \u05D9\u05E6\u05D7\u05E7\u05D9','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05E9\u05DE\u05E2\u05D5\u05DF \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05D0\u05EA\u05DE\u05D5\u05DC - \u05E0\u05D0 \u05DC\u05E2\u05D3\u05DB\u05DF','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':false},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'19/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D0','\u05E0\u05D5\u05E9\u05D0':'\u05D8\u05D9\u05D5\u05DC \u05D4\u05E7\u05E8\u05D5\u05D1','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D4\u05D8\u05D9\u05D5\u05DC \u05DC\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA 25/04. \u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'18/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05E8\u05D7\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05E0\u05D5\u05E9\u05D0':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD: \u05D7\u05D5\u05D1 \u05E9\u05DC 850 \u05E9"\u05D7.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'sms','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'17/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05E9\u05D1\u05D5\u05E2 \u05D4\u05D1\u05D0: \u05D9\u05D5\u05DD \u05E1\u05E4\u05D5\u05E8\u05D8 \u05D5\u05DE\u05D3\u05D9\u05DD \u05DC\u05DB\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3!','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'16/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05E9\u05E8\u05D4 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D7\u05E0\u05D4 \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2\u05D4 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05D0\u05EA\u05DE\u05D5\u05DC - \u05DE\u05D7\u05DC\u05D4','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'15/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D2','\u05E0\u05D5\u05E9\u05D0':'\u05E4\u05D2\u05D9\u05E9\u05D4 \u05DC\u05E4\u05E1\u05D7','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D0\u05D9\u05E1\u05D5\u05E3 \u05DE\u05EA\u05E0\u05D5\u05EA \u05D5\u05DE\u05D5\u05E6\u05E8\u05D9\u05DD \u05DC\u05E4\u05E1\u05D7. \u05DC\u05D5\u05D7 \u05D6\u05DE\u05E0\u05D9\u05DD \u05DE\u05E6\u05D5\u05E8\u05E3.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'email','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'14/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D9\u05D5\u05E1\u05E3 \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D9\u05D5\u05DE\u05D9\u05D9\u05DD. \u05D4\u05D0\u05DD \u05D1\u05E1\u05D3\u05E8?','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':false},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'13/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD','\u05E0\u05D5\u05E9\u05D0':'\u05D9\u05D5\u05DD \u05D4\u05D5\u05E8\u05D9\u05DD \u05E4\u05EA\u05D5\u05D7','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05D9\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D7\u05DE\u05D9\u05E9\u05D9 \u05D4\u05E7\u05E8\u05D5\u05D1, 10:00-12:00.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true},
+    {'\u05EA\u05D0\u05E8\u05D9\u05DA':'12/04/2026','\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD':'\u05DB\u05D9\u05EA\u05D4 \u05D0, \u05DB\u05D9\u05EA\u05D4 \u05D1','\u05E0\u05D5\u05E9\u05D0':'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA','\u05D4\u05D5\u05D3\u05E2\u05D4':'\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05D1\u05E9\u05D1\u05D5\u05E2 \u05D4\u05D1\u05D0. \u05DC\u05D5\u05D7 \u05D6\u05DE\u05E0\u05D9\u05DD \u05D9\u05E9\u05DC\u05D7 \u05D4\u05D1\u05D9\u05EA\u05D4.','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E0\u05E9\u05DC\u05D7','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05E0\u05E7\u05E8\u05D0':true}
+  ],
+
+  /* --- 20 demo parent contacts --- */
+  _commDemoContacts: [
+    {'\u05E9\u05DD':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-1234567','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'moshe@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D3\u05D5\u05D3 \u05DB\u05D4\u05DF'},
+    {'\u05E9\u05DD':'\u05E8\u05D7\u05DC \u05DB\u05D4\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-1234568','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'rachel.k@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D3\u05D5\u05D3 \u05DB\u05D4\u05DF'},
+    {'\u05E9\u05DD':'\u05D9\u05E2\u05E7\u05D1 \u05DC\u05D5\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-9876543','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'yaakov.l@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05DC\u05D5\u05D9'},
+    {'\u05E9\u05DD':'\u05D3\u05D1\u05D5\u05E8\u05D4 \u05D9\u05E6\u05D7\u05E7\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-5551234','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'dvora.y@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05E9\u05DE\u05E2\u05D5\u05DF \u05D9\u05E6\u05D7\u05E7\u05D9'},
+    {'\u05E9\u05DD':'\u05E9\u05E8\u05D4 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-7778899','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'sarah.g@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D7\u05E0\u05D4 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF'},
+    {'\u05E9\u05DD':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-6665544','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'avi.f@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D9\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF'},
+    {'\u05E9\u05DD':'\u05E8\u05D7\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-3332211','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'rachel.a@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D3\u05E0\u05D9\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5'},
+    {'\u05E9\u05DD':'\u05D7\u05D9\u05D9\u05DD \u05DE\u05D6\u05E8\u05D7\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-1112233','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'chaim.m@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05E0\u05EA\u05E0\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9'},
+    {'\u05E9\u05DD':'\u05DC\u05D0\u05D4 \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-9998877','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'leah.sh@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05DC\u05D9\u05D4\u05D5 \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9'},
+    {'\u05E9\u05DD':'\u05D9\u05D5\u05E1\u05D9 \u05D1\u05E8\u05D2\u05E8','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-4445566','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'yosi.b@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05E2\u05DE\u05D9\u05EA \u05D1\u05E8\u05D2\u05E8'},
+    {'\u05E9\u05DD':'\u05DE\u05E8\u05D9\u05DD \u05D0\u05DC\u05D5\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-2223344','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'miriam.a@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05DC\u05D9 \u05D0\u05DC\u05D5\u05DF'},
+    {'\u05E9\u05DD':'\u05E9\u05DC\u05DE\u05D4 \u05D1\u05DF \u05D3\u05D5\u05D3','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-1119988','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'shlomo.bd@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D3','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05DE\u05E0\u05D7\u05DD \u05D1\u05DF \u05D3\u05D5\u05D3'},
+    {'\u05E9\u05DD':'\u05DE\u05DC\u05DB\u05D4 \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-7776655','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'malka.r@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D3','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05D4\u05E8\u05DF \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2'},
+    {'\u05E9\u05DD':'\u05E0\u05D7\u05DE\u05DF \u05E9\u05E4\u05D9\u05E8\u05D0','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-3334455','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'nachman.sh@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D7\u05D9\u05D9\u05DD \u05E9\u05E4\u05D9\u05E8\u05D0'},
+    {'\u05E9\u05DD':'\u05E6\u05D9\u05E4\u05D5\u05E8\u05D4 \u05DE\u05D6\u05E8\u05D7\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-8887766','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'tzipora.m@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05E0\u05EA\u05E0\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9'},
+    {'\u05E9\u05DD':'\u05D0\u05DC\u05D9\u05E2\u05D6\u05E8 \u05D4\u05DC\u05DC','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-6667788','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'eliezer.h@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D3','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05E9\u05DE\u05D5\u05D0\u05DC \u05D4\u05DC\u05DC'},
+    {'\u05E9\u05DD':'\u05D1\u05EA\u05D9\u05D4 \u05E7\u05E8\u05D0\u05D5\u05E1','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-2224466','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'batya.k@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05E8\u05D9\u05D4 \u05E7\u05E8\u05D0\u05D5\u05E1'},
+    {'\u05E9\u05DD':'\u05D3\u05D5\u05D3 \u05E9\u05D5\u05D5\u05E8\u05E5','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-5556677','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'david.sh@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D3','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D9\u05E9\u05E8\u05D0\u05DC \u05E9\u05D5\u05D5\u05E8\u05E5'},
+    {'\u05E9\u05DD':'\u05E4\u05E0\u05D9\u05E0\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-1113322','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'penina.l@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05DC\u05D9\u05E7\u05D9\u05DD \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF'}
+  ],
+
+  /* --- Init --- */
   async communicationsInit() {
     const [commData, students, parents] = await Promise.all([
       App.getData('\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA').catch(() => []),
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
       App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => [])
     ]);
-    this._commData = commData;
+    this._commData = commData.length ? commData : this._commDemoMessages;
     this._commStudents = students;
-    this._commParents = parents;
-    // Build class list from students
+    this._commParents = parents.length ? parents : this._commDemoContacts;
+    // Build class list
     const classSet = new Set();
     students.forEach(s => { if (s['\u05DB\u05D9\u05EA\u05D4']) classSet.add(s['\u05DB\u05D9\u05EA\u05D4']); });
+    if (!classSet.size) this._commDemoContacts.forEach(c => { if (c['\u05DB\u05D9\u05EA\u05D4']) classSet.add(c['\u05DB\u05D9\u05EA\u05D4']); });
     this._commClasses = [...classSet].sort();
     this._commSelectedClasses = new Set();
-    this._commTab = 'history';
+    this._commSelectedIndividuals = new Set();
+    this._commRecipientMode = 'class';
+    this._commDelivery = 'whatsapp';
+    this._commContactSearch = '';
+    this._commHistorySearch = '';
+    this._commTab = 'compose';
+    this._renderCommStats();
     this.renderComm();
   },
+
+  /* --- Stats cards --- */
+  _renderCommStats() {
+    const data = this._commData;
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('he-IL');
+    const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7);
+    const monthAgo = new Date(today); monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const parseDate = (s) => {
+      if (!s) return null;
+      const p = s.split('/');
+      if (p.length === 3) return new Date(+p[2], +p[1]-1, +p[0]);
+      return new Date(s);
+    };
+    const sentToday = data.filter(r => r['\u05EA\u05D0\u05E8\u05D9\u05DA'] === todayStr).length;
+    const sentWeek = data.filter(r => { const d = parseDate(r['\u05EA\u05D0\u05E8\u05D9\u05DA']); return d && d >= weekAgo; }).length;
+    const sentMonth = data.filter(r => { const d = parseDate(r['\u05EA\u05D0\u05E8\u05D9\u05DA']); return d && d >= monthAgo; }).length;
+    const readCount = data.filter(r => r['\u05E0\u05E7\u05E8\u05D0']).length;
+    const responseRate = data.length ? Math.round(readCount / data.length * 100) : 0;
+
+    const el = document.getElementById('comm-stats-row');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-primary">
+        <div class="fs-3 fw-bold text-primary">${sentToday}</div>
+        <div class="small text-muted">\u05E0\u05E9\u05DC\u05D7\u05D5 \u05D4\u05D9\u05D5\u05DD</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-success">
+        <div class="fs-3 fw-bold text-success">${sentWeek}</div>
+        <div class="small text-muted">\u05D4\u05E9\u05D1\u05D5\u05E2</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-info">
+        <div class="fs-3 fw-bold text-info">${sentMonth}</div>
+        <div class="small text-muted">\u05D4\u05D7\u05D5\u05D3\u05E9</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-warning">
+        <div class="fs-3 fw-bold text-warning">${responseRate}%</div>
+        <div class="small text-muted">\u05D0\u05D7\u05D5\u05D6 \u05E7\u05E8\u05D9\u05D0\u05D4</div>
+      </div></div>`;
+  },
+
+  /* --- Tab rendering --- */
   renderComm() {
-    // Update active tab
     document.querySelectorAll('#comm-tabs .nav-link').forEach(a => {
       a.classList.toggle('active', a.dataset.commTab === this._commTab);
     });
     const el = document.getElementById('comm-content');
-    if (this._commTab === 'history') {
-      this._renderCommHistory(el);
-    } else if (this._commTab === 'send') {
-      this._renderCommSend(el);
-    } else {
-      this._renderCommTemplates(el);
-    }
+    if (this._commTab === 'compose') this._renderCommCompose(el);
+    else if (this._commTab === 'templates') this._renderCommTemplates(el);
+    else if (this._commTab === 'history') this._renderCommHistory(el);
+    else if (this._commTab === 'contacts') this._renderCommContacts(el);
   },
-  _renderCommHistory(el) {
-    if (!this._commData.length) {
-      el.innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05E0\u05E9\u05DC\u05D7\u05D5</h5><p class="text-muted">\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05EA\u05E9\u05DC\u05D7\u05D5 \u05D9\u05D5\u05E4\u05D9\u05E2\u05D5 \u05DB\u05D0\u05DF</p></div>';
-      return;
-    }
-    const rows = this._commData.map(r => {
-      const status = r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D8\u05D9\u05D5\u05D8\u05D4';
-      const badgeClass = status === '\u05E0\u05E9\u05DC\u05D7' ? 'success' : 'secondary';
-      return `<tr>
-        <td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</td>
-        <td>${r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD'] || ''}</td>
-        <td class="small text-truncate" style="max-width:250px">${(r['\u05D4\u05D5\u05D3\u05E2\u05D4'] || '').substring(0, 80)}</td>
-        <td><span class="badge bg-${badgeClass}">${status}</span></td>
-      </tr>`;
-    }).join('');
-    el.innerHTML = `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
-      <thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD</th><th>\u05EA\u05D5\u05DB\u05DF</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead>
-      <tbody>${rows}</tbody></table></div></div>`;
-  },
-  _renderCommSend(el) {
+
+  /* --- COMPOSE TAB --- */
+  _renderCommCompose(el) {
     const classChecks = this._commClasses.map(c => {
       const checked = this._commSelectedClasses.has(c) ? 'checked' : '';
       return `<div class="form-check form-check-inline">
@@ -163,60 +266,248 @@ Object.assign(Pages, {
       </div>`;
     }).join('');
     const allChecked = this._commSelectedClasses.size === this._commClasses.length && this._commClasses.length > 0 ? 'checked' : '';
+    const contacts = this._commParents;
     const selectedCount = this._getCommRecipients().length;
     const msgVal = document.getElementById('comm-msg')?.value || '';
-    el.innerHTML = `<div class="card p-3">
-      <h6 class="mb-2"><i class="bi bi-people me-1"></i>\u05D1\u05D7\u05E8 \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</h6>
-      <div class="mb-3 p-2 border rounded bg-light">
-        <div class="form-check form-check-inline border-end pe-3 me-3">
-          <input class="form-check-input" type="checkbox" id="cc-all" ${allChecked} onchange="Pages._toggleCommAll(this.checked)">
-          <label class="form-check-label fw-bold" for="cc-all">\u05D1\u05D7\u05E8 \u05D4\u05DB\u05DC</label>
+    const subjectVal = document.getElementById('comm-subject')?.value || '';
+
+    el.innerHTML = `<div class="row g-3">
+      <div class="col-lg-8">
+        <div class="card p-3">
+          <!-- Delivery method toggle -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"><i class="bi bi-broadcast me-1"></i>\u05D0\u05DE\u05E6\u05E2\u05D9 \u05E9\u05DC\u05D9\u05D7\u05D4</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="comm-delivery" id="cd-wa" value="whatsapp" ${this._commDelivery==='whatsapp'?'checked':''} onchange="Pages._commDelivery='whatsapp'">
+              <label class="btn btn-outline-success" for="cd-wa"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
+              <input type="radio" class="btn-check" name="comm-delivery" id="cd-sms" value="sms" ${this._commDelivery==='sms'?'checked':''} onchange="Pages._commDelivery='sms'">
+              <label class="btn btn-outline-primary" for="cd-sms"><i class="bi bi-chat-left-text me-1"></i>SMS</label>
+              <input type="radio" class="btn-check" name="comm-delivery" id="cd-email" value="email" ${this._commDelivery==='email'?'checked':''} onchange="Pages._commDelivery='email'">
+              <label class="btn btn-outline-info" for="cd-email"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label>
+            </div>
+          </div>
+
+          <!-- Recipient mode -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"><i class="bi bi-people me-1"></i>\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD</label>
+            <div class="btn-group w-100 mb-2" role="group">
+              <input type="radio" class="btn-check" name="comm-rmode" id="cr-class" value="class" ${this._commRecipientMode==='class'?'checked':''} onchange="Pages._commRecipientMode='class';Pages._renderCommCompose(document.getElementById('comm-content'))">
+              <label class="btn btn-outline-secondary btn-sm" for="cr-class"><i class="bi bi-diagram-3 me-1"></i>\u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</label>
+              <input type="radio" class="btn-check" name="comm-rmode" id="cr-all" value="all" ${this._commRecipientMode==='all'?'checked':''} onchange="Pages._commRecipientMode='all';Pages._renderCommCompose(document.getElementById('comm-content'))">
+              <label class="btn btn-outline-secondary btn-sm" for="cr-all"><i class="bi bi-people-fill me-1"></i>\u05DB\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3</label>
+              <input type="radio" class="btn-check" name="comm-rmode" id="cr-ind" value="individual" ${this._commRecipientMode==='individual'?'checked':''} onchange="Pages._commRecipientMode='individual';Pages._renderCommCompose(document.getElementById('comm-content'))">
+              <label class="btn btn-outline-secondary btn-sm" for="cr-ind"><i class="bi bi-person me-1"></i>\u05D0\u05D9\u05E9\u05D9</label>
+            </div>
+
+            ${this._commRecipientMode === 'class' ? `
+              <div class="p-2 border rounded bg-light">
+                <div class="form-check form-check-inline border-end pe-3 me-3">
+                  <input class="form-check-input" type="checkbox" id="cc-all" ${allChecked} onchange="Pages._toggleCommAll(this.checked)">
+                  <label class="form-check-label fw-bold" for="cc-all">\u05D1\u05D7\u05E8 \u05D4\u05DB\u05DC</label>
+                </div>
+                ${classChecks}
+              </div>` : ''}
+
+            ${this._commRecipientMode === 'individual' ? `
+              <div class="p-2 border rounded bg-light" style="max-height:200px;overflow-y:auto">
+                ${contacts.map((p,i) => {
+                  const name = p['\u05E9\u05DD'] || '';
+                  const checked = this._commSelectedIndividuals.has(i) ? 'checked' : '';
+                  return `<div class="form-check"><input class="form-check-input" type="checkbox" id="ci-${i}" ${checked} onchange="Pages._toggleCommIndividual(${i})"><label class="form-check-label" for="ci-${i}">${name} <small class="text-muted">(${p['\u05DB\u05D9\u05EA\u05D4']||''})</small></label></div>`;
+                }).join('')}
+              </div>` : ''}
+
+            <div class="mt-2">
+              <span class="badge bg-primary"><i class="bi bi-people-fill me-1"></i>${selectedCount} \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D5</span>
+            </div>
+          </div>
+
+          <!-- Subject -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"><i class="bi bi-tag me-1"></i>\u05E0\u05D5\u05E9\u05D0</label>
+            <input class="form-control" id="comm-subject" placeholder="\u05E0\u05D5\u05E9\u05D0 \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 (\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9)" value="${subjectVal}">
+          </div>
+
+          <!-- Message body -->
+          <div class="mb-3">
+            <label class="form-label fw-bold"><i class="bi bi-chat-left-text me-1"></i>\u05D4\u05D5\u05D3\u05E2\u05D4</label>
+            <textarea class="form-control" id="comm-msg" rows="8" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05D0\u05DF..." oninput="Pages._updateCommCharCount()" style="font-size:1rem;line-height:1.6">${msgVal}</textarea>
+            <div class="d-flex justify-content-between mt-1">
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="Pages._commInsertVar('{\\u05E9\\u05DD_\\u05D4\\u05D5\\u05E8\\u05D4}')" title="\u05D4\u05DB\u05E0\u05E1 \u05E9\u05DD \u05D4\u05D5\u05E8\u05D4"><i class="bi bi-braces"></i> \u05E9\u05DD</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="Pages._commInsertVar('{\\u05E9\\u05DD_\\u05EA\\u05DC\\u05DE\\u05D9\\u05D3}')" title="\u05D4\u05DB\u05E0\u05E1 \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3"><i class="bi bi-braces"></i> \u05EA\u05DC\u05DE\u05D9\u05D3</button>
+              </div>
+              <small class="text-muted" id="comm-char-count">${msgVal.length} \u05EA\u05D5\u05D5\u05D9\u05DD</small>
+            </div>
+          </div>
+
+          <!-- Send button -->
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-success btn-lg" onclick="Pages.sendComm()">
+              <i class="bi bi-send-fill me-1"></i>\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4
+            </button>
+            <button class="btn btn-outline-secondary" onclick="document.getElementById('comm-msg').value='';document.getElementById('comm-subject').value='';Pages._updateCommCharCount()">
+              <i class="bi bi-eraser me-1"></i>\u05E0\u05E7\u05D4
+            </button>
+          </div>
         </div>
-        ${classChecks}
       </div>
-      <div class="mb-2 d-flex justify-content-between align-items-center">
-        <span class="badge bg-primary"><i class="bi bi-people-fill me-1"></i>${selectedCount} \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D5</span>
-      </div>
-      <div class="mb-3">
-        <label class="form-label fw-bold">\u05D4\u05D5\u05D3\u05E2\u05D4</label>
-        <textarea class="form-control" id="comm-msg" rows="6" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05D0\u05DF..." oninput="Pages._updateCommCharCount()">${msgVal}</textarea>
-        <div class="d-flex justify-content-end mt-1"><small class="text-muted" id="comm-char-count">${msgVal.length} \u05EA\u05D5\u05D5\u05D9\u05DD</small></div>
-      </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-success" onclick="Pages.sendComm()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D7 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4</button>
+
+      <!-- Quick templates sidebar -->
+      <div class="col-lg-4">
+        <div class="card p-3">
+          <h6 class="fw-bold mb-3"><i class="bi bi-lightning me-1 text-warning"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA</h6>
+          <div class="d-grid gap-2">
+            ${this._waTemplates.map((t,i) => `
+              <button class="btn btn-outline-${t.color} btn-sm text-start" onclick="Pages._useCommTemplate(${i})">
+                <i class="bi ${t.icon} me-1"></i>${t.title}
+              </button>`).join('')}
+          </div>
+        </div>
       </div>
     </div>`;
   },
+
+  /* --- TEMPLATES TAB --- */
   _renderCommTemplates(el) {
     const cards = this._waTemplates.map((t, i) => {
-      const preview = t.text.replace(/\n/g, '<br>').substring(0, 120) + (t.text.length > 120 ? '...' : '');
+      const preview = t.text.replace(/\n/g, '<br>');
       return `<div class="col-md-6 col-lg-4">
-        <div class="card h-100 border-0 shadow-sm">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-${t.color}">
           <div class="card-body">
-            <h6 class="card-title"><i class="bi ${t.icon} me-1 text-primary"></i>${t.title}</h6>
-            <p class="card-text small text-muted" style="min-height:60px">${preview}</p>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="badge bg-${t.color} bg-opacity-10 text-${t.color} p-2 rounded-circle">
+                <i class="bi ${t.icon} fs-5"></i>
+              </span>
+              <h6 class="card-title mb-0 fw-bold">${t.title}</h6>
+            </div>
+            <div class="card-text small text-muted p-2 bg-light rounded" style="min-height:80px;max-height:140px;overflow-y:auto">${preview}</div>
           </div>
-          <div class="card-footer bg-transparent border-0 pt-0">
-            <button class="btn btn-outline-primary btn-sm w-100" onclick="Pages._useCommTemplate(${i})"><i class="bi bi-pencil-square me-1"></i>\u05D4\u05E9\u05EA\u05DE\u05E9</button>
+          <div class="card-footer bg-transparent border-0 pt-0 d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm flex-fill" onclick="Pages._useCommTemplate(${i})"><i class="bi bi-pencil-square me-1"></i>\u05D4\u05E9\u05EA\u05DE\u05E9</button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="Pages._copyCommTemplate(${i})" title="\u05D4\u05E2\u05EA\u05E7"><i class="bi bi-clipboard"></i></button>
           </div>
         </div>
       </div>`;
     }).join('');
     el.innerHTML = `<div class="row g-3">${cards}</div>`;
   },
+
+  /* --- HISTORY TAB --- */
+  _renderCommHistory(el) {
+    const search = this._commHistorySearch.toLowerCase();
+    const filtered = search
+      ? this._commData.filter(r => (r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD']||'').toLowerCase().includes(search) || (r['\u05D4\u05D5\u05D3\u05E2\u05D4']||'').toLowerCase().includes(search) || (r['\u05E0\u05D5\u05E9\u05D0']||'').toLowerCase().includes(search))
+      : this._commData;
+
+    if (!this._commData.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05E0\u05E9\u05DC\u05D7\u05D5</h5><p class="text-muted">\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05EA\u05E9\u05DC\u05D7\u05D5 \u05D9\u05D5\u05E4\u05D9\u05E2\u05D5 \u05DB\u05D0\u05DF</p></div>';
+      return;
+    }
+
+    const deliveryIcon = (m) => {
+      const d = m['\u05D0\u05DE\u05E6\u05E2\u05D9'] || 'whatsapp';
+      if (d === 'sms') return '<i class="bi bi-chat-left-text text-primary" title="SMS"></i>';
+      if (d === 'email') return '<i class="bi bi-envelope text-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"></i>';
+      return '<i class="bi bi-whatsapp text-success" title="WhatsApp"></i>';
+    };
+
+    const rows = filtered.map(r => {
+      const status = r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D8\u05D9\u05D5\u05D8\u05D4';
+      const badgeClass = status === '\u05E0\u05E9\u05DC\u05D7' ? 'success' : 'secondary';
+      const read = r['\u05E0\u05E7\u05E8\u05D0'] ? '<i class="bi bi-check2-all text-primary" title="\u05E0\u05E7\u05E8\u05D0"></i>' : '<i class="bi bi-check2 text-muted" title="\u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0"></i>';
+      return `<tr>
+        <td class="text-nowrap">${r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</td>
+        <td>${r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD'] || ''}</td>
+        <td class="fw-bold">${r['\u05E0\u05D5\u05E9\u05D0'] || ''}</td>
+        <td class="small text-truncate" style="max-width:250px">${(r['\u05D4\u05D5\u05D3\u05E2\u05D4'] || '').substring(0, 80)}</td>
+        <td class="text-center">${deliveryIcon(r)}</td>
+        <td class="text-center">${read}</td>
+        <td><span class="badge bg-${badgeClass}">${status}</span></td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="card p-3 mb-3">
+        <div class="search-box"><i class="bi bi-search"></i>
+          <input type="text" class="form-control" id="comm-history-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D1\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4..." value="${this._commHistorySearch}" oninput="Pages._commHistorySearch=this.value;Pages._renderCommHistory(document.getElementById('comm-content'))">
+        </div>
+      </div>
+      <div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+        <thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD</th><th>\u05E0\u05D5\u05E9\u05D0</th><th>\u05EA\u05D5\u05DB\u05DF</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9</th><th>\u05E0\u05E7\u05E8\u05D0</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>
+      <div class="mt-2 text-muted small">\u05DE\u05E6\u05D9\u05D2 ${filtered.length} \u05DE\u05EA\u05D5\u05DA ${this._commData.length} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA</div>`;
+  },
+
+  /* --- CONTACTS TAB --- */
+  _renderCommContacts(el) {
+    const search = this._commContactSearch.toLowerCase();
+    const contacts = this._commParents;
+    const filtered = search
+      ? contacts.filter(p => (p['\u05E9\u05DD']||'').toLowerCase().includes(search) || (p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(search) || (p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'').toLowerCase().includes(search) || (p['\u05EA\u05DC\u05DE\u05D9\u05D3']||'').toLowerCase().includes(search))
+      : contacts;
+
+    const rows = filtered.map(p => {
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+      const cleanPhone = phone.replace(/[-\s]/g,'').replace(/^0/,'972');
+      return `<tr>
+        <td>${Utils.avatarHTML ? Utils.avatarHTML(p['\u05E9\u05DD'],'sm') : ''} <span class="fw-bold">${p['\u05E9\u05DD']||''}</span></td>
+        <td><span class="badge bg-secondary">${p['\u05E7\u05E9\u05E8']||''}</span></td>
+        <td>${p['\u05EA\u05DC\u05DE\u05D9\u05D3']||''}</td>
+        <td>${p['\u05DB\u05D9\u05EA\u05D4']||''}</td>
+        <td dir="ltr">${Utils.formatPhone ? Utils.formatPhone(phone) : phone}</td>
+        <td class="small">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td>
+        <td class="text-nowrap">
+          ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
+          ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary me-1" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
+          ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+        </td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="search-box flex-fill" style="max-width:400px"><i class="bi bi-search"></i>
+            <input type="text" class="form-control" id="comm-contact-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8..." value="${this._commContactSearch}" oninput="Pages._commContactSearch=this.value;Pages._renderCommContacts(document.getElementById('comm-content'))">
+          </div>
+          <span class="badge bg-info">${filtered.length} \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</span>
+        </div>
+      </div>
+      <div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+        <thead><tr><th>\u05E9\u05DD</th><th>\u05E7\u05E9\u05E8</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`;
+  },
+
+  /* --- Helper methods --- */
   _toggleCommClass(cls) {
     if (this._commSelectedClasses.has(cls)) this._commSelectedClasses.delete(cls);
     else this._commSelectedClasses.add(cls);
-    this._renderCommSend(document.getElementById('comm-content'));
+    this._renderCommCompose(document.getElementById('comm-content'));
   },
   _toggleCommAll(checked) {
     if (checked) this._commClasses.forEach(c => this._commSelectedClasses.add(c));
     else this._commSelectedClasses.clear();
-    this._renderCommSend(document.getElementById('comm-content'));
+    this._renderCommCompose(document.getElementById('comm-content'));
+  },
+  _toggleCommIndividual(idx) {
+    if (this._commSelectedIndividuals.has(idx)) this._commSelectedIndividuals.delete(idx);
+    else this._commSelectedIndividuals.add(idx);
+    this._renderCommCompose(document.getElementById('comm-content'));
   },
   _getCommRecipients() {
+    if (this._commRecipientMode === 'all') {
+      return this._commParents.filter(p => p['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(p => ({
+        name: p['\u05E9\u05DD'] || '', phone: p['\u05D8\u05DC\u05E4\u05D5\u05DF'], email: p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '', studentName: p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''
+      }));
+    }
+    if (this._commRecipientMode === 'individual') {
+      return [...this._commSelectedIndividuals].map(i => this._commParents[i]).filter(p => p && p['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(p => ({
+        name: p['\u05E9\u05DD'] || '', phone: p['\u05D8\u05DC\u05E4\u05D5\u05DF'], email: p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '', studentName: p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''
+      }));
+    }
+    // class mode
     if (!this._commSelectedClasses.size) return [];
-    // Get student IDs for selected classes
     const studentIds = new Set();
     const studentNames = {};
     this._commStudents.forEach(s => {
@@ -226,14 +517,14 @@ Object.assign(Pages, {
         studentNames[id] = s['\u05E9\u05DD'];
       }
     });
-    // Find parents with phones who match those students
+    // Also match demo contacts by class
     const recipients = [];
     this._commParents.forEach(p => {
       const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'];
       if (!phone) return;
-      const studentRef = p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
-      if (studentIds.has(studentRef) || studentIds.has(p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'])) {
-        recipients.push({ name: p['\u05E9\u05DD'] || '', phone, studentName: studentNames[studentRef] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '' });
+      const studentRef = p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      if (studentIds.has(studentRef) || studentIds.has(p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']) || this._commSelectedClasses.has(p['\u05DB\u05D9\u05EA\u05D4'])) {
+        recipients.push({ name: p['\u05E9\u05DD'] || '', phone, email: p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '', studentName: studentNames[studentRef] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '' });
       }
     });
     return recipients;
@@ -243,51 +534,92 @@ Object.assign(Pages, {
     const counter = document.getElementById('comm-char-count');
     if (counter) counter.textContent = msg.length + ' \u05EA\u05D5\u05D5\u05D9\u05DD';
   },
+  _commInsertVar(varName) {
+    const ta = document.getElementById('comm-msg');
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const text = ta.value;
+    ta.value = text.substring(0, start) + varName + text.substring(end);
+    ta.selectionStart = ta.selectionEnd = start + varName.length;
+    ta.focus();
+    this._updateCommCharCount();
+  },
   _useCommTemplate(idx) {
     const tpl = this._waTemplates[idx];
     if (!tpl) return;
-    this._commTab = 'send';
+    this._commTab = 'compose';
     this.renderComm();
     setTimeout(() => {
       const ta = document.getElementById('comm-msg');
+      const subj = document.getElementById('comm-subject');
       if (ta) { ta.value = tpl.text; this._updateCommCharCount(); }
+      if (subj) subj.value = tpl.title;
     }, 50);
   },
+  _copyCommTemplate(idx) {
+    const tpl = this._waTemplates[idx];
+    if (!tpl) return;
+    navigator.clipboard.writeText(tpl.text).then(() => {
+      Utils.toast('\u05EA\u05D1\u05E0\u05D9\u05EA \u05D4\u05D5\u05E2\u05EA\u05E7\u05D4');
+    }).catch(() => { Utils.toast('\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05E2\u05EA\u05D9\u05E7', 'danger'); });
+  },
+
+  /* --- Send message --- */
   async sendComm() {
     const msg = document.getElementById('comm-msg')?.value?.trim();
     if (!msg) { Utils.toast('\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    const subject = document.getElementById('comm-subject')?.value?.trim() || '';
     const recipients = this._getCommRecipients();
-    // If no class selected, send to ALL parents
-    let targets = recipients;
-    if (!targets.length) {
-      targets = this._commParents.filter(p => p['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(p => ({ name: p['\u05E9\u05DD'] || '', phone: p['\u05D8\u05DC\u05E4\u05D5\u05DF'], studentName: '' }));
-    }
-    if (!targets.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF', 'warning'); return; }
+    if (!recipients.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D9\u05DD', 'warning'); return; }
+
     let sent = 0;
-    targets.forEach(t => {
-      const phone = t.phone.replace(/[-\s]/g, '').replace(/^0/, '972');
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-      sent++;
-    });
+    const delivery = this._commDelivery;
+
+    if (delivery === 'whatsapp') {
+      recipients.forEach(t => {
+        const phone = t.phone.replace(/[-\s]/g, '').replace(/^0/, '972');
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        sent++;
+      });
+    } else if (delivery === 'sms') {
+      recipients.forEach(t => {
+        const phone = t.phone.replace(/[-\s]/g, '');
+        window.open(`sms:${phone}?body=${encodeURIComponent(msg)}`, '_blank');
+        sent++;
+      });
+    } else if (delivery === 'email') {
+      const emails = recipients.map(t => t.email).filter(Boolean);
+      if (!emails.length) { Utils.toast('\u05D0\u05D9\u05DF \u05DB\u05EA\u05D5\u05D1\u05D5\u05EA \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05DC\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05D4\u05E0\u05D1\u05D7\u05E8\u05D9\u05DD', 'warning'); return; }
+      const subjectEnc = encodeURIComponent(subject || '\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3');
+      window.open(`mailto:${emails.join(',')}?subject=${subjectEnc}&body=${encodeURIComponent(msg)}`, '_blank');
+      sent = emails.length;
+    }
+
+    // Determine recipient label
+    let recipientStr;
+    if (this._commRecipientMode === 'all') recipientStr = '\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD';
+    else if (this._commRecipientMode === 'individual') recipientStr = recipients.map(r => r.name).join(', ');
+    else recipientStr = this._commSelectedClasses.size ? [...this._commSelectedClasses].join(', ') : '\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD';
+
     // Save to history
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('he-IL');
+    const record = {
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
+      '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipientStr,
+      '\u05E0\u05D5\u05E9\u05D0': subject,
+      '\u05D4\u05D5\u05D3\u05E2\u05D4': msg.substring(0, 200),
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05E9\u05DC\u05D7',
+      '\u05D0\u05DE\u05E6\u05E2\u05D9': delivery,
+      '\u05E0\u05E7\u05E8\u05D0': false
+    };
     try {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('he-IL');
-      const recipientStr = this._commSelectedClasses.size ? [...this._commSelectedClasses].join(', ') : '\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD';
-      await App.apiCall('add', '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA', {
-        '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
-        '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipientStr,
-        '\u05D4\u05D5\u05D3\u05E2\u05D4': msg.substring(0, 200),
-        '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05E9\u05DC\u05D7'
-      });
-      this._commData.unshift({
-        '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
-        '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipientStr,
-        '\u05D4\u05D5\u05D3\u05E2\u05D4': msg.substring(0, 200),
-        '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E0\u05E9\u05DC\u05D7'
-      });
+      await App.apiCall('add', '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA', record);
     } catch(e) { /* silent */ }
-    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`);
+    this._commData.unshift(record);
+    this._renderCommStats();
+    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1${delivery === 'whatsapp' ? 'WhatsApp' : delivery === 'sms' ? 'SMS' : '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'}`);
   },
 
 
