@@ -489,6 +489,22 @@
   <script src="js/pages/emergency.js" defer></script>
   <script src="js/pages/notifications.js" defer></script>
   <script src="js/pages/gradebook.js" defer></script>
-  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+  <script>
+  if('serviceWorker' in navigator) {
+    // Force update: unregister old SW, clear caches, then re-register
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      const needsUpdate = regs.some(r => r.waiting || r.installing);
+      regs.forEach(r => { if(r.waiting) r.waiting.postMessage({type:'SKIP_WAITING'}); });
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          nw.addEventListener('statechange', () => {
+            if(nw.state === 'activated') location.reload();
+          });
+        });
+      });
+    });
+  }
+  </script>
 </body>
 </html>
