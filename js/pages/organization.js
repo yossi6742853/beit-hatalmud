@@ -3506,47 +3506,161 @@ Object.assign(Pages, {
   /* ======================================================================
      INSTITUTIONS
      ====================================================================== */
+  _instTypes: {
+    '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8': { icon: 'bi-book', color: '#2563eb', label: '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8' },
+    '\u05D9\u05E9\u05D9\u05D1\u05D4': { icon: 'bi-mortarboard', color: '#7c3aed', label: '\u05D9\u05E9\u05D9\u05D1\u05D4' },
+    '\u05DB\u05D5\u05DC\u05DC': { icon: 'bi-journal-richtext', color: '#059669', label: '\u05DB\u05D5\u05DC\u05DC' },
+    '\u05D0\u05E8\u05D2\u05D5\u05DF': { icon: 'bi-people', color: '#d97706', label: '\u05D0\u05E8\u05D2\u05D5\u05DF' },
+    '\u05DE\u05DE\u05E9\u05DC\u05EA\u05D9': { icon: 'bi-bank', color: '#dc2626', label: '\u05DE\u05DE\u05E9\u05DC\u05EA\u05D9' }
+  },
+  _instDemoData: [
+    { '\u05E9\u05DD': '\u05EA\u05DC\u05DE\u05D5\u05D3 \u05EA\u05D5\u05E8\u05D4 \u05D0\u05D5\u05E8 \u05D4\u05D7\u05D9\u05D9\u05DD', '\u05E1\u05D5\u05D2': '\u05D9\u05E9\u05D9\u05D1\u05D4', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D0\u05D9 3, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-5551234', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'info@orhachaim.org', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05D9\u05E9\u05D9\u05D1\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05E2\u05DD 350 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD' },
+    { '\u05E9\u05DD': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05D3\u05E8\u05DB\u05D9 \u05D0\u05D1\u05D5\u05EA', '\u05E1\u05D5\u05D2': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E9\u05D5\u05DE\u05E8 15, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7', '\u05D8\u05DC\u05E4\u05D5\u05DF': '03-6781234', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'office@darkeiavot.edu', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05D9\u05E1\u05D5\u05D3\u05D9 \u05DC\u05D1\u05E0\u05D9\u05DD \u05DB\u05D9\u05EA\u05D5\u05EA \u05D0-\u05D7' },
+    { '\u05E9\u05DD': '\u05DB\u05D5\u05DC\u05DC \u05D0\u05D5\u05E8 \u05D4\u05EA\u05D5\u05E8\u05D4', '\u05E1\u05D5\u05D2': '\u05DB\u05D5\u05DC\u05DC', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E0\u05E9\u05D9\u05D0 8, \u05D1\u05D9\u05EA\u05E8 \u05E2\u05D9\u05DC\u05D9\u05EA', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-5437890', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'kolel@orhatora.org', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05D0\u05DC\u05D9\u05D4\u05D5 \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05DB\u05D5\u05DC\u05DC \u05D9\u05D5\u05DD \u05DC\u05D0\u05D1\u05E8\u05DB\u05D9\u05DD, 60 \u05D0\u05D1\u05E8\u05DB\u05D9\u05DD' },
+    { '\u05E9\u05DD': '\u05E2\u05DE\u05D5\u05EA\u05EA \u05D7\u05E1\u05D3 \u05D5\u05E8\u05D7\u05DE\u05D9\u05DD', '\u05E1\u05D5\u05D2': '\u05D0\u05E8\u05D2\u05D5\u05DF', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D0\u05D1\u05D3 \u05DE\u05E7\u05D5\u05D1\u05DC\u05E6\u05E7\u05D9 20, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7', '\u05D8\u05DC\u05E4\u05D5\u05DF': '03-5709876', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'chesed@hesed.org', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05E9\u05DE\u05E2\u05D5\u05DF \u05D3\u05D5\u05D3', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05E2\u05DE\u05D5\u05EA\u05D4 \u05DC\u05DE\u05EA\u05DF \u05D7\u05E1\u05D3 \u05DC\u05DE\u05E9\u05E4\u05D7\u05D5\u05EA \u05E0\u05D6\u05E7\u05E7\u05D5\u05EA' },
+    { '\u05E9\u05DD': '\u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA', '\u05E1\u05D5\u05D2': '\u05DE\u05DE\u05E9\u05DC\u05EA\u05D9', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D3\u05D1\u05D5\u05E8\u05D4 2, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-6294444', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'info@education.gov.il', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D3\u05D5\u05D3 \u05DB\u05D4\u05DF', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA - \u05DE\u05D7\u05D5\u05D6 \u05D7\u05E8\u05D3\u05D9' },
+    { '\u05E9\u05DD': '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E7\u05D5\u05DC \u05D9\u05E2\u05E7\u05D1', '\u05E1\u05D5\u05D2': '\u05D9\u05E9\u05D9\u05D1\u05D4', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E0\u05D1\u05D9\u05D0\u05D9\u05DD 12, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-5383456', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'kol@kolyaakov.org', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05E9\u05DE\u05D5\u05D0\u05DC \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05D9\u05E9\u05D9\u05D1\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E2\u05DD 120 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD' },
+    { '\u05E9\u05DD': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05E0\u05EA\u05D9\u05D1\u05D5\u05EA \u05D9\u05D5\u05E1\u05E3', '\u05E1\u05D5\u05D2': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05DE\u05D1"\u05DD 45, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-5004567', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'office@netivot-yosef.edu', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05D7\u05D9\u05D9\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05DC\u05D1\u05E0\u05D5\u05EA \u05DB\u05D9\u05EA\u05D5\u05EA \u05D0-\u05D5' },
+    { '\u05E9\u05DD': '\u05DB\u05D5\u05DC\u05DC \u05E9\u05E2\u05E8\u05D9 \u05EA\u05D5\u05E8\u05D4', '\u05E1\u05D5\u05D2': '\u05DB\u05D5\u05DC\u05DC', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 10, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7', '\u05D8\u05DC\u05E4\u05D5\u05DF': '03-6185678', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'shaarei@torah.org', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05D0\u05D1\u05E8\u05D4\u05DD \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05DB\u05D5\u05DC\u05DC \u05E2\u05E8\u05D1 \u05DC\u05D9\u05D5\u05E0\u05D2\u05DC\u05D9\u05D9\u05D8, 40 \u05D0\u05D1\u05E8\u05DB\u05D9\u05DD' },
+    { '\u05E9\u05DD': '\u05D0\u05D2\u05D5\u05D3\u05EA \u05D9\u05E9\u05E8\u05D0\u05DC \u05D4\u05EA\u05D5\u05E8\u05E0\u05D9', '\u05E1\u05D5\u05D2': '\u05D0\u05E8\u05D2\u05D5\u05DF', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 5, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD', '\u05D8\u05DC\u05E4\u05D5\u05DF': '02-5006789', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'info@agudah.org.il', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D4\u05E8\u05D1 \u05D3\u05D5\u05D3 \u05D1\u05E8\u05D5\u05DA', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05D0\u05E8\u05D2\u05D5\u05DF \u05D2\u05D2 \u05DC\u05DE\u05D5\u05E1\u05D3\u05D5\u05EA \u05D7\u05D9\u05E0\u05D5\u05DA' },
+    { '\u05E9\u05DD': '\u05E2\u05D9\u05E8\u05D9\u05D9\u05EA \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7 - \u05DE\u05D7\u05DC\u05E7\u05EA \u05D7\u05D9\u05E0\u05D5\u05DA', '\u05E1\u05D5\u05D2': '\u05DE\u05DE\u05E9\u05DC\u05EA\u05D9', '\u05DB\u05EA\u05D5\u05D1\u05EA': '\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E2\u05E6\u05DE\u05D0\u05D5\u05EA 1, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7', '\u05D8\u05DC\u05E4\u05D5\u05DF': '03-6152000', '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': 'education@bnei-brak.muni.il', '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': '\u05D9\u05E2\u05E7\u05D1 \u05E9\u05D8\u05E8\u05DF', '\u05D4\u05E2\u05E8\u05D5\u05EA': '\u05DE\u05D7\u05DC\u05E7\u05EA \u05D7\u05D9\u05E0\u05D5\u05DA \u05EA\u05D5\u05E8\u05E0\u05D9 \u05D1\u05E2\u05D9\u05E8\u05D9\u05D9\u05D4' }
+  ],
   institutions() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div><h1><i class="bi bi-building me-2"></i>\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</h1><p id="inst-count"></p></div>
-      <button class="btn btn-primary btn-sm" onclick="Pages.showAddInst()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4</button>
+    const typeOptions = Object.keys(this._instTypes).map(t => `<option value="${t}">${t}</option>`).join('');
+    return `
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-3" id="inst-stats"></div>
+
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+      <div><h1><i class="bi bi-building me-2"></i>\u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h1><p class="text-muted mb-0" id="inst-count"></p></div>
+      <button class="btn btn-primary" onclick="Pages.showAddInst()"><i class="bi bi-plus-lg me-1"></i>\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</button>
     </div>
+
+    <!-- Search & Filter -->
+    <div class="card p-3 mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+          <div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="inst-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05DC\u05E4\u05D9 \u05E9\u05DD..."></div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select" id="inst-type-filter">
+            <option value="">\u05DB\u05DC \u05D4\u05E1\u05D5\u05D2\u05D9\u05DD</option>
+            ${typeOptions}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" onclick="document.getElementById('inst-search').value='';document.getElementById('inst-type-filter').value='';Pages.renderInst()"><i class="bi bi-x-lg me-1"></i>\u05E0\u05E7\u05D4</button>
+        </div>
+      </div>
+    </div>
+
     <div id="inst-list">${Utils.skeleton(3)}</div>
-    <div class="modal fade" id="inst-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade" id="inst-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body"><div class="row g-3">
-        <div class="col-12"><label class="form-label">\u05E9\u05DD</label><input class="form-control" id="instf-name"></div>
-        <div class="col-6"><label class="form-label">\u05E7\u05D5\u05D3</label><input class="form-control" id="instf-code"></div>
-        <div class="col-6"><label class="form-label">\u05E6\u05D1\u05E2</label><input type="color" class="form-control form-control-color" id="instf-color" value="#2563eb"></div>
-        <div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="instf-desc" rows="2"></textarea></div>
-        <div class="col-12"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label><select class="form-select" id="instf-status"><option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option><option value="\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option></select></div>
+        <div class="col-md-6"><label class="form-label">\u05E9\u05DD \u05D4\u05DE\u05D5\u05E1\u05D3</label><input class="form-control" id="instf-name" required></div>
+        <div class="col-md-6"><label class="form-label">\u05E1\u05D5\u05D2</label><select class="form-select" id="instf-type">${typeOptions}</select></div>
+        <div class="col-12"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA</label><input class="form-control" id="instf-address" placeholder="\u05E8\u05D7\u05D5\u05D1, \u05DE\u05E1\u05E4\u05E8, \u05E2\u05D9\u05E8"></div>
+        <div class="col-md-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF</label><input class="form-control" id="instf-phone" type="tel" dir="ltr"></div>
+        <div class="col-md-6"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input class="form-control" id="instf-email" type="email" dir="ltr"></div>
+        <div class="col-12"><label class="form-label">\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8</label><input class="form-control" id="instf-contact"></div>
+        <div class="col-12"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><textarea class="form-control" id="instf-notes" rows="2"></textarea></div>
       </div></div>
-      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveInst()">\u05E9\u05DE\u05D5\u05E8</button></div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveInst()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div>
     </div></div></div>`;
   },
   _instData: [],
   _instEditId: null,
   async institutionsInit() {
-    this._instData = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
+    let data = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
+    if (!data || !data.length) {
+      data = this._instDemoData;
+    }
+    this._instData = data;
+    document.getElementById('inst-search').addEventListener('input', Utils.debounce(() => this.renderInst(), 200));
+    document.getElementById('inst-type-filter').addEventListener('change', () => this.renderInst());
     this.renderInst();
   },
+  _instFiltered() {
+    let data = this._instData;
+    const q = (document.getElementById('inst-search')?.value || '').trim().toLowerCase();
+    const typeFilter = document.getElementById('inst-type-filter')?.value || '';
+    if (q) data = data.filter(i => (i['\u05E9\u05DD']||'').toLowerCase().includes(q) || (i['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8']||'').toLowerCase().includes(q) || (i['\u05DB\u05EA\u05D5\u05D1\u05EA']||'').toLowerCase().includes(q));
+    if (typeFilter) data = data.filter(i => (i['\u05E1\u05D5\u05D2']||'') === typeFilter);
+    return data;
+  },
   renderInst() {
-    const data = this._instData;
-    document.getElementById('inst-count').textContent = `${data.length} \u05DE\u05E1\u05D2\u05E8\u05D5\u05EA`;
-    if (!data.length) { document.getElementById('inst-list').innerHTML = '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05D2\u05E8\u05D5\u05EA</h5></div>'; return; }
+    const allData = this._instData;
+    const data = this._instFiltered();
+    const types = this._instTypes;
+
+    // Stats cards
+    const typeCounts = {};
+    Object.keys(types).forEach(t => typeCounts[t] = 0);
+    allData.forEach(i => { const t = i['\u05E1\u05D5\u05D2']||''; if (typeCounts[t] !== undefined) typeCounts[t]++; });
+
+    document.getElementById('inst-stats').innerHTML = `
+      <div class="col-6 col-md-2"><div class="card p-3 text-center border-primary border-2">
+        <div class="fs-2 fw-bold text-primary">${allData.length}</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</small>
+      </div></div>
+      ${Object.entries(types).map(([key, t]) => `
+        <div class="col-6 col-md-2"><div class="card p-3 text-center" style="border-top:3px solid ${t.color}; cursor:pointer" onclick="document.getElementById('inst-type-filter').value='${key}';Pages.renderInst()">
+          <div class="fs-2 fw-bold" style="color:${t.color}">${typeCounts[key]||0}</div>
+          <small class="text-muted"><i class="bi ${t.icon} me-1"></i>${t.label}</small>
+        </div></div>
+      `).join('')}`;
+
+    document.getElementById('inst-count').textContent = data.length === allData.length
+      ? `${allData.length} \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA`
+      : `\u05DE\u05E6\u05D9\u05D2 ${data.length} \u05DE\u05EA\u05D5\u05DA ${allData.length}`;
+
+    if (!data.length) {
+      document.getElementById('inst-list').innerHTML = '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</p></div>';
+      return;
+    }
+
     document.getElementById('inst-list').innerHTML = `<div class="row g-3">${data.map(i => {
       const iid = Utils.rowId(i);
-      return `<div class="col-md-6 col-lg-4"><div class="card p-3"><div class="d-flex align-items-center gap-3"><div class="avatar" style="background:${i['\u05E6\u05D1\u05E2']||'#2563eb'}">${(i['\u05E9\u05DD']||'')[0]||'?'}</div><div class="flex-grow-1"><h6 class="fw-bold mb-0">${i['\u05E9\u05DD']||''}</h6><small class="text-muted">${i['\u05E7\u05D5\u05D3']||''}</small></div>${Utils.statusBadge(i['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div>${i['\u05EA\u05D9\u05D0\u05D5\u05E8']?`<p class="small mt-2 mb-1">${i['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>`:''}<div class="d-flex gap-1 mt-2"><button class="btn btn-sm btn-outline-primary" onclick="Pages.editInst('${iid}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteInst('${iid}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button></div></div></div>`;
+      const typeKey = i['\u05E1\u05D5\u05D2'] || '';
+      const typeInfo = types[typeKey] || { icon: 'bi-building', color: '#6b7280', label: typeKey || '\u05DC\u05DC\u05D0 \u05E1\u05D5\u05D2' };
+      const initial = (i['\u05E9\u05DD']||'?')[0];
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card p-3 h-100">
+          <div class="d-flex align-items-start gap-3 mb-2">
+            <div class="avatar" style="background:${typeInfo.color};min-width:48px;height:48px;font-size:1.2rem">${initial}</div>
+            <div class="flex-grow-1 min-width-0">
+              <h6 class="fw-bold mb-1">${i['\u05E9\u05DD']||''}</h6>
+              <span class="badge" style="background:${typeInfo.color}15;color:${typeInfo.color};border:1px solid ${typeInfo.color}40"><i class="bi ${typeInfo.icon} me-1"></i>${typeInfo.label}</span>
+            </div>
+          </div>
+          <div class="small text-muted mb-2">
+            ${i['\u05DB\u05EA\u05D5\u05D1\u05EA'] ? `<div class="mb-1"><i class="bi bi-geo-alt me-1"></i>${i['\u05DB\u05EA\u05D5\u05D1\u05EA']}</div>` : ''}
+            ${i['\u05D8\u05DC\u05E4\u05D5\u05DF'] ? `<div class="mb-1"><i class="bi bi-telephone me-1"></i><a href="tel:${i['\u05D8\u05DC\u05E4\u05D5\u05DF']}" class="text-decoration-none">${i['\u05D8\u05DC\u05E4\u05D5\u05DF']}</a></div>` : ''}
+            ${i['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8'] ? `<div class="mb-1"><i class="bi bi-person me-1"></i>${i['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8']}</div>` : ''}
+            ${i['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<div class="mb-1"><i class="bi bi-envelope me-1"></i><a href="mailto:${i['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="text-decoration-none">${i['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}</a></div>` : ''}
+          </div>
+          ${i['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? `<p class="small text-muted border-top pt-2 mb-2">${i['\u05D4\u05E2\u05E8\u05D5\u05EA']}</p>` : ''}
+          <div class="d-flex gap-1 mt-auto">
+            <button class="btn btn-sm btn-outline-primary" onclick="Pages.editInst('${iid}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteInst('${iid}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
+          </div>
+        </div>
+      </div>`;
     }).join('')}</div>`;
   },
   showAddInst() {
     this._instEditId = null;
     document.getElementById('instf-name').value = '';
-    document.getElementById('instf-code').value = '';
-    document.getElementById('instf-color').value = '#2563eb';
-    document.getElementById('instf-desc').value = '';
-    document.getElementById('instf-status').value = '\u05E4\u05E2\u05D9\u05DC';
-    document.querySelector('#inst-modal .modal-title').textContent = '\u05DE\u05E1\u05D2\u05E8\u05EA \u05D7\u05D3\u05E9\u05D4';
+    document.getElementById('instf-type').value = Object.keys(this._instTypes)[0];
+    document.getElementById('instf-address').value = '';
+    document.getElementById('instf-phone').value = '';
+    document.getElementById('instf-email').value = '';
+    document.getElementById('instf-contact').value = '';
+    document.getElementById('instf-notes').value = '';
+    document.querySelector('#inst-modal .modal-title').textContent = '\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9';
     new bootstrap.Modal(document.getElementById('inst-modal')).show();
   },
   editInst(id) {
@@ -3554,34 +3668,38 @@ Object.assign(Pages, {
     if (!i) return;
     this._instEditId = id;
     document.getElementById('instf-name').value = i['\u05E9\u05DD'] || '';
-    document.getElementById('instf-code').value = i['\u05E7\u05D5\u05D3'] || '';
-    document.getElementById('instf-color').value = i['\u05E6\u05D1\u05E2'] || '#2563eb';
-    document.getElementById('instf-desc').value = i['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
-    document.getElementById('instf-status').value = i['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC';
-    document.querySelector('#inst-modal .modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05DE\u05E1\u05D2\u05E8\u05EA';
+    document.getElementById('instf-type').value = i['\u05E1\u05D5\u05D2'] || Object.keys(this._instTypes)[0];
+    document.getElementById('instf-address').value = i['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '';
+    document.getElementById('instf-phone').value = i['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+    document.getElementById('instf-email').value = i['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '';
+    document.getElementById('instf-contact').value = i['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8'] || '';
+    document.getElementById('instf-notes').value = i['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '';
+    document.querySelector('#inst-modal .modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05DE\u05D5\u05E1\u05D3';
     new bootstrap.Modal(document.getElementById('inst-modal')).show();
   },
   async saveInst() {
     const row = {
       '\u05E9\u05DD': document.getElementById('instf-name').value.trim(),
-      '\u05E7\u05D5\u05D3': document.getElementById('instf-code').value.trim(),
-      '\u05E6\u05D1\u05E2': document.getElementById('instf-color').value,
-      '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('instf-desc').value.trim(),
-      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('instf-status').value
+      '\u05E1\u05D5\u05D2': document.getElementById('instf-type').value,
+      '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('instf-address').value.trim(),
+      '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('instf-phone').value.trim(),
+      '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('instf-email').value.trim(),
+      '\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8': document.getElementById('instf-contact').value.trim(),
+      '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('instf-notes').value.trim()
     };
-    if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); return; }
+    if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD \u05DE\u05D5\u05E1\u05D3', 'warning'); return; }
     try {
       if (this._instEditId) { await App.apiCall('update', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id: this._instEditId, row }); }
       else { await App.apiCall('add', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { row }); }
       bootstrap.Modal.getInstance(document.getElementById('inst-modal')).hide();
-      Utils.toast(this._instEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05DE\u05E1\u05D2\u05E8\u05EA \u05E0\u05D5\u05E1\u05E4\u05D4');
+      Utils.toast(this._instEditId ? '\u05DE\u05D5\u05E1\u05D3 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05DE\u05D5\u05E1\u05D3 \u05E0\u05D5\u05E1\u05E3');
       this._instEditId = null;
       this.institutionsInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
   async deleteInst(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E1\u05D2\u05E8\u05EA \u05D6\u05D5?')) return;
-    try { await App.apiCall('delete', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id }); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.institutionsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05D5\u05E1\u05D3 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id }); Utils.toast('\u05DE\u05D5\u05E1\u05D3 \u05E0\u05DE\u05D7\u05E7'); this.institutionsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 
 
