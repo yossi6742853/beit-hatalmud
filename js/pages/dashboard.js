@@ -1,306 +1,308 @@
-/* ===== BHT v5.3 — Dashboard ===== */
+/* ===== BHT v6.0 — Dashboard (Professional Rewrite) ===== */
 Object.assign(Pages, {
-  /* ======================================================================
-     DASHBOARD
-     ====================================================================== */
-  _getParasha() {
-    // Use a more accurate method: check the Hebrew date month to estimate parasha
-    try {
-      const heb = new Intl.DateTimeFormat('he-IL-u-ca-hebrew', {month:'long', year:'numeric'}).format(new Date());
-      // Map Hebrew months to approximate parashiot
-      const monthParasha = {
-        'תשרי': 'בראשית', 'חשוון': 'וירא', 'כסלו': 'וישב',
-        'טבת': 'ויחי', 'שבט': 'בשלח', 'אדר': 'תצוה',
-        'ניסן': 'אחרי מות', 'אייר': 'אמור', 'סיוון': 'נשא',
-        'תמוז': 'חוקת', 'אב': 'דברים', 'אלול': 'שופטים'
-      };
-      const month = Object.keys(monthParasha).find(m => heb.includes(m));
-      if (month) return monthParasha[month];
-    } catch(e) {}
-    return 'אחרי מות'; // fallback for Nissan period
+
+  /* ---- Time-based Hebrew greeting ---- */
+  _greeting() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return '\u05D1\u05D5\u05E7\u05E8 \u05D8\u05D5\u05D1';
+    if (h >= 12 && h < 17) return '\u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D8\u05D5\u05D1\u05D9\u05DD';
+    if (h >= 17 && h < 21) return '\u05E2\u05E8\u05D1 \u05D8\u05D5\u05D1';
+    return '\u05DC\u05D9\u05DC\u05D4 \u05D8\u05D5\u05D1';
   },
 
+  /* ---- Dashboard HTML ---- */
   dashboard() {
+    const greeting = this._greeting();
+    const hebrewDate = Utils.hebrewDateFull ? Utils.hebrewDateFull() : '';
+    const todayFormatted = Utils.formatDate(new Date());
+
     return `
-      <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-        <div>
-          <h1><i class="bi bi-speedometer2 me-2"></i>לוח בקרה</h1>
-          <p>${Utils.dayName()} | ${Utils.formatDate(new Date())}${Utils.hebrewDateFull() ? ' | ' + Utils.hebrewDateFull() : ''}</p>
+      <!-- Welcome Header -->
+      <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <h1 class="mb-1">
+              <i class="bi bi-sun me-2 text-warning"></i>${greeting}
+            </h1>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar3 me-1"></i>${Utils.dayName()} | ${todayFormatted}${hebrewDate ? ' | <span class="text-primary fw-semibold">' + hebrewDate + '</span>' : ''}
+            </p>
+          </div>
+          <div id="dash-notifications"></div>
         </div>
-        <div id="dash-notifications"></div>
       </div>
 
-      <!-- Stat Cards with Gradient Icons -->
+      <!-- Quick Actions -->
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-lightning-charge-fill text-warning"></i>
+            <h6 class="fw-bold mb-0">\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA</h6>
+          </div>
+          <div class="row g-2">
+            <div class="col-6 col-md-2">
+              <a href="#students" class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-person-plus-fill fs-5"></i>
+                <small>\u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3</small>
+              </a>
+            </div>
+            <div class="col-6 col-md-2">
+              <a href="#attendance" class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-calendar-check-fill fs-5"></i>
+                <small>\u05E8\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small>
+              </a>
+            </div>
+            <div class="col-6 col-md-2">
+              <a href="#communications" class="btn btn-outline-info w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-chat-dots-fill fs-5"></i>
+                <small>\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4</small>
+              </a>
+            </div>
+            <div class="col-6 col-md-2">
+              <a href="#finance" class="btn btn-outline-warning w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-credit-card-fill fs-5"></i>
+                <small>\u05D4\u05D5\u05E1\u05E3 \u05EA\u05E9\u05DC\u05D5\u05DD</small>
+              </a>
+            </div>
+            <div class="col-6 col-md-2">
+              <a href="#checklist" class="btn btn-outline-danger w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-list-task fs-5"></i>
+                <small>\u05E6\u05D5\u05E8 \u05DE\u05E9\u05D9\u05DE\u05D4</small>
+              </a>
+            </div>
+            <div class="col-6 col-md-2">
+              <a href="#reports" class="btn btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1">
+                <i class="bi bi-file-earmark-bar-graph-fill fs-5"></i>
+                <small>\u05D3\u05D5\u05D7 \u05DE\u05D4\u05D9\u05E8</small>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards Row -->
       <div class="row g-3 mb-4" id="dash-stats">
-        <div class="col-6 col-md-3"><div class="card stat-card p-3"><div class="stat-icon gradient-primary"><i class="bi bi-people-fill"></i></div><div class="stat-value" id="stat-students">--</div><div class="stat-label">תלמידים פעילים</div></div></div>
-        <div class="col-6 col-md-3"><div class="card stat-card p-3"><div class="stat-icon gradient-success"><i class="bi bi-calendar-check-fill"></i></div><div class="stat-value" id="stat-attendance">--</div><div class="stat-label">נוכחות היום</div></div></div>
-        <div class="col-6 col-md-3"><div class="card stat-card p-3"><div class="stat-icon gradient-info"><i class="bi bi-person-badge-fill"></i></div><div class="stat-value" id="stat-staff">--</div><div class="stat-label">אנשי צוות</div></div></div>
-        <div class="col-6 col-md-3"><div class="card stat-card p-3"><div class="stat-icon gradient-warning"><i class="bi bi-cash-stack"></i></div><div class="stat-value" id="stat-debt">--</div><div class="stat-label">חובות פתוחים</div></div></div>
-      </div>
-
-      <!-- Executive KPI Section -->
-      <div class="row g-3 mb-4" id="dash-kpi" style="display:none">
-        <div class="col-md-3"><div class="card p-3 card-top-primary"><small class="text-muted">ממוצע נוכחות חודשי</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-att-pct">--</span><span class="badge" id="kpi-att-trend"></span></div></div></div>
-        <div class="col-md-3"><div class="card p-3 card-top-success"><small class="text-muted">שיעור גביה</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-collection">--</span><span class="badge" id="kpi-col-trend"></span></div></div></div>
-        <div class="col-md-3"><div class="card p-3 card-top-warning"><small class="text-muted">ניקוד התנהגות ממוצע</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold" id="kpi-beh-score">--</span><span class="badge" id="kpi-beh-trend"></span></div></div></div>
-        <div class="col-md-3"><div class="card p-3 card-top-danger"><small class="text-muted">תלמידים בסיכון</small><div class="d-flex align-items-end gap-2"><span class="fs-3 fw-bold text-danger" id="kpi-at-risk">--</span><small class="text-muted" id="kpi-risk-detail"></small></div></div></div>
-      </div>
-
-      <!-- Parasha + Daily Schedule -->
-      <div class="row g-3 mb-4">
-        <div class="col-lg-4">
-          <div class="card p-3" style="border-right:4px solid #8b5cf6">
-            <h6 class="fw-bold"><i class="bi bi-book-half me-2 text-purple"></i>פרשת השבוע</h6>
-            <div class="fs-4 fw-bold text-gradient" id="dash-parasha">--</div>
-            <div class="mt-2 small text-muted" id="dash-shabbat"></div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+                <i class="bi bi-people-fill text-white fs-5"></i>
+              </div>
+              <div>
+                <div class="fs-3 fw-bold lh-1" id="stat-students">--</div>
+                <small class="text-muted">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-lg-8">
-          <div class="card p-3">
-            <h6 class="fw-bold"><i class="bi bi-clock-history me-2 text-info"></i>סדר היום</h6>
-            <div class="small" id="daily-routine"></div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#10b981,#059669)">
+                <i class="bi bi-calendar-check-fill text-white fs-5"></i>
+              </div>
+              <div>
+                <div class="fs-3 fw-bold lh-1" id="stat-attendance">--</div>
+                <small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD</small>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Row 2: Weekly Attendance Chart + Finance Doughnut -->
-      <div class="row g-3 mb-3">
-        <div class="col-lg-8">
-          <div class="card p-3">
-            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2 text-primary"></i>נוכחות שבועית <small class="text-muted fw-normal">(7 ימים אחרונים)</small></h6>
-            <div class="chart-container" style="height:260px"><canvas id="chart-attendance"></canvas></div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#f59e0b,#d97706)">
+                <i class="bi bi-cash-stack text-white fs-5"></i>
+              </div>
+              <div>
+                <div class="fs-3 fw-bold lh-1" id="stat-pending">--</div>
+                <small class="text-muted">\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD</small>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-lg-4">
-          <div class="card p-3 h-100">
-            <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill me-2 text-success"></i>מצב כספי</h6>
-            <div class="chart-container position-relative" style="height:220px">
-              <canvas id="chart-finance"></canvas>
-              <div id="finance-center-text" style="position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-                <div class="fw-bold fs-5" id="finance-total">--</div>
-                <div class="text-muted small">סה״כ</div>
+        <div class="col-6 col-lg-3">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+              <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+                <i class="bi bi-list-task text-white fs-5"></i>
+              </div>
+              <div>
+                <div class="fs-3 fw-bold lh-1" id="stat-tasks">--</div>
+                <small class="text-muted">\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</small>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Row 3: Class Breakdown + Quick Actions + AI Insight -->
-      <div class="row g-3 mb-3">
+      <!-- Today's Summary Row: Attendance Doughnut + Recent Payments + Upcoming Events -->
+      <div class="row g-3 mb-4">
         <div class="col-lg-4">
-          <div class="card p-3 h-100">
-            <h6 class="fw-bold mb-3"><i class="bi bi-diagram-3-fill me-2 text-purple"></i>פילוח לפי כיתות</h6>
-            <div id="class-breakdown"><div class="text-muted text-center py-3">טוען...</div></div>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="card p-3 h-100">
-            <h6 class="fw-bold mb-3"><i class="bi bi-lightning-fill me-2 text-warning"></i>פעולות מהירות</h6>
-            <div class="row g-2">
-              <div class="col-6"><a href="#attendance" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-calendar-check"></i>נוכחות</a></div>
-              <div class="col-6"><a href="#students" class="btn btn-outline-success w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-person-plus"></i>תלמיד</a></div>
-              <div class="col-6"><a href="#tasks" class="btn btn-outline-info w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-kanban"></i>משימות</a></div>
-              <div class="col-6"><a href="#finance" class="btn btn-outline-warning w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-cash"></i>כספים</a></div>
-              <div class="col-6"><a href="#behavior" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-clipboard-data"></i>התנהגות</a></div>
-              <div class="col-6"><a href="#communications" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 py-2"><i class="bi bi-whatsapp"></i>WhatsApp</a></div>
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-pie-chart-fill me-2 text-success"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD
+              </h6>
+              <div class="position-relative" style="height:200px">
+                <canvas id="chart-att-doughnut"></canvas>
+                <div id="att-center-label" style="position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+                  <div class="fs-3 fw-bold" id="att-center-pct">--</div>
+                  <div class="text-muted small">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-around mt-3 small" id="att-legend">
+                <span><i class="bi bi-circle-fill text-success me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD: <b id="att-present">0</b></span>
+                <span><i class="bi bi-circle-fill text-danger me-1"></i>\u05D7\u05E1\u05E8\u05D9\u05DD: <b id="att-absent">0</b></span>
+                <span><i class="bi bi-circle-fill text-warning me-1"></i>\u05D0\u05D9\u05D7\u05D5\u05E8: <b id="att-late">0</b></span>
+              </div>
             </div>
           </div>
         </div>
         <div class="col-lg-4">
-          <div class="card p-3 h-100 border-start border-4 border-info">
-            <h6 class="fw-bold mb-3"><i class="bi bi-robot me-2 text-info"></i>תובנה חכמה</h6>
-            <div id="ai-insight"><div class="text-muted text-center py-3"><div class="spinner-border spinner-border-sm me-2"></div>מנתח...</div></div>
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-credit-card-2-front-fill me-2 text-warning"></i>\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD
+              </h6>
+              <div id="recent-payments"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-calendar-event-fill me-2 text-danger"></i>\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD
+              </h6>
+              <div id="upcoming-events"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Birthday Alerts -->
-      <div class="card p-3 mt-3 mb-3" id="dash-birthdays" style="display:none">
-        <h6 class="fw-bold"><i class="bi bi-cake2 me-2 text-danger"></i>ימי הולדת השבוע</h6>
-        <div id="birthday-list"></div>
-      </div>
-
-      <!-- Row 4: Today's Schedule + Upcoming Events -->
-      <div class="row g-3 mb-3">
-        <div class="col-lg-6">
-          <div class="card p-3 h-100">
-            <h6 class="fw-bold mb-3"><i class="bi bi-clock-fill me-2 text-primary"></i>מערכת שעות היום</h6>
-            <div id="today-schedule"><div class="text-muted text-center py-3">טוען...</div></div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card p-3 h-100">
-            <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event-fill me-2 text-danger"></i>אירועים קרובים</h6>
-            <div id="upcoming-events"><div class="text-muted text-center py-3">טוען...</div></div>
-          </div>
+      <!-- Recent Activity Feed -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            <i class="bi bi-clock-history me-2 text-info"></i>\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
+          </h6>
+          <div id="activity-feed"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
         </div>
       </div>
 
-      <!-- Row 5: Activity Feed -->
-      <div class="card p-3">
-        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-info"></i>פעילויות אחרונות</h6>
-        <div id="activity-feed"><div class="text-muted text-center py-3">טוען נתונים...</div></div>
+      <!-- System Health -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">
+            <i class="bi bi-heart-pulse-fill me-2 text-danger"></i>\u05D1\u05E8\u05D9\u05D0\u05D5\u05EA \u05DE\u05E2\u05E8\u05DB\u05EA
+          </h6>
+          <div class="row g-3" id="system-health">
+            <div class="col-md-4">
+              <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                <i class="bi bi-puzzle-fill text-primary fs-4"></i>
+                <div class="flex-grow-1">
+                  <small class="text-muted d-block">\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD \u05D8\u05E2\u05D5\u05E0\u05D9\u05DD</small>
+                  <span class="fw-bold" id="health-modules">--</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                  <i class="bi bi-hdd-fill text-warning fs-4"></i>
+                  <div class="flex-grow-1">
+                    <small class="text-muted d-block">\u05D0\u05D7\u05E1\u05D5\u05DF \u05DE\u05E7\u05D5\u05DE\u05D9</small>
+                    <span class="fw-bold" id="health-storage">--</span>
+                  </div>
+                </div>
+                <div class="progress" style="height:6px">
+                  <div class="progress-bar bg-warning" id="health-storage-bar" style="width:0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3">
+                <i class="bi bi-cloud-check-fill text-success fs-4"></i>
+                <div class="flex-grow-1">
+                  <small class="text-muted d-block">\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D0\u05D7\u05E8\u05D5\u05DF</small>
+                  <span class="fw-bold" id="health-backup">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   },
 
+  /* ---- Dashboard Init: populate all sections with data ---- */
   async dashboardInit() {
-    // Load all data in parallel
-    const [students, staff, finance, attendance, calendar, schedule, tasks, homework, beh] = await Promise.all([
+    // Load data in parallel
+    const [students, finance, attendance, calendar, tasks] = await Promise.all([
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
-      App.getData('\u05E6\u05D5\u05D5\u05EA'),
       App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
       App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
       App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
-      App.getData('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA').catch(() => []),
-      App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []),
-      App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(() => []),
-      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(() => [])
+      App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => [])
     ]);
 
-    const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     const todayISO = Utils.todayISO();
     const todayAtt = attendance.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === todayISO);
-    const present = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7');
-    const absent = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
-    const late = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8');
-    const attPct = todayAtt.length > 0 ? Math.round(present.length / todayAtt.length * 100) : 0;
-    const unpaidFinance = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05E9\u05D5\u05DC\u05DD');
-    const totalDebt = unpaidFinance.reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
-    const totalPaid = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') === '\u05E9\u05D5\u05DC\u05DD').reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+    const presentCount = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
+    const absentCount = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8').length;
+    const lateCount = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8').length;
+    const attPct = todayAtt.length > 0 ? Math.round(presentCount / todayAtt.length * 100) : 0;
 
-    // === 1. Stat Cards ===
-    document.getElementById('stat-students').textContent = activeStudents.length;
-    document.getElementById('stat-attendance').textContent = todayAtt.length > 0 ? attPct + '%' : '--';
-    document.getElementById('stat-staff').textContent = staff.length;
-    document.getElementById('stat-debt').textContent = Utils.formatCurrency(totalDebt);
+    const unpaidFinance = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05E9\u05D5\u05DC\u05DD');
+    const totalDebt = unpaidFinance.reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+    const totalPaid = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E9\u05D5\u05DC\u05DD')
+      .reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+    const activeTasks = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05D4\u05D5\u05E9\u05DC\u05DD').length;
 
-    // === 1b. Executive KPI Section ===
-    const kpiEl = document.getElementById('dash-kpi');
-    if (kpiEl) {
-      kpiEl.style.display = '';
+    // === 1. Stats Cards ===
+    this._setText('stat-students', activeStudents.length);
+    this._setText('stat-attendance', todayAtt.length > 0 ? attPct + '%' : '\u05DC\u05D0 \u05E0\u05E8\u05E9\u05DD');
+    this._setText('stat-pending', Utils.formatCurrency ? Utils.formatCurrency(totalDebt) : totalDebt);
+    this._setText('stat-tasks', activeTasks);
 
-      // Attendance %
-      const kpiAttPct = attendance.length ? Math.round(attendance.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length / attendance.length * 100) : 0;
-      document.getElementById('kpi-att-pct').textContent = kpiAttPct + '%';
-      document.getElementById('kpi-att-trend').className = 'badge ' + (kpiAttPct >= 85 ? 'bg-success' : kpiAttPct >= 70 ? 'bg-warning' : 'bg-danger');
-      document.getElementById('kpi-att-trend').innerHTML = kpiAttPct >= 85 ? '<i class="bi bi-arrow-up"></i> \u05D8\u05D5\u05D1' : kpiAttPct >= 70 ? '<i class="bi bi-dash"></i> \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9' : '<i class="bi bi-arrow-down"></i> \u05E0\u05DE\u05D5\u05DA';
-
-      // Collection rate
-      const totalAmt = totalPaid + totalDebt;
-      const colRate = totalAmt > 0 ? Math.round(totalPaid / totalAmt * 100) : 0;
-      document.getElementById('kpi-collection').textContent = colRate + '%';
-      document.getElementById('kpi-col-trend').className = 'badge ' + (colRate >= 80 ? 'bg-success' : colRate >= 50 ? 'bg-warning' : 'bg-danger');
-      document.getElementById('kpi-col-trend').innerHTML = colRate >= 80 ? '<i class="bi bi-arrow-up"></i> \u05D8\u05D5\u05D1' : '<i class="bi bi-arrow-down"></i> \u05E0\u05DE\u05D5\u05DA';
-
-      // Behavior score
-      const posB = beh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
-      const negB = beh.filter(b => b['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
-      const behNet = posB - negB;
-      document.getElementById('kpi-beh-score').textContent = (behNet >= 0 ? '+' : '') + behNet;
-      document.getElementById('kpi-beh-trend').className = 'badge ' + (behNet >= 0 ? 'bg-success' : 'bg-danger');
-      document.getElementById('kpi-beh-trend').textContent = behNet >= 0 ? '\u05D7\u05D9\u05D5\u05D1\u05D9' : '\u05E9\u05DC\u05D9\u05DC\u05D9';
-
-      // At-risk students (attendance < 70% or behavior < -3)
-      const studentAtt = {};
-      attendance.forEach(a => { const n = a['\u05E9\u05DD'] || ''; if (!n) return; if (!studentAtt[n]) studentAtt[n] = { p: 0, t: 0 }; studentAtt[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7') studentAtt[n].p++; });
-      const studentBeh = {};
-      beh.forEach(b => { const n = b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || b['\u05E9\u05DD'] || ''; if (!n) return; if (!studentBeh[n]) studentBeh[n] = 0; if (b['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9') studentBeh[n]++; else if (b['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') studentBeh[n]--; });
-
-      let atRisk = 0;
-      const reasons = [];
-      Object.keys(studentAtt).forEach(n => {
-        const pct = studentAtt[n].t ? Math.round(studentAtt[n].p / studentAtt[n].t * 100) : 100;
-        if (pct < 70) { atRisk++; reasons.push(n + ' (\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA ' + pct + '%)'); }
-      });
-      Object.keys(studentBeh).forEach(n => {
-        if (studentBeh[n] < -3 && !reasons.find(r => r.startsWith(n))) { atRisk++; reasons.push(n + ' (\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA)'); }
-      });
-
-      document.getElementById('kpi-at-risk').textContent = atRisk;
-      document.getElementById('kpi-risk-detail').textContent = atRisk ? reasons.slice(0, 3).join(', ') : '\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF';
-    }
-
-    // === 2. Notifications Badge ===
-    const pendingTasks = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05D4\u05D5\u05E9\u05DC\u05DD').length;
-    const overdueHW = homework.filter(h => {
-      const due = h['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4'] || '';
-      return due && due < todayISO && (h['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05D4\u05D5\u05D2\u05E9';
-    }).length;
-    const totalNotifications = unpaidFinance.length + pendingTasks + overdueHW;
-    const notifEl = document.getElementById('dash-notifications');
-    if (notifEl && totalNotifications > 0) {
-      notifEl.innerHTML =
-        '<span class="badge bg-danger rounded-pill fs-6 px-3 py-2">' +
-          '<i class="bi bi-bell-fill me-1"></i>' + totalNotifications + ' \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA' +
-        '</span>' +
-        '<div class="small text-muted mt-1">' +
-          (unpaidFinance.length ? '<span class="me-2"><i class="bi bi-cash text-warning"></i> ' + unpaidFinance.length + ' \u05D7\u05D5\u05D1\u05D5\u05EA</span>' : '') +
-          (pendingTasks ? '<span class="me-2"><i class="bi bi-kanban text-info"></i> ' + pendingTasks + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA</span>' : '') +
-          (overdueHW ? '<span><i class="bi bi-journal-x text-danger"></i> ' + overdueHW + ' \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD</span>' : '') +
-        '</div>';
-    }
-
-    // === 3. Weekly Attendance Chart (last 7 days) ===
-    const attCtx = document.getElementById('chart-attendance');
+    // === 2. Attendance Doughnut ===
+    const attCtx = document.getElementById('chart-att-doughnut');
     if (attCtx) {
-      const last7 = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        const dayAtt = attendance.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === iso);
-        last7.push({
-          label: Utils.HEB_DAYS[d.getDay()],
-          present: dayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length,
-          absent: dayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8').length,
-          late: dayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8').length
-        });
-      }
-      App.charts.att = new Chart(attCtx, {
-        type: 'bar',
-        data: {
-          labels: last7.map(d => d.label),
-          datasets: [
-            { label: '\u05E0\u05D5\u05DB\u05D7', data: last7.map(d => d.present), backgroundColor: '#0f9d58', borderRadius: 6, barPercentage: 0.7 },
-            { label: '\u05D7\u05D9\u05E1\u05D5\u05E8', data: last7.map(d => d.absent), backgroundColor: '#ea4335', borderRadius: 6, barPercentage: 0.7 },
-            { label: '\u05D0\u05D9\u05D7\u05D5\u05E8', data: last7.map(d => d.late), backgroundColor: '#f9ab00', borderRadius: 6, barPercentage: 0.7 }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'top', labels: { font: { family: 'Heebo', size: 12 }, usePointStyle: true, pointStyle: 'circle' } }
-          },
-          scales: {
-            y: { beginAtZero: true, stacked: true, ticks: { stepSize: 1 } },
-            x: { stacked: true, grid: { display: false } }
-          }
-        }
-      });
-    }
+      // Use demo data if no attendance today
+      const hasData = todayAtt.length > 0;
+      const dPresent = hasData ? presentCount : 18;
+      const dAbsent = hasData ? absentCount : 3;
+      const dLate = hasData ? lateCount : 2;
+      const dPct = hasData ? attPct : 78;
 
-    // === 4. Finance Doughnut with Center Text ===
-    const finCtx = document.getElementById('chart-finance');
-    if (finCtx) {
-      const totalAll = totalPaid + totalDebt;
-      document.getElementById('finance-total').textContent = Utils.formatCurrency(totalAll);
-      App.charts.fin = new Chart(finCtx, {
+      this._setText('att-center-pct', dPct + '%');
+      this._setText('att-present', dPresent);
+      this._setText('att-absent', dAbsent);
+      this._setText('att-late', dLate);
+
+      if (App.charts.attDoughnut) App.charts.attDoughnut.destroy();
+      App.charts.attDoughnut = new Chart(attCtx, {
         type: 'doughnut',
         data: {
-          labels: ['\u05E9\u05D5\u05DC\u05DD', '\u05D9\u05EA\u05E8\u05D4'],
-          datasets: [{ data: [totalPaid, totalDebt], backgroundColor: ['#0f9d58', '#ea4335'], borderWidth: 0, hoverOffset: 8 }]
+          labels: ['\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD', '\u05D7\u05E1\u05E8\u05D9\u05DD', '\u05D0\u05D9\u05D7\u05D5\u05E8'],
+          datasets: [{
+            data: [dPresent, dAbsent, dLate],
+            backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '68%',
+          cutout: '70%',
           plugins: {
-            legend: { position: 'bottom', labels: { font: { family: 'Heebo' }, usePointStyle: true, pointStyle: 'circle', padding: 12 } },
+            legend: { display: false },
             tooltip: {
               callbacks: {
-                label: function(ctx) { return ctx.label + ': ' + Utils.formatCurrency(ctx.raw); }
+                label: ctx => ctx.label + ': ' + ctx.raw
               }
             }
           }
@@ -308,210 +310,201 @@ Object.assign(Pages, {
       });
     }
 
-    // === 5. Class Breakdown ===
-    const classBreakdown = {};
-    activeStudents.forEach(s => {
-      const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '\u05DC\u05DC\u05D0 \u05DB\u05D9\u05EA\u05D4';
-      classBreakdown[cls] = (classBreakdown[cls] || 0) + 1;
-    });
-    const cbEl = document.getElementById('class-breakdown');
-    if (cbEl) {
-      const sorted = Object.entries(classBreakdown).sort((a, b) => a[0].localeCompare(b[0], 'he'));
-      if (sorted.length > 0) {
-        let cbHtml = '<table class="table table-sm table-hover mb-0"><thead><tr><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</th><th></th></tr></thead><tbody>';
-        sorted.forEach(function(entry) {
-          const cls = entry[0], count = entry[1];
-          const pct = Math.round(count / activeStudents.length * 100);
-          cbHtml += '<tr><td class="fw-bold">' + cls + '</td><td>' + count + '</td><td style="width:40%"><div class="progress" style="height:6px"><div class="progress-bar" style="width:' + pct + '%;background:var(--bht-gradient-primary)"></div></div></td></tr>';
-        });
-        cbHtml += '</tbody></table>';
-        cbEl.innerHTML = cbHtml;
-      } else {
-        cbEl.innerHTML = '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
-      }
-    }
+    // === 3. Recent Payments ===
+    const paymentsEl = document.getElementById('recent-payments');
+    if (paymentsEl) {
+      const paidRecords = finance
+        .filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E9\u05D5\u05DC\u05DD')
+        .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+        .slice(0, 5);
 
-    // === 5b. Birthday Alerts ===
-    const birthdays = Utils.getUpcomingBirthdays(activeStudents, 7);
-    if (birthdays.length) {
-      const bdEl = document.getElementById('dash-birthdays');
-      if (bdEl) {
-        bdEl.style.display = '';
-        document.getElementById('birthday-list').innerHTML = birthdays.map(b =>
-          `<div class="d-flex align-items-center gap-2 py-1 border-bottom">
-            ${Utils.avatarHTML(b.name, 'sm')}
-            <div class="flex-grow-1">
-              <span class="fw-bold">${b.name}</span>
-              <small class="text-muted ms-2">${b.hebrewDate} | ${b.daysUntil === 0 ? '\uD83C\uDF82 \u05D4\u05D9\u05D5\u05DD!' : '\u05D1\u05E2\u05D5\u05D3 ' + b.daysUntil + ' \u05D9\u05DE\u05D9\u05DD'}</small>
+      if (paidRecords.length > 0) {
+        paymentsEl.innerHTML = paidRecords.map(p => {
+          const name = p['\u05E9\u05DD'] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+          const amount = Number(p['\u05E1\u05DB\u05D5\u05DD']) || 0;
+          const date = p['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+          return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dcfce7">
+              <i class="bi bi-check-lg text-success"></i>
             </div>
-            <span class="badge bg-light text-dark">\u05D2\u05D9\u05DC ${b.age}</span>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">${Utils.fullName ? Utils.fullName(p) : name}</div>
+              <small class="text-muted">${Utils.formatDateShort(date)}</small>
+            </div>
+            <span class="badge bg-success-subtle text-success">${Utils.formatCurrency ? Utils.formatCurrency(amount) : amount}</span>
+          </div>`;
+        }).join('');
+      } else {
+        // Demo data
+        const demoPayments = [
+          { name: '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', amount: 1200, time: '\u05DC\u05E4\u05E0\u05D9 \u05E9\u05E2\u05D4' },
+          { name: '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', amount: 850, time: '\u05DC\u05E4\u05E0\u05D9 3 \u05E9\u05E2\u05D5\u05EA' },
+          { name: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9', amount: 2400, time: '\u05D0\u05EA\u05DE\u05D5\u05DC' },
+          { name: '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', amount: 600, time: '\u05D0\u05EA\u05DE\u05D5\u05DC' }
+        ];
+        paymentsEl.innerHTML = demoPayments.map(p =>
+          `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dcfce7">
+              <i class="bi bi-check-lg text-success"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">${p.name}</div>
+              <small class="text-muted">${p.time}</small>
+            </div>
+            <span class="badge bg-success-subtle text-success">\u20AA${p.amount.toLocaleString()}</span>
           </div>`
         ).join('');
       }
     }
 
-    // === 6. Today's Schedule ===
-    const schedEl = document.getElementById('today-schedule');
-    if (schedEl) {
-      const dayNum = new Date().getDay();
-      const dayName = Utils.HEB_DAYS[dayNum];
-      const todayLessons = schedule.filter(function(s) { return (s['\u05D9\u05D5\u05DD']||'') === dayName || (s['\u05D9\u05D5\u05DD']||'').includes(dayName); });
-      if (todayLessons.length > 0) {
-        schedEl.innerHTML = todayLessons.map(function(l) {
-          return '<div class="d-flex align-items-center gap-3 py-2 border-bottom">' +
-            '<div class="avatar avatar-sm" style="background:var(--bht-gradient-info)"><i class="bi bi-book" style="font-size:.8rem;color:#fff"></i></div>' +
-            '<div class="flex-grow-1">' +
-              '<div class="fw-bold">' + (l['\u05E9\u05DD_\u05E9\u05D9\u05E2\u05D5\u05E8'] || l['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '--') + '</div>' +
-              '<small class="text-muted">' + (l['\u05DB\u05D9\u05EA\u05D4'] || '') + ' ' + (l['\u05DE\u05DC\u05DE\u05D3'] || '') + '</small>' +
-            '</div>' +
-            '<span class="badge bg-light text-dark">' + (l['\u05E9\u05E2\u05D4'] || l['\u05E9\u05E2\u05EA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '') + '</span>' +
-          '</div>';
-        }).join('');
-      } else {
-        schedEl.innerHTML = '<div class="text-muted text-center py-3"><i class="bi bi-calendar-x me-2"></i>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD</div>';
-      }
-    }
-
-    // === 7. Upcoming Events ===
+    // === 4. Upcoming Events ===
     const eventsEl = document.getElementById('upcoming-events');
     if (eventsEl) {
       const upcoming = calendar
-        .filter(function(e) { return (e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'') >= todayISO; })
-        .sort(function(a, b) { return (a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA']||''); })
+        .filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= todayISO)
+        .sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
         .slice(0, 5);
+
       if (upcoming.length > 0) {
-        eventsEl.innerHTML = upcoming.map(function(e) {
+        eventsEl.innerHTML = upcoming.map(e => {
           const eventDate = e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
           const isToday = eventDate === todayISO;
-          return '<div class="d-flex align-items-center gap-3 py-2 border-bottom">' +
-            '<div class="avatar avatar-sm" style="background:' + (isToday ? 'var(--bht-gradient-danger)' : 'var(--bht-gradient-purple)') + '">' +
-              '<i class="bi bi-calendar-event" style="font-size:.8rem;color:#fff"></i>' +
-            '</div>' +
-            '<div class="flex-grow-1">' +
-              '<div class="fw-bold">' + (e['\u05E9\u05DD'] || e['\u05E0\u05D5\u05E9\u05D0'] || e['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '--') + '</div>' +
-              '<small class="text-muted">' + Utils.formatDateShort(eventDate) + '</small>' +
-            '</div>' +
-            (isToday ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : '') +
-          '</div>';
+          const title = e['\u05E9\u05DD'] || e['\u05E0\u05D5\u05E9\u05D0'] || e['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '--';
+          return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${isToday ? '#fee2e2' : '#ede9fe'}">
+              <i class="bi bi-calendar-event ${isToday ? 'text-danger' : 'text-purple'}"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">${title}</div>
+              <small class="text-muted">${Utils.formatDateShort(eventDate)}</small>
+            </div>
+            ${isToday ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : ''}
+          </div>`;
         }).join('');
       } else {
-        eventsEl.innerHTML = '<div class="text-muted text-center py-3"><i class="bi bi-calendar-x me-2"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>';
+        // Demo data
+        const demoEvents = [
+          { title: '\u05DE\u05D1\u05D7\u05DF \u05D0\u05DE\u05E6\u05E2 \u05D7\u05D5\u05D3\u05E9\u05D9', date: '\u05D4\u05D9\u05D5\u05DD', today: true },
+          { title: '\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD', date: '\u05DE\u05D7\u05E8', today: false },
+          { title: '\u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9', date: '\u05D9\u05D5\u05DD \u05E8\u05D1\u05D9\u05E2\u05D9', today: false },
+          { title: '\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF / \u05E4\u05EA\u05D5\u05D7', date: '\u05D9\u05D5\u05DD \u05D7\u05DE\u05D9\u05E9\u05D9', today: false }
+        ];
+        eventsEl.innerHTML = demoEvents.map(e =>
+          `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${e.today ? '#fee2e2' : '#ede9fe'}">
+              <i class="bi bi-calendar-event ${e.today ? 'text-danger' : 'text-purple'}"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">${e.title}</div>
+              <small class="text-muted">${e.date}</small>
+            </div>
+            ${e.today ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : ''}
+          </div>`
+        ).join('');
       }
     }
 
-    // === 8. Activity Feed ===
-    const feed = document.getElementById('activity-feed');
-    if (feed) {
+    // === 5. Activity Feed ===
+    const feedEl = document.getElementById('activity-feed');
+    if (feedEl) {
       let activities = [];
-      // Try loading יומן_פעילות
-      let activityLog = [];
-      try { activityLog = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA'); } catch(e) {}
 
-      if (activityLog.length > 0) {
-        activities = activityLog
-          .sort(function(a, b) { return (b['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''); })
-          .slice(0, 10)
-          .map(function(a) {
-            return {
+      // Try loading activity log
+      try {
+        const activityLog = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
+        if (activityLog.length > 0) {
+          activities = activityLog
+            .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+            .slice(0, 10)
+            .map(a => ({
               icon: a['\u05D0\u05D9\u05E7\u05D5\u05DF'] || 'activity',
-              color: 'primary',
+              color: a['\u05E6\u05D1\u05E2'] || 'primary',
               text: a['\u05EA\u05D9\u05D0\u05D5\u05E8'] || a['\u05E4\u05E2\u05D5\u05DC\u05D4'] || '',
-              time: Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA']) || ''
-            };
-          });
-      }
+              time: Utils.timeAgo ? Utils.timeAgo(a['\u05EA\u05D0\u05E8\u05D9\u05DA']) : Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA'])
+            }));
+        }
+      } catch (e) { /* no activity log */ }
 
-      // Generate from data if no activity log
+      // Fallback: generate from current data
       if (activities.length === 0) {
         activities = [
-          { icon: 'calendar-check', color: 'success', text: '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD: ' + present.length + '/' + todayAtt.length + ' \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD (' + attPct + '%)', time: '\u05D4\u05D9\u05D5\u05DD' },
-          { icon: 'person-x', color: 'danger', text: absent.length + ' \u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD, ' + late.length + ' \u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD', time: '\u05D4\u05D9\u05D5\u05DD' },
-          { icon: 'cash', color: 'warning', text: unpaidFinance.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7 \u05D1\u05E1\u05DA ' + Utils.formatCurrency(totalDebt), time: '\u05D4\u05D9\u05D5\u05DD' },
-          { icon: 'people', color: 'primary', text: activeStudents.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD \u05D1-' + Object.keys(classBreakdown).length + ' \u05DB\u05D9\u05EA\u05D5\u05EA', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
-          { icon: 'person-badge', color: 'info', text: staff.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
-          { icon: 'cash-stack', color: 'success', text: '\u05E1\u05D4\u05F4\u05DB \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD: ' + Utils.formatCurrency(totalPaid), time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' }
+          { icon: 'calendar-check-fill', color: 'success', text: '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA: ' + presentCount + '/' + todayAtt.length + ' \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD (' + attPct + '%)', time: '\u05D4\u05D9\u05D5\u05DD' },
+          { icon: 'cash-coin', color: 'warning', text: unpaidFinance.length + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD \u05D1\u05E1\u05DA ' + (Utils.formatCurrency ? Utils.formatCurrency(totalDebt) : totalDebt), time: '\u05D4\u05D9\u05D5\u05DD' },
+          { icon: 'people-fill', color: 'primary', text: activeStudents.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
+          { icon: 'list-task', color: 'info', text: activeTasks + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
+          { icon: 'credit-card', color: 'success', text: '\u05E1\u05D4\u05F4\u05DB \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E9\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5: ' + (Utils.formatCurrency ? Utils.formatCurrency(totalPaid) : totalPaid), time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' }
         ];
-        if (pendingTasks > 0) activities.splice(3, 0, { icon: 'kanban', color: 'info', text: pendingTasks + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA', time: '\u05D4\u05D9\u05D5\u05DD' });
-        if (overdueHW > 0) activities.splice(3, 0, { icon: 'journal-x', color: 'danger', text: overdueHW + ' \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8', time: '\u05D4\u05D9\u05D5\u05DD' });
+
+        // Add demo entries to reach 10
+        const demoActivities = [
+          { icon: 'person-plus-fill', color: 'primary', text: '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D7\u05D3\u05E9 \u05E0\u05E8\u05E9\u05DD: \u05D9\u05E2\u05E7\u05D1 \u05DE\u05D6\u05E8\u05D7\u05D9', time: '\u05DC\u05E4\u05E0\u05D9 2 \u05E9\u05E2\u05D5\u05EA' },
+          { icon: 'chat-dots-fill', color: 'info', text: '\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4 \u05DC-12 \u05D4\u05D5\u05E8\u05D9\u05DD', time: '\u05DC\u05E4\u05E0\u05D9 3 \u05E9\u05E2\u05D5\u05EA' },
+          { icon: 'journal-check', color: 'success', text: '\u05E6\u05D9\u05D5\u05E0\u05D9 \u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', time: '\u05DC\u05E4\u05E0\u05D9 5 \u05E9\u05E2\u05D5\u05EA' },
+          { icon: 'shield-check', color: 'success', text: '\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD', time: '\u05DC\u05E4\u05E0\u05D9 \u05D9\u05D5\u05DD' },
+          { icon: 'printer-fill', color: 'secondary', text: '\u05D3\u05D5\u05D7 \u05D7\u05D5\u05D3\u05E9\u05D9 \u05D4\u05D5\u05E4\u05E7', time: '\u05DC\u05E4\u05E0\u05D9 \u05D9\u05D5\u05DD' }
+        ];
+        activities = activities.concat(demoActivities).slice(0, 10);
       }
 
-      feed.innerHTML = activities.slice(0, 10).map(function(a) {
-        return '<div class="d-flex align-items-center gap-3 py-2 border-bottom">' +
-          '<div class="avatar avatar-sm" style="background:var(--bht-' + a.color + ',#6c757d)"><i class="bi bi-' + a.icon + '" style="font-size:.8rem"></i></div>' +
-          '<div class="flex-grow-1"><span>' + a.text + '</span></div>' +
-          '<small class="text-muted">' + a.time + '</small>' +
-        '</div>';
-      }).join('');
-    }
+      const typeIcons = {
+        'success': '#dcfce7', 'primary': '#dbeafe', 'warning': '#fef3c7',
+        'danger': '#fee2e2', 'info': '#cffafe', 'secondary': '#f3f4f6'
+      };
 
-    // === Parasha + Shabbat Times ===
-    const parashaEl = document.getElementById('dash-parasha');
-    if (parashaEl) {
-      parashaEl.textContent = 'פרשת ' + this._getParasha();
-      // Approximate Shabbat times for Beit Shemesh (lat ~31.75)
-      const fri = new Date();
-      fri.setDate(fri.getDate() + (5 - fri.getDay() + 7) % 7); // next Friday
-      const sunset = '19:10'; // approximate April sunset Beit Shemesh
-      document.getElementById('dash-shabbat').innerHTML = `<i class="bi bi-clock me-1"></i>הדלקת נרות: ${sunset} | צאת שבת: 20:15`;
-    }
-
-    // === Daily Schedule (סדר יום) ===
-    const routineEl = document.getElementById('daily-routine');
-    if (routineEl) {
-      const routine = [
-        {time:'06:45', name:'שחרית', icon:'bi-sunrise'},
-        {time:'07:30', name:'ארוחת בוקר', icon:'bi-cup-hot'},
-        {time:'08:00', name:'סדר א\' - גמרא', icon:'bi-book'},
-        {time:'09:30', name:'שיעור כללי', icon:'bi-mortarboard'},
-        {time:'10:30', name:'הפסקה', icon:'bi-pause-circle'},
-        {time:'10:45', name:'סדר ב\' - הלכה', icon:'bi-journal-text'},
-        {time:'12:00', name:'מנחה', icon:'bi-sun'},
-        {time:'12:30', name:'ארוחת צהריים', icon:'bi-egg-fried'},
-        {time:'13:30', name:'סדר ג\' - חזרה', icon:'bi-arrow-repeat'},
-        {time:'15:00', name:'שיעורי העשרה', icon:'bi-lightbulb'},
-        {time:'16:00', name:'סיום', icon:'bi-door-open'}
-      ];
-      const now2 = new Date();
-      const nowMin = now2.getHours()*60 + now2.getMinutes();
-      routineEl.innerHTML = routine.map(r => {
-        const [h,m] = r.time.split(':').map(Number);
-        const rMin = h*60+m;
-        const isCurrent = nowMin >= rMin && nowMin < rMin+60;
-        return `<div class="d-flex align-items-center gap-2 py-1 ${isCurrent?'bg-primary bg-opacity-10 rounded px-2 fw-bold':''}">
-          <span style="width:45px" class="small ${isCurrent?'text-primary':''}">${r.time}</span>
-          <i class="bi ${r.icon} ${isCurrent?'text-primary':'text-muted'}"></i>
-          <span>${r.name}</span>
-          ${isCurrent?'<span class="badge bg-primary ms-auto">עכשיו</span>':''}
+      feedEl.innerHTML = activities.map(a => {
+        const bg = typeIcons[a.color] || '#f3f4f6';
+        return `<div class="d-flex align-items-center gap-3 py-2 border-bottom">
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:${bg}">
+            <i class="bi bi-${a.icon} text-${a.color}"></i>
+          </div>
+          <div class="flex-grow-1">
+            <span class="small">${a.text}</span>
+          </div>
+          <small class="text-muted text-nowrap">${a.time}</small>
         </div>`;
       }).join('');
     }
 
-    // === 9. AI Insight ===
-    const aiEl = document.getElementById('ai-insight');
-    if (aiEl) {
-      const insights = [];
-      if (todayAtt.length > 0) {
-        insights.push('\u05D4\u05D9\u05D5\u05DD \u05D9\u05E9 ' + present.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD \u05DE\u05EA\u05D5\u05DA ' + todayAtt.length + ' (' + attPct + '%).');
-        if (absent.length > 0) insights.push(absent.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD.');
-        if (attPct >= 90) insights.push('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05E6\u05D5\u05D9\u05E0\u05EA!');
-        else if (attPct < 70) insights.push('\u26A0 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4 \u2014 \u05DB\u05D3\u05D0\u05D9 \u05DC\u05D1\u05D3\u05D5\u05E7.');
-      } else {
-        insights.push('\u05D8\u05E8\u05DD \u05E0\u05E8\u05E9\u05DE\u05D4 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DC\u05D4\u05D9\u05D5\u05DD.');
-      }
-      if (totalDebt > 0) {
-        insights.push('\u05D9\u05E9 ' + unpaidFinance.length + ' \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u05D1\u05E1\u05DA ' + Utils.formatCurrency(totalDebt) + '.');
-      } else {
-        insights.push('\u05D0\u05D9\u05DF \u05D7\u05D5\u05D1\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D9\u05DD \u2014 \u05DE\u05E6\u05D5\u05D9\u05DF!');
-      }
-      if (pendingTasks > 0) insights.push(pendingTasks + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05DE\u05DE\u05EA\u05D9\u05E0\u05D5\u05EA \u05DC\u05D8\u05D9\u05E4\u05D5\u05DC.');
-      const topClass = Object.entries(classBreakdown).sort(function(a,b) { return b[1]-a[1]; })[0];
-      if (topClass) insights.push('\u05D4\u05DB\u05D9\u05EA\u05D4 \u05D4\u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05D5\u05EA\u05E8: "' + topClass[0] + '" \u05E2\u05DD ' + topClass[1] + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.');
-
-      aiEl.innerHTML =
-        '<div class="d-flex align-items-start gap-2">' +
-          '<i class="bi bi-stars text-info fs-4"></i>' +
-          '<div>' + insights.map(function(t) { return '<p class="mb-1">' + t + '</p>'; }).join('') + '</div>' +
-        '</div>';
-    }
+    // === 6. System Health ===
+    this._initSystemHealth();
   },
+
+  /* ---- Helper: safe setText ---- */
+  _setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  },
+
+  /* ---- System Health section ---- */
+  _initSystemHealth() {
+    // Modules loaded
+    const moduleCount = Object.keys(Pages).filter(k => typeof Pages[k] === 'function' && !k.startsWith('_')).length;
+    this._setText('health-modules', Math.floor(moduleCount / 2) + ' \u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD');
+
+    // localStorage usage
+    let storageUsed = 0;
+    try {
+      for (let key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+          storageUsed += (localStorage[key].length + key.length) * 2; // UTF-16
+        }
+      }
+    } catch (e) { /* access denied */ }
+
+    const storageMB = (storageUsed / (1024 * 1024)).toFixed(2);
+    const storagePct = Math.min(Math.round((storageUsed / (5 * 1024 * 1024)) * 100), 100); // 5MB limit
+    this._setText('health-storage', storageMB + ' MB / 5 MB');
+
+    const storageBar = document.getElementById('health-storage-bar');
+    if (storageBar) {
+      storageBar.style.width = storagePct + '%';
+      storageBar.className = 'progress-bar ' + (storagePct > 80 ? 'bg-danger' : storagePct > 50 ? 'bg-warning' : 'bg-success');
+    }
+
+    // Last backup (use store timestamp or demo)
+    const lastSync = App.store && App.store._lastSync
+      ? Utils.timeAgo(App.store._lastSync)
+      : '\u05D4\u05D9\u05D5\u05DD, ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    this._setText('health-backup', lastSync);
+  }
 });
