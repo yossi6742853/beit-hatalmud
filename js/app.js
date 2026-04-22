@@ -8,10 +8,15 @@ const App = {
   PIN_KEY: 'bht_pin_hash',
   CACHE_PREFIX: 'bht_cache_',
   THEME_KEY: 'bht_theme',
+  NOTIF_KEY: 'bht_notifications',
+  SESSION_KEY: 'bht_session_start',
+  FAVORITES_KEY: 'bht_favorite_pages',
   USE_API: true, // true = real data from Apps Script, false = demo fallback
 
   currentPage: null,
   charts: {},
+  _sessionTimerInterval: null,
+  _lsObserverActive: false,
 
   /* ==============================
      INITIALIZATION
@@ -33,6 +38,8 @@ const App = {
     this.bindGlobalEvents();
     this.initAutoRefresh();
     this.checkVersion();
+    this.initCommandPalette();
+    this.initAutoSaveIndicator();
 
     if (this.isLoggedIn()) {
       this.showApp();
@@ -68,8 +75,10 @@ const App = {
     document.getElementById('landing-page').classList.add('d-none');
     document.getElementById('login-screen').classList.add('d-none');
     document.getElementById('app-shell').classList.remove('d-none');
+    this.startSessionTimer();
     this.handleRoute();
     this.loadNotifications();
+    this.updateNotifBadgeFromStorage();
     this.updateSyncStatus();
   },
 

@@ -1,11 +1,59 @@
-const CACHE_NAME = 'bht-v5.4-0421';
+const CACHE_VERSION = 'bht-v5.5-0422';
+const CACHE_NAME = CACHE_VERSION;
+const MAX_CACHE_ENTRIES = 100;
+
+/* ─── Assets to pre-cache on install ─── */
 const ASSETS = [
   './',
   './index.html',
+  './form.html',
+  './manifest.json',
+  // CSS
   './css/style.css',
+  // Core JS
   './js/app.js',
   './js/pages.js',
   './js/utils.js',
+  // Page modules (js/pages/*.js)
+  './js/pages/admin.js',
+  './js/pages/attendance.js',
+  './js/pages/bulletin.js',
+  './js/pages/chavruta.js',
+  './js/pages/checklist.js',
+  './js/pages/communication.js',
+  './js/pages/dashboard.js',
+  './js/pages/donations.js',
+  './js/pages/drive.js',
+  './js/pages/education.js',
+  './js/pages/email.js',
+  './js/pages/emergency.js',
+  './js/pages/facilitymap.js',
+  './js/pages/finance.js',
+  './js/pages/forms.js',
+  './js/pages/gradebook.js',
+  './js/pages/hebrewcal.js',
+  './js/pages/inventory.js',
+  './js/pages/library.js',
+  './js/pages/meals.js',
+  './js/pages/medical.js',
+  './js/pages/notifications.js',
+  './js/pages/organization.js',
+  './js/pages/parentportal.js',
+  './js/pages/reports.js',
+  './js/pages/rewards.js',
+  './js/pages/rooms.js',
+  './js/pages/staff.js',
+  './js/pages/students.js',
+  './js/pages/transport.js',
+  './js/pages/tutoring.js',
+  './js/pages/visits.js',
+  './js/pages/voting.js',
+  // Icons & images
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon.svg',
+  './img/logo.svg',
+  // CDN dependencies
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
@@ -13,24 +61,301 @@ const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap'
 ];
 
+/* ─── Offline fallback page (Hebrew) ─── */
+const OFFLINE_HTML = `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>\u05D0\u05D9\u05DF \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Heebo',sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+.container{padding:2rem;max-width:480px}
+.icon{font-size:5rem;margin-bottom:1.5rem;animation:pulse 2s ease-in-out infinite}
+h1{font-size:1.8rem;font-weight:700;margin-bottom:1rem}
+p{font-size:1.1rem;opacity:.85;margin-bottom:2rem;line-height:1.7}
+button{background:#e94560;color:#fff;border:none;padding:.75rem 2rem;border-radius:12px;
+font-size:1rem;font-family:inherit;cursor:pointer;transition:transform .2s,box-shadow .2s}
+button:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(233,69,96,.4)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="icon">\u26A0\uFE0F</div>
+<h1>\u05D0\u05D9\u05DF \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8</h1>
+<p>\u05E0\u05E8\u05D0\u05D4 \u05E9\u05D0\u05D9\u05DF \u05DC\u05DA \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8 \u05DB\u05E8\u05D2\u05E2.<br>
+\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05E2\u05D1\u05D5\u05D3 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05DB\u05E9\u05D4\u05D7\u05D9\u05D1\u05D5\u05E8 \u05D9\u05D7\u05D6\u05D5\u05E8.</p>
+<button onclick="location.reload()">\u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1</button>
+</div>
+</body>
+</html>`;
+
+/* ─── Install: pre-cache all assets + offline page ─── */
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache =>
+      cache.addAll(ASSETS).then(() =>
+        cache.put(
+          new Request('/_offline'),
+          new Response(OFFLINE_HTML, {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          })
+        )
+      )
+    )
+  );
 });
 
+/* ─── Activate: purge old caches, claim clients ─── */
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
+  );
 });
+
+/* ─── Cache size management: evict oldest entries when over limit ─── */
+async function trimCache(cacheName, maxEntries) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxEntries) {
+    // Delete oldest entries (first in the list)
+    const toDelete = keys.slice(0, keys.length - maxEntries);
+    await Promise.all(toDelete.map(req => cache.delete(req)));
+  }
+}
+
+/* ─── Fetch strategies ─── */
+function isCssOrFontOrIcon(url) {
+  return /\.(css|woff2?|ttf|eot|svg|png|ico)(\?.*)?$/i.test(url) ||
+    url.includes('fonts.googleapis.com') ||
+    url.includes('fonts.gstatic.com') ||
+    url.includes('bootstrap-icons');
+}
+
+function isJsFile(url) {
+  return /\.js(\?.*)?$/i.test(url);
+}
+
+function isHtmlFile(request) {
+  return request.mode === 'navigate' ||
+    (request.headers.get('accept') || '').includes('text/html');
+}
+
+function isApiCall(url) {
+  return url.includes('script.google.com') ||
+    url.includes('googleapis.com/v1');
+}
+
+/* Cache-first: serve from cache, fall back to network */
+function cacheFirst(request) {
+  return caches.match(request).then(cached => {
+    if (cached) return cached;
+    return fetch(request).then(resp => {
+      if (resp.ok) {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => {
+          c.put(request, clone);
+          trimCache(CACHE_NAME, MAX_CACHE_ENTRIES);
+        });
+      }
+      return resp;
+    });
+  });
+}
+
+/* Network-first: try network, fall back to cache */
+function networkFirst(request) {
+  return fetch(request)
+    .then(resp => {
+      if (resp.ok) {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => {
+          c.put(request, clone);
+          trimCache(CACHE_NAME, MAX_CACHE_ENTRIES);
+        });
+      }
+      return resp;
+    })
+    .catch(() => caches.match(request));
+}
+
+/* Stale-while-revalidate: serve cache immediately, update in background */
+function staleWhileRevalidate(request) {
+  return caches.match(request).then(cached => {
+    const fetchPromise = fetch(request).then(resp => {
+      if (resp.ok) {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => {
+          c.put(request, clone);
+          trimCache(CACHE_NAME, MAX_CACHE_ENTRIES);
+        });
+      }
+      return resp;
+    }).catch(() => cached);
+
+    return cached || fetchPromise;
+  });
+}
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  // Network first for API calls, cache first for assets
-  if (e.request.url.includes('script.google.com')) {
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-  } else {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
-      const clone = resp.clone();
-      caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-      return resp;
-    })));
+
+  const url = e.request.url;
+
+  // API calls: network only, no caching
+  if (isApiCall(url)) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // CSS, fonts, icons, images: cache-first (rarely change)
+  if (isCssOrFontOrIcon(url)) {
+    e.respondWith(cacheFirst(e.request));
+    return;
+  }
+
+  // JS files: network-first (pick up updates quickly)
+  if (isJsFile(url)) {
+    e.respondWith(
+      networkFirst(e.request).then(resp => {
+        if (resp) return resp;
+        // JS not available at all: return offline page if navigating
+        return caches.match('/_offline');
+      })
+    );
+    return;
+  }
+
+  // HTML / navigation: stale-while-revalidate
+  if (isHtmlFile(e.request)) {
+    e.respondWith(
+      staleWhileRevalidate(e.request).then(resp => {
+        if (resp) return resp;
+        return caches.match('/_offline');
+      })
+    );
+    return;
+  }
+
+  // Everything else: cache-first with network fallback
+  e.respondWith(
+    cacheFirst(e.request).then(resp => {
+      if (resp) return resp;
+      return caches.match('/_offline');
+    })
+  );
+});
+
+/* ─── Background Sync: retry queued offline actions ─── */
+self.addEventListener('sync', e => {
+  if (e.tag === 'bht-offline-sync') {
+    e.waitUntil(processOfflineQueue());
   }
 });
+
+async function processOfflineQueue() {
+  // Read queued requests from IndexedDB
+  const db = await openSyncDB();
+  const tx = db.transaction('requests', 'readonly');
+  const store = tx.objectStore('requests');
+  const allKeys = await idbGetAllKeys(store);
+
+  const readTx = db.transaction('requests', 'readonly');
+  const readStore = readTx.objectStore('requests');
+
+  for (const key of allKeys) {
+    try {
+      const entry = await idbGet(readStore, key);
+      if (!entry) continue;
+
+      const resp = await fetch(entry.url, {
+        method: entry.method,
+        headers: entry.headers,
+        body: entry.body
+      });
+
+      if (resp.ok) {
+        const delTx = db.transaction('requests', 'readwrite');
+        delTx.objectStore('requests').delete(key);
+        await idbTxDone(delTx);
+      }
+    } catch (_) {
+      // Will retry on next sync event
+      break;
+    }
+  }
+
+  db.close();
+}
+
+/* ─── IndexedDB helpers for background sync ─── */
+function openSyncDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('bht-sync-queue', 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore('requests', { autoIncrement: true });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbGet(store, key) {
+  return new Promise((resolve, reject) => {
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbGetAllKeys(store) {
+  return new Promise((resolve, reject) => {
+    const req = store.getAllKeys();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbTxDone(tx) {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+/* ─── Message handler: queue offline requests from client ─── */
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'QUEUE_OFFLINE_REQUEST') {
+    queueOfflineRequest(e.data.payload);
+  }
+  if (e.data && e.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+async function queueOfflineRequest(payload) {
+  try {
+    const db = await openSyncDB();
+    const tx = db.transaction('requests', 'readwrite');
+    tx.objectStore('requests').add(payload);
+    await idbTxDone(tx);
+    db.close();
+
+    // Register for background sync
+    if (self.registration.sync) {
+      await self.registration.sync.register('bht-offline-sync');
+    }
+  } catch (_) {
+    // Silently fail if sync registration not supported
+  }
+}
