@@ -1,47 +1,6 @@
 /* ===== BHT v5.3 — Education ===== */
 Object.assign(Pages, {
   /* ======================================================================
-     HOMEWORK
-     ====================================================================== */
-  homework() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-book me-2"></i>\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h1></div><div class="d-flex gap-2"><select class="form-select form-select-sm" id="hw-class-filter" style="width:150px" onchange="Pages.renderHw()"><option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option></select><button class="btn btn-primary btn-sm" onclick="Pages.showAddHw()"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</button></div></div><div class="row g-3" id="hw-cards">${Utils.skeleton(3)}</div><div class="modal fade" id="hw-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2</label><input class="form-control" id="hf-subject"></div><div class="col-6"><label class="form-label">\u05DB\u05D9\u05EA\u05D4</label><input class="form-control" id="hf-class"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DE\u05EA\u05DF</label><input type="date" class="form-control" id="hf-given"></div><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D2\u05E9\u05D4</label><input type="date" class="form-control" id="hf-due"></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><textarea class="form-control" id="hf-desc" rows="3"></textarea></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveHw()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
-  },
-  _hwData: [],
-  async homeworkInit() {
-    this._hwData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
-    const classes = [...new Set(this._hwData.map(r => r['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
-    const sel = document.getElementById('hw-class-filter');
-    if (sel) { const cur = sel.value; sel.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join(''); sel.value = cur; }
-    this.renderHw();
-  },
-  renderHw() {
-    const today = Utils.todayISO();
-    const classFilter = document.getElementById('hw-class-filter')?.value || '';
-    const data = classFilter ? this._hwData.filter(r => (r['\u05DB\u05D9\u05EA\u05D4']||'') === classFilter) : this._hwData;
-    if (!data.length) { document.getElementById('hw-cards').innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-book"></i><h5>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h5></div></div>'; return; }
-    document.getElementById('hw-cards').innerHTML = data.slice().reverse().map(r => {
-      const due = r['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4']||''; const overdue = due && due < today && r['\u05E1\u05D8\u05D8\u05D5\u05E1']!=='\u05D4\u05D5\u05E9\u05DC\u05DD';
-      const daysLeft = due ? Math.ceil((new Date(due)-new Date())/86400000) : null;
-      const hwId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); const isDone=(r['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D4\u05D5\u05E9\u05DC\u05DD';
-      return `<div class="col-md-6"><div class="card p-3 ${overdue?'border-danger':''}" style="border-width:2px"><div class="d-flex justify-content-between mb-2"><div><span class="badge bg-primary me-1">${r['\u05E1\u05D5\u05D2']||r['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</span><span class="badge bg-secondary">${r['\u05DB\u05D9\u05EA\u05D4']||''}</span>${isDone?'<span class="badge bg-success ms-1">\u05D4\u05D5\u05E9\u05DC\u05DD</span>':''}</div>${daysLeft!==null?`<span class="badge ${overdue?'bg-danger':daysLeft<=2?'bg-warning':'bg-success'}">${overdue?'\u05E2\u05D1\u05E8 \u05DE\u05D5\u05E2\u05D3!':daysLeft===0?'\u05D4\u05D9\u05D5\u05DD!':daysLeft+' \u05D9\u05DE\u05D9\u05DD'}</span>`:''}</div><h6 class="fw-bold">${r['\u05DE\u05E7\u05E6\u05D5\u05E2']||''}</h6><p class="small mb-1">${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</p><div class="small text-muted"><i class="bi bi-calendar me-1"></i>\u05E0\u05D9\u05EA\u05DF: ${r['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DE\u05EA\u05DF']||''} ${due?' | \u05D4\u05D2\u05E9\u05D4: '+due:''}</div><div class="mt-2 d-flex gap-2">${!isDone?`<button class="btn btn-sm btn-outline-success" onclick="Pages.markHwDone('${hwId}')"><i class="bi bi-check-lg me-1"></i>\u05D4\u05D5\u05E9\u05DC\u05DD</button>`:''}<button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteHw('${hwId}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05E7</button></div></div></div>`;
-    }).join('');
-  },
-  showAddHw() { document.getElementById('hf-given').value = Utils.todayISO(); new bootstrap.Modal(document.getElementById('hw-modal')).show(); },
-  async saveHw() {
-    const row = { '\u05DE\u05E7\u05E6\u05D5\u05E2': document.getElementById('hf-subject').value.trim(), '\u05DB\u05D9\u05EA\u05D4': document.getElementById('hf-class').value.trim(), '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DE\u05EA\u05DF': document.getElementById('hf-given').value, '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4': document.getElementById('hf-due').value, '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('hf-desc').value.trim(), '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' };
-    if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2', 'warning'); return; }
-    try { await App.apiCall('add', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA', { row }); bootstrap.Modal.getInstance(document.getElementById('hw-modal')).hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
-  },
-  async deleteHw(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
-  },
-  async markHwDone(id) {
-    try { await App.apiCall('update','\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA',{id,row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'}}); Utils.toast('\u05E1\u05D5\u05DE\u05DF \u05DB\u05D4\u05D5\u05E9\u05DC\u05DD'); this.homeworkInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
-  },
-
-
-  /* ======================================================================
      ACADEMICS — Full Exam & Grade Management
      ====================================================================== */
 
