@@ -904,39 +904,661 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     BUDGET
+     BUDGET — Comprehensive Management Module v2.0
      ====================================================================== */
+
+  /* ---------- Budget category definitions with allocations ---------- */
+  _budgCategories: {
+    '\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA': { icon: 'bi-people-fill', color: '#2563eb', allocated: 220000 },
+    '\u05EA\u05D7\u05D6\u05D5\u05E7\u05D4': { icon: 'bi-tools', color: '#dc2626', allocated: 80000 },
+    '\u05E6\u05D9\u05D5\u05D3': { icon: 'bi-box-seam', color: '#16a34a', allocated: 45000 },
+    '\u05D7\u05E9\u05DE\u05DC/\u05DE\u05D9\u05DD': { icon: 'bi-lightning', color: '#f59e0b', allocated: 60000 },
+    '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA': { icon: 'bi-mortarboard', color: '#8b5cf6', allocated: 55000 },
+    '\u05D0\u05D7\u05E8': { icon: 'bi-three-dots', color: '#06b6d4', allocated: 40000 }
+  },
+
+  _budgAnnualBudget: 500000,
+
+  /* ---------- Demo data: 50 expense entries ---------- */
+  _budgDemoData() {
+    const vendors = [
+      '\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA \u05D0.\u05D1.','\u05D7\u05E9\u05DE\u05DC \u05D9\u05E9\u05E8\u05D0\u05DC','\u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA','\u05DE\u05E9\u05E8\u05D3\u05D9 \u05D0\u05D5\u05E4\u05D9\u05E1','\u05D3\u05E4\u05D5\u05E1 \u05D4\u05D6\u05D4\u05D1',
+      '\u05E9\u05D5\u05E4\u05E8\u05E1\u05DC','\u05D0\u05D5\u05E4\u05D9\u05E1 \u05D3\u05D9\u05E4\u05D5','\u05D7\u05D1\u05E8\u05EA \u05D4\u05D7\u05E9\u05DE\u05DC','\u05DE\u05D6\u05D2\u05DF \u05D4\u05DE\u05D5\u05E1\u05D3','\u05E7\u05D8\u05E8\u05D9\u05E0\u05D2 \u05E4\u05DC\u05D5\u05E1',
+      '\u05D8\u05D5\u05D1 \u05D8\u05E2\u05DD','\u05E1\u05E4\u05E8\u05D9 \u05DC\u05DE\u05D3\u05DF','\u05D3\u05D5\u05D0\u05E8 \u05D4\u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05DE\u05E9\u05EA\u05DC\u05D5\u05EA \u05D4\u05D9\u05E8\u05D3\u05DF','\u05D0\u05DC\u05E7\u05D8\u05E8\u05D4 \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD'
+    ];
+    const descs = {
+      '\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA': ['\u05DE\u05E9\u05DB\u05D5\u05E8\u05EA \u05E8"\u05DE','\u05DE\u05E9\u05DB\u05D5\u05E8\u05EA \u05DE\u05E9\u05D2\u05D9\u05D7','\u05DE\u05E9\u05DB\u05D5\u05E8\u05EA \u05DE\u05D6\u05DB\u05D9\u05E8\u05D4','\u05E9\u05DB\u05E8 \u05DE\u05E0\u05D4\u05DC','\u05E9\u05DB\u05E8 \u05D0\u05D7\u05D6\u05E7\u05D4','\u05D1\u05D5\u05E0\u05D5\u05E1 \u05D7\u05D2\u05D9\u05DD','\u05E9\u05DB\u05E8 \u05E9\u05DE\u05E9','\u05DE\u05E9\u05DB\u05D5\u05E8\u05EA \u05DE\u05D3\u05E8\u05D9\u05DA'],
+      '\u05EA\u05D7\u05D6\u05D5\u05E7\u05D4': ['\u05EA\u05D9\u05E7\u05D5\u05DF \u05D2\u05D2','\u05E6\u05D1\u05D9\u05E2\u05EA \u05E7\u05D9\u05E8\u05D5\u05EA','\u05EA\u05D9\u05E7\u05D5\u05DF \u05DE\u05D6\u05D2\u05E0\u05D9\u05DD','\u05D7\u05D5\u05DE\u05E8\u05D9 \u05D1\u05E0\u05D9\u05D9\u05DF','\u05E0\u05D9\u05E7\u05D9\u05D5\u05DF \u05E9\u05E0\u05EA\u05D9','\u05EA\u05D9\u05E7\u05D5\u05DF \u05D0\u05D9\u05E0\u05E1\u05D8\u05DC\u05E6\u05D9\u05D4'],
+      '\u05E6\u05D9\u05D5\u05D3': ['\u05E0\u05D9\u05D9\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD','\u05D8\u05D5\u05E0\u05E8\u05D9\u05DD','\u05D7\u05D5\u05DE\u05E8\u05D9 \u05E0\u05D9\u05E7\u05D9\u05D5\u05DF','\u05E7\u05DC\u05E1\u05E8\u05D9\u05DD','\u05E1\u05E4\u05E8\u05D9 \u05DC\u05D9\u05DE\u05D5\u05D3','\u05DE\u05D7\u05D1\u05E8\u05D5\u05EA \u05D5\u05DE\u05D7\u05E7\u05D9\u05DD'],
+      '\u05D7\u05E9\u05DE\u05DC/\u05DE\u05D9\u05DD': ['\u05D7\u05E9\u05DE\u05DC \u05D7\u05D5\u05D3\u05E9\u05D9','\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9','\u05D0\u05E8\u05E0\u05D5\u05E0\u05D4','\u05D2\u05D6 \u05D1\u05D9\u05E9\u05D5\u05DC','\u05D7\u05E9\u05DE\u05DC \u05DE\u05D6\u05D2\u05E0\u05D9\u05DD','\u05D7\u05D9\u05DE\u05D5\u05DD'],
+      '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA': ['\u05E1\u05D3\u05E0\u05D4 \u05D7\u05E0\u05D5\u05DB\u05D4','\u05E9\u05D1\u05EA\u05D5\u05DF','\u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9','\u05EA\u05D7\u05E8\u05D5\u05EA \u05DC\u05DE\u05D9\u05D3\u05D4','\u05E1\u05E4\u05E8\u05D9\u05D4 \u05D7\u05D3\u05E9\u05D4','\u05DE\u05D7\u05E9\u05D1\u05D9\u05DD \u05DC\u05DE\u05D9\u05D3\u05D4'],
+      '\u05D0\u05D7\u05E8': ['\u05D1\u05D9\u05D8\u05D5\u05D7','\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05DE\u05E9\u05E4\u05D8\u05D9\u05D5\u05EA','\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD','\u05E9\u05D5\u05E0\u05D5\u05EA','\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D7\u05D3-\u05E4\u05E2\u05DE\u05D9\u05D5\u05EA','\u05DE\u05EA\u05E0\u05D5\u05EA']
+    };
+    const cats = Object.keys(this._budgCategories);
+    const now = new Date();
+    const entries = [];
+    // Monthly salary entries (12 months x 1 = 12)
+    for (let m = 0; m < 12; m++) {
+      const mo = new Date(now.getFullYear(), m, 1);
+      const moStr = `${mo.getFullYear()}-${String(mo.getMonth()+1).padStart(2,'0')}`;
+      entries.push({
+        '\u05DE\u05D6\u05D4\u05D4': 'bdg-' + (entries.length + 1),
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': `${moStr}-01`,
+        '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': '\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA',
+        '\u05EA\u05D9\u05D0\u05D5\u05E8': descs['\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA'][m % descs['\u05DE\u05E9\u05DB\u05D5\u05E8\u05D5\u05EA'].length],
+        '\u05E1\u05DB\u05D5\u05DD': 15000 + Math.round(Math.random() * 5000),
+        '\u05E1\u05E4\u05E7': vendors[0],
+        '\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4': 'R-' + (1000 + entries.length)
+      });
+    }
+    // Other expenses spread across months (38 more to reach 50)
+    for (let i = 0; i < 38; i++) {
+      const catIdx = (i % 5) + 1; // skip salaries (index 0), cycle through rest
+      const cat = cats[catIdx];
+      const m = i % 12;
+      const mo = new Date(now.getFullYear(), m, 1);
+      const moStr = `${mo.getFullYear()}-${String(mo.getMonth()+1).padStart(2,'0')}`;
+      const day = 2 + (i % 26);
+      const catDescs = descs[cat] || descs['\u05D0\u05D7\u05E8'];
+      const amounts = {
+        '\u05EA\u05D7\u05D6\u05D5\u05E7\u05D4': 2000 + Math.round(Math.random() * 8000),
+        '\u05E6\u05D9\u05D5\u05D3': 500 + Math.round(Math.random() * 3000),
+        '\u05D7\u05E9\u05DE\u05DC/\u05DE\u05D9\u05DD': 1500 + Math.round(Math.random() * 4000),
+        '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA': 1000 + Math.round(Math.random() * 5000),
+        '\u05D0\u05D7\u05E8': 300 + Math.round(Math.random() * 3000)
+      };
+      entries.push({
+        '\u05DE\u05D6\u05D4\u05D4': 'bdg-' + (entries.length + 1),
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': `${moStr}-${String(day).padStart(2,'0')}`,
+        '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': cat,
+        '\u05EA\u05D9\u05D0\u05D5\u05E8': catDescs[i % catDescs.length],
+        '\u05E1\u05DB\u05D5\u05DD': amounts[cat] || 1000,
+        '\u05E1\u05E4\u05E7': vendors[(i + 1) % vendors.length],
+        '\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4': 'R-' + (1000 + entries.length)
+      });
+    }
+    return entries.sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''));
+  },
+
+  /* ---------- Last year demo (for comparison) ---------- */
+  _budgLastYearData() {
+    const cats = Object.keys(this._budgCategories);
+    const months = {};
+    for (let m = 0; m < 12; m++) {
+      const key = String(m + 1).padStart(2, '0');
+      months[key] = {};
+      cats.forEach(c => {
+        const alloc = this._budgCategories[c].allocated;
+        months[key][c] = Math.round(alloc / 12 * (0.7 + Math.random() * 0.5));
+      });
+    }
+    return months;
+  },
+
+  /* ---------- Main budget page HTML ---------- */
   budget() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-wallet2 me-2"></i>\u05EA\u05E7\u05E6\u05D9\u05D1</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddBudget()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E6\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4</button></div><div class="row g-2 mb-3"><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="budg-total">\u20AA0</div><small>\u05E1\u05D4"\u05DB \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</small></div></div><div class="col-md-4"><div class="card p-3 text-center"><div class="fs-4 fw-bold" id="budg-count">0</div><small>\u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</small></div></div><div class="col-md-4"><div class="card p-3"><canvas id="budg-chart" height="100"></canvas></div></div></div><div id="budg-list">${Utils.skeleton(3)}</div><div class="modal fade" id="budg-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D4\u05D5\u05E6\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="bgf-date"></div><div class="col-6"><label class="form-label">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label><select class="form-select" id="bgf-cat"><option>\u05E6\u05D9\u05D5\u05D3</option><option>\u05D0\u05D5\u05DB\u05DC</option><option>\u05EA\u05D7\u05D1\u05D5\u05E8\u05D4</option><option>\u05EA\u05D7\u05D6\u05D5\u05E7\u05D4</option><option>\u05D7\u05D9\u05E0\u05D5\u05DA</option><option>\u05D0\u05D7\u05E8</option></select></div><div class="col-12"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="bgf-desc"></div><div class="col-6"><label class="form-label">\u05E1\u05DB\u05D5\u05DD</label><input type="number" class="form-control" id="bgf-amount"></div><div class="col-6"><label class="form-label">\u05E1\u05E4\u05E7</label><input class="form-control" id="bgf-vendor"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveBudget()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+    const catKeys = Object.keys(this._budgCategories);
+    const catOptions = catKeys.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+      <div>
+        <h1><i class="bi bi-wallet2 me-2"></i>\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9</h1>
+        <p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05EA\u05E7\u05E6\u05D9\u05D1 \u05DE\u05E7\u05D9\u05E3 \u2014 \u05E9\u05E0\u05EA ${new Date().getFullYear()}</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" onclick="Pages.budgExport()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0</button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showAddBudget()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E6\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+      </div>
+    </div>
+
+    <!-- Budget Overview Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0 shadow-sm">
+          <i class="bi bi-bank fs-3 text-primary mb-1"></i>
+          <div class="fs-3 fw-bold text-primary" id="budg-annual">\u20AA0</div>
+          <small class="text-muted">\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0 shadow-sm">
+          <i class="bi bi-cash-stack fs-3 text-danger mb-1"></i>
+          <div class="fs-3 fw-bold text-danger" id="budg-spent">\u20AA0</div>
+          <small class="text-muted">\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D1\u05E4\u05D5\u05E2\u05DC</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0 shadow-sm">
+          <i class="bi bi-piggy-bank fs-3 text-success mb-1"></i>
+          <div class="fs-3 fw-bold text-success" id="budg-remaining">\u20AA0</div>
+          <small class="text-muted">\u05D9\u05EA\u05E8\u05D4</small>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card p-3 text-center border-0 shadow-sm">
+          <i class="bi bi-speedometer2 fs-3 text-warning mb-1"></i>
+          <div class="fs-3 fw-bold" id="budg-pct">0%</div>
+          <div class="progress mt-2" style="height:8px">
+            <div class="progress-bar" id="budg-pct-bar" style="width:0%"></div>
+          </div>
+          <small class="text-muted">\u05E0\u05D9\u05E6\u05D5\u05DC\u05D5\u05EA</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget Alerts -->
+    <div id="budg-alerts" class="mb-3"></div>
+
+    <!-- Category Breakdown -->
+    <h5 class="mb-3"><i class="bi bi-grid-3x3-gap me-2"></i>\u05E4\u05D9\u05E8\u05D5\u05D8 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</h5>
+    <div class="row g-3 mb-4" id="budg-cats"></div>
+
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm p-3">
+          <h6 class="mb-3"><i class="bi bi-bar-chart me-2"></i>\u05EA\u05E7\u05E6\u05D9\u05D1 \u05DE\u05D5\u05DC \u05D1\u05D9\u05E6\u05D5\u05E2 \u2014 \u05DE\u05D2\u05DE\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA</h6>
+          <canvas id="budg-trend-chart" height="260"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm p-3">
+          <h6 class="mb-3"><i class="bi bi-pie-chart me-2"></i>\u05D4\u05EA\u05E4\u05DC\u05D2\u05D5\u05EA \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</h6>
+          <canvas id="budg-pie-chart" height="260"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annual Comparison -->
+    <div class="card border-0 shadow-sm p-3 mb-4">
+      <h6 class="mb-3"><i class="bi bi-arrow-left-right me-2"></i>\u05D4\u05E9\u05D5\u05D5\u05D0\u05D4 \u05E9\u05E0\u05EA\u05D9\u05EA: ${new Date().getFullYear()} \u05DE\u05D5\u05DC ${new Date().getFullYear() - 1}</h6>
+      <canvas id="budg-compare-chart" height="220"></canvas>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="card border-0 shadow-sm p-3 mb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small">\u05D7\u05D9\u05E4\u05D5\u05E9</label>
+          <input class="form-control form-control-sm" id="budg-search" placeholder="\u05D7\u05E4\u05E9 \u05EA\u05D9\u05D0\u05D5\u05E8, \u05E1\u05E4\u05E7..." oninput="Pages.filterBudgetTable()">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label>
+          <select class="form-select form-select-sm" id="budg-filter-cat" onchange="Pages.filterBudgetTable()">
+            <option value="">\u05D4\u05DB\u05DC</option>
+            ${catOptions}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">\u05DE\u05D7\u05D5\u05D3\u05E9</label>
+          <select class="form-select form-select-sm" id="budg-filter-month" onchange="Pages.filterBudgetTable()">
+            <option value="">\u05D4\u05DB\u05DC</option>
+            <option value="01">\u05D9\u05E0\u05D5\u05D0\u05E8</option><option value="02">\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8</option><option value="03">\u05DE\u05E8\u05E5</option>
+            <option value="04">\u05D0\u05E4\u05E8\u05D9\u05DC</option><option value="05">\u05DE\u05D0\u05D9</option><option value="06">\u05D9\u05D5\u05E0\u05D9</option>
+            <option value="07">\u05D9\u05D5\u05DC\u05D9</option><option value="08">\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8</option><option value="09">\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8</option>
+            <option value="10">\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8</option><option value="11">\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8</option><option value="12">\u05D3\u05E6\u05DE\u05D1\u05E8</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">\u05DE\u05D9\u05D9\u05DF \u05DC\u05E4\u05D9</label>
+          <select class="form-select form-select-sm" id="budg-sort" onchange="Pages.filterBudgetTable()">
+            <option value="date-desc">\u05EA\u05D0\u05E8\u05D9\u05DA (\u05D7\u05D3\u05E9\u2190\u05D9\u05E9\u05DF)</option>
+            <option value="date-asc">\u05EA\u05D0\u05E8\u05D9\u05DA (\u05D9\u05E9\u05DF\u2190\u05D7\u05D3\u05E9)</option>
+            <option value="amount-desc">\u05E1\u05DB\u05D5\u05DD (\u05D2\u05D1\u05D5\u05D4\u2190\u05E0\u05DE\u05D5\u05DA)</option>
+            <option value="amount-asc">\u05E1\u05DB\u05D5\u05DD (\u05E0\u05DE\u05D5\u05DA\u2190\u05D2\u05D1\u05D5\u05D4)</option>
+            <option value="cat">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <span class="badge bg-secondary" id="budg-count-badge">0 \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expense Log Table -->
+    <div id="budg-list">${Utils.skeletonTable(8, 7)}</div>
+
+    <!-- Add/Edit Expense Modal -->
+    <div class="modal fade" id="budg-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-receipt me-2"></i>\u05D4\u05D5\u05E6\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label>
+                <input type="date" class="form-control" id="bgf-date">
+              </div>
+              <div class="col-6">
+                <label class="form-label">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label>
+                <select class="form-select" id="bgf-cat">
+                  ${catOptions}
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8</label>
+                <input class="form-control" id="bgf-desc" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05D4\u05D5\u05E6\u05D0\u05D4">
+              </div>
+              <div class="col-6">
+                <label class="form-label">\u05E1\u05DB\u05D5\u05DD (\u20AA)</label>
+                <input type="number" class="form-control" id="bgf-amount" min="0" step="0.01">
+              </div>
+              <div class="col-6">
+                <label class="form-label">\u05DE\u05E1\u05E4\u05E8 \u05E7\u05D1\u05DC\u05D4</label>
+                <input class="form-control" id="bgf-receipt" placeholder="\u05DE\u05E1\u05E4\u05E8 \u05E7\u05D1\u05DC\u05D4/\u05D7\u05E9\u05D1\u05D5\u05E0\u05D9\u05EA">
+              </div>
+              <div class="col-12">
+                <label class="form-label">\u05E1\u05E4\u05E7</label>
+                <input class="form-control" id="bgf-vendor" placeholder="\u05E9\u05DD \u05D4\u05E1\u05E4\u05E7">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+            <button class="btn btn-primary" onclick="Pages.saveBudget()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
   },
+
   _budgData: [],
-  async budgetInit() { this._budgData = await App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1'); this.renderBudget(); },
+  _budgEditId: null,
+  _budgFilteredData: [],
+
+  async budgetInit() {
+    let data = await App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1');
+    if (!data || !data.length) data = this._budgDemoData();
+    this._budgData = data;
+    this._budgFilteredData = [...data];
+    this.renderBudget();
+  },
+
   renderBudget() {
-    const total = this._budgData.reduce((s,r)=>s+(parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-    document.getElementById('budg-total').textContent = Utils.formatCurrency(total);
-    document.getElementById('budg-count').textContent = this._budgData.length;
-    // Category chart
-    const cats = {}; this._budgData.forEach(r => { const c=r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||'\u05D0\u05D7\u05E8'; cats[c]=(cats[c]||0)+(parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0); });
-    const ctx = document.getElementById('budg-chart');
-    if (ctx && Object.keys(cats).length) { App.charts.budg = new Chart(ctx, { type:'doughnut', data:{ labels:Object.keys(cats), datasets:[{data:Object.values(cats), backgroundColor:['#2563eb','#16a34a','#f59e0b','#dc2626','#8b5cf6','#06b6d4'], borderWidth:0}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}} }); }
-    if (!this._budgData.length) { document.getElementById('budg-list').innerHTML = '<div class="empty-state"><i class="bi bi-wallet2"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</h5></div>'; return; }
-    let cum=0; document.getElementById('budg-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05DE\u05E6\u05D8\u05D1\u05E8</th><th>\u05E1\u05E4\u05E7</th><th></th></tr></thead><tbody>${this._budgData.map(r => { const a=parseFloat(r['\u05E1\u05DB\u05D5\u05DD'])||0; const bgId=r.id||r['\u05DE\u05D6\u05D4\u05D4']||Utils.rowId(r); cum+=a; return `<tr><td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td><td><span class="badge bg-secondary">${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||''}</span></td><td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="fw-bold text-danger">${Utils.formatCurrency(a)}</td><td class="fw-bold">${Utils.formatCurrency(cum)}</td><td>${r['\u05E1\u05E4\u05E7']||''}</td><td><button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editBudgetItem('${bgId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteBudgetItem('${bgId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`; }).join('')}</tbody></table></div>`;
+    const data = this._budgData;
+    const totalBudget = this._budgAnnualBudget;
+    const totalSpent = data.reduce((s, r) => s + (parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+    const remaining = totalBudget - totalSpent;
+    const pct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+
+    // Overview cards
+    document.getElementById('budg-annual').textContent = Utils.formatCurrency(totalBudget);
+    document.getElementById('budg-spent').textContent = Utils.formatCurrency(totalSpent);
+    document.getElementById('budg-remaining').textContent = Utils.formatCurrency(remaining);
+    const pctEl = document.getElementById('budg-pct');
+    pctEl.textContent = pct + '%';
+    pctEl.className = 'fs-3 fw-bold ' + (pct >= 90 ? 'text-danger' : pct >= 70 ? 'text-warning' : 'text-success');
+    const bar = document.getElementById('budg-pct-bar');
+    bar.style.width = Math.min(pct, 100) + '%';
+    bar.className = 'progress-bar ' + (pct >= 90 ? 'bg-danger' : pct >= 70 ? 'bg-warning' : 'bg-success');
+
+    // Category breakdown
+    this._renderBudgCategories(data);
+
+    // Alerts
+    this._renderBudgAlerts(data);
+
+    // Charts
+    this._renderBudgTrendChart(data);
+    this._renderBudgPieChart(data);
+    this._renderBudgCompareChart(data);
+
+    // Table
+    this.filterBudgetTable();
   },
-  showAddBudget() { this._budgEditId=null; document.getElementById('bgf-date').value=Utils.todayISO(); document.getElementById('bgf-cat').value=''; document.getElementById('bgf-desc').value=''; document.getElementById('bgf-amount').value=''; document.getElementById('bgf-vendor').value=''; new bootstrap.Modal(document.getElementById('budg-modal')).show(); },
-  async saveBudget() { const row={'\u05EA\u05D0\u05E8\u05D9\u05DA':document.getElementById('bgf-date').value,'\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4':document.getElementById('bgf-cat').value,'\u05EA\u05D9\u05D0\u05D5\u05E8':document.getElementById('bgf-desc').value.trim(),'\u05E1\u05DB\u05D5\u05DD':document.getElementById('bgf-amount').value,'\u05E1\u05E4\u05E7':document.getElementById('bgf-vendor').value.trim()}; try { if (this._budgEditId) { await App.apiCall('update','\u05EA\u05E7\u05E6\u05D9\u05D1',{id:this._budgEditId,row}); this._budgEditId=null; } else { await App.apiCall('add','\u05EA\u05E7\u05E6\u05D9\u05D1',{row}); } bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide(); Utils.toast('\u05E0\u05E9\u05DE\u05E8'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  /* ---------- Category cards ---------- */
+  _renderBudgCategories(data) {
+    const container = document.getElementById('budg-cats');
+    const cats = this._budgCategories;
+    let html = '';
+    Object.entries(cats).forEach(([name, cfg]) => {
+      const spent = data.filter(r => r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] === name)
+        .reduce((s, r) => s + (parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+      const remaining = cfg.allocated - spent;
+      const pct = cfg.allocated > 0 ? Math.round((spent / cfg.allocated) * 100) : 0;
+      const isOver = pct >= 80;
+      const barColor = pct >= 90 ? 'bg-danger' : pct >= 80 ? 'bg-warning' : 'bg-success';
+      html += `
+        <div class="col-md-4 col-sm-6">
+          <div class="card border-0 shadow-sm p-3 h-100 ${isOver ? 'border-start border-4 border-danger' : ''}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:36px;height:36px;background:${cfg.color}20">
+                  <i class="bi ${cfg.icon}" style="color:${cfg.color};font-size:1.1rem"></i>
+                </div>
+                <span class="fw-bold">${name}</span>
+              </div>
+              ${isOver ? '<span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>\u05D7\u05E8\u05D9\u05D2\u05D4</span>' : ''}
+            </div>
+            <div class="row g-1 mb-2 small">
+              <div class="col-4 text-center">
+                <div class="text-muted">\u05D4\u05E7\u05E6\u05D0\u05D4</div>
+                <div class="fw-bold" style="color:${cfg.color}">${Utils.formatCurrency(cfg.allocated)}</div>
+              </div>
+              <div class="col-4 text-center">
+                <div class="text-muted">\u05E0\u05D5\u05E6\u05DC</div>
+                <div class="fw-bold text-danger">${Utils.formatCurrency(spent)}</div>
+              </div>
+              <div class="col-4 text-center">
+                <div class="text-muted">\u05E0\u05D5\u05EA\u05E8</div>
+                <div class="fw-bold ${remaining < 0 ? 'text-danger' : 'text-success'}">${Utils.formatCurrency(remaining)}</div>
+              </div>
+            </div>
+            <div class="progress" style="height:6px">
+              <div class="progress-bar ${barColor}" style="width:${Math.min(pct, 100)}%"></div>
+            </div>
+            <div class="text-end mt-1"><small class="text-muted">${pct}%</small></div>
+          </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+  },
+
+  /* ---------- Budget alerts ---------- */
+  _renderBudgAlerts(data) {
+    const container = document.getElementById('budg-alerts');
+    const cats = this._budgCategories;
+    let alerts = '';
+    Object.entries(cats).forEach(([name, cfg]) => {
+      const spent = data.filter(r => r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] === name)
+        .reduce((s, r) => s + (parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+      const pct = cfg.allocated > 0 ? Math.round((spent / cfg.allocated) * 100) : 0;
+      if (pct >= 100) {
+        alerts += `<div class="alert alert-danger py-2 d-flex align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i><strong>${name}</strong> \u05D7\u05E8\u05D2 \u05DE\u05D4\u05EA\u05E7\u05E6\u05D9\u05D1! (${pct}%) \u2014 \u05D7\u05E8\u05D9\u05D2\u05D4 \u05E9\u05DC ${Utils.formatCurrency(spent - cfg.allocated)}</div>`;
+      } else if (pct >= 80) {
+        alerts += `<div class="alert alert-warning py-2 d-flex align-items-center gap-2"><i class="bi bi-exclamation-triangle-fill"></i><strong>${name}</strong> \u05DE\u05EA\u05E7\u05E8\u05D1 \u05DC\u05D2\u05D1\u05D5\u05DC (${pct}%) \u2014 \u05E0\u05D5\u05EA\u05E8\u05D5 ${Utils.formatCurrency(cfg.allocated - spent)}</div>`;
+      }
+    });
+    container.innerHTML = alerts;
+  },
+
+  /* ---------- Monthly trend bar chart ---------- */
+  _renderBudgTrendChart(data) {
+    const ctx = document.getElementById('budg-trend-chart');
+    if (!ctx) return;
+    if (App.charts.budgTrend) { App.charts.budgTrend.destroy(); App.charts.budgTrend = null; }
+
+    const monthlyBudget = Math.round(this._budgAnnualBudget / 12);
+    const months = {};
+    for (let m = 1; m <= 12; m++) months[String(m).padStart(2, '0')] = 0;
+    data.forEach(r => {
+      const d = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      const mo = d.substring(5, 7);
+      if (months[mo] !== undefined) months[mo] += parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+    });
+
+    const labels = Utils.HEB_MONTHS;
+    const actual = Object.values(months).map(v => Math.round(v));
+    const budgetLine = new Array(12).fill(monthlyBudget);
+
+    App.charts.budgTrend = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: '\u05D1\u05D9\u05E6\u05D5\u05E2 \u05D1\u05E4\u05D5\u05E2\u05DC', data: actual, backgroundColor: actual.map(v => v > monthlyBudget ? '#dc262680' : '#2563eb80'), borderColor: actual.map(v => v > monthlyBudget ? '#dc2626' : '#2563eb'), borderWidth: 1, borderRadius: 4 },
+          { label: '\u05EA\u05E7\u05E6\u05D9\u05D1 \u05D7\u05D5\u05D3\u05E9\u05D9', data: budgetLine, type: 'line', borderColor: '#f59e0b', borderWidth: 2, borderDash: [5, 5], pointRadius: 0, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Heebo', size: 11 } } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => '\u20AA' + (v / 1000).toFixed(0) + 'K' } },
+          x: { ticks: { font: { family: 'Heebo', size: 10 } } }
+        }
+      }
+    });
+  },
+
+  /* ---------- Category pie/doughnut chart ---------- */
+  _renderBudgPieChart(data) {
+    const ctx = document.getElementById('budg-pie-chart');
+    if (!ctx) return;
+    if (App.charts.budgPie) { App.charts.budgPie.destroy(); App.charts.budgPie = null; }
+
+    const cats = {};
+    const colors = [];
+    data.forEach(r => {
+      const c = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '\u05D0\u05D7\u05E8';
+      cats[c] = (cats[c] || 0) + (parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0);
+    });
+    Object.keys(cats).forEach(c => {
+      colors.push(this._budgCategories[c] ? this._budgCategories[c].color : '#94a3b8');
+    });
+
+    App.charts.budgPie = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(cats),
+        datasets: [{ data: Object.values(cats).map(v => Math.round(v)), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '55%',
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Heebo', size: 11 }, padding: 12 } },
+          tooltip: { callbacks: { label: ctx2 => `${ctx2.label}: \u20AA${ctx2.raw.toLocaleString()} (${Math.round(ctx2.raw / Object.values(cats).reduce((a,b)=>a+b,0) * 100)}%)` } }
+        }
+      }
+    });
+  },
+
+  /* ---------- Annual comparison chart ---------- */
+  _renderBudgCompareChart(data) {
+    const ctx = document.getElementById('budg-compare-chart');
+    if (!ctx) return;
+    if (App.charts.budgCompare) { App.charts.budgCompare.destroy(); App.charts.budgCompare = null; }
+
+    // This year totals per month
+    const thisYear = {};
+    for (let m = 1; m <= 12; m++) thisYear[String(m).padStart(2, '0')] = 0;
+    data.forEach(r => {
+      const d = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      const mo = d.substring(5, 7);
+      if (thisYear[mo] !== undefined) thisYear[mo] += parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+    });
+
+    // Last year (demo)
+    const lastYearMonths = this._budgLastYearData();
+    const lastYearTotals = {};
+    Object.entries(lastYearMonths).forEach(([mo, cats]) => {
+      lastYearTotals[mo] = Object.values(cats).reduce((a, b) => a + b, 0);
+    });
+
+    App.charts.budgCompare = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Utils.HEB_MONTHS,
+        datasets: [
+          { label: `${new Date().getFullYear()}`, data: Object.values(thisYear).map(v => Math.round(v)), backgroundColor: '#2563eb80', borderColor: '#2563eb', borderWidth: 1, borderRadius: 4 },
+          { label: `${new Date().getFullYear() - 1}`, data: Object.values(lastYearTotals).map(v => Math.round(v)), backgroundColor: '#94a3b840', borderColor: '#94a3b8', borderWidth: 1, borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Heebo', size: 11 } } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { callback: v => '\u20AA' + (v / 1000).toFixed(0) + 'K' } },
+          x: { ticks: { font: { family: 'Heebo', size: 10 } } }
+        }
+      }
+    });
+  },
+
+  /* ---------- Filter / sort expense table ---------- */
+  filterBudgetTable() {
+    const search = (document.getElementById('budg-search')?.value || '').trim().toLowerCase();
+    const catFilter = document.getElementById('budg-filter-cat')?.value || '';
+    const monthFilter = document.getElementById('budg-filter-month')?.value || '';
+    const sortVal = document.getElementById('budg-sort')?.value || 'date-desc';
+
+    let filtered = this._budgData.filter(r => {
+      if (catFilter && r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] !== catFilter) return false;
+      if (monthFilter) {
+        const d = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+        if (d.substring(5, 7) !== monthFilter) return false;
+      }
+      if (search) {
+        const txt = [r['\u05EA\u05D9\u05D0\u05D5\u05E8'], r['\u05E1\u05E4\u05E7'], r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'], r['\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4']].join(' ').toLowerCase();
+        if (!txt.includes(search)) return false;
+      }
+      return true;
+    });
+
+    // Sort
+    switch (sortVal) {
+      case 'date-asc': filtered.sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '')); break;
+      case 'date-desc': filtered.sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '')); break;
+      case 'amount-desc': filtered.sort((a, b) => (parseFloat(b['\u05E1\u05DB\u05D5\u05DD']) || 0) - (parseFloat(a['\u05E1\u05DB\u05D5\u05DD']) || 0)); break;
+      case 'amount-asc': filtered.sort((a, b) => (parseFloat(a['\u05E1\u05DB\u05D5\u05DD']) || 0) - (parseFloat(b['\u05E1\u05DB\u05D5\u05DD']) || 0)); break;
+      case 'cat': filtered.sort((a, b) => (a['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '').localeCompare(b['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '')); break;
+    }
+
+    this._budgFilteredData = filtered;
+    const filteredTotal = filtered.reduce((s, r) => s + (parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
+
+    document.getElementById('budg-count-badge').textContent = filtered.length + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u2022 ' + Utils.formatCurrency(filteredTotal);
+
+    if (!filtered.length) {
+      document.getElementById('budg-list').innerHTML = '<div class="empty-state py-4 text-center"><i class="bi bi-wallet2 fs-1 text-muted"></i><h5 class="mt-2">\u05D0\u05D9\u05DF \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05DC\u05D4\u05E6\u05D9\u05D2</h5></div>';
+      return;
+    }
+
+    const catColors = {};
+    Object.entries(this._budgCategories).forEach(([name, cfg]) => { catColors[name] = cfg.color; });
+
+    let cum = 0;
+    document.getElementById('budg-list').innerHTML = `
+      <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-bht table-hover mb-0">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>\u05EA\u05D0\u05E8\u05D9\u05DA</th>
+                <th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th>
+                <th>\u05EA\u05D9\u05D0\u05D5\u05E8</th>
+                <th>\u05E1\u05DB\u05D5\u05DD</th>
+                <th>\u05DE\u05E6\u05D8\u05D1\u05E8</th>
+                <th>\u05E1\u05E4\u05E7</th>
+                <th>\u05E7\u05D1\u05DC\u05D4</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map((r, idx) => {
+                const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
+                const bgId = r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r);
+                cum += a;
+                const cat = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '\u05D0\u05D7\u05E8';
+                const catColor = catColors[cat] || '#94a3b8';
+                const catIcon = (this._budgCategories[cat] || {}).icon || 'bi-three-dots';
+                return `<tr>
+                  <td class="text-muted small">${idx + 1}</td>
+                  <td class="small">${Utils.formatDateShort(r['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</td>
+                  <td><span class="badge" style="background:${catColor}20;color:${catColor}"><i class="bi ${catIcon} me-1"></i>${cat}</span></td>
+                  <td>${r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || ''}</td>
+                  <td class="fw-bold text-danger">${Utils.formatCurrency(a)}</td>
+                  <td class="fw-bold small">${Utils.formatCurrency(cum)}</td>
+                  <td class="small">${r['\u05E1\u05E4\u05E7'] || ''}</td>
+                  <td class="small text-muted">${r['\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4'] || ''}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editBudgetItem('${bgId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteBudgetItem('${bgId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  },
+
+  /* ---------- Add/Edit/Delete budget items ---------- */
+  showAddBudget() {
+    this._budgEditId = null;
+    document.getElementById('bgf-date').value = Utils.todayISO();
+    document.getElementById('bgf-cat').value = Object.keys(this._budgCategories)[0];
+    document.getElementById('bgf-desc').value = '';
+    document.getElementById('bgf-amount').value = '';
+    document.getElementById('bgf-receipt').value = '';
+    document.getElementById('bgf-vendor').value = '';
+    document.querySelector('#budg-modal .modal-title').innerHTML = '<i class="bi bi-receipt me-2"></i>\u05D4\u05D5\u05E6\u05D0\u05D4 \u05D7\u05D3\u05E9\u05D4';
+    new bootstrap.Modal(document.getElementById('budg-modal')).show();
+  },
+
+  async saveBudget() {
+    const row = {
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('bgf-date').value,
+      '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': document.getElementById('bgf-cat').value,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': document.getElementById('bgf-desc').value.trim(),
+      '\u05E1\u05DB\u05D5\u05DD': document.getElementById('bgf-amount').value,
+      '\u05E1\u05E4\u05E7': document.getElementById('bgf-vendor').value.trim(),
+      '\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4': document.getElementById('bgf-receipt').value.trim()
+    };
+    if (!row['\u05E1\u05DB\u05D5\u05DD'] || !row['\u05EA\u05D9\u05D0\u05D5\u05E8']) {
+      Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05EA\u05D9\u05D0\u05D5\u05E8 \u05D5\u05E1\u05DB\u05D5\u05DD', 'warning');
+      return;
+    }
+    try {
+      if (this._budgEditId) {
+        await App.apiCall('update', '\u05EA\u05E7\u05E6\u05D9\u05D1', { id: this._budgEditId, row });
+        this._budgEditId = null;
+      } else {
+        await App.apiCall('add', '\u05EA\u05E7\u05E6\u05D9\u05D1', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide();
+      Utils.toast('\u05E0\u05E9\u05DE\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4');
+      this.budgetInit();
+    } catch (e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
+  },
+
   async deleteBudgetItem(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
-    try { await App.apiCall('delete','\u05EA\u05E7\u05E6\u05D9\u05D1',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.budgetInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
+    try {
+      await App.apiCall('delete', '\u05EA\u05E7\u05E6\u05D9\u05D1', { id });
+      Utils.toast('\u05E0\u05DE\u05D7\u05E7');
+      this.budgetInit();
+    } catch (e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+    }
   },
+
   editBudgetItem(id) {
-    var item = this._budgData.find(function(r){ return (r.id||r['\u05DE\u05D6\u05D4\u05D4']||'') == id; });
+    const item = this._budgData.find(r => (r.id || r['\u05DE\u05D6\u05D4\u05D4'] || '') == id);
     if (!item) return;
     document.getElementById('bgf-date').value = item['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
     document.getElementById('bgf-cat').value = item['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '';
     document.getElementById('bgf-desc').value = item['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
     document.getElementById('bgf-amount').value = item['\u05E1\u05DB\u05D5\u05DD'] || '';
     document.getElementById('bgf-vendor').value = item['\u05E1\u05E4\u05E7'] || '';
+    document.getElementById('bgf-receipt').value = item['\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4'] || '';
     this._budgEditId = id;
+    document.querySelector('#budg-modal .modal-title').innerHTML = '<i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05EA \u05D4\u05D5\u05E6\u05D0\u05D4';
     new bootstrap.Modal(document.getElementById('budg-modal')).show();
+  },
+
+  /* ---------- Export to CSV ---------- */
+  budgExport() {
+    const data = this._budgFilteredData.length ? this._budgFilteredData : this._budgData;
+    if (!data.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'warning'); return; }
+    const headers = ['\u05EA\u05D0\u05E8\u05D9\u05DA', '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4', '\u05EA\u05D9\u05D0\u05D5\u05E8', '\u05E1\u05DB\u05D5\u05DD', '\u05E1\u05E4\u05E7', '\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4'];
+    let csv = '\uFEFF' + headers.join(',') + '\n';
+    data.forEach(r => {
+      csv += headers.map(h => '"' + (r[h] || '').toString().replace(/"/g, '""') + '"').join(',') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `\u05EA\u05E7\u05E6\u05D9\u05D1_${Utils.todayISO()}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    Utils.toast('\u05E7\u05D5\u05D1\u05E5 \u05D9\u05D5\u05E6\u05D0 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4');
   },
 });
