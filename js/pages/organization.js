@@ -1413,151 +1413,572 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     DOCUMENTS — Full Document Management System
+     DOCUMENTS — Comprehensive Document Management System v2
+     Student folders, categories, bulk upload, localStorage metadata, demo data
      ====================================================================== */
+
+  // Document categories with icons and colors
+  _docCategories: {
+    '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA': { label: '\u05EA.\u05D6\u05D4\u05D5\u05EA / \u05D3\u05E8\u05DB\u05D5\u05DF', icon: 'bi-person-vcard', color: 'primary', required: true },
+    '\u05E8\u05E4\u05D5\u05D0\u05D9': { label: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9', icon: 'bi-heart-pulse', color: 'danger', required: false },
+    '\u05D4\u05E8\u05E9\u05DE\u05D4': { label: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', icon: 'bi-pencil-square', color: 'success', required: true },
+    '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA': { label: '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA / \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD', icon: 'bi-award', color: 'warning', required: false },
+    '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA': { label: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', icon: 'bi-envelope-paper', color: 'info', required: false },
+    '\u05D0\u05D7\u05E8': { label: '\u05D0\u05D7\u05E8', icon: 'bi-file-earmark', color: 'secondary', required: false }
+  },
+  _docCategoryKeys: ['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA','\u05E8\u05E4\u05D5\u05D0\u05D9','\u05D4\u05E8\u05E9\u05DE\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA','\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA','\u05D0\u05D7\u05E8'],
+
+  // Required docs per student (category keys)
+  _requiredStudentDocKeys: ['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', '\u05D4\u05E8\u05E9\u05DE\u05D4'],
+  _requiredStaffDocKeys: ['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA'],
+
+  // localStorage key for doc metadata
+  _DOC_LS_KEY: 'bht_documents_meta',
+
+  _getLocalDocs() {
+    try { return JSON.parse(localStorage.getItem(this._DOC_LS_KEY) || '[]'); } catch { return []; }
+  },
+  _saveLocalDocs(docs) {
+    localStorage.setItem(this._DOC_LS_KEY, JSON.stringify(docs));
+  },
+  _addLocalDoc(doc) {
+    const docs = this._getLocalDocs();
+    doc.id = 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    doc.uploadDate = doc.uploadDate || Utils.todayISO();
+    docs.push(doc);
+    this._saveLocalDocs(docs);
+    return doc;
+  },
+  _deleteLocalDoc(id) {
+    const docs = this._getLocalDocs().filter(d => d.id !== id);
+    this._saveLocalDocs(docs);
+  },
+
+  // Generate demo data on first load (25 docs across 10 students)
+  _ensureDemoData() {
+    if (localStorage.getItem('bht_docs_demo_v2')) return;
+    const demoStudents = [
+      '\u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF', '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF',
+      '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05E9\u05DE\u05D5\u05D0\u05DC \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2', '\u05D9\u05D5\u05E1\u05E3 \u05D0\u05D3\u05DC\u05E8',
+      '\u05D7\u05D9\u05D9\u05DD \u05D1\u05E8\u05D2\u05E8', '\u05E0\u05EA\u05E0\u05D0\u05DC \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D1\u05DF \u05D3\u05D5\u05D3',
+      '\u05E8\u05E4\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9'
+    ];
+    const demoDocs = [
+      { student: 0, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05E6\u05D9\u05DC\u05D5\u05DD_\u05EA.\u05D6._\u05D9\u05E2\u05E7\u05D1.pdf', desc: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA \u05DE\u05E6\u05D5\u05DC\u05DE\u05EA', days: 45 },
+      { student: 0, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D8\u05D5\u05E4\u05E1_\u05D4\u05E8\u05E9\u05DE\u05D4_\u05D9\u05E2\u05E7\u05D1.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05D7\u05EA\u05D5\u05DD', days: 40 },
+      { student: 0, cat: '\u05E8\u05E4\u05D5\u05D0\u05D9', name: '\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9_\u05D9\u05E2\u05E7\u05D1.pdf', desc: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05D5\u05E4\u05D0 \u05DE\u05E9\u05E4\u05D7\u05D4', days: 38 },
+      { student: 1, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05EA\u05D6_\u05DE\u05E9\u05D4.jpg', desc: '\u05E6\u05D9\u05DC\u05D5\u05DD \u05EA.\u05D6.', days: 50 },
+      { student: 1, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05DE\u05E9\u05D4.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', days: 48 },
+      { student: 1, cat: '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA', name: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05E1\u05D9\u05D5\u05DD_\u05DE\u05E9\u05D4.pdf', desc: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05E1\u05D9\u05D5\u05DD \u05E7\u05D5\u05E8\u05E1', days: 30 },
+      { student: 2, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05D3\u05E8\u05DB\u05D5\u05DF_\u05D0\u05D1\u05E8\u05D4\u05DD.pdf', desc: '\u05D3\u05E8\u05DB\u05D5\u05DF \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9', days: 60 },
+      { student: 2, cat: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', name: '\u05DE\u05DB\u05EA\u05D1_\u05DC\u05D4\u05D5\u05E8\u05D9\u05DD_\u05D0\u05D1\u05E8\u05D4\u05DD.pdf', desc: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u05E2\u05DC \u05E0\u05E1\u05D9\u05E2\u05D4', days: 25 },
+      { student: 3, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05EA\u05D6_\u05D3\u05D5\u05D3.jpg', desc: '\u05E6\u05D9\u05DC\u05D5\u05DD \u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', days: 55 },
+      { student: 3, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05D3\u05D5\u05D3.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05DE\u05D5\u05DC\u05D0', days: 52 },
+      { student: 3, cat: '\u05E8\u05E4\u05D5\u05D0\u05D9', name: '\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9_\u05D3\u05D5\u05D3.pdf', desc: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05D5\u05E4\u05D0', days: 20 },
+      { student: 4, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05E9\u05DE\u05D5\u05D0\u05DC.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', days: 35 },
+      { student: 4, cat: '\u05D0\u05D7\u05E8', name: '\u05D4\u05DE\u05DC\u05E6\u05D4_\u05E9\u05DE\u05D5\u05D0\u05DC.docx', desc: '\u05DE\u05DB\u05EA\u05D1 \u05D4\u05DE\u05DC\u05E6\u05D4', days: 10 },
+      { student: 5, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05EA\u05D6_\u05D9\u05D5\u05E1\u05E3.pdf', desc: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', days: 70 },
+      { student: 5, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05D9\u05D5\u05E1\u05E3.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05D7\u05EA\u05D5\u05DD', days: 65 },
+      { student: 5, cat: '\u05E8\u05E4\u05D5\u05D0\u05D9', name: '\u05E8\u05E4\u05D5\u05D0\u05D9_\u05D9\u05D5\u05E1\u05E3.pdf', desc: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9 \u05E9\u05E0\u05EA\u05D9', days: 15 },
+      { student: 5, cat: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', name: '\u05DE\u05DB\u05EA\u05D1_\u05DC\u05D4\u05D5\u05E8\u05D9\u05DD_\u05D9\u05D5\u05E1\u05E3.pdf', desc: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA \u05E2\u05DD \u05D4\u05D5\u05E8\u05D9\u05DD', days: 5 },
+      { student: 6, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05EA\u05D6_\u05D7\u05D9\u05D9\u05DD.jpg', desc: '\u05EA.\u05D6. \u05D7\u05D9\u05D9\u05DD', days: 42 },
+      { student: 6, cat: '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA', name: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05DB\u05D9\u05EA\u05D4_\u05D7\u05D9\u05D9\u05DD.pdf', desc: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05E1\u05D9\u05D5\u05DD \u05DB\u05D9\u05EA\u05D4 \u05E7\u05D5\u05D3\u05DE\u05EA', days: 33 },
+      { student: 7, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05E0\u05EA\u05E0\u05D0\u05DC.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', days: 28 },
+      { student: 7, cat: '\u05E8\u05E4\u05D5\u05D0\u05D9', name: '\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9_\u05E0\u05EA\u05E0\u05D0\u05DC.pdf', desc: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05D5\u05E4\u05D0 \u05DE\u05E9\u05E4\u05D7\u05D4', days: 22 },
+      { student: 8, cat: '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', name: '\u05EA\u05D6_\u05D0\u05DC\u05D9\u05D4\u05D5.jpg', desc: '\u05D3\u05E8\u05DB\u05D5\u05DF \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9', days: 58 },
+      { student: 8, cat: '\u05D0\u05D7\u05E8', name: '\u05DE\u05E1\u05DE\u05DA_\u05E0\u05D5\u05E1\u05E3_\u05D0\u05DC\u05D9\u05D4\u05D5.pdf', desc: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3', days: 8 },
+      { student: 9, cat: '\u05D4\u05E8\u05E9\u05DE\u05D4', name: '\u05D4\u05E8\u05E9\u05DE\u05D4_\u05E8\u05E4\u05D0\u05DC.pdf', desc: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05D7\u05EA\u05D5\u05DD', days: 18 },
+      { student: 9, cat: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', name: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA_\u05E8\u05E4\u05D0\u05DC.pdf', desc: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA \u05E2\u05DD \u05D4\u05D5\u05E8\u05D9\u05DD', days: 3 }
+    ];
+    const now = Date.now();
+    const docs = demoDocs.map((d,i) => {
+      const dt = new Date(now - d.days * 86400000);
+      const dateStr = dt.toISOString().slice(0,10);
+      return {
+        id: 'demo_' + (i+1),
+        studentName: demoStudents[d.student],
+        category: d.cat,
+        fileName: d.name,
+        description: d.desc,
+        uploadDate: dateStr,
+        fileSize: Math.floor(Math.random()*4000+200) + 'KB',
+        status: '\u05D4\u05EA\u05E7\u05D1\u05DC',
+        entity: 'student'
+      };
+    });
+    this._saveLocalDocs(docs);
+    localStorage.setItem('bht_docs_demo_v2', '1');
+  },
+
   documents() {
+    const catOpts = this._docCategoryKeys.map(k => {
+      const c = this._docCategories[k];
+      return `<option value="${k}">${c.label}</option>`;
+    }).join('');
+
     return `
     <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-      <div><h1><i class="bi bi-folder-fill me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1><p>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD, \u05E6\u05E4\u05D9\u05D9\u05D4 \u05D5\u05D4\u05E2\u05DC\u05D0\u05D4</p></div>
-      <div class="d-flex gap-2">
+      <div><h1><i class="bi bi-folder-fill me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h1>
+      <p class="text-muted mb-0">\u05EA\u05D9\u05E7\u05D9\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D5\u05EA, \u05D4\u05E2\u05DC\u05D0\u05D4 \u05D5\u05DE\u05E2\u05E7\u05D1</p></div>
+      <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-primary btn-sm" onclick="Pages.showUploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
+        <button class="btn btn-success btn-sm" onclick="Pages.showBulkUpload()"><i class="bi bi-files me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</button>
         <button class="btn btn-outline-warning btn-sm" onclick="Pages.showMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05D7\u05E1\u05E8\u05D9\u05DD</button>
       </div>
     </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-3">
+      <div class="col-6 col-lg-3"><div class="card p-3 text-center border-start border-primary border-3">
+        <i class="bi bi-files fs-3 text-primary"></i>
+        <div class="fs-3 fw-bold text-primary" id="doc-total">0</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-lg-3"><div class="card p-3 text-center border-start border-success border-3">
+        <i class="bi bi-person-check fs-3 text-success"></i>
+        <div class="fs-3 fw-bold text-success" id="doc-complete-students">0</div>
+        <small class="text-muted">\u05EA\u05D9\u05E7\u05D9\u05D5\u05EA \u05DE\u05DC\u05D0\u05D5\u05EA</small>
+      </div></div>
+      <div class="col-6 col-lg-3"><div class="card p-3 text-center border-start border-danger border-3">
+        <i class="bi bi-exclamation-diamond fs-3 text-danger"></i>
+        <div class="fs-3 fw-bold text-danger" id="doc-missing">0</div>
+        <small class="text-muted">\u05D7\u05E1\u05E8\u05D9\u05DD \u05E0\u05D3\u05E8\u05E9\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-lg-3"><div class="card p-3 text-center border-start border-info border-3">
+        <i class="bi bi-tags fs-3 text-info"></i>
+        <div class="fs-3 fw-bold text-info" id="doc-categories">6</div>
+        <small class="text-muted">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D5\u05EA</small>
+      </div></div>
+    </div>
+
+    <!-- View Toggle Tabs -->
     <ul class="nav nav-tabs-bht mb-3">
-      <li class="nav-item"><a class="nav-link active" href="#" onclick="Pages._docTab='students';Pages._renderDocs();return false"><i class="bi bi-people me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages._docTab='staff';Pages._renderDocs();return false"><i class="bi bi-person-badge me-1"></i>\u05E6\u05D5\u05D5\u05EA</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" onclick="Pages._docTab='all';Pages._renderDocs();return false"><i class="bi bi-files me-1"></i>\u05DB\u05DC \u05D4\u05E7\u05D1\u05E6\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link active" href="#" data-doc-view="folders" onclick="Pages._docView='folders';Pages._renderDocs();return false"><i class="bi bi-folder2-open me-1"></i>\u05EA\u05D9\u05E7\u05D9\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-doc-view="table" onclick="Pages._docView='table';Pages._renderDocs();return false"><i class="bi bi-table me-1"></i>\u05D8\u05D1\u05DC\u05D4</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-doc-view="categories" onclick="Pages._docView='categories';Pages._renderDocs();return false"><i class="bi bi-grid me-1"></i>\u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</a></li>
     </ul>
+
+    <!-- Search & Filter Bar -->
     <div class="card p-3 mb-3">
       <div class="row g-2">
-        <div class="col-md-6"><div class="search-box"><i class="bi bi-search"></i><input class="form-control" id="doc-search" placeholder="\u05D7\u05E4\u05E9 \u05DE\u05E1\u05DE\u05DA..." oninput="Pages._renderDocs()"></div></div>
-        <div class="col-md-3"><select class="form-select" id="doc-type-filter" onchange="Pages._renderDocs()"><option value="">\u05DB\u05DC \u05D4\u05E1\u05D5\u05D2\u05D9\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9</option><option>\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4</option><option>\u05D0\u05D7\u05E8</option></select></div>
-        <div class="col-md-3"><select class="form-select" id="doc-status-filter" onchange="Pages._renderDocs()"><option value="">\u05DB\u05DC \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1\u05D9\u05DD</option><option value="\u05D4\u05EA\u05E7\u05D1\u05DC">\u05D4\u05EA\u05E7\u05D1\u05DC</option><option value="\u05D7\u05E1\u05E8">\u05D7\u05E1\u05E8</option><option value="\u05DE\u05DE\u05EA\u05D9\u05DF">\u05DE\u05DE\u05EA\u05D9\u05DF</option></select></div>
+        <div class="col-md-3"><div class="search-box"><i class="bi bi-search"></i><input class="form-control" id="doc-search" placeholder="\u05D7\u05E4\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D0\u05D5 \u05DE\u05E1\u05DE\u05DA..." oninput="Pages._renderDocs()"></div></div>
+        <div class="col-md-2"><select class="form-select" id="doc-cat-filter" onchange="Pages._renderDocs()">
+          <option value="">\u05DB\u05DC \u05D4\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D5\u05EA</option>${catOpts}
+        </select></div>
+        <div class="col-md-2"><select class="form-select" id="doc-student-filter" onchange="Pages._renderDocs()">
+          <option value="">\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</option>
+        </select></div>
+        <div class="col-md-2"><input type="date" class="form-control" id="doc-date-from" onchange="Pages._renderDocs()" title="\u05DE\u05EA\u05D0\u05E8\u05D9\u05DA"></div>
+        <div class="col-md-2"><input type="date" class="form-control" id="doc-date-to" onchange="Pages._renderDocs()" title="\u05E2\u05D3 \u05EA\u05D0\u05E8\u05D9\u05DA"></div>
+        <div class="col-md-1"><button class="btn btn-outline-secondary w-100" onclick="document.getElementById('doc-search').value='';document.getElementById('doc-cat-filter').value='';document.getElementById('doc-student-filter').value='';document.getElementById('doc-date-from').value='';document.getElementById('doc-date-to').value='';Pages._renderDocs()" title="\u05E0\u05E7\u05D4"><i class="bi bi-x-lg"></i></button></div>
       </div>
     </div>
-    <div class="row g-3 mb-3">
-      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary" id="doc-total">0</div><small>\u05E1\u05D4"\u05DB \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</small></div></div>
-      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-success" id="doc-received">0</div><small>\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5</small></div></div>
-      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-danger" id="doc-missing">0</div><small>\u05D7\u05E1\u05E8\u05D9\u05DD</small></div></div>
-      <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-warning" id="doc-pending">0</div><small>\u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD</small></div></div>
-    </div>
+
     <div id="doc-list">${Utils.skeleton(4)}</div>
+
     <!-- Upload Modal -->
-    <div class="modal fade" id="upload-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
-      <div class="mb-3"><label class="form-label">\u05E9\u05D9\u05D9\u05DA \u05DC</label><select class="form-select" id="upload-owner"></select></div>
-      <div class="mb-3"><label class="form-label">\u05E1\u05D5\u05D2 \u05DE\u05E1\u05DE\u05DA</label><select class="form-select" id="upload-type"><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9</option><option>\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD</option><option>\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4</option><option>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4</option><option>\u05D0\u05D7\u05E8</option></select></div>
-      <div class="mb-3"><label class="form-label">\u05E7\u05D5\u05D1\u05E5</label><input type="file" class="form-control" id="upload-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"></div>
-      <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input class="form-control" id="upload-notes"></div>
-    </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.uploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D4</button></div></div></div></div>
+    <div class="modal fade" id="upload-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+      <div class="modal-header bg-primary text-white"><h5><i class="bi bi-cloud-upload me-2"></i>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label fw-bold">\u05E9\u05D9\u05D9\u05DA \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="upload-owner"></select></div>
+        <div class="mb-3"><label class="form-label fw-bold">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label><select class="form-select" id="upload-type">${catOpts}</select></div>
+        <div class="mb-3"><label class="form-label fw-bold">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="upload-desc" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05E7\u05E6\u05E8 \u05E9\u05DC \u05D4\u05DE\u05E1\u05DE\u05DA"></div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">\u05E7\u05D5\u05D1\u05E5</label>
+          <div class="border rounded p-4 text-center bg-light" id="upload-drop-zone" style="cursor:pointer;border-style:dashed!important">
+            <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+            <p class="text-muted mb-1">\u05D2\u05E8\u05D5\u05E8 \u05E7\u05D5\u05D1\u05E5 \u05DC\u05DB\u05D0\u05DF \u05D0\u05D5 \u05DC\u05D7\u05E5 \u05DC\u05D1\u05D7\u05D9\u05E8\u05D4</p>
+            <small class="text-muted">PDF, JPG, PNG, DOC, DOCX, XLS, XLSX</small>
+            <input type="file" class="d-none" id="upload-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+          </div>
+          <div id="upload-file-info" class="mt-2 d-none">
+            <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
+              <i class="bi bi-file-earmark text-primary fs-5"></i>
+              <span id="upload-file-name" class="flex-grow-1 fw-medium"></span>
+              <span id="upload-file-size" class="text-muted small"></span>
+              <button class="btn btn-sm btn-outline-danger" onclick="document.getElementById('upload-file').value='';document.getElementById('upload-file-info').classList.add('d-none')"><i class="bi bi-x"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.uploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D4</button></div>
+    </div></div></div>
+
+    <!-- Bulk Upload Modal -->
+    <div class="modal fade" id="bulk-upload-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header bg-success text-white"><h5><i class="bi bi-files me-2"></i>\u05D4\u05E2\u05DC\u05D0\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label fw-bold">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05DC\u05DB\u05D5\u05DC\u05DD</label><select class="form-select" id="bulk-type">${catOpts}</select></div>
+        <div class="mb-3"><label class="form-label fw-bold">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</label>
+          <div class="border rounded p-2" style="max-height:200px;overflow-y:auto" id="bulk-students-list"></div>
+          <div class="mt-1"><button class="btn btn-sm btn-outline-primary" onclick="document.querySelectorAll('#bulk-students-list input').forEach(c=>c.checked=true)">\u05D1\u05D7\u05E8 \u05D4\u05DB\u05DC</button> <button class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#bulk-students-list input').forEach(c=>c.checked=false)">\u05E0\u05E7\u05D4 \u05D4\u05DB\u05DC</button></div>
+        </div>
+        <div class="mb-3"><label class="form-label fw-bold">\u05EA\u05D9\u05D0\u05D5\u05E8</label><input class="form-control" id="bulk-desc" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05DE\u05E9\u05D5\u05EA\u05E3 \u05DC\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD"></div>
+        <div class="alert alert-info small"><i class="bi bi-info-circle me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4 \u05EA\u05D9\u05E6\u05D5\u05E8 \u05E8\u05E9\u05D5\u05DE\u05EA \u05DE\u05E1\u05DE\u05DA \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u05E9\u05E0\u05D1\u05D7\u05E8, \u05D1\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D4\u05E0\u05D1\u05D7\u05E8\u05EA</div>
+      </div>
+      <div class="modal-footer">
+        <span class="me-auto text-muted small" id="bulk-count">0 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D5</span>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+        <button class="btn btn-success" onclick="Pages.doBulkUpload()"><i class="bi bi-files me-1"></i>\u05D4\u05E2\u05DC\u05D4 \u05DC\u05E0\u05D1\u05D7\u05E8\u05D9\u05DD</button>
+      </div>
+    </div></div></div>
+
     <!-- Viewer Modal -->
-    <div class="modal fade" id="doc-viewer-modal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header"><h5 id="viewer-title">\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" id="viewer-body" style="min-height:500px"></div></div></div></div>
+    <div class="modal fade" id="doc-viewer-modal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content">
+      <div class="modal-header"><h5 id="viewer-title">\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body p-0" id="viewer-body" style="min-height:500px"></div>
+    </div></div></div>
+
+    <!-- Student Folder Modal -->
+    <div class="modal fade" id="student-folder-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 id="folder-title">\u05EA\u05D9\u05E7\u05D9\u05D9\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="folder-body"></div>
+    </div></div></div>
   `;
   },
 
-  _docTab: 'students', _docsData: [], _studentsForDocs: [], _staffForDocs: [],
+  _docView: 'folders', _docsData: [], _studentsForDocs: [], _staffForDocs: [],
   _requiredStudentDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9','\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC'],
   _requiredStaffDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9'],
 
   async documentsInit() {
+    // Ensure demo data exists
+    this._ensureDemoData();
+
     const [docs, students, staff] = await Promise.all([
       App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(()=>[]),
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
       App.getData('\u05E6\u05D5\u05D5\u05EA').catch(()=>[])
     ]);
+    // Merge server docs with localStorage docs
     this._docsData = docs;
+    this._localDocs = this._getLocalDocs();
     this._studentsForDocs = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     this._staffForDocs = staff.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+
+    // Populate student filter dropdown
+    const studentFilter = document.getElementById('doc-student-filter');
+    if (studentFilter) {
+      const allNames = new Set();
+      this._studentsForDocs.forEach(s => allNames.add(Utils.fullName(s)));
+      this._localDocs.forEach(d => { if (d.studentName) allNames.add(d.studentName); });
+      studentFilter.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</option>' +
+        [...allNames].sort().map(n => `<option value="${n}">${n}</option>`).join('');
+    }
+
+    // Setup drag-drop on upload zone
+    setTimeout(() => {
+      const zone = document.getElementById('upload-drop-zone');
+      if (zone) {
+        zone.onclick = () => document.getElementById('upload-file').click();
+        zone.ondragover = e => { e.preventDefault(); zone.classList.add('border-primary','bg-primary','bg-opacity-10'); };
+        zone.ondragleave = () => { zone.classList.remove('border-primary','bg-primary','bg-opacity-10'); };
+        zone.ondrop = e => { e.preventDefault(); zone.classList.remove('border-primary','bg-primary','bg-opacity-10'); const f=e.dataTransfer.files[0]; if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('upload-file').files=dt.files;Pages._showFileInfo(f);} };
+        document.getElementById('upload-file').onchange = e => { if(e.target.files[0]) Pages._showFileInfo(e.target.files[0]); };
+      }
+    }, 100);
+
     this._renderDocs();
+  },
+
+  _showFileInfo(file) {
+    const info = document.getElementById('upload-file-info');
+    if (!info) return;
+    info.classList.remove('d-none');
+    document.getElementById('upload-file-name').textContent = file.name;
+    const kb = (file.size/1024).toFixed(1);
+    document.getElementById('upload-file-size').textContent = kb > 1024 ? (kb/1024).toFixed(1)+'MB' : kb+'KB';
+  },
+
+  _getAllDocsFlat() {
+    // Combine server docs (normalized) with localStorage docs
+    const items = [];
+    // From server data
+    this._docsData.forEach(d => {
+      items.push({
+        id: d['_rowId'] || '',
+        studentName: d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || d['\u05E9\u05DD'] || '',
+        category: d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA'] || d['\u05E1\u05D5\u05D2'] || '\u05D0\u05D7\u05E8',
+        fileName: d['\u05E9\u05DD_\u05E7\u05D5\u05D1\u05E5'] || '',
+        description: d['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '',
+        uploadDate: d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4'] || '',
+        url: d['\u05E7\u05D9\u05E9\u05D5\u05E8'] || d['url'] || '',
+        status: d['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D4\u05EA\u05E7\u05D1\u05DC',
+        entity: d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] ? 'staff' : 'student',
+        source: 'server'
+      });
+    });
+    // From localStorage
+    this._localDocs.forEach(d => {
+      items.push({ ...d, source: 'local' });
+    });
+    return items;
+  },
+
+  _catKeyToLabel(key) {
+    return this._docCategories[key]?.label || key;
+  },
+  _catKeyInfo(key) {
+    return this._docCategories[key] || this._docCategories['\u05D0\u05D7\u05E8'];
   },
 
   _renderDocs() {
     const search = (document.getElementById('doc-search')?.value||'').toLowerCase();
-    const typeF = document.getElementById('doc-type-filter')?.value||'';
-    const statusF = document.getElementById('doc-status-filter')?.value||'';
+    const catF = document.getElementById('doc-cat-filter')?.value||'';
+    const studentF = document.getElementById('doc-student-filter')?.value||'';
+    const dateFrom = document.getElementById('doc-date-from')?.value||'';
+    const dateTo = document.getElementById('doc-date-to')?.value||'';
 
     // Update tab active state
-    document.querySelectorAll('.nav-tabs-bht .nav-link').forEach((a,i) => {
-      a.classList.toggle('active', ['students','staff','all'][i] === this._docTab);
+    document.querySelectorAll('.nav-tabs-bht .nav-link').forEach(a => {
+      a.classList.toggle('active', a.getAttribute('data-doc-view') === this._docView);
     });
 
-    let items = [];
-    if (this._docTab === 'students' || this._docTab === 'all') {
-      this._studentsForDocs.forEach(s => {
-        const name = Utils.fullName(s);
-        const sid = Utils.rowId(s);
-        this._requiredStudentDocs.forEach(docType => {
-          const doc = this._docsData.find(d => (d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||d['\u05E9\u05DD']||'')===name && (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'')===docType);
-          items.push({ name, id: sid, type: docType, status: doc ? (doc['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D4\u05EA\u05E7\u05D1\u05DC') : '\u05D7\u05E1\u05E8', date: doc?.['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4']||'', url: doc?.['\u05E7\u05D9\u05E9\u05D5\u05E8']||doc?.['url']||'', entity: 'student', notes: doc?.['\u05D4\u05E2\u05E8\u05D5\u05EA']||'' });
-        });
-      });
+    let allDocs = this._getAllDocsFlat();
+
+    // Apply filters
+    if (search) allDocs = allDocs.filter(d =>
+      (d.studentName||'').toLowerCase().includes(search) ||
+      (d.fileName||'').toLowerCase().includes(search) ||
+      (d.description||'').toLowerCase().includes(search) ||
+      this._catKeyToLabel(d.category).toLowerCase().includes(search)
+    );
+    if (catF) allDocs = allDocs.filter(d => d.category === catF);
+    if (studentF) allDocs = allDocs.filter(d => d.studentName === studentF);
+    if (dateFrom) allDocs = allDocs.filter(d => (d.uploadDate||'') >= dateFrom);
+    if (dateTo) allDocs = allDocs.filter(d => (d.uploadDate||'') <= dateTo);
+
+    // Compute stats
+    const totalDocs = allDocs.length;
+    const allStudentNames = new Set();
+    allDocs.forEach(d => { if(d.studentName) allStudentNames.add(d.studentName); });
+
+    // Calculate complete folders (students who have all required doc categories)
+    const reqKeys = this._requiredStudentDocKeys;
+    let completeCount = 0;
+    let totalMissingRequired = 0;
+    allStudentNames.forEach(name => {
+      const studentDocs = allDocs.filter(d => d.studentName === name);
+      const hasCats = new Set(studentDocs.map(d => d.category));
+      const missingReq = reqKeys.filter(k => !hasCats.has(k));
+      if (missingReq.length === 0) completeCount++;
+      totalMissingRequired += missingReq.length;
+    });
+
+    // Also count students in system who have NO docs at all
+    this._studentsForDocs.forEach(s => {
+      const name = Utils.fullName(s);
+      if (!allStudentNames.has(name)) {
+        totalMissingRequired += reqKeys.length;
+      }
+    });
+
+    document.getElementById('doc-total').textContent = totalDocs;
+    document.getElementById('doc-complete-students').textContent = completeCount;
+    document.getElementById('doc-missing').textContent = totalMissingRequired;
+    const usedCats = new Set(allDocs.map(d => d.category));
+    document.getElementById('doc-categories').textContent = usedCats.size || this._docCategoryKeys.length;
+
+    if (!allDocs.length && !this._studentsForDocs.length) {
+      document.getElementById('doc-list').innerHTML = '<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5><p>\u05DC\u05D7\u05E5 "\u05D4\u05E2\u05DC\u05D0\u05D4" \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DE\u05E1\u05DE\u05DA \u05E8\u05D0\u05E9\u05D5\u05DF</p></div>';
+      return;
     }
-    if (this._docTab === 'staff' || this._docTab === 'all') {
-      this._staffForDocs.forEach(s => {
-        const name = Utils.fullName(s);
-        const sid = Utils.rowId(s);
-        this._requiredStaffDocs.forEach(docType => {
-          const doc = this._docsData.find(d => (d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3']||d['\u05E9\u05DD']||'')===name && (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'')===docType);
-          items.push({ name, id: sid, type: docType, status: doc ? (doc['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05D4\u05EA\u05E7\u05D1\u05DC') : '\u05D7\u05E1\u05E8', date: doc?.['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4']||'', url: doc?.['\u05E7\u05D9\u05E9\u05D5\u05E8']||doc?.['url']||'', entity: 'staff', notes: doc?.['\u05D4\u05E2\u05E8\u05D5\u05EA']||'' });
-        });
-      });
+
+    if (this._docView === 'folders') this._renderDocsFolders(allDocs);
+    else if (this._docView === 'table') this._renderDocsTable(allDocs);
+    else if (this._docView === 'categories') this._renderDocsCategories(allDocs);
+  },
+
+  // ---- FOLDERS VIEW: Each student as a folder card with category breakdown ----
+  _renderDocsFolders(allDocs) {
+    // Collect all student names (from docs + from system)
+    const studentMap = {};
+    this._studentsForDocs.forEach(s => {
+      const name = Utils.fullName(s);
+      if (!studentMap[name]) studentMap[name] = { name, docs: [], id: Utils.rowId(s) };
+    });
+    allDocs.filter(d => d.entity !== 'staff').forEach(d => {
+      if (!studentMap[d.studentName]) studentMap[d.studentName] = { name: d.studentName, docs: [], id: '' };
+      studentMap[d.studentName].docs.push(d);
+    });
+
+    const students = Object.values(studentMap).sort((a,b) => {
+      // Sort: incomplete first, then alphabetical
+      const aComplete = this._requiredStudentDocKeys.every(k => a.docs.some(d => d.category === k));
+      const bComplete = this._requiredStudentDocKeys.every(k => b.docs.some(d => d.category === k));
+      if (aComplete !== bComplete) return aComplete ? 1 : -1;
+      return a.name.localeCompare(b.name,'he');
+    });
+
+    if (!students.length) {
+      document.getElementById('doc-list').innerHTML = '<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA</h5></div>';
+      return;
     }
 
-    // Filter
-    if (search) items = items.filter(i => i.name.toLowerCase().includes(search) || i.type.toLowerCase().includes(search));
-    if (typeF) items = items.filter(i => i.type === typeF);
-    if (statusF) items = items.filter(i => i.status === statusF);
+    document.getElementById('doc-list').innerHTML = `<div class="row g-3">${students.map(s => {
+      const docCount = s.docs.length;
+      const reqKeys = this._requiredStudentDocKeys;
+      const hasCats = new Set(s.docs.map(d => d.category));
+      const completePct = reqKeys.length ? Math.round(reqKeys.filter(k => hasCats.has(k)).length / reqKeys.length * 100) : 100;
+      const missingReq = reqKeys.filter(k => !hasCats.has(k));
+      const pctClass = completePct === 100 ? 'success' : completePct >= 50 ? 'warning' : 'danger';
+      const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2);
 
-    // Stats
-    const received = items.filter(i => i.status === '\u05D4\u05EA\u05E7\u05D1\u05DC').length;
-    const missing = items.filter(i => i.status === '\u05D7\u05E1\u05E8').length;
-    const pending = items.filter(i => i.status === '\u05DE\u05DE\u05EA\u05D9\u05DF').length;
-    document.getElementById('doc-total').textContent = items.length;
-    document.getElementById('doc-received').textContent = received;
-    document.getElementById('doc-missing').textContent = missing;
-    document.getElementById('doc-pending').textContent = pending;
+      // Category mini-icons
+      const catIcons = this._docCategoryKeys.map(k => {
+        const info = this._docCategories[k];
+        const has = s.docs.some(d => d.category === k);
+        return `<span class="me-1" title="${info.label}" style="opacity:${has?1:0.25}"><i class="bi ${info.icon} text-${has?info.color:'muted'}"></i></span>`;
+      }).join('');
 
-    if (!items.length) { document.getElementById('doc-list').innerHTML = '<div class="empty-state"><i class="bi bi-folder"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>'; return; }
-
-    // Group by person
-    const grouped = {};
-    items.forEach(i => { if (!grouped[i.name]) grouped[i.name]=[]; grouped[i.name].push(i); });
-
-    const statusIcon = {
-      '\u05D4\u05EA\u05E7\u05D1\u05DC': '<i class="bi bi-check-circle-fill text-success"></i>',
-      '\u05D7\u05E1\u05E8': '<i class="bi bi-x-circle-fill text-danger"></i>',
-      '\u05DE\u05DE\u05EA\u05D9\u05DF': '<i class="bi bi-clock-fill text-warning"></i>'
-    };
-    const statusBadge = {
-      '\u05D4\u05EA\u05E7\u05D1\u05DC': 'bg-success', '\u05D7\u05E1\u05E8': 'bg-danger', '\u05DE\u05DE\u05EA\u05D9\u05DF': 'bg-warning'
-    };
-
-    document.getElementById('doc-list').innerHTML = Object.keys(grouped).map(name => {
-      const docs = grouped[name];
-      const completePct = Math.round(docs.filter(d => d.status === '\u05D4\u05EA\u05E7\u05D1\u05DC').length / docs.length * 100);
-      return `<div class="card mb-3 p-3">
-        <div class="d-flex align-items-center gap-3 mb-2">
-          ${Utils.avatarHTML(name)}
-          <div class="flex-grow-1">
-            <div class="fw-bold">${name}</div>
-            <div class="progress mt-1" style="height:6px"><div class="progress-bar bg-success" style="width:${completePct}%"></div></div>
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card h-100 ${missingReq.length?'border-danger border-opacity-50':''}" style="cursor:pointer" onclick="Pages.openStudentFolder('${s.name.replace(/'/g,"\\'")}')">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-2">
+              ${Utils.avatarHTML ? Utils.avatarHTML(s.name) : `<div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;font-size:14px">${initials}</div>`}
+              <div class="flex-grow-1">
+                <div class="fw-bold">${s.name}</div>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                  <div class="progress flex-grow-1" style="height:6px"><div class="progress-bar bg-${pctClass}" style="width:${completePct}%"></div></div>
+                  <small class="text-${pctClass} fw-bold">${completePct}%</small>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>${catIcons}</div>
+              <span class="badge bg-${pctClass === 'success' ? 'success' : 'secondary'} bg-opacity-10 text-${pctClass === 'success' ? 'success' : 'dark'}">${docCount} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</span>
+            </div>
+            ${missingReq.length ? `<div class="mt-2">${missingReq.map(k => `<span class="badge bg-danger bg-opacity-10 text-danger me-1 small"><i class="bi bi-exclamation-circle me-1"></i>${this._catKeyToLabel(k)}</span>`).join('')}</div>` : ''}
           </div>
-          <span class="badge bg-${completePct===100?'success':completePct>=50?'warning':'danger'}">${completePct}%</span>
         </div>
-        <div class="table-responsive"><table class="table table-sm mb-0"><tbody>
-          ${docs.map(d => `<tr>
-            <td style="width:30px">${statusIcon[d.status]||''}</td>
-            <td class="fw-medium">${d.type}</td>
-            <td><span class="badge ${statusBadge[d.status]||'bg-secondary'}">${d.status}</span></td>
-            <td class="small text-muted">${d.date ? Utils.formatDateShort(d.date) : '--'}</td>
-            <td>
-              ${d.url ? `<button class="btn btn-sm btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${d.type} - ${name}')"><i class="bi bi-eye"></i></button>` : ''}
-              ${d.status==='\u05D7\u05E1\u05E8' ? `<button class="btn btn-sm btn-outline-success" onclick="Pages.markDocReceived('${name.replace(/'/g,"\\'")}','${d.type}')"><i class="bi bi-check"></i></button>` : ''}
-            </td>
-          </tr>`).join('')}
-        </tbody></table></div>
       </div>`;
-    }).join('');
+    }).join('')}</div>`;
+  },
+
+  // ---- TABLE VIEW: Full document list as a sortable table ----
+  _renderDocsTable(allDocs) {
+    if (!allDocs.length) {
+      document.getElementById('doc-list').innerHTML = '<div class="empty-state"><i class="bi bi-table"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h5></div>';
+      return;
+    }
+    // Sort by date descending
+    allDocs.sort((a,b) => (b.uploadDate||'').localeCompare(a.uploadDate||''));
+
+    document.getElementById('doc-list').innerHTML = `
+    <div class="card"><div class="table-responsive"><table class="table table-hover mb-0">
+      <thead class="table-light"><tr>
+        <th>\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+        <th>\u05E9\u05DD \u05DE\u05E1\u05DE\u05DA</th>
+        <th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th>
+        <th>\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05E2\u05DC\u05D0\u05D4</th>
+        <th>\u05EA\u05D9\u05D0\u05D5\u05E8</th>
+        <th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th>
+      </tr></thead>
+      <tbody>
+        ${allDocs.map(d => {
+          const catInfo = this._catKeyInfo(d.category);
+          return `<tr>
+            <td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML ? Utils.avatarHTML(d.studentName,'sm') : ''}<span class="fw-medium">${d.studentName||'--'}</span></div></td>
+            <td><i class="bi bi-file-earmark text-muted me-1"></i>${d.fileName||'--'}</td>
+            <td><span class="badge bg-${catInfo.color} bg-opacity-10 text-${catInfo.color}"><i class="bi ${catInfo.icon} me-1"></i>${catInfo.label}</span></td>
+            <td class="text-muted small">${d.uploadDate ? Utils.formatDateShort(d.uploadDate) : '--'}</td>
+            <td class="small text-muted">${d.description||''}</td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"\\'")}')"><i class="bi bi-eye"></i></button>` : ''}
+                ${d.url ? `<a class="btn btn-outline-success" href="${d.url}" download title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>` : ''}
+                ${d.source === 'local' ? `<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}')"><i class="bi bi-trash"></i></button>` : ''}
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div></div>`;
+  },
+
+  // ---- CATEGORIES VIEW: Group docs by category ----
+  _renderDocsCategories(allDocs) {
+    document.getElementById('doc-list').innerHTML = `<div class="row g-3">${this._docCategoryKeys.map(key => {
+      const info = this._docCategories[key];
+      const catDocs = allDocs.filter(d => d.category === key);
+      const studentNames = [...new Set(catDocs.map(d => d.studentName))];
+
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+          <div class="card-header bg-${info.color} bg-opacity-10 d-flex align-items-center gap-2">
+            <i class="bi ${info.icon} text-${info.color} fs-5"></i>
+            <span class="fw-bold">${info.label}</span>
+            <span class="badge bg-${info.color} ms-auto">${catDocs.length}</span>
+          </div>
+          <div class="card-body p-0">
+            ${catDocs.length ? `<div class="list-group list-group-flush" style="max-height:250px;overflow-y:auto">
+              ${catDocs.sort((a,b)=>(b.uploadDate||'').localeCompare(a.uploadDate||'')).map(d => `
+                <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                  ${Utils.avatarHTML ? Utils.avatarHTML(d.studentName,'sm') : ''}
+                  <div class="flex-grow-1 small">
+                    <div class="fw-medium">${d.studentName}</div>
+                    <div class="text-muted">${d.fileName||d.description||''}</div>
+                  </div>
+                  <small class="text-muted">${d.uploadDate ? Utils.formatDateShort(d.uploadDate) : ''}</small>
+                  ${d.source==='local'?`<button class="btn btn-sm btn-outline-danger p-0 px-1" onclick="event.stopPropagation();Pages.deleteDoc('${d.id}')"><i class="bi bi-trash"></i></button>`:''}
+                </div>`).join('')}
+            </div>` : '<div class="text-center text-muted py-4"><i class="bi bi-inbox fs-3"></i><p class="small mb-0">\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</p></div>'}
+          </div>
+          ${info.required ? '<div class="card-footer small text-danger"><i class="bi bi-asterisk me-1"></i>\u05E0\u05D3\u05E8\u05E9</div>' : ''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  },
+
+  // Open a student folder modal with full breakdown
+  openStudentFolder(studentName) {
+    const allDocs = this._getAllDocsFlat().filter(d => d.studentName === studentName);
+    const title = document.getElementById('folder-title');
+    const body = document.getElementById('folder-body');
+    if (title) title.innerHTML = `<i class="bi bi-folder2-open me-2"></i>\u05EA\u05D9\u05E7\u05D9\u05D9\u05EA ${studentName}`;
+
+    let html = `<div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+      ${Utils.avatarHTML ? Utils.avatarHTML(studentName,'lg') : ''}
+      <div>
+        <h5 class="mb-1">${studentName}</h5>
+        <span class="text-muted">${allDocs.length} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D1\u05EA\u05D9\u05E7\u05D9\u05D9\u05D4</span>
+      </div>
+      <button class="btn btn-sm btn-primary ms-auto" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${studentName.replace(/'/g,"\\'")}'),300)"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
+    </div>`;
+
+    // Show categories as sections
+    this._docCategoryKeys.forEach(key => {
+      const info = this._docCategories[key];
+      const catDocs = allDocs.filter(d => d.category === key);
+      const isReq = this._requiredStudentDocKeys.includes(key);
+      const hasDocs = catDocs.length > 0;
+
+      html += `<div class="mb-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi ${info.icon} text-${info.color}"></i>
+          <span class="fw-bold">${info.label}</span>
+          ${isReq ? '<span class="badge bg-danger bg-opacity-10 text-danger small">\u05E0\u05D3\u05E8\u05E9</span>' : ''}
+          ${hasDocs ? `<span class="badge bg-success bg-opacity-10 text-success ms-auto"><i class="bi bi-check me-1"></i>${catDocs.length}</span>` :
+            (isReq ? '<span class="badge bg-danger ms-auto">\u05D7\u05E1\u05E8</span>' : '<span class="badge bg-secondary bg-opacity-25 ms-auto">\u05E8\u05D9\u05E7</span>')}
+        </div>
+        ${catDocs.length ? `<div class="list-group">
+          ${catDocs.map(d => `<div class="list-group-item d-flex align-items-center gap-2">
+            <i class="bi bi-file-earmark text-muted"></i>
+            <div class="flex-grow-1">
+              <div class="small fw-medium">${d.fileName||'\u05DE\u05E1\u05DE\u05DA'}</div>
+              <div class="text-muted" style="font-size:0.75rem">${d.description||''} ${d.uploadDate ? '&middot; '+Utils.formatDateShort(d.uploadDate) : ''}</div>
+            </div>
+            <div class="btn-group btn-group-sm">
+              ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"\\'")}')"><i class="bi bi-eye"></i></button>` : ''}
+              ${d.source==='local'?`<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}');Pages.openStudentFolder('${studentName.replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>`:''}
+            </div>
+          </div>`).join('')}
+        </div>` : ''}
+      </div>`;
+    });
+
+    if (body) body.innerHTML = html;
+    new bootstrap.Modal(document.getElementById('student-folder-modal')).show();
   },
 
   viewDoc(url, title) {
@@ -1569,58 +1990,148 @@ Object.assign(Pages, {
     } else if (ext === 'pdf') {
       body.innerHTML = `<iframe src="${url}" style="width:100%;height:80vh;border:none"></iframe>`;
     } else {
-      // Use Google Docs Viewer for office files
       body.innerHTML = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true" style="width:100%;height:80vh;border:none"></iframe>`;
     }
     new bootstrap.Modal(document.getElementById('doc-viewer-modal')).show();
   },
 
-  async showUploadDoc() {
+  async showUploadDoc(preselectedStudent) {
     const sel = document.getElementById('upload-owner');
     const students = this._studentsForDocs || [];
     const staff = this._staffForDocs || [];
-    sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8...</option>' +
-      '<optgroup label="\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD">' + students.map(s => `<option value="student:${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>' +
-      '<optgroup label="\u05E6\u05D5\u05D5\u05EA">' + staff.map(s => `<option value="staff:${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>';
+    // Also add localStorage-only student names
+    const localNames = [...new Set(this._localDocs.map(d => d.studentName).filter(Boolean))];
+    const systemNames = new Set(students.map(s => Utils.fullName(s)));
+    const extraNames = localNames.filter(n => !systemNames.has(n));
+
+    sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3...</option>' +
+      '<optgroup label="\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD">' + students.map(s => `<option value="student:${Utils.fullName(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>' +
+      (extraNames.length ? '<optgroup label="\u05E0\u05D5\u05E1\u05E4\u05D9\u05DD">' + extraNames.map(n => `<option value="student:${n}">${n}</option>`).join('') + '</optgroup>' : '') +
+      (staff.length ? '<optgroup label="\u05E6\u05D5\u05D5\u05EA">' + staff.map(s => `<option value="staff:${Utils.fullName(s)}">${Utils.fullName(s)}</option>`).join('') + '</optgroup>' : '');
+
+    if (preselectedStudent) {
+      sel.value = 'student:' + preselectedStudent;
+    }
     document.getElementById('upload-file').value = '';
-    document.getElementById('upload-notes').value = '';
+    document.getElementById('upload-desc').value = '';
+    document.getElementById('upload-file-info')?.classList.add('d-none');
     new bootstrap.Modal(document.getElementById('upload-modal')).show();
   },
 
   async uploadDoc() {
     const owner = document.getElementById('upload-owner').value;
-    const type = document.getElementById('upload-type').value;
+    const catKey = document.getElementById('upload-type').value;
     const file = document.getElementById('upload-file').files[0];
-    const notes = document.getElementById('upload-notes').value.trim();
-    if (!owner || !file) { Utils.toast('\u05D1\u05D7\u05E8 \u05D1\u05E2\u05DC\u05D9\u05DD \u05D5\u05E7\u05D5\u05D1\u05E5','\u05D0\u05D6\u05D4\u05E8\u05D4'); return; }
+    const desc = document.getElementById('upload-desc').value.trim();
+    if (!owner) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3','\u05D0\u05D6\u05D4\u05E8\u05D4'); return; }
 
-    const [entity, id] = owner.split(':');
-    const ownerName = document.getElementById('upload-owner').selectedOptions[0]?.text || '';
+    const [entity, ...nameParts] = owner.split(':');
+    const ownerName = nameParts.join(':');
 
-    // Convert file to base64 for API
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result.split(',')[1];
-      try {
-        const row = {
-          '\u05E9\u05DD': ownerName,
-          '\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA': type,
-          '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC',
-          '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO(),
-          '\u05E9\u05DD_\u05E7\u05D5\u05D1\u05E5': file.name,
-          '\u05D4\u05E2\u05E8\u05D5\u05EA': notes,
-          '\u05E7\u05D5\u05D1\u05E5_base64': base64
-        };
-        if (entity === 'student') row['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] = ownerName;
-        else row['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] = ownerName;
+    // If file selected, try server upload; also always store metadata locally
+    const docMeta = {
+      studentName: ownerName,
+      category: catKey,
+      fileName: file ? file.name : (this._catKeyToLabel(catKey) + ' - ' + ownerName),
+      description: desc,
+      fileSize: file ? (file.size/1024).toFixed(0)+'KB' : '',
+      status: '\u05D4\u05EA\u05E7\u05D1\u05DC',
+      entity: entity,
+      url: ''
+    };
 
-        await App.apiCall('add', '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3', { row });
+    if (file) {
+      // Convert file to base64 for API upload attempt
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        try {
+          const row = {
+            '\u05E9\u05DD': ownerName,
+            '\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA': catKey,
+            '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D4\u05EA\u05E7\u05D1\u05DC',
+            '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E7\u05D1\u05DC\u05D4': Utils.todayISO(),
+            '\u05E9\u05DD_\u05E7\u05D5\u05D1\u05E5': file.name,
+            '\u05D4\u05E2\u05E8\u05D5\u05EA': desc,
+            '\u05E7\u05D5\u05D1\u05E5_base64': base64
+          };
+          if (entity === 'student') row['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] = ownerName;
+          else row['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3'] = ownerName;
+          await App.apiCall('add', '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3', { row });
+        } catch(e) {
+          // Server failed - store locally
+          this._addLocalDoc(docMeta);
+        }
         bootstrap.Modal.getInstance(document.getElementById('upload-modal'))?.hide();
         Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05D4\u05D5\u05E2\u05DC\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
         this.documentsInit();
-      } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D4\u05E2\u05DC\u05D0\u05D4','danger'); }
-    };
-    reader.readAsDataURL(file);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // No file - just record metadata locally
+      this._addLocalDoc(docMeta);
+      bootstrap.Modal.getInstance(document.getElementById('upload-modal'))?.hide();
+      Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05EA \u05DE\u05E1\u05DE\u05DA \u05E0\u05E9\u05DE\u05E8\u05D4');
+      this.documentsInit();
+    }
+  },
+
+  deleteDoc(id) {
+    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E1\u05DE\u05DA \u05D6\u05D4?')) return;
+    this._deleteLocalDoc(id);
+    this._localDocs = this._getLocalDocs();
+    Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05DE\u05D7\u05E7');
+    this._renderDocs();
+  },
+
+  showBulkUpload() {
+    const list = document.getElementById('bulk-students-list');
+    if (!list) return;
+
+    // Combine system students + localStorage-only names
+    const names = new Set();
+    this._studentsForDocs.forEach(s => names.add(Utils.fullName(s)));
+    this._localDocs.forEach(d => { if(d.studentName) names.add(d.studentName); });
+    const sorted = [...names].sort((a,b) => a.localeCompare(b,'he'));
+
+    list.innerHTML = sorted.map(n => `
+      <div class="form-check py-1 px-2">
+        <input class="form-check-input" type="checkbox" value="${n}" id="bulk-s-${n.replace(/\s/g,'_')}" onchange="Pages._updateBulkCount()">
+        <label class="form-check-label" for="bulk-s-${n.replace(/\s/g,'_')}">${n}</label>
+      </div>`).join('');
+
+    document.getElementById('bulk-desc').value = '';
+    this._updateBulkCount();
+    new bootstrap.Modal(document.getElementById('bulk-upload-modal')).show();
+  },
+
+  _updateBulkCount() {
+    const checked = document.querySelectorAll('#bulk-students-list input:checked').length;
+    const el = document.getElementById('bulk-count');
+    if (el) el.textContent = checked + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D5';
+  },
+
+  doBulkUpload() {
+    const catKey = document.getElementById('bulk-type').value;
+    const desc = document.getElementById('bulk-desc').value.trim();
+    const checked = [...document.querySelectorAll('#bulk-students-list input:checked')].map(c => c.value);
+    if (!checked.length) { Utils.toast('\u05D1\u05D7\u05E8 \u05DC\u05E4\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D0\u05D7\u05D3','\u05D0\u05D6\u05D4\u05E8\u05D4'); return; }
+
+    checked.forEach(name => {
+      this._addLocalDoc({
+        studentName: name,
+        category: catKey,
+        fileName: this._catKeyToLabel(catKey) + ' - ' + name,
+        description: desc || '\u05D4\u05E2\u05DC\u05D0\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4',
+        status: '\u05D4\u05EA\u05E7\u05D1\u05DC',
+        entity: 'student'
+      });
+    });
+
+    bootstrap.Modal.getInstance(document.getElementById('bulk-upload-modal'))?.hide();
+    Utils.toast(`${checked.length} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05E0\u05D5\u05E6\u05E8\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4`);
+    this._localDocs = this._getLocalDocs();
+    this._renderDocs();
   },
 
   async markDocReceived(name, type) {
@@ -1633,23 +2144,55 @@ Object.assign(Pages, {
   },
 
   showMissingDocs() {
+    const allDocs = this._getAllDocsFlat();
     const missing = [];
+
+    // Check all system students
     this._studentsForDocs.forEach(s => {
       const name = Utils.fullName(s);
-      const docs = this._docsData.filter(d => (d['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||d['\u05E9\u05DD']||'') === name);
-      const missingTypes = this._requiredStudentDocs.filter(t => !docs.find(d => (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'') === t));
-      if (missingTypes.length) missing.push({ name, types: missingTypes });
+      const studentDocs = allDocs.filter(d => d.studentName === name);
+      const hasCats = new Set(studentDocs.map(d => d.category));
+      const missingCats = this._requiredStudentDocKeys.filter(k => !hasCats.has(k));
+      if (missingCats.length) missing.push({ name, types: missingCats.map(k => this._catKeyToLabel(k)), isStaff: false });
     });
+    // Check localStorage-only students
+    const systemNames = new Set(this._studentsForDocs.map(s => Utils.fullName(s)));
+    const localNames = [...new Set(this._localDocs.map(d => d.studentName).filter(Boolean))].filter(n => !systemNames.has(n));
+    localNames.forEach(name => {
+      const studentDocs = allDocs.filter(d => d.studentName === name);
+      const hasCats = new Set(studentDocs.map(d => d.category));
+      const missingCats = this._requiredStudentDocKeys.filter(k => !hasCats.has(k));
+      if (missingCats.length) missing.push({ name, types: missingCats.map(k => this._catKeyToLabel(k)), isStaff: false });
+    });
+    // Check staff
     this._staffForDocs.forEach(s => {
       const name = Utils.fullName(s);
-      const docs = this._docsData.filter(d => (d['\u05E9\u05DD_\u05E2\u05D5\u05D1\u05D3']||d['\u05E9\u05DD']||'') === name);
-      const missingTypes = this._requiredStaffDocs.filter(t => !docs.find(d => (d['\u05E1\u05D5\u05D2_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||'') === t));
-      if (missingTypes.length) missing.push({ name, types: missingTypes, isStaff: true });
+      const staffDocs = allDocs.filter(d => d.studentName === name && d.entity === 'staff');
+      const hasCats = new Set(staffDocs.map(d => d.category));
+      const missingCats = this._requiredStaffDocKeys.filter(k => !hasCats.has(k));
+      if (missingCats.length) missing.push({ name, types: missingCats.map(k => this._catKeyToLabel(k)), isStaff: true });
     });
 
-    const html = `<div class="modal fade" id="missing-docs-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header bg-danger text-white"><h5><i class="bi bi-exclamation-triangle me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD (${missing.length} \u05D0\u05E0\u05E9\u05D9\u05DD)</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body">
-      ${missing.length ? missing.map(m => `<div class="d-flex align-items-center gap-3 py-2 border-bottom">${Utils.avatarHTML(m.name,'sm')}<div class="flex-grow-1"><span class="fw-bold">${m.name}</span>${m.isStaff ? ' <span class="badge bg-info">\u05E6\u05D5\u05D5\u05EA</span>' : ''}</div><div>${m.types.map(t => `<span class="badge bg-danger me-1">${t}</span>`).join('')}</div></div>`).join('') : '<div class="text-success text-center py-3"><i class="bi bi-check-circle fs-1"></i><h5>\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5!</h5></div>'}
-    </div></div></div></div>`;
+    // Sort: most missing first
+    missing.sort((a,b) => b.types.length - a.types.length);
+
+    const html = `<div class="modal fade" id="missing-docs-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header bg-danger text-white"><h5><i class="bi bi-exclamation-triangle me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD (${missing.length} \u05D0\u05E0\u05E9\u05D9\u05DD)</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" style="max-height:60vh;overflow-y:auto">
+        ${missing.length ? `
+          <div class="alert alert-warning small mb-3"><i class="bi bi-info-circle me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05E0\u05D3\u05E8\u05E9\u05D9\u05DD: ${this._requiredStudentDocKeys.map(k => this._catKeyToLabel(k)).join(', ')}</div>
+          ${missing.map(m => `<div class="d-flex align-items-center gap-3 py-2 border-bottom">
+            ${Utils.avatarHTML ? Utils.avatarHTML(m.name,'sm') : ''}
+            <div class="flex-grow-1">
+              <span class="fw-bold">${m.name}</span>
+              ${m.isStaff ? ' <span class="badge bg-info">\u05E6\u05D5\u05D5\u05EA</span>' : ''}
+            </div>
+            <div class="d-flex flex-wrap gap-1">${m.types.map(t => `<span class="badge bg-danger">${t}</span>`).join('')}</div>
+            <button class="btn btn-sm btn-outline-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('missing-docs-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${m.name.replace(/'/g,"\\'")}'),300)" title="\u05D4\u05E2\u05DC\u05D0\u05D4"><i class="bi bi-cloud-upload"></i></button>
+          </div>`).join('')}
+        ` : '<div class="text-success text-center py-4"><i class="bi bi-check-circle fs-1 d-block mb-2"></i><h5>\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5!</h5></div>'}
+      </div>
+    </div></div></div>`;
     document.getElementById('missing-docs-modal')?.remove();
     document.body.insertAdjacentHTML('beforeend', html);
     new bootstrap.Modal(document.getElementById('missing-docs-modal')).show();
