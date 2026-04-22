@@ -1,84 +1,817 @@
 /* ===== BHT v5.3 — Communication ===== */
 Object.assign(Pages, {
   /* ======================================================================
-     PARENTS
+     PARENTS — Comprehensive Parent Management Module (v5.5)
      ====================================================================== */
+
+  /* --- Demo data: 15 parents connected to 12 students --- */
+  _parDemoStudents: [
+    {'\u05E9\u05DD':'\u05D3\u05D5\u05D3 \u05DB\u05D4\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF'},
+    {'\u05E9\u05DD':'\u05D9\u05D5\u05E1\u05D9 \u05DB\u05D4\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF'},
+    {'\u05E9\u05DD':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05DC\u05D5\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DC\u05D5\u05D9'},
+    {'\u05E9\u05DD':'\u05E9\u05DE\u05E2\u05D5\u05DF \u05D9\u05E6\u05D7\u05E7\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D9\u05E6\u05D7\u05E7\u05D9'},
+    {'\u05E9\u05DD':'\u05D7\u05E0\u05D4 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF'},
+    {'\u05E9\u05DD':'\u05D9\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF'},
+    {'\u05E9\u05DD':'\u05D3\u05E0\u05D9\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5'},
+    {'\u05E9\u05DD':'\u05E0\u05EA\u05E0\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DE\u05D6\u05E8\u05D7\u05D9'},
+    {'\u05E9\u05DD':'\u05D0\u05DC\u05D9\u05D4\u05D5 \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05DE\u05E2\u05D5\u05E0\u05D9'},
+    {'\u05E9\u05DD':'\u05E2\u05DE\u05D9\u05EA \u05D1\u05E8\u05D2\u05E8','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05E8\u05D2\u05E8'},
+    {'\u05E9\u05DD':'\u05D0\u05DC\u05D9 \u05D0\u05DC\u05D5\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05DC\u05D5\u05DF'},
+    {'\u05E9\u05DD':'\u05DE\u05E0\u05D7\u05DD \u05D1\u05DF \u05D3\u05D5\u05D3','\u05DB\u05D9\u05EA\u05D4':'\u05D3','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05DF \u05D3\u05D5\u05D3'}
+  ],
+  _parDemoParents: [
+    {id:1,'\u05E9\u05DD':'\u05DE\u05E9\u05D4 \u05DB\u05D4\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-1234567','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'moshe@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05E6\u05DC 12, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05E9\u05DC\u05DD \u05D1\u05D6\u05DE\u05DF','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:2,'\u05E9\u05DD':'\u05E8\u05D7\u05DC \u05DB\u05D4\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-1234568','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'rachel.k@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05E8\u05D7\u05D5\u05D1 \u05D4\u05E8\u05E6\u05DC 12, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:3,'\u05E9\u05DD':'\u05D9\u05E2\u05E7\u05D1 \u05DC\u05D5\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-9876543','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'yaakov.l@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DC\u05D5\u05D9','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E9\u05D5\u05E4\u05D8\u05D9\u05DD 5, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E2\u05D5\u05D1\u05D3 \u05D1\u05D7\u05D5"\u05DC','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:4,'\u05E9\u05DD':'\u05D3\u05D1\u05D5\u05E8\u05D4 \u05D9\u05E6\u05D7\u05E7\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-5551234','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'dvora.y@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D9\u05E6\u05D7\u05E7\u05D9','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E0\u05E9\u05D9\u05D0 3, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:5,'\u05E9\u05DD':'\u05E9\u05E8\u05D4 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-7778899','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'sarah.g@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 8, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05DE\u05D5\u05E8\u05D4 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:6,'\u05E9\u05DD':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-6665544','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'avi.f@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05D0\u05D3\u05DE\u05D5"\u05E8 7, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E2\u05E6\u05DE\u05D0\u05D9','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:7,'\u05E9\u05DD':'\u05E8\u05D7\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-3332211','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'rachel.a@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E8\u05D1 \u05D4\u05D2\u05D3\u05D5\u05DC 22, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:8,'\u05E9\u05DD':'\u05D7\u05D9\u05D9\u05DD \u05DE\u05D6\u05E8\u05D7\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'052-1112233','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'chaim.m@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DE\u05D6\u05E8\u05D7\u05D9','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E8\u05D1 \u05E7\u05D5\u05E7 14, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E8\u05D5\u05D0\u05D4 \u05D7\u05E9\u05D1\u05D5\u05DF','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:9,'\u05E9\u05DD':'\u05DC\u05D0\u05D4 \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-9998877','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'leah.sh@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05DE\u05E2\u05D5\u05E0\u05D9','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05E8\u05D7\u05D5\u05D1 \u05D4\u05D0\u05E8\u05D9 15, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:10,'\u05E9\u05DD':'\u05D9\u05D5\u05E1\u05D9 \u05D1\u05E8\u05D2\u05E8','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'050-4445566','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'yosi.b@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05E8\u05D2\u05E8','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05DE\u05DC\u05DA \u05D3\u05D5\u05D3 30, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC'},
+    {id:11,'\u05E9\u05DD':'\u05DE\u05E8\u05D9\u05DD \u05D0\u05DC\u05D5\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-2223344','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05DC\u05D5\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05DE\u05DC\u05DA \u05E9\u05DC\u05DE\u05D4 4, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:12,'\u05E9\u05DD':'\u05E9\u05DC\u05DE\u05D4 \u05D1\u05DF \u05D3\u05D5\u05D3','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-1119988','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'shlomo.bd@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05DF \u05D3\u05D5\u05D3','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E0\u05D1\u05D9\u05D0\u05D9\u05DD 9, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'\u05E1\u05D5\u05E4\u05E8','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:13,'\u05E9\u05DD':'\u05E0\u05D7\u05DE\u05DF \u05E9\u05E4\u05D9\u05E8\u05D0','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-3334455','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'nachman.sh@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05E4\u05D9\u05E8\u05D0','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E8\u05D1 \u05E9\u05D9\u05DC\u05D5 2, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:14,'\u05E9\u05DD':'\u05D0\u05DC\u05D9\u05E2\u05D6\u05E8 \u05D4\u05DC\u05DC','\u05E7\u05E9\u05E8':'\u05D0\u05D1','\u05D8\u05DC\u05E4\u05D5\u05DF':'053-6667788','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'eliezer.h@example.com','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D4\u05DC\u05DC','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D9\u05E4\u05D5 55, \u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
+    {id:15,'\u05E9\u05DD':'\u05D1\u05EA\u05D9\u05D4 \u05E7\u05E8\u05D0\u05D5\u05E1','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'058-2224466','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'','\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E7\u05E8\u05D0\u05D5\u05E1','\u05DB\u05EA\u05D5\u05D1\u05EA':'\u05D4\u05E4\u05D5\u05E2\u05DC\u05D9\u05DD 18, \u05D1\u05E0\u05D9 \u05D1\u05E8\u05E7','\u05D4\u05E2\u05E8\u05D5\u05EA':'','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC'}
+  ],
+
+  /* --- Demo communication log --- */
+  _parDemoCommLog: [
+    {'\u05D4\u05D5\u05E8\u05D4_id':1,'\u05EA\u05D0\u05E8\u05D9\u05DA':'22/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05EA\u05D5\u05DB\u05DF':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':1,'\u05EA\u05D0\u05E8\u05D9\u05DA':'20/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'phone','\u05EA\u05D5\u05DB\u05DF':'\u05E9\u05D9\u05D7\u05D4 \u05E2\u05DC \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D3\u05D5\u05D3'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':3,'\u05EA\u05D0\u05E8\u05D9\u05DA':'21/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05EA\u05D5\u05DB\u05DF':'\u05E2\u05D3\u05DB\u05D5\u05DF \u05E2\u05DC \u05E6\u05D9\u05D5\u05E0\u05D9 \u05D0\u05D1\u05E8\u05D4\u05DD'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':4,'\u05EA\u05D0\u05E8\u05D9\u05DA':'19/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'email','\u05EA\u05D5\u05DB\u05DF':'\u05EA\u05E2\u05D5\u05D3\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05E9\u05DC \u05E9\u05DE\u05E2\u05D5\u05DF'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':5,'\u05EA\u05D0\u05E8\u05D9\u05DA':'18/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'phone','\u05EA\u05D5\u05DB\u05DF':'\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E2\u05DC \u05D8\u05D9\u05D5\u05DC \u05DC\u05D9\u05E8\u05D5\u05E9\u05DC\u05D9\u05DD'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':6,'\u05EA\u05D0\u05E8\u05D9\u05DA':'22/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05EA\u05D5\u05DB\u05DF':'\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DC\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':8,'\u05EA\u05D0\u05E8\u05D9\u05DA':'17/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'sms','\u05EA\u05D5\u05DB\u05DF':'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD: 850 \u05E9"\u05D7'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':10,'\u05EA\u05D0\u05E8\u05D9\u05DA':'16/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'whatsapp','\u05EA\u05D5\u05DB\u05DF':'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05E2\u05DE\u05D9\u05EA'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':12,'\u05EA\u05D0\u05E8\u05D9\u05DA':'15/04/2026','\u05D0\u05DE\u05E6\u05E2\u05D9':'phone','\u05EA\u05D5\u05DB\u05DF':'\u05E9\u05D9\u05D7\u05D4 \u05E2\u05DC \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05DE\u05E0\u05D7\u05DD'}
+  ],
+
+  /* --- Demo meetings --- */
+  _parDemoMeetings: [
+    {'\u05D4\u05D5\u05E8\u05D4_id':1,'\u05EA\u05D0\u05E8\u05D9\u05DA':'24/04/2026','\u05E9\u05E2\u05D4':'10:00','\u05E1\u05D9\u05D1\u05D4':'\u05E9\u05D9\u05D7\u05D4 \u05E2\u05DC \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D3\u05D5\u05D3','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':4,'\u05EA\u05D0\u05E8\u05D9\u05DA':'25/04/2026','\u05E9\u05E2\u05D4':'14:30','\u05E1\u05D9\u05D1\u05D4':'\u05D3\u05D9\u05D5\u05DF \u05E2\u05DC \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'},
+    {'\u05D4\u05D5\u05E8\u05D4_id':6,'\u05EA\u05D0\u05E8\u05D9\u05DA':'23/04/2026','\u05E9\u05E2\u05D4':'09:00','\u05E1\u05D9\u05D1\u05D4':'\u05E8\u05D9\u05E9\u05D5\u05DD \u05DC\u05E9\u05E0\u05D4 \u05D4\u05D1\u05D0\u05D4','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D1\u05D5\u05E6\u05E2'}
+  ],
+
+  /* --- State --- */
+  _parData: [],
+  _parStudents: [],
+  _parCommLog: [],
+  _parMeetings: [],
+  _parEditId: null,
+  _parTab: 'cards',
+  _parSearch: '',
+  _parFilterClass: '',
+  _parFilterRelation: '',
+
   parents() {
     return `
+      <!-- Stats Cards -->
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
-        <div><h1><i class="bi bi-house-heart-fill me-2"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</h1><p id="par-count"></p></div>
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary btn-sm" onclick="Pages.showAddParent()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3</button>
+        <div><h1><i class="bi bi-house-heart-fill me-2"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</h1><p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05D4\u05D5\u05E8\u05D9\u05DD, \u05DE\u05E9\u05E4\u05D7\u05D5\u05EA \u05D5\u05E7\u05E9\u05E8 \u05E2\u05DD \u05D4\u05DE\u05D5\u05E1\u05D3</p></div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-primary btn-sm" onclick="Pages.showAddParent()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05D4\u05D5\u05E8\u05D4</button>
+          <button class="btn btn-outline-info btn-sm" onclick="Pages._parShowMeetingModal()"><i class="bi bi-calendar-plus me-1"></i>\u05E7\u05D1\u05E2 \u05E4\u05D2\u05D9\u05E9\u05D4</button>
           <button class="btn btn-outline-success btn-sm" onclick="Pages.bulkWhatsApp()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D9\u05D7\u05D4 \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9\u05EA</button>
         </div>
       </div>
-      <div class="card p-3 mb-3"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control" id="par-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D4\u05D5\u05E8\u05D4..."></div></div>
+
+      <div class="row g-3 mb-3" id="par-stats-row"></div>
+
+      <!-- Search & Filters -->
+      <div class="card p-3 mb-3">
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <div class="search-box flex-fill" style="max-width:350px"><i class="bi bi-search"></i><input type="text" class="form-control" id="par-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05DC\u05E4\u05D9 \u05E9\u05DD, \u05D9\u05DC\u05D3, \u05DB\u05D9\u05EA\u05D4..."></div>
+          <select class="form-select form-select-sm" style="width:auto;min-width:120px" id="par-filter-class" onchange="Pages._parFilterClass=this.value;Pages.renderParents()">
+            <option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>
+          </select>
+          <select class="form-select form-select-sm" style="width:auto;min-width:100px" id="par-filter-relation" onchange="Pages._parFilterRelation=this.value;Pages.renderParents()">
+            <option value="">\u05DB\u05DC \u05D4\u05E7\u05E9\u05E8\u05D9\u05DD</option>
+            <option value="\u05D0\u05D1">\u05D0\u05D1</option>
+            <option value="\u05D0\u05DD">\u05D0\u05DD</option>
+            <option value="\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1">\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" id="par-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" data-par-tab="cards" onclick="Pages._parTab='cards';Pages.renderParents();return false"><i class="bi bi-grid me-1"></i>\u05DB\u05E8\u05D8\u05D9\u05E1\u05D9\u05DD</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-par-tab="family" onclick="Pages._parTab='family';Pages.renderParents();return false"><i class="bi bi-diagram-3 me-1"></i>\u05EA\u05E6\u05D5\u05D2\u05EA \u05DE\u05E9\u05E4\u05D7\u05D5\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-par-tab="meetings" onclick="Pages._parTab='meetings';Pages.renderParents();return false"><i class="bi bi-calendar-check me-1"></i>\u05E4\u05D2\u05D9\u05E9\u05D5\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-par-tab="table" onclick="Pages._parTab='table';Pages.renderParents();return false"><i class="bi bi-table me-1"></i>\u05D8\u05D1\u05DC\u05D4</a></li>
+      </ul>
+
       <div id="par-list">${Utils.skeleton(3)}</div>
-      <div class="modal fade" id="par-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+
+      <!-- Add/Edit Parent Modal -->
+      <div class="modal fade" id="par-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
         <div class="modal-header"><h5 class="modal-title">\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body"><div class="row g-3">
-          <div class="col-12"><label class="form-label">\u05E9\u05DD</label><input class="form-control" id="pf-name"></div>
-          <div class="col-6"><label class="form-label">\u05E7\u05E9\u05E8</label><select class="form-select" id="pf-relation"><option>\u05D0\u05D1</option><option>\u05D0\u05DD</option><option>\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1</option></select></div>
-          <div class="col-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF</label><input class="form-control" id="pf-phone"></div>
-          <div class="col-12"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input class="form-control" id="pf-email"></div>
+          <div class="col-md-6"><label class="form-label">\u05E9\u05DD \u05DE\u05DC\u05D0</label><input class="form-control" id="pf-name"></div>
+          <div class="col-md-3"><label class="form-label">\u05E7\u05E9\u05E8</label><select class="form-select" id="pf-relation"><option>\u05D0\u05D1</option><option>\u05D0\u05DD</option><option>\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1</option></select></div>
+          <div class="col-md-3"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label><select class="form-select" id="pf-status"><option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option><option value="\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option></select></div>
+          <div class="col-md-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF</label><input class="form-control" id="pf-phone" dir="ltr"></div>
+          <div class="col-md-6"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input class="form-control" id="pf-email" type="email" dir="ltr"></div>
+          <div class="col-12"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA</label><input class="form-control" id="pf-address"></div>
+          <div class="col-md-6"><label class="form-label">\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4</label><input class="form-control" id="pf-family" placeholder="\u05DE\u05E9\u05E4\u05D7\u05EA \u05DB\u05D4\u05DF, \u05DE\u05E9\u05E4\u05D7\u05EA \u05DC\u05D5\u05D9..."></div>
+          <div class="col-md-6"><label class="form-label">\u05D9\u05DC\u05D3\u05D9\u05DD (\u05D1\u05D7\u05E8 \u05DE\u05D4\u05E8\u05E9\u05D9\u05DE\u05D4)</label><div id="pf-children-list" class="border rounded p-2" style="max-height:120px;overflow-y:auto"></div></div>
+          <div class="col-12"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><textarea class="form-control" id="pf-notes" rows="2"></textarea></div>
         </div></div>
-        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveParent()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveParent()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>
+
+      <!-- Meeting Scheduler Modal -->
+      <div class="modal fade" id="par-meeting-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-calendar-plus me-2"></i>\u05E7\u05D1\u05D9\u05E2\u05EA \u05E4\u05D2\u05D9\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"><div class="row g-3">
+          <div class="col-12"><label class="form-label">\u05D4\u05D5\u05E8\u05D4</label><select class="form-select" id="pm-parent"></select></div>
+          <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input class="form-control" id="pm-date" type="date"></div>
+          <div class="col-6"><label class="form-label">\u05E9\u05E2\u05D4</label><input class="form-control" id="pm-time" type="time"></div>
+          <div class="col-12"><label class="form-label">\u05E1\u05D9\u05D1\u05D4 / \u05E0\u05D5\u05E9\u05D0</label><input class="form-control" id="pm-reason"></div>
+        </div></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._parSaveMeeting()"><i class="bi bi-check-lg me-1"></i>\u05E7\u05D1\u05E2</button></div>
+      </div></div></div>
+
+      <!-- Communication Log Modal -->
+      <div class="modal fade" id="par-commlog-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body" id="par-commlog-body"></div>
       </div></div></div>
     `;
   },
-  _parData: [],
-  _parEditId: null,
+
   async parentsInit() {
-    this._parData = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
-    document.getElementById('par-search').addEventListener('input', Utils.debounce(() => this.renderParents(), 200));
+    const [parents, students] = await Promise.all([
+      App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => []),
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => [])
+    ]);
+    this._parData = parents.length ? parents : this._parDemoParents;
+    this._parStudents = students.length ? students : this._parDemoStudents;
+    this._parCommLog = this._parDemoCommLog;
+    this._parMeetings = this._parDemoMeetings;
+    this._parTab = 'cards';
+    this._parSearch = '';
+    this._parFilterClass = '';
+    this._parFilterRelation = '';
+
+    // Build class filter options
+    const classSet = new Set();
+    this._parStudents.forEach(s => { if (s['\u05DB\u05D9\u05EA\u05D4']) classSet.add(s['\u05DB\u05D9\u05EA\u05D4']); });
+    const classSelect = document.getElementById('par-filter-class');
+    if (classSelect) {
+      [...classSet].sort().forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = '\u05DB\u05D9\u05EA\u05D4 ' + c;
+        classSelect.appendChild(opt);
+      });
+    }
+
+    document.getElementById('par-search')?.addEventListener('input', Utils.debounce(() => {
+      this._parSearch = document.getElementById('par-search').value;
+      this.renderParents();
+    }, 200));
+
+    this._parRenderStats();
     this.renderParents();
   },
-  renderParents() {
-    const search = (document.getElementById('par-search')?.value || '').trim().toLowerCase();
-    const filtered = this._parData.filter(p => !search || (p['\u05E9\u05DD']||'').toLowerCase().includes(search) || (p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(search));
-    document.getElementById('par-count').textContent = `${filtered.length} \u05D4\u05D5\u05E8\u05D9\u05DD`;
-    if (!filtered.length) { document.getElementById('par-list').innerHTML = '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('par-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E7\u05E9\u05E8</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${filtered.map(p => {
-      const pid = Utils.rowId(p);
-      return `<tr><td class="fw-bold"><a href="#parent_card/${pid}" class="text-decoration-none">${p['\u05E9\u05DD']||''}</a></td><td>${p['\u05E7\u05E9\u05E8']||''}</td><td dir="ltr">${Utils.formatPhone(p['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</td><td>${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td><td class="text-nowrap">${p['\u05D8\u05DC\u05E4\u05D5\u05DF'] ? `<a href="https://wa.me/972${(p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').replace(/^0/,'')}" target="_blank" class="btn btn-sm btn-outline-success me-1"><i class="bi bi-whatsapp"></i></a>` : ''}<button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteParent('${pid}')"><i class="bi bi-trash"></i></button></td></tr>`;
-    }).join('')}</tbody></table></div>`;
+
+  /* --- Stats Cards --- */
+  _parRenderStats() {
+    const data = this._parData;
+    const families = new Set(data.map(p => p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || p['\u05E9\u05DD']));
+    const withEmail = data.filter(p => p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']).length;
+    const emailPct = data.length ? Math.round(withEmail / data.length * 100) : 0;
+    const active = data.filter(p => (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC').length;
+
+    const el = document.getElementById('par-stats-row');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-primary">
+        <div class="fs-3 fw-bold text-primary">${data.length}</div>
+        <div class="small text-muted">\u05E1\u05D4"\u05DB \u05D4\u05D5\u05E8\u05D9\u05DD</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-success">
+        <div class="fs-3 fw-bold text-success">${families.size}</div>
+        <div class="small text-muted">\u05DE\u05E9\u05E4\u05D7\u05D5\u05EA</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-info">
+        <div class="fs-3 fw-bold text-info">${emailPct}%</div>
+        <div class="small text-muted">\u05E2\u05DD \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-warning">
+        <div class="fs-3 fw-bold text-warning">${active}</div>
+        <div class="small text-muted">\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</div>
+      </div></div>`;
   },
-  showAddParent() { this._parEditId = null; document.getElementById('pf-name').value = ''; document.getElementById('pf-relation').value = '\u05D0\u05D1'; document.getElementById('pf-phone').value = ''; document.getElementById('pf-email').value = ''; document.querySelector('#par-modal .modal-title').textContent = '\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4'; new bootstrap.Modal(document.getElementById('par-modal')).show(); },
+
+  /* --- Get children for a parent --- */
+  _parGetChildren(parent) {
+    const family = parent['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '';
+    if (!family) return [];
+    return this._parStudents.filter(s => (s['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === family);
+  },
+
+  /* --- Filter logic --- */
+  _parGetFiltered() {
+    const search = (this._parSearch || '').trim().toLowerCase();
+    const fClass = this._parFilterClass;
+    const fRelation = this._parFilterRelation;
+
+    return this._parData.filter(p => {
+      // Search filter
+      if (search) {
+        const name = (p['\u05E9\u05DD'] || '').toLowerCase();
+        const phone = (p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '').toLowerCase();
+        const family = (p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '').toLowerCase();
+        const children = this._parGetChildren(p).map(c => (c['\u05E9\u05DD'] || '').toLowerCase()).join(' ');
+        if (!name.includes(search) && !phone.includes(search) && !family.includes(search) && !children.includes(search)) return false;
+      }
+      // Class filter
+      if (fClass) {
+        const children = this._parGetChildren(p);
+        if (!children.some(c => c['\u05DB\u05D9\u05EA\u05D4'] === fClass)) return false;
+      }
+      // Relation filter
+      if (fRelation && (p['\u05E7\u05E9\u05E8'] || '') !== fRelation) return false;
+      return true;
+    });
+  },
+
+  /* --- Main render dispatcher --- */
+  renderParents() {
+    // Update tab active state
+    document.querySelectorAll('#par-tabs .nav-link').forEach(a => {
+      a.classList.toggle('active', a.dataset.parTab === this._parTab);
+    });
+
+    const el = document.getElementById('par-list');
+    if (!el) return;
+    const filtered = this._parGetFiltered();
+
+    if (this._parTab === 'cards') this._parRenderCards(el, filtered);
+    else if (this._parTab === 'family') this._parRenderFamily(el, filtered);
+    else if (this._parTab === 'meetings') this._parRenderMeetings(el);
+    else if (this._parTab === 'table') this._parRenderTable(el, filtered);
+  },
+
+  /* --- CARDS VIEW --- */
+  _parRenderCards(el, filtered) {
+    if (!filtered.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>';
+      return;
+    }
+    el.innerHTML = `<div class="row g-3">${filtered.map(p => {
+      const pid = p.id || Utils.rowId(p);
+      const children = this._parGetChildren(p);
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+      const cleanPhone = phone.replace(/[-\s]/g, '').replace(/^0/, '972');
+      const statusBadge = (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC'
+        ? '<span class="badge bg-success">\u05E4\u05E2\u05D9\u05DC</span>'
+        : '<span class="badge bg-secondary">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</span>';
+      const relationIcon = (p['\u05E7\u05E9\u05E8'] || '') === '\u05D0\u05DD' ? 'bi-gender-female text-danger' : 'bi-gender-male text-primary';
+      const commCount = this._parCommLog.filter(c => c['\u05D4\u05D5\u05E8\u05D4_id'] === pid).length;
+
+      return `<div class="col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm hover-lift">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              ${Utils.avatarHTML ? Utils.avatarHTML(p['\u05E9\u05DD'], 'md') : '<div class="avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">' + (p['\u05E9\u05DD']||'').substring(0,2) + '</div>'}
+              <div class="flex-fill">
+                <h6 class="fw-bold mb-1">
+                  <a href="#parent_card/${pid}" class="text-decoration-none text-dark">${p['\u05E9\u05DD'] || ''}</a>
+                </h6>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-light text-dark border"><i class="bi ${relationIcon} me-1"></i>${p['\u05E7\u05E9\u05E8'] || ''}</span>
+                  ${statusBadge}
+                </div>
+              </div>
+            </div>
+
+            <!-- Children -->
+            ${children.length ? `<div class="mb-2">
+              <small class="text-muted d-block mb-1"><i class="bi bi-people me-1"></i>\u05D9\u05DC\u05D3\u05D9\u05DD:</small>
+              <div class="d-flex flex-wrap gap-1">
+                ${children.map(c => `<span class="badge bg-primary bg-opacity-10 text-primary">${c['\u05E9\u05DD']} <small>(\u05DB\u05D9\u05EA\u05D4 ${c['\u05DB\u05D9\u05EA\u05D4'] || ''})</small></span>`).join('')}
+              </div>
+            </div>` : ''}
+
+            <!-- Contact info -->
+            <div class="small text-muted mb-2">
+              ${phone ? `<div><i class="bi bi-telephone me-1"></i><span dir="ltr">${Utils.formatPhone ? Utils.formatPhone(phone) : phone}</span></div>` : ''}
+              ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<div><i class="bi bi-envelope me-1"></i>${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}</div>` : ''}
+              ${p['\u05DB\u05EA\u05D5\u05D1\u05EA'] ? `<div><i class="bi bi-geo-alt me-1"></i>${p['\u05DB\u05EA\u05D5\u05D1\u05EA']}</div>` : ''}
+            </div>
+
+            ${commCount ? `<div class="small"><span class="badge bg-info bg-opacity-10 text-info"><i class="bi bi-chat-dots me-1"></i>${commCount} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA</span></div>` : ''}
+          </div>
+          <div class="card-footer bg-transparent border-top-0 pt-0">
+            <div class="d-flex gap-1 flex-wrap">
+              ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
+              ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
+              ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+              <button class="btn btn-sm btn-outline-secondary" onclick="Pages._parShowCommLog(${pid})" title="\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA"><i class="bi bi-clock-history"></i></button>
+              <div class="ms-auto d-flex gap-1">
+                <button class="btn btn-sm btn-outline-primary" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteParent('${pid}')"><i class="bi bi-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>
+    <div class="mt-2 text-muted small">\u05DE\u05E6\u05D9\u05D2 ${filtered.length} \u05DE\u05EA\u05D5\u05DA ${this._parData.length} \u05D4\u05D5\u05E8\u05D9\u05DD</div>`;
+  },
+
+  /* --- FAMILY VIEW --- */
+  _parRenderFamily(el, filtered) {
+    // Group by family
+    const familyMap = {};
+    filtered.forEach(p => {
+      const fam = p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || p['\u05E9\u05DD'] || '\u05DC\u05D0 \u05DE\u05E9\u05D5\u05D9\u05DA';
+      if (!familyMap[fam]) familyMap[fam] = { parents: [], children: [] };
+      familyMap[fam].parents.push(p);
+    });
+    // Add children per family
+    Object.keys(familyMap).forEach(fam => {
+      familyMap[fam].children = this._parStudents.filter(s => (s['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === fam);
+    });
+
+    if (!Object.keys(familyMap).length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-diagram-3"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05E4\u05D7\u05D5\u05EA</h5></div>';
+      return;
+    }
+
+    el.innerHTML = `<div class="row g-3">${Object.entries(familyMap).map(([fam, data]) => {
+      const father = data.parents.find(p => p['\u05E7\u05E9\u05E8'] === '\u05D0\u05D1');
+      const mother = data.parents.find(p => p['\u05E7\u05E9\u05E8'] === '\u05D0\u05DD');
+
+      return `<div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-primary bg-opacity-10 border-0">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-house-heart me-2 text-primary"></i>\u05DE\u05E9\u05E4\u05D7\u05EA ${fam}</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-2 mb-3">
+              ${father ? `<div class="col-6">
+                <div class="border rounded p-2 bg-light">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    ${Utils.avatarHTML ? Utils.avatarHTML(father['\u05E9\u05DD'], 'sm') : ''}
+                    <div>
+                      <div class="fw-bold small">${father['\u05E9\u05DD']}</div>
+                      <span class="badge bg-primary" style="font-size:0.65rem">\u05D0\u05D1</span>
+                    </div>
+                  </div>
+                  <div class="small text-muted" dir="ltr">${Utils.formatPhone ? Utils.formatPhone(father['\u05D8\u05DC\u05E4\u05D5\u05DF']) : father['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''}</div>
+                </div>
+              </div>` : ''}
+              ${mother ? `<div class="col-6">
+                <div class="border rounded p-2 bg-light">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    ${Utils.avatarHTML ? Utils.avatarHTML(mother['\u05E9\u05DD'], 'sm') : ''}
+                    <div>
+                      <div class="fw-bold small">${mother['\u05E9\u05DD']}</div>
+                      <span class="badge bg-danger" style="font-size:0.65rem">\u05D0\u05DD</span>
+                    </div>
+                  </div>
+                  <div class="small text-muted" dir="ltr">${Utils.formatPhone ? Utils.formatPhone(mother['\u05D8\u05DC\u05E4\u05D5\u05DF']) : mother['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''}</div>
+                </div>
+              </div>` : ''}
+            </div>
+
+            ${data.children.length ? `
+              <div class="mb-2"><small class="text-muted fw-bold"><i class="bi bi-mortarboard me-1"></i>\u05D9\u05DC\u05D3\u05D9\u05DD (${data.children.length}):</small></div>
+              <div class="d-flex flex-wrap gap-1">
+                ${data.children.map(c => `<span class="badge bg-success bg-opacity-10 text-success border">${c['\u05E9\u05DD']} <small class="text-muted">(\u05DB\u05D9\u05EA\u05D4 ${c['\u05DB\u05D9\u05EA\u05D4'] || ''})</small></span>`).join('')}
+              </div>` : '<div class="text-muted small">\u05D0\u05D9\u05DF \u05D9\u05DC\u05D3\u05D9\u05DD \u05DE\u05E9\u05D5\u05D9\u05DB\u05D9\u05DD</div>'}
+
+            ${data.parents[0]['\u05DB\u05EA\u05D5\u05D1\u05EA'] ? `<div class="mt-2 small text-muted"><i class="bi bi-geo-alt me-1"></i>${data.parents[0]['\u05DB\u05EA\u05D5\u05D1\u05EA']}</div>` : ''}
+          </div>
+          <div class="card-footer bg-transparent d-flex gap-1">
+            ${data.parents.map(p => {
+              const ph = (p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '').replace(/[-\s]/g, '').replace(/^0/, '972');
+              return ph ? `<a href="https://wa.me/${ph}" target="_blank" class="btn btn-sm btn-outline-success" title="WhatsApp ${p['\u05E9\u05DD']}"><i class="bi bi-whatsapp me-1"></i>${p['\u05E7\u05E9\u05E8']}</a>` : '';
+            }).join('')}
+          </div>
+        </div>
+      </div>`;
+    }).join('')}</div>
+    <div class="mt-2 text-muted small">${Object.keys(familyMap).length} \u05DE\u05E9\u05E4\u05D7\u05D5\u05EA</div>`;
+  },
+
+  /* --- MEETINGS VIEW --- */
+  _parRenderMeetings(el) {
+    const meetings = this._parMeetings;
+    if (!meetings.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-calendar-check"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05D2\u05D9\u05E9\u05D5\u05EA \u05DE\u05EA\u05D5\u05DB\u05E0\u05E0\u05D5\u05EA</h5><p class="text-muted">\u05DC\u05D7\u05E6\u05D5 "\u05E7\u05D1\u05E2 \u05E4\u05D2\u05D9\u05E9\u05D4" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p></div>';
+      return;
+    }
+
+    const getParentName = (id) => {
+      const p = this._parData.find(x => (x.id || Utils.rowId(x)) === id);
+      return p ? p['\u05E9\u05DD'] : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+    };
+
+    const rows = meetings.map(m => {
+      const statusClass = m['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05E6\u05E2' ? 'success' : m['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05D8\u05DC' ? 'danger' : 'warning';
+      return `<tr>
+        <td class="fw-bold">${getParentName(m['\u05D4\u05D5\u05E8\u05D4_id'])}</td>
+        <td>${m['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</td>
+        <td>${m['\u05E9\u05E2\u05D4'] || ''}</td>
+        <td>${m['\u05E1\u05D9\u05D1\u05D4'] || ''}</td>
+        <td><span class="badge bg-${statusClass}">${m['\u05E1\u05D8\u05D8\u05D5\u05E1']}</span></td>
+        <td class="text-nowrap">
+          <button class="btn btn-sm btn-outline-success" onclick="Pages._parCompleteMeeting(${meetings.indexOf(m)})" title="\u05D1\u05D5\u05E6\u05E2"><i class="bi bi-check-lg"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="Pages._parCancelMeeting(${meetings.indexOf(m)})" title="\u05D1\u05D8\u05DC"><i class="bi bi-x-lg"></i></button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+        <thead><tr><th>\u05D4\u05D5\u05E8\u05D4</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E9\u05E2\u05D4</th><th>\u05E1\u05D9\u05D1\u05D4</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>
+      <div class="mt-2 text-muted small">${meetings.length} \u05E4\u05D2\u05D9\u05E9\u05D5\u05EA</div>`;
+  },
+
+  /* --- TABLE VIEW --- */
+  _parRenderTable(el, filtered) {
+    if (!filtered.length) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>';
+      return;
+    }
+    el.innerHTML = `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0"><thead><tr>
+      <th>\u05E9\u05DD</th><th>\u05E7\u05E9\u05E8</th><th>\u05D9\u05DC\u05D3\u05D9\u05DD</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th>
+    </tr></thead><tbody>${filtered.map(p => {
+      const pid = p.id || Utils.rowId(p);
+      const children = this._parGetChildren(p);
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+      const cleanPhone = phone.replace(/[-\s]/g, '').replace(/^0/, '972');
+      const statusBadge = (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
+
+      return `<tr>
+        <td class="fw-bold"><a href="#parent_card/${pid}" class="text-decoration-none">${Utils.avatarHTML ? Utils.avatarHTML(p['\u05E9\u05DD'], 'sm') : ''} ${p['\u05E9\u05DD'] || ''}</a></td>
+        <td><span class="badge bg-${p['\u05E7\u05E9\u05E8'] === '\u05D0\u05DD' ? 'danger' : 'primary'} bg-opacity-10 text-${p['\u05E7\u05E9\u05E8'] === '\u05D0\u05DD' ? 'danger' : 'primary'}">${p['\u05E7\u05E9\u05E8'] || ''}</span></td>
+        <td class="small">${children.map(c => c['\u05E9\u05DD']).join(', ') || '--'}</td>
+        <td dir="ltr">${Utils.formatPhone ? Utils.formatPhone(phone) : phone}</td>
+        <td class="small">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '--'}</td>
+        <td><span class="badge bg-${statusBadge}">${p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC'}</span></td>
+        <td class="text-nowrap">
+          ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary me-1" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
+          ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
+          ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info me-1" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+          <button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteParent('${pid}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody></table></div></div>
+    <div class="mt-2 text-muted small">\u05DE\u05E6\u05D9\u05D2 ${filtered.length} \u05DE\u05EA\u05D5\u05DA ${this._parData.length} \u05D4\u05D5\u05E8\u05D9\u05DD</div>`;
+  },
+
+  /* --- Communication Log Modal --- */
+  _parShowCommLog(parentId) {
+    const p = this._parData.find(x => (x.id || Utils.rowId(x)) == parentId);
+    const name = p ? p['\u05E9\u05DD'] : '';
+    const logs = this._parCommLog.filter(c => c['\u05D4\u05D5\u05E8\u05D4_id'] == parentId);
+    const body = document.getElementById('par-commlog-body');
+    if (!body) return;
+
+    const channelIcon = (ch) => {
+      if (ch === 'whatsapp') return '<i class="bi bi-whatsapp text-success"></i>';
+      if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
+      if (ch === 'sms') return '<i class="bi bi-chat-left-text text-primary"></i>';
+      if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
+      return '<i class="bi bi-chat-dots text-secondary"></i>';
+    };
+
+    if (!logs.length) {
+      body.innerHTML = `<div class="text-center py-4">
+        <i class="bi bi-chat-dots fs-1 text-muted"></i>
+        <h6 class="mt-2">\u05D0\u05D9\u05DF \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05EA \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05E2\u05D1\u05D5\u05E8 ${name}</h6>
+      </div>`;
+    } else {
+      body.innerHTML = `
+        <h6 class="mb-3"><i class="bi bi-person me-1"></i>${name}</h6>
+        <div class="timeline">${logs.map(l => `
+          <div class="d-flex align-items-start gap-3 mb-3 pb-3 border-bottom">
+            <div class="fs-4">${channelIcon(l['\u05D0\u05DE\u05E6\u05E2\u05D9'])}</div>
+            <div class="flex-fill">
+              <div class="fw-bold small">${l['\u05EA\u05D0\u05E8\u05D9\u05DA']}</div>
+              <div>${l['\u05EA\u05D5\u05DB\u05DF']}</div>
+            </div>
+          </div>`).join('')}
+        </div>`;
+    }
+    document.querySelector('#par-commlog-modal .modal-title').innerHTML = `<i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u2014 ${name}`;
+    new bootstrap.Modal(document.getElementById('par-commlog-modal')).show();
+  },
+
+  /* --- Meeting Scheduler --- */
+  _parShowMeetingModal(parentId) {
+    const select = document.getElementById('pm-parent');
+    if (select) {
+      select.innerHTML = this._parData.map(p => {
+        const pid = p.id || Utils.rowId(p);
+        const sel = pid == parentId ? 'selected' : '';
+        return `<option value="${pid}" ${sel}>${p['\u05E9\u05DD'] || ''}</option>`;
+      }).join('');
+    }
+    document.getElementById('pm-date').value = '';
+    document.getElementById('pm-time').value = '';
+    document.getElementById('pm-reason').value = '';
+    new bootstrap.Modal(document.getElementById('par-meeting-modal')).show();
+  },
+
+  _parSaveMeeting() {
+    const parentId = parseInt(document.getElementById('pm-parent').value);
+    const date = document.getElementById('pm-date').value;
+    const time = document.getElementById('pm-time').value;
+    const reason = document.getElementById('pm-reason').value.trim();
+    if (!date || !time || !reason) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E9\u05D3\u05D5\u05EA', 'warning'); return; }
+    // Convert date to dd/mm/yyyy
+    const [y, m, d] = date.split('-');
+    const dateStr = `${d}/${m}/${y}`;
+    this._parMeetings.push({
+      '\u05D4\u05D5\u05E8\u05D4_id': parentId,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': dateStr,
+      '\u05E9\u05E2\u05D4': time,
+      '\u05E1\u05D9\u05D1\u05D4': reason,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'
+    });
+    bootstrap.Modal.getInstance(document.getElementById('par-meeting-modal')).hide();
+    Utils.toast('\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4');
+    if (this._parTab === 'meetings') this.renderParents();
+  },
+
+  _parCompleteMeeting(idx) {
+    if (this._parMeetings[idx]) {
+      this._parMeetings[idx]['\u05E1\u05D8\u05D8\u05D5\u05E1'] = '\u05D1\u05D5\u05E6\u05E2';
+      Utils.toast('\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E1\u05D5\u05DE\u05E0\u05D4 \u05DB\u05D1\u05D5\u05E6\u05E2\u05D4');
+      this.renderParents();
+    }
+  },
+
+  _parCancelMeeting(idx) {
+    if (this._parMeetings[idx]) {
+      this._parMeetings[idx]['\u05E1\u05D8\u05D8\u05D5\u05E1'] = '\u05D1\u05D5\u05D8\u05DC';
+      Utils.toast('\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D1\u05D5\u05D8\u05DC\u05D4');
+      this.renderParents();
+    }
+  },
+
+  /* --- Add/Edit Parent --- */
+  showAddParent() {
+    this._parEditId = null;
+    document.getElementById('pf-name').value = '';
+    document.getElementById('pf-relation').value = '\u05D0\u05D1';
+    document.getElementById('pf-status').value = '\u05E4\u05E2\u05D9\u05DC';
+    document.getElementById('pf-phone').value = '';
+    document.getElementById('pf-email').value = '';
+    document.getElementById('pf-address').value = '';
+    document.getElementById('pf-family').value = '';
+    document.getElementById('pf-notes').value = '';
+    this._parRenderChildrenCheckboxes([]);
+    document.querySelector('#par-modal .modal-title').textContent = '\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4';
+    new bootstrap.Modal(document.getElementById('par-modal')).show();
+  },
+
   editParent(id) {
-    const p = this._parData.find(x => String(Utils.rowId(x)) === String(id));
+    const p = this._parData.find(x => String(x.id || Utils.rowId(x)) === String(id));
     if (!p) return;
     this._parEditId = id;
     document.getElementById('pf-name').value = p['\u05E9\u05DD'] || '';
     document.getElementById('pf-relation').value = p['\u05E7\u05E9\u05E8'] || '\u05D0\u05D1';
+    document.getElementById('pf-status').value = p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC';
     document.getElementById('pf-phone').value = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
     document.getElementById('pf-email').value = p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '';
+    document.getElementById('pf-address').value = p['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '';
+    document.getElementById('pf-family').value = p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '';
+    document.getElementById('pf-notes').value = p['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '';
+    const children = this._parGetChildren(p);
+    this._parRenderChildrenCheckboxes(children.map(c => c['\u05E9\u05DD']));
     document.querySelector('#par-modal .modal-title').textContent = '\u05E2\u05E8\u05D9\u05DB\u05EA \u05D4\u05D5\u05E8\u05D4';
     new bootstrap.Modal(document.getElementById('par-modal')).show();
   },
+
+  _parRenderChildrenCheckboxes(selectedNames) {
+    const container = document.getElementById('pf-children-list');
+    if (!container) return;
+    if (!this._parStudents.length) {
+      container.innerHTML = '<div class="text-muted small">\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA</div>';
+      return;
+    }
+    container.innerHTML = this._parStudents.map((s, i) => {
+      const name = s['\u05E9\u05DD'] || '';
+      const checked = selectedNames.includes(name) ? 'checked' : '';
+      return `<div class="form-check"><input class="form-check-input pf-child-cb" type="checkbox" value="${name}" id="pfc-${i}" ${checked}><label class="form-check-label small" for="pfc-${i}">${name} <span class="text-muted">(\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || ''})</span></label></div>`;
+    }).join('');
+  },
+
   async saveParent() {
-    const row = { '\u05E9\u05DD': document.getElementById('pf-name').value.trim(), '\u05E7\u05E9\u05E8': document.getElementById('pf-relation').value, '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('pf-phone').value.trim(), '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('pf-email').value.trim() };
+    const row = {
+      '\u05E9\u05DD': document.getElementById('pf-name').value.trim(),
+      '\u05E7\u05E9\u05E8': document.getElementById('pf-relation').value,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('pf-status').value,
+      '\u05D8\u05DC\u05E4\u05D5\u05DF': document.getElementById('pf-phone').value.trim(),
+      '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('pf-email').value.trim(),
+      '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('pf-address').value.trim(),
+      '\u05DE\u05E9\u05E4\u05D7\u05D4': document.getElementById('pf-family').value.trim(),
+      '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('pf-notes').value.trim()
+    };
     if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); return; }
     try {
-      if (this._parEditId) { await App.apiCall('update', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id: this._parEditId, row }); } else { await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row }); }
-      bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide(); Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3'); this._parEditId = null; this.parentsInit();
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+      if (this._parEditId) {
+        await App.apiCall('update', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id: this._parEditId, row });
+      } else {
+        row.id = Date.now();
+        await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide();
+      Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3');
+      this._parEditId = null;
+      this.parentsInit();
+    } catch (e) {
+      // Fallback: update local data for demo mode
+      if (this._parEditId) {
+        const idx = this._parData.findIndex(x => String(x.id || Utils.rowId(x)) === String(this._parEditId));
+        if (idx >= 0) Object.assign(this._parData[idx], row);
+      } else {
+        row.id = Date.now();
+        this._parData.push(row);
+      }
+      bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide();
+      Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3');
+      this._parEditId = null;
+      this._parRenderStats();
+      this.renderParents();
+    }
   },
+
   async deleteParent(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05D5\u05E8\u05D4', '\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D4\u05D5\u05E8\u05D4 \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id }); Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05DE\u05D7\u05E7'); this.parentsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    try {
+      await App.apiCall('delete', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id });
+      Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05DE\u05D7\u05E7');
+      this.parentsInit();
+    } catch (e) {
+      // Fallback for demo mode
+      this._parData = this._parData.filter(x => String(x.id || Utils.rowId(x)) !== String(id));
+      Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05DE\u05D7\u05E7');
+      this._parRenderStats();
+      this.renderParents();
+    }
   },
-  bulkWhatsApp() { const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:'); if (!msg) return; let sent=0; this._parData.forEach(p => { if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return; window.open(`https://wa.me/972${p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/^0/,'')}?text=${encodeURIComponent(msg)}`,'_blank'); sent++; }); Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`); },
+
+  bulkWhatsApp() {
+    const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:');
+    if (!msg) return;
+    let sent = 0;
+    this._parData.forEach(p => {
+      if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return;
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/[-\s]/g, '').replace(/^0/, '972');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      sent++;
+    });
+    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`);
+  },
 
 
   /* ======================================================================
-     PARENT CARD
+     PARENT CARD — Detailed View
      ====================================================================== */
   parent_card(id) { return `<div id="parent-card-content">${Utils.skeleton(2)}</div>`; },
   async parent_cardInit(id) {
-    const parents = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
-    const p = parents.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
+    const [parents, students] = await Promise.all([
+      App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => []),
+      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => [])
+    ]);
+    const allParents = parents.length ? parents : this._parDemoParents;
+    const allStudents = students.length ? students : this._parDemoStudents;
+    const p = allParents.find(x => String(x.id || Utils.rowId(x)) === String(id));
     if (!p) { document.getElementById('parent-card-content').innerHTML = '<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05D4\u05D5\u05E8\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5></div>'; return; }
-    document.getElementById('parent-card-content').innerHTML = `<a href="#parents" class="btn btn-link text-decoration-none mb-2"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4</a><div class="card p-3"><div class="d-flex align-items-center gap-3 mb-3">${Utils.avatarHTML(p['\u05E9\u05DD'],'lg')}<div><h4 class="fw-bold mb-1">${p['\u05E9\u05DD']||''}</h4><span class="badge bg-secondary">${p['\u05E7\u05E9\u05E8']||''}</span></div></div><div class="row g-3"><div class="col-sm-6"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone(p['\u05D8\u05DC\u05E4\u05D5\u05DF'])}</div></div><div class="col-sm-6"><label class="form-label text-muted small">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><div class="fw-bold">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'--'}</div></div></div></div>`;
+
+    const family = p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '';
+    const children = allStudents.filter(s => (s['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === family);
+    const familyParents = allParents.filter(x => (x['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === family && x !== p);
+    const commLogs = this._parDemoCommLog.filter(c => c['\u05D4\u05D5\u05E8\u05D4_id'] == id);
+    const meetings = this._parDemoMeetings.filter(m => m['\u05D4\u05D5\u05E8\u05D4_id'] == id);
+    const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+    const cleanPhone = phone.replace(/[-\s]/g, '').replace(/^0/, '972');
+    const statusBadge = (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC'
+      ? '<span class="badge bg-success fs-6">\u05E4\u05E2\u05D9\u05DC</span>'
+      : '<span class="badge bg-secondary fs-6">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</span>';
+
+    const channelIcon = (ch) => {
+      if (ch === 'whatsapp') return '<i class="bi bi-whatsapp text-success"></i>';
+      if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
+      if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
+      return '<i class="bi bi-chat-left-text text-primary"></i>';
+    };
+
+    document.getElementById('parent-card-content').innerHTML = `
+      <a href="#parents" class="btn btn-link text-decoration-none mb-3"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD</a>
+
+      <!-- Profile Header -->
+      <div class="card p-4 mb-3 shadow-sm">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          ${Utils.avatarHTML ? Utils.avatarHTML(p['\u05E9\u05DD'], 'lg') : ''}
+          <div class="flex-fill">
+            <h3 class="fw-bold mb-1">${p['\u05E9\u05DD'] || ''}</h3>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="badge bg-${p['\u05E7\u05E9\u05E8'] === '\u05D0\u05DD' ? 'danger' : 'primary'}">${p['\u05E7\u05E9\u05E8'] || ''}</span>
+              ${statusBadge}
+              ${family ? `<span class="badge bg-info bg-opacity-10 text-info">\u05DE\u05E9\u05E4\u05D7\u05EA ${family}</span>` : ''}
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            ${phone ? `<a href="tel:${phone}" class="btn btn-outline-primary"><i class="bi bi-telephone me-1"></i>\u05D7\u05D9\u05D9\u05D2</a>` : ''}
+            ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
+            ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-outline-info"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</a>` : ''}
+            <button class="btn btn-outline-primary" onclick="Pages.editParent('${id}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-sm-4"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone ? Utils.formatPhone(phone) : phone || '--'}</div></div>
+          <div class="col-sm-4"><label class="form-label text-muted small">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><div class="fw-bold">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '--'}</div></div>
+          <div class="col-sm-4"><label class="form-label text-muted small">\u05DB\u05EA\u05D5\u05D1\u05EA</label><div class="fw-bold">${p['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '--'}</div></div>
+        </div>
+        ${p['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? `<div class="mt-3 p-2 bg-light rounded"><small class="text-muted">\u05D4\u05E2\u05E8\u05D5\u05EA:</small> ${p['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div>` : ''}
+      </div>
+
+      <div class="row g-3">
+        <!-- Children -->
+        <div class="col-md-6">
+          <div class="card p-3 h-100 shadow-sm">
+            <h6 class="fw-bold mb-3"><i class="bi bi-mortarboard me-2 text-success"></i>\u05D9\u05DC\u05D3\u05D9\u05DD (${children.length})</h6>
+            ${children.length ? children.map(c => `
+              <div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
+                ${Utils.avatarHTML ? Utils.avatarHTML(c['\u05E9\u05DD'], 'sm') : ''}
+                <div>
+                  <div class="fw-bold">${c['\u05E9\u05DD']}</div>
+                  <small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${c['\u05DB\u05D9\u05EA\u05D4'] || ''}</small>
+                </div>
+              </div>`).join('') : '<div class="text-muted">\u05D0\u05D9\u05DF \u05D9\u05DC\u05D3\u05D9\u05DD \u05DE\u05E9\u05D5\u05D9\u05DB\u05D9\u05DD</div>'}
+          </div>
+        </div>
+
+        <!-- Family members -->
+        <div class="col-md-6">
+          <div class="card p-3 h-100 shadow-sm">
+            <h6 class="fw-bold mb-3"><i class="bi bi-house-heart me-2 text-primary"></i>\u05D1\u05E0\u05D9 \u05DE\u05E9\u05E4\u05D7\u05D4</h6>
+            ${familyParents.length ? familyParents.map(fp => `
+              <div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
+                ${Utils.avatarHTML ? Utils.avatarHTML(fp['\u05E9\u05DD'], 'sm') : ''}
+                <div>
+                  <div class="fw-bold">${fp['\u05E9\u05DD']}</div>
+                  <span class="badge bg-${fp['\u05E7\u05E9\u05E8'] === '\u05D0\u05DD' ? 'danger' : 'primary'}" style="font-size:0.65rem">${fp['\u05E7\u05E9\u05E8']}</span>
+                </div>
+                <div class="ms-auto small text-muted" dir="ltr">${Utils.formatPhone ? Utils.formatPhone(fp['\u05D8\u05DC\u05E4\u05D5\u05DF']) : fp['\u05D8\u05DC\u05E4\u05D5\u05DF'] || ''}</div>
+              </div>`).join('') : '<div class="text-muted">\u05D0\u05D9\u05DF \u05D1\u05E0\u05D9 \u05DE\u05E9\u05E4\u05D7\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD</div>'}
+          </div>
+        </div>
+
+        <!-- Communication Log -->
+        <div class="col-md-6">
+          <div class="card p-3 h-100 shadow-sm">
+            <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-2 text-info"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA (${commLogs.length})</h6>
+            ${commLogs.length ? commLogs.map(l => `
+              <div class="d-flex align-items-start gap-2 mb-2 pb-2 border-bottom">
+                ${channelIcon(l['\u05D0\u05DE\u05E6\u05E2\u05D9'])}
+                <div class="flex-fill">
+                  <div class="small text-muted">${l['\u05EA\u05D0\u05E8\u05D9\u05DA']}</div>
+                  <div class="small">${l['\u05EA\u05D5\u05DB\u05DF']}</div>
+                </div>
+              </div>`).join('') : '<div class="text-muted">\u05D0\u05D9\u05DF \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</div>'}
+          </div>
+        </div>
+
+        <!-- Meetings -->
+        <div class="col-md-6">
+          <div class="card p-3 h-100 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-warning"></i>\u05E4\u05D2\u05D9\u05E9\u05D5\u05EA (${meetings.length})</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages._parShowMeetingModal(${id})"><i class="bi bi-plus-lg"></i></button>
+            </div>
+            ${meetings.length ? meetings.map(m => {
+              const mStatus = m['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05E6\u05E2' ? 'success' : m['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D5\u05D8\u05DC' ? 'danger' : 'warning';
+              return `<div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded bg-light">
+                <i class="bi bi-calendar-event text-${mStatus}"></i>
+                <div class="flex-fill">
+                  <div class="fw-bold small">${m['\u05EA\u05D0\u05E8\u05D9\u05DA']} ${m['\u05E9\u05E2\u05D4']}</div>
+                  <div class="small text-muted">${m['\u05E1\u05D9\u05D1\u05D4']}</div>
+                </div>
+                <span class="badge bg-${mStatus}">${m['\u05E1\u05D8\u05D8\u05D5\u05E1']}</span>
+              </div>`;
+            }).join('') : '<div class="text-muted">\u05D0\u05D9\u05DF \u05E4\u05D2\u05D9\u05E9\u05D5\u05EA</div>'}
+          </div>
+        </div>
+      </div>
+    `;
   },
 
 
