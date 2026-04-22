@@ -1300,33 +1300,864 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     MIVTZA (LEARNING CAMPAIGN)
+     MIVTZA (LEARNING CAMPAIGN) — Gamified Learning Campaign System
      ====================================================================== */
-  mivtza() {
-    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-award-fill me-2"></i>\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3</h1></div><button class="btn btn-primary btn-sm" onclick="Pages.showAddMvz()"><i class="bi bi-plus-lg me-1"></i>\u05D3\u05D9\u05D5\u05D5\u05D7</button></div><div class="card mb-3" id="mvz-leaderboard" style="display:none"><div class="card-body"><h6 class="fw-bold"><i class="bi bi-trophy-fill text-warning me-2"></i>\u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD</h6><div id="mvz-top"></div></div></div><div class="card mb-3" id="mvz-totals" style="display:none"><div class="card-body"><h6 class="fw-bold"><i class="bi bi-calculator me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3</h6><div class="table-responsive"><table class="table table-sm table-bht mb-0"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05DC\u05D9\u05DE\u05D5\u05D3</th><th class="fw-bold">\u05E1\u05D4"\u05DB</th></tr></thead><tbody id="mvz-totals-body"></tbody></table></div></div></div><div id="mvz-list">${Utils.skeleton(3)}</div><div class="modal fade" id="mvz-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">\u05D3\u05D9\u05D5\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row g-3"><div class="col-12"><label class="form-label">\u05EA\u05DC\u05DE\u05D9\u05D3</label><select class="form-select" id="mvf-student"></select></div><div class="col-6"><label class="form-label">\u05E9\u05D7\u05E8\u05D9\u05EA</label><input type="number" class="form-control" id="mvf-shacharit" value="0"></div><div class="col-6"><label class="form-label">\u05DE\u05E0\u05D7\u05D4</label><input type="number" class="form-control" id="mvf-mincha" value="0"></div><div class="col-6"><label class="form-label">\u05DE\u05E2\u05E8\u05D9\u05D1</label><input type="number" class="form-control" id="mvf-maariv" value="0"></div><div class="col-6"><label class="form-label">\u05DC\u05D9\u05DE\u05D5\u05D3 \u05E2\u05E6\u05DE\u05D9</label><input type="number" class="form-control" id="mvf-self" value="0"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveMvz()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
+
+  /* --- Demo data for campaigns --- */
+  _mvzDemoCampaigns: [
+    {
+      id: 'c1', name: '\u05DE\u05D1\u05E6\u05E2 \u05D2\u05DE\u05E8\u05D0 \u05EA\u05E9\u05E4"\u05D5',
+      subject: '\u05D2\u05DE\u05E8\u05D0', targetPages: 120, startDate: '2026-03-01', endDate: '2026-05-15',
+      prize: '\u05E1\u05E4\u05E8 \u05E7\u05D5\u05D3\u05E9 + \u05D8\u05D9\u05D5\u05DC \u05DC\u05DE\u05D9\u05E8\u05D5\u05DF',
+      status: '\u05E4\u05E2\u05D9\u05DC'
+    },
+    {
+      id: 'c2', name: '\u05DE\u05D1\u05E6\u05E2 \u05DE\u05E9\u05E0\u05D9\u05D5\u05EA \u05EA\u05E9\u05E4"\u05D5',
+      subject: '\u05DE\u05E9\u05E0\u05D9\u05D5\u05EA', targetPages: 60, startDate: '2025-10-01', endDate: '2026-01-15',
+      prize: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05E6\u05D8\u05D9\u05D9\u05E0\u05D5\u05EA',
+      status: '\u05D4\u05D5\u05E9\u05DC\u05DD'
+    },
+    {
+      id: 'c3', name: '\u05DE\u05D1\u05E6\u05E2 \u05D4\u05DC\u05DB\u05D4 \u05EA\u05E9\u05E4"\u05D5',
+      subject: '\u05D4\u05DC\u05DB\u05D4', targetPages: 80, startDate: '2025-06-01', endDate: '2025-09-01',
+      prize: '\u05E9\u05D5\u05D1\u05E8 \u05DE\u05EA\u05E0\u05D4',
+      status: '\u05D4\u05D5\u05E9\u05DC\u05DD'
+    }
+  ],
+
+  _mvzDemoStudentNames: [
+    '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',
+    '\u05D9\u05E2\u05E7\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05D3\u05D5\u05D3 \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9',
+    '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D1\u05DF \u05D3\u05D5\u05D3', '\u05E0\u05EA\u05E0\u05D0\u05DC \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2',
+    '\u05D7\u05D9\u05D9\u05DD \u05E8\u05D1\u05D9\u05E0\u05D5\u05D1\u05D9\u05E5', '\u05D0\u05E8\u05D9\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF',
+    '\u05E8\u05E4\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5', '\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF \u05E9\u05D8\u05E8\u05E0\u05D1\u05E8\u05D2',
+    '\u05E2\u05DE\u05D9\u05EA\u05D9 \u05D4\u05DC\u05D5\u05D9', '\u05D9\u05D4\u05D5\u05D3\u05D4 \u05D2\u05E8\u05D9\u05E0\u05D1\u05E8\u05D2',
+    '\u05E0\u05D7\u05DE\u05DF \u05E4\u05DC\u05D3\u05DE\u05DF'
+  ],
+
+  _mvzDemoProgress: null,
+  _getMvzDemoProgress() {
+    if (this._mvzDemoProgress) return this._mvzDemoProgress;
+    const names = this._mvzDemoStudentNames;
+    const progress = [];
+    // Active campaign c1: 15 students with varying pages completed
+    const c1Pages = [98, 87, 75, 72, 68, 65, 55, 50, 48, 42, 38, 35, 28, 22, 15];
+    // Daily log entries spread over last 45 days
+    names.forEach((name, i) => {
+      const totalPages = c1Pages[i];
+      // Create 5-8 log entries per student
+      const entries = Math.floor(Math.random() * 4) + 5;
+      const pagesPerEntry = Math.ceil(totalPages / entries);
+      let remaining = totalPages;
+      for (let e = 0; e < entries && remaining > 0; e++) {
+        const pg = Math.min(pagesPerEntry + Math.floor(Math.random() * 4) - 2, remaining);
+        const daysAgo = Math.floor((entries - e) * (45 / entries));
+        const d = new Date(); d.setDate(d.getDate() - daysAgo);
+        progress.push({
+          id: `p_c1_${i}_${e}`,
+          campaignId: 'c1',
+          studentName: name,
+          pages: Math.max(1, pg),
+          date: d.toISOString().slice(0, 10),
+          note: ''
+        });
+        remaining -= Math.max(1, pg);
+      }
+    });
+    // Past campaign c2: completed results
+    const c2Pages = [60, 58, 55, 52, 48, 45, 42, 38, 35, 30, 28, 25, 20, 15, 10];
+    names.forEach((name, i) => {
+      progress.push({
+        id: `p_c2_${i}`, campaignId: 'c2', studentName: name,
+        pages: c2Pages[i], date: '2026-01-10', note: ''
+      });
+    });
+    // Past campaign c3
+    const c3Pages = [80, 76, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 8];
+    names.forEach((name, i) => {
+      progress.push({
+        id: `p_c3_${i}`, campaignId: 'c3', studentName: name,
+        pages: c3Pages[i], date: '2025-08-25', note: ''
+      });
+    });
+    this._mvzDemoProgress = progress;
+    return progress;
   },
+
   _mvzData: [],
-  async mivtzaInit() { this._mvzData = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3'); this.renderMvz(); },
-  renderMvz() {
-    const scores = {}; const totals = {}; this._mvzData.forEach(r => { const n=r['\u05E9\u05DD']||''; if (!n) return; scores[n]=(scores[n]||0)+(parseFloat(r['\u05E1\u05D4_\u05DB'])||0); if (!totals[n]) totals[n]={sh:0,mn:0,ma:0,se:0,total:0}; totals[n].sh+=(parseFloat(r['\u05E9\u05D7\u05E8\u05D9\u05EA'])||0); totals[n].mn+=(parseFloat(r['\u05DE\u05E0\u05D7\u05D4'])||0); totals[n].ma+=(parseFloat(r['\u05DE\u05E2\u05E8\u05D9\u05D1'])||0); totals[n].se+=(parseFloat(r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9'])||0); totals[n].total+=(parseFloat(r['\u05E1\u05D4_\u05DB'])||0); });
-    const sorted = Object.keys(scores).sort((a,b)=>scores[b]-scores[a]).slice(0,5);
-    if (sorted.length) { document.getElementById('mvz-leaderboard').style.display=''; document.getElementById('mvz-top').innerHTML = sorted.map((n,i) => `<div class="d-flex align-items-center gap-2 mb-1"><span class="fw-bold" style="width:25px">${['&#129351;','&#129352;','&#129353;','4','5'][i]}</span><span class="flex-grow-1">${n}</span><span class="badge bg-primary">${scores[n]}</span></div>`).join(''); }
-    // Totals per student
-    const totalsSorted = Object.keys(totals).sort((a,b)=>totals[b].total-totals[a].total);
-    const totalsEl = document.getElementById('mvz-totals');
-    const totalsBody = document.getElementById('mvz-totals-body');
-    if (totalsEl && totalsBody && totalsSorted.length) {
-      totalsEl.style.display = '';
-      totalsBody.innerHTML = totalsSorted.map(n => { const t=totals[n]; return `<tr><td class="fw-bold">${n}</td><td>${t.sh}</td><td>${t.mn}</td><td>${t.ma}</td><td>${t.se}</td><td class="fw-bold text-primary">${t.total}</td></tr>`; }).join('');
-    } else if (totalsEl) { totalsEl.style.display = 'none'; }
-    if (!this._mvzData.length) { document.getElementById('mvz-list').innerHTML = '<div class="empty-state"><i class="bi bi-award"></i><h5>\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9\u05DD</h5></div>'; return; }
-    document.getElementById('mvz-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05E9\u05DD</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05DC\u05D9\u05DE\u05D5\u05D3</th><th class="fw-bold">\u05E1\u05D4"\u05DB</th><th></th></tr></thead><tbody>${this._mvzData.map(r => `<tr><td class="fw-bold">${r['\u05E9\u05DD']||''}</td><td>${r['\u05E9\u05D7\u05E8\u05D9\u05EA']||0}</td><td>${r['\u05DE\u05E0\u05D7\u05D4']||0}</td><td>${r['\u05DE\u05E2\u05E8\u05D9\u05D1']||0}</td><td>${r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']||0}</td><td class="fw-bold text-primary">${r['\u05E1\u05D4_\u05DB']||0}</td><td><button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteMvz('${r.id||r['\u05DE\u05D6\u05D4\u05D4']||""}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>`;
+  _mvzCampaigns: [],
+  _mvzProgress: [],
+  _mvzActiveTab: 'active',
+  _mvzChartLine: null,
+  _mvzChartBar: null,
+
+  mivtza() {
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+      <div>
+        <h1><i class="bi bi-award-fill me-2"></i>\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3</h1>
+        <p class="text-muted mb-0">\u05DE\u05E2\u05E8\u05DB\u05EA \u05DE\u05D1\u05E6\u05E2\u05D9 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05DE\u05D2\u05D5\u05D9\u05DE\u05E8\u05EA</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success btn-sm" onclick="Pages.showLogProgressModal()">
+          <i class="bi bi-plus-circle me-1"></i>\u05D3\u05D9\u05D5\u05D5\u05D7 \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="Pages.showCreateCampaignModal()">
+          <i class="bi bi-rocket-takeoff me-1"></i>\u05DE\u05D1\u05E6\u05E2 \u05D7\u05D3\u05E9
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-3" id="mvz-stats"></div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="mvz-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#" onclick="Pages.mvzSwitchTab('active',event)">
+          <i class="bi bi-lightning-fill me-1"></i>\u05DE\u05D1\u05E6\u05E2 \u05E4\u05E2\u05D9\u05DC
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="Pages.mvzSwitchTab('leaderboard',event)">
+          <i class="bi bi-trophy-fill me-1"></i>\u05D8\u05D1\u05DC\u05EA \u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="Pages.mvzSwitchTab('progress',event)">
+          <i class="bi bi-table me-1"></i>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="Pages.mvzSwitchTab('charts',event)">
+          <i class="bi bi-graph-up me-1"></i>\u05D2\u05E8\u05E4\u05D9\u05DD
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="Pages.mvzSwitchTab('history',event)">
+          <i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4
+        </a>
+      </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div id="mvz-tab-active"></div>
+    <div id="mvz-tab-leaderboard" style="display:none"></div>
+    <div id="mvz-tab-progress" style="display:none"></div>
+    <div id="mvz-tab-charts" style="display:none">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card"><div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-2"></i>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05DC\u05D0\u05D5\u05E8\u05DA \u05D6\u05DE\u05DF</h6>
+            <canvas id="mvz-chart-line" height="250"></canvas>
+          </div></div>
+        </div>
+        <div class="col-md-6">
+          <div class="card"><div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>\u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05DB\u05D9\u05EA\u05EA\u05D9\u05EA</h6>
+            <canvas id="mvz-chart-bar" height="250"></canvas>
+          </div></div>
+        </div>
+      </div>
+    </div>
+    <div id="mvz-tab-history" style="display:none"></div>
+
+    <!-- Log Progress Modal -->
+    <div class="modal fade" id="mvz-log-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>\u05D3\u05D9\u05D5\u05D5\u05D7 \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA</h5>
+            <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-bold">\u05EA\u05DC\u05DE\u05D9\u05D3</label>
+                <select class="form-select" id="mvf-log-student"></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-bold">\u05DE\u05D1\u05E6\u05E2</label>
+                <select class="form-select" id="mvf-log-campaign"></select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD/\u05E4\u05E8\u05E7\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD</label>
+                <input type="number" class="form-control" id="mvf-log-pages" min="1" value="1">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA</label>
+                <input type="date" class="form-control" id="mvf-log-date">
+              </div>
+              <div class="col-12">
+                <label class="form-label">\u05D4\u05E2\u05E8\u05D4</label>
+                <input type="text" class="form-control" id="mvf-log-note" placeholder="\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+            <button class="btn btn-success" onclick="Pages.saveLogProgress()">
+              <i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Campaign Modal -->
+    <div class="modal fade" id="mvz-create-modal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title"><i class="bi bi-rocket-takeoff me-2"></i>\u05D9\u05E6\u05D9\u05E8\u05EA \u05DE\u05D1\u05E6\u05E2 \u05D7\u05D3\u05E9</h5>
+            <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">\u05E9\u05DD \u05D4\u05DE\u05D1\u05E6\u05E2</label>
+                <input type="text" class="form-control" id="mvf-c-name" placeholder='\u05DC\u05DE\u05E9\u05DC: \u05DE\u05D1\u05E6\u05E2 \u05D2\u05DE\u05E8\u05D0 \u05EA\u05E9\u05E4"\u05D7'>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">\u05DE\u05E7\u05E6\u05D5\u05E2</label>
+                <input type="text" class="form-control" id="mvf-c-subject" placeholder="\u05D2\u05DE\u05E8\u05D0, \u05DE\u05E9\u05E0\u05D9\u05D5\u05EA, \u05D4\u05DC\u05DB\u05D4...">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">\u05D9\u05E2\u05D3 \u05E2\u05DE\u05D5\u05D3\u05D9\u05DD/\u05E4\u05E8\u05E7\u05D9\u05DD</label>
+                <input type="number" class="form-control" id="mvf-c-target" min="1" value="100">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05EA\u05D7\u05DC\u05D4</label>
+                <input type="date" class="form-control" id="mvf-c-start">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA \u05E1\u05D9\u05D5\u05DD</label>
+                <input type="date" class="form-control" id="mvf-c-end">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-bold">\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05E4\u05E8\u05E1</label>
+                <textarea class="form-control" id="mvf-c-prize" rows="2" placeholder="\u05DE\u05D4 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05E7\u05D1\u05DC\u05D5 \u05D1\u05D4\u05E9\u05DC\u05DE\u05EA \u05D4\u05DE\u05D1\u05E6\u05E2"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+            <button class="btn btn-primary" onclick="Pages.saveNewCampaign()">
+              <i class="bi bi-rocket-takeoff me-1"></i>\u05E6\u05D5\u05E8 \u05DE\u05D1\u05E6\u05E2
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
   },
-  async showAddMvz() { const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); document.getElementById('mvf-student').innerHTML = '<option value="">\u05D1\u05D7\u05E8</option>' + students.map(s=>`<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join(''); new bootstrap.Modal(document.getElementById('mvz-modal')).show(); },
-  async saveMvz() { const sel=document.getElementById('mvf-student'); const sh=parseInt(document.getElementById('mvf-shacharit').value)||0; const mn=parseInt(document.getElementById('mvf-mincha').value)||0; const ma=parseInt(document.getElementById('mvf-maariv').value)||0; const se=parseInt(document.getElementById('mvf-self').value)||0; const row = {'\u05E9\u05DD':sel.selectedOptions[0]?.text||'','\u05E9\u05D7\u05E8\u05D9\u05EA':sh,'\u05DE\u05E0\u05D7\u05D4':mn,'\u05DE\u05E2\u05E8\u05D9\u05D1':ma,'\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9':se,'\u05E1\u05D4_\u05DB':sh+mn+ma+se}; try { await App.apiCall('add','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{row}); bootstrap.Modal.getInstance(document.getElementById('mvz-modal')).hide(); Utils.toast('\u05D3\u05D9\u05D5\u05D5\u05D7 \u05E0\u05E9\u05DE\u05E8'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+
+  async mivtzaInit() {
+    // Try loading from API, fallback to demo
+    try {
+      const data = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
+      if (data && data.length) {
+        this._mvzData = data;
+      }
+    } catch(e) { /* use demo */ }
+    // Load demo data
+    this._mvzCampaigns = [...this._mvzDemoCampaigns];
+    this._mvzProgress = this._getMvzDemoProgress();
+    this._mvzActiveTab = 'active';
+    this.renderMvzStats();
+    this.renderMvzActiveTab();
+  },
+
+  mvzSwitchTab(tab, event) {
+    if (event) event.preventDefault();
+    this._mvzActiveTab = tab;
+    document.querySelectorAll('#mvz-tabs .nav-link').forEach(el => el.classList.remove('active'));
+    const tabs = ['active','leaderboard','progress','charts','history'];
+    tabs.forEach(t => {
+      const el = document.getElementById('mvz-tab-' + t);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    });
+    if (event) event.target.closest('.nav-link').classList.add('active');
+    else document.querySelector(`#mvz-tabs .nav-link:first-child`).classList.add('active');
+
+    switch(tab) {
+      case 'active': this.renderMvzActiveTab(); break;
+      case 'leaderboard': this.renderMvzLeaderboard(); break;
+      case 'progress': this.renderMvzProgressTable(); break;
+      case 'charts': this.renderMvzCharts(); break;
+      case 'history': this.renderMvzHistory(); break;
+    }
+  },
+
+  _mvzGetActiveCampaign() {
+    return this._mvzCampaigns.find(c => c.status === '\u05E4\u05E2\u05D9\u05DC');
+  },
+
+  _mvzGetStudentTotals(campaignId) {
+    const totals = {};
+    this._mvzProgress.filter(p => p.campaignId === campaignId).forEach(p => {
+      totals[p.studentName] = (totals[p.studentName] || 0) + (p.pages || 0);
+    });
+    return totals;
+  },
+
+  renderMvzStats() {
+    const active = this._mvzCampaigns.filter(c => c.status === '\u05E4\u05E2\u05D9\u05DC');
+    const ac = this._mvzGetActiveCampaign();
+    const totals = ac ? this._mvzGetStudentTotals(ac.id) : {};
+    const participants = Object.keys(totals).length;
+    const completed = ac ? Object.values(totals).filter(v => v >= ac.targetPages).length : 0;
+    const completionRate = participants ? Math.round((completed / participants) * 100) : 0;
+    const pastCampaigns = this._mvzCampaigns.filter(c => c.status === '\u05D4\u05D5\u05E9\u05DC\u05DD');
+    let totalPrizes = 0;
+    pastCampaigns.forEach(pc => {
+      const pt = this._mvzGetStudentTotals(pc.id);
+      totalPrizes += Object.values(pt).filter(v => v >= pc.targetPages).length;
+    });
+    totalPrizes += completed;
+
+    document.getElementById('mvz-stats').innerHTML = `
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center p-3">
+            <div class="fs-1 mb-1" style="color:#8b5cf6"><i class="bi bi-lightning-fill"></i></div>
+            <div class="fs-3 fw-bold" style="color:#8b5cf6">${active.length}</div>
+            <small class="text-muted">\u05DE\u05D1\u05E6\u05E2\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center p-3">
+            <div class="fs-1 mb-1" style="color:#2563eb"><i class="bi bi-people-fill"></i></div>
+            <div class="fs-3 fw-bold" style="color:#2563eb">${participants}</div>
+            <small class="text-muted">\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center p-3">
+            <div class="fs-1 mb-1" style="color:#10b981"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="fs-3 fw-bold" style="color:#10b981">${completionRate}%</div>
+            <small class="text-muted">\u05D0\u05D7\u05D5\u05D6 \u05D4\u05E9\u05DC\u05DE\u05D4</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center p-3">
+            <div class="fs-1 mb-1" style="color:#f59e0b"><i class="bi bi-gift-fill"></i></div>
+            <div class="fs-3 fw-bold" style="color:#f59e0b">${totalPrizes}</div>
+            <small class="text-muted">\u05E4\u05E8\u05E1\u05D9\u05DD \u05E9\u05D7\u05D5\u05DC\u05E7\u05D5</small>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  renderMvzActiveTab() {
+    const ac = this._mvzGetActiveCampaign();
+    const el = document.getElementById('mvz-tab-active');
+    if (!ac) {
+      el.innerHTML = `<div class="empty-state text-center py-5">
+        <i class="bi bi-rocket-takeoff display-1 text-muted"></i>
+        <h5 class="mt-3">\u05D0\u05D9\u05DF \u05DE\u05D1\u05E6\u05E2 \u05E4\u05E2\u05D9\u05DC</h5>
+        <p class="text-muted">\u05E6\u05D5\u05E8 \u05DE\u05D1\u05E6\u05E2 \u05D7\u05D3\u05E9 \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p>
+        <button class="btn btn-primary" onclick="Pages.showCreateCampaignModal()">
+          <i class="bi bi-rocket-takeoff me-1"></i>\u05E6\u05D5\u05E8 \u05DE\u05D1\u05E6\u05E2
+        </button>
+      </div>`;
+      return;
+    }
+
+    const totals = this._mvzGetStudentTotals(ac.id);
+    const now = new Date();
+    const end = new Date(ac.endDate);
+    const start = new Date(ac.startDate);
+    const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+    const totalDays = Math.max(1, Math.ceil((end - start) / 86400000));
+    const daysPassed = totalDays - daysLeft;
+    const timeProgress = Math.min(100, Math.round((daysPassed / totalDays) * 100));
+
+    const overallPages = Object.values(totals).reduce((s, v) => s + v, 0);
+    const maxPossible = Object.keys(totals).length * ac.targetPages;
+    const overallPct = maxPossible ? Math.round((overallPages / maxPossible) * 100) : 0;
+
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    const top3 = sorted.slice(0, 3);
+
+    el.innerHTML = `
+    <!-- Campaign Hero Card -->
+    <div class="card border-0 shadow mb-3" style="background:linear-gradient(135deg,#8b5cf6 0%,#6d28d9 100%);color:#fff">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-fire me-2"></i>${ac.name}</h3>
+            <div class="d-flex gap-3 flex-wrap mb-2" style="opacity:0.9">
+              <span><i class="bi bi-book me-1"></i>${ac.subject}</span>
+              <span><i class="bi bi-bullseye me-1"></i>${ac.targetPages} \u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</span>
+              <span><i class="bi bi-gift me-1"></i>${ac.prize}</span>
+            </div>
+          </div>
+          <div class="text-center px-3 py-2 rounded-3" style="background:rgba(255,255,255,0.15);min-width:120px">
+            <div class="fs-1 fw-bold">${daysLeft}</div>
+            <small>\u05D9\u05DE\u05D9\u05DD \u05E0\u05D5\u05EA\u05E8\u05D5</small>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="d-flex justify-content-between mb-1">
+            <small>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05DB\u05DC\u05DC\u05D9\u05EA</small>
+            <small class="fw-bold">${overallPct}%</small>
+          </div>
+          <div class="progress" style="height:12px;background:rgba(255,255,255,0.2)">
+            <div class="progress-bar bg-warning" style="width:${overallPct}%"></div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <small>\u05D6\u05DE\u05DF \u05E9\u05D7\u05DC\u05E3</small>
+            <small class="fw-bold">${timeProgress}%</small>
+          </div>
+          <div class="progress" style="height:6px;background:rgba(255,255,255,0.2)">
+            <div class="progress-bar bg-light" style="width:${timeProgress}%;opacity:0.7"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Leaderboard Podium -->
+    ${top3.length >= 3 ? `
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-trophy-fill text-warning me-2"></i>\u05E4\u05D5\u05D3\u05D9\u05D5\u05DD</h6>
+        <div class="d-flex justify-content-center align-items-end gap-3 mb-2" style="min-height:180px">
+          <!-- 2nd place -->
+          <div class="text-center">
+            <div class="fs-4 mb-1">&#129352;</div>
+            <div class="fw-bold small">${top3[1][0]}</div>
+            <div class="bg-secondary bg-opacity-10 rounded-top px-4 pt-3 pb-2 mt-1" style="height:100px;display:flex;align-items:center;justify-content:center">
+              <div>
+                <div class="fs-5 fw-bold text-secondary">${top3[1][1]}</div>
+                <small class="text-muted">\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</small>
+              </div>
+            </div>
+          </div>
+          <!-- 1st place -->
+          <div class="text-center">
+            <div class="fs-3 mb-1">&#129351;</div>
+            <div class="fw-bold">${top3[0][0]}</div>
+            <div class="bg-warning bg-opacity-10 rounded-top px-4 pt-3 pb-2 mt-1" style="height:140px;display:flex;align-items:center;justify-content:center">
+              <div>
+                <div class="fs-4 fw-bold text-warning">${top3[0][1]}</div>
+                <small class="text-muted">\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</small>
+              </div>
+            </div>
+          </div>
+          <!-- 3rd place -->
+          <div class="text-center">
+            <div class="fs-4 mb-1">&#129353;</div>
+            <div class="fw-bold small">${top3[2][0]}</div>
+            <div class="bg-warning bg-opacity-10 rounded-top px-4 pt-3 pb-2 mt-1" style="height:70px;display:flex;align-items:center;justify-content:center">
+              <div>
+                <div class="fs-5 fw-bold" style="color:#cd7f32">${top3[2][1]}</div>
+                <small class="text-muted">\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Student Progress Table -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0"><i class="bi bi-list-check me-2"></i>\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h6>
+        <input type="text" class="form-control form-control-sm" style="max-width:200px" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." oninput="Pages.mvzFilterProgress(this.value)">
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bht table-hover mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+              <th>\u05D4\u05D5\u05E9\u05DC\u05DD</th>
+              <th>\u05D9\u05E2\u05D3</th>
+              <th>\u05D0\u05D7\u05D5\u05D6</th>
+              <th>\u05E4\u05E8\u05E1</th>
+            </tr>
+          </thead>
+          <tbody id="mvz-active-tbody">
+            ${sorted.map(([name, pages], i) => {
+              const pct = Math.min(100, Math.round((pages / ac.targetPages) * 100));
+              const eligible = pct >= 100;
+              const barColor = pct >= 100 ? '#10b981' : pct >= 70 ? '#2563eb' : pct >= 40 ? '#f59e0b' : '#ef4444';
+              return `<tr>
+                <td class="fw-bold text-muted">${i + 1}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    ${i < 3 ? ['&#129351;','&#129352;','&#129353;'][i] : ''}
+                    <span class="fw-bold">${name}</span>
+                  </div>
+                </td>
+                <td class="fw-bold">${pages}</td>
+                <td>${ac.targetPages}</td>
+                <td style="min-width:150px">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height:8px">
+                      <div class="progress-bar" style="width:${pct}%;background:${barColor}"></div>
+                    </div>
+                    <small class="fw-bold" style="color:${barColor}">${pct}%</small>
+                  </div>
+                </td>
+                <td>
+                  ${eligible
+                    ? '<span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>\u05D6\u05DB\u05D0\u05D9</span>'
+                    : `<span class="badge bg-light text-muted">\u05D7\u05E1\u05E8 ${ac.targetPages - pages}</span>`}
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+
+  mvzFilterProgress(query) {
+    const q = query.trim().toLowerCase();
+    document.querySelectorAll('#mvz-active-tbody tr').forEach(tr => {
+      const name = tr.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+      tr.style.display = !q || name.includes(q) ? '' : 'none';
+    });
+  },
+
+  renderMvzLeaderboard() {
+    const ac = this._mvzGetActiveCampaign();
+    const el = document.getElementById('mvz-tab-leaderboard');
+    if (!ac) { el.innerHTML = '<div class="text-center text-muted py-4">\u05D0\u05D9\u05DF \u05DE\u05D1\u05E6\u05E2 \u05E4\u05E2\u05D9\u05DC</div>'; return; }
+
+    const totals = this._mvzGetStudentTotals(ac.id);
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    const medals = ['&#129351;', '&#129352;', '&#129353;'];
+    const bgColors = ['rgba(255,215,0,0.08)', 'rgba(192,192,192,0.08)', 'rgba(205,127,50,0.08)'];
+
+    el.innerHTML = `
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">
+        <h6 class="fw-bold mb-0"><i class="bi bi-trophy-fill text-warning me-2"></i>\u05D8\u05D1\u05DC\u05EA \u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD \u2014 ${ac.name}</h6>
+      </div>
+      <div class="card-body p-0">
+        ${sorted.map(([name, pages], i) => {
+          const pct = Math.min(100, Math.round((pages / ac.targetPages) * 100));
+          const medal = i < 3 ? medals[i] : `<span class="fw-bold text-muted">${i + 1}</span>`;
+          const bg = i < 3 ? bgColors[i] : '';
+          const eligible = pct >= 100;
+          return `
+          <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom" style="background:${bg}">
+            <div style="width:40px;text-align:center;font-size:${i < 3 ? '1.5rem' : '1rem'}">${medal}</div>
+            <div class="flex-grow-1">
+              <div class="fw-bold ${i < 3 ? 'fs-6' : ''}">${name}</div>
+              <div class="progress mt-1" style="height:6px">
+                <div class="progress-bar ${eligible ? 'bg-success' : 'bg-primary'}" style="width:${pct}%"></div>
+              </div>
+            </div>
+            <div class="text-center" style="min-width:60px">
+              <div class="fw-bold ${i < 3 ? 'fs-5' : ''}">${pages}</div>
+              <small class="text-muted">${pct}%</small>
+            </div>
+            ${eligible ? '<span class="badge bg-success"><i class="bi bi-star-fill"></i></span>' : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  },
+
+  renderMvzProgressTable() {
+    const ac = this._mvzGetActiveCampaign();
+    const el = document.getElementById('mvz-tab-progress');
+    if (!ac) { el.innerHTML = '<div class="text-center text-muted py-4">\u05D0\u05D9\u05DF \u05DE\u05D1\u05E6\u05E2 \u05E4\u05E2\u05D9\u05DC</div>'; return; }
+
+    const logs = this._mvzProgress.filter(p => p.campaignId === ac.id).sort((a, b) => b.date.localeCompare(a.date));
+    el.innerHTML = `
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold mb-0"><i class="bi bi-journal-text me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA</h6>
+        <span class="badge bg-primary">${logs.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</span>
+      </div>
+      <div class="table-responsive" style="max-height:500px;overflow-y:auto">
+        <table class="table table-sm table-hover mb-0">
+          <thead class="sticky-top bg-white">
+            <tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</th><th>\u05D4\u05E2\u05E8\u05D4</th></tr>
+          </thead>
+          <tbody>
+            ${logs.map(l => `<tr>
+              <td class="text-muted">${l.date}</td>
+              <td class="fw-bold">${l.studentName}</td>
+              <td><span class="badge bg-primary">${l.pages}</span></td>
+              <td class="text-muted small">${l.note || '\u2014'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  },
+
+  renderMvzCharts() {
+    const ac = this._mvzGetActiveCampaign();
+    if (!ac) return;
+
+    const logs = this._mvzProgress.filter(p => p.campaignId === ac.id);
+
+    // Line chart: cumulative progress over time
+    const byDate = {};
+    logs.forEach(l => { byDate[l.date] = (byDate[l.date] || 0) + l.pages; });
+    const dates = Object.keys(byDate).sort();
+    let cumulative = 0;
+    const cumulData = dates.map(d => { cumulative += byDate[d]; return cumulative; });
+
+    if (this._mvzChartLine) this._mvzChartLine.destroy();
+    const ctxLine = document.getElementById('mvz-chart-line');
+    if (ctxLine) {
+      this._mvzChartLine = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: '\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD \u05DE\u05E6\u05D8\u05D1\u05E8\u05D9\u05DD',
+            data: cumulData,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139,92,246,0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { x: { display: true, ticks: { maxTicksLimit: 8 } }, y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // Bar chart: participation by student (top 15)
+    const totals = this._mvzGetStudentTotals(ac.id);
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 15);
+    const names = sorted.map(s => s[0]);
+    const vals = sorted.map(s => s[1]);
+    const colors = vals.map(v => v >= ac.targetPages ? '#10b981' : v >= ac.targetPages * 0.7 ? '#2563eb' : v >= ac.targetPages * 0.4 ? '#f59e0b' : '#ef4444');
+
+    if (this._mvzChartBar) this._mvzChartBar.destroy();
+    const ctxBar = document.getElementById('mvz-chart-bar');
+    if (ctxBar) {
+      this._mvzChartBar = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: names,
+          datasets: [{
+            label: '\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD',
+            data: vals,
+            backgroundColor: colors,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            annotation: {
+              annotations: {
+                target: {
+                  type: 'line', xMin: ac.targetPages, xMax: ac.targetPages,
+                  borderColor: '#ef4444', borderWidth: 2, borderDash: [5, 5],
+                  label: { display: true, content: '\u05D9\u05E2\u05D3', position: 'start' }
+                }
+              }
+            }
+          },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+    }
+  },
+
+  renderMvzHistory() {
+    const past = this._mvzCampaigns.filter(c => c.status === '\u05D4\u05D5\u05E9\u05DC\u05DD');
+    const el = document.getElementById('mvz-tab-history');
+    if (!past.length) {
+      el.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-clock-history display-4"></i><h6 class="mt-2">\u05D0\u05D9\u05DF \u05DE\u05D1\u05E6\u05E2\u05D9\u05DD \u05E7\u05D5\u05D3\u05DE\u05D9\u05DD</h6></div>';
+      return;
+    }
+
+    el.innerHTML = past.map(c => {
+      const totals = this._mvzGetStudentTotals(c.id);
+      const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+      const participants = sorted.length;
+      const completed = sorted.filter(([, v]) => v >= c.targetPages).length;
+      const pct = participants ? Math.round((completed / participants) * 100) : 0;
+
+      return `
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="fw-bold mb-0"><i class="bi bi-check-circle text-success me-2"></i>${c.name}</h6>
+            <small class="text-muted">${c.startDate} \u2014 ${c.endDate} | ${c.subject} | \u05D9\u05E2\u05D3: ${c.targetPages} \u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</small>
+          </div>
+          <div class="text-center">
+            <span class="badge bg-success fs-6">${completed}/${participants}</span>
+            <small class="d-block text-muted">\u05D4\u05E9\u05DC\u05D9\u05DE\u05D5</small>
+          </div>
+        </div>
+        <div class="card-body pt-2">
+          <div class="d-flex justify-content-between mb-1">
+            <small>\u05D0\u05D7\u05D5\u05D6 \u05D4\u05E9\u05DC\u05DE\u05D4</small>
+            <small class="fw-bold">${pct}%</small>
+          </div>
+          <div class="progress mb-3" style="height:8px">
+            <div class="progress-bar bg-success" style="width:${pct}%"></div>
+          </div>
+          <div class="d-flex gap-2 mb-2">
+            <span class="badge bg-light text-dark"><i class="bi bi-gift me-1"></i>\u05E4\u05E8\u05E1: ${c.prize}</span>
+          </div>
+          <details>
+            <summary class="text-primary fw-bold small" style="cursor:pointer">\u05EA\u05D5\u05E6\u05D0\u05D5\u05EA \u05DE\u05DC\u05D0\u05D5\u05EA</summary>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm mb-0">
+                <thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD</th><th>\u05D0\u05D7\u05D5\u05D6</th><th>\u05E4\u05E8\u05E1</th></tr></thead>
+                <tbody>
+                  ${sorted.map(([name, pages], i) => {
+                    const spct = Math.min(100, Math.round((pages / c.targetPages) * 100));
+                    const elig = spct >= 100;
+                    return `<tr>
+                      <td>${i + 1}</td>
+                      <td class="fw-bold">${name}</td>
+                      <td>${pages}/${c.targetPages}</td>
+                      <td>${spct}%</td>
+                      <td>${elig ? '<span class="badge bg-success">\u05D6\u05DB\u05D4</span>' : '<span class="badge bg-light text-muted">\u05DC\u05D0</span>'}</td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+      </div>`;
+    }).join('');
+  },
+
+  async showLogProgressModal() {
+    // Populate student dropdown
+    let students;
+    try { students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); } catch(e) { students = []; }
+    const names = students.length
+      ? students.map(s => Utils.fullName(s))
+      : this._mvzDemoStudentNames;
+    document.getElementById('mvf-log-student').innerHTML =
+      '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' +
+      names.map(n => `<option value="${n}">${n}</option>`).join('');
+
+    // Populate campaign dropdown (active only)
+    const active = this._mvzCampaigns.filter(c => c.status === '\u05E4\u05E2\u05D9\u05DC');
+    document.getElementById('mvf-log-campaign').innerHTML =
+      active.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    // Default date = today
+    document.getElementById('mvf-log-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('mvf-log-pages').value = 1;
+    document.getElementById('mvf-log-note').value = '';
+
+    new bootstrap.Modal(document.getElementById('mvz-log-modal')).show();
+  },
+
+  async saveLogProgress() {
+    const studentName = document.getElementById('mvf-log-student').value;
+    const campaignId = document.getElementById('mvf-log-campaign').value;
+    const pages = parseInt(document.getElementById('mvf-log-pages').value) || 0;
+    const date = document.getElementById('mvf-log-date').value;
+    const note = document.getElementById('mvf-log-note').value;
+
+    if (!studentName || !campaignId || pages < 1) {
+      Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E9\u05D3\u05D5\u05EA', 'warning');
+      return;
+    }
+
+    const entry = {
+      id: 'p_' + Date.now(),
+      campaignId,
+      studentName,
+      pages,
+      date,
+      note
+    };
+
+    // Try saving to API
+    try {
+      const ac = this._mvzCampaigns.find(c => c.id === campaignId);
+      const row = {
+        '\u05E9\u05DD': studentName,
+        '\u05DE\u05D1\u05E6\u05E2': ac ? ac.name : '',
+        '\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD': pages,
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': date,
+        '\u05D4\u05E2\u05E8\u05D4': note,
+        '\u05E1\u05D4_\u05DB': pages
+      };
+      await App.apiCall('add', '\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3', { row });
+    } catch(e) { /* demo mode - continue */ }
+
+    // Add to local state
+    this._mvzProgress.push(entry);
+    bootstrap.Modal.getInstance(document.getElementById('mvz-log-modal')).hide();
+    Utils.toast('\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
+
+    // Refresh
+    this.renderMvzStats();
+    if (this._mvzActiveTab === 'active') this.renderMvzActiveTab();
+    else if (this._mvzActiveTab === 'leaderboard') this.renderMvzLeaderboard();
+    else if (this._mvzActiveTab === 'progress') this.renderMvzProgressTable();
+  },
+
+  showCreateCampaignModal() {
+    document.getElementById('mvf-c-name').value = '';
+    document.getElementById('mvf-c-subject').value = '';
+    document.getElementById('mvf-c-target').value = 100;
+    document.getElementById('mvf-c-start').value = new Date().toISOString().slice(0, 10);
+    const endDate = new Date(); endDate.setMonth(endDate.getMonth() + 2);
+    document.getElementById('mvf-c-end').value = endDate.toISOString().slice(0, 10);
+    document.getElementById('mvf-c-prize').value = '';
+    new bootstrap.Modal(document.getElementById('mvz-create-modal')).show();
+  },
+
+  async saveNewCampaign() {
+    const name = document.getElementById('mvf-c-name').value.trim();
+    const subject = document.getElementById('mvf-c-subject').value.trim();
+    const targetPages = parseInt(document.getElementById('mvf-c-target').value) || 100;
+    const startDate = document.getElementById('mvf-c-start').value;
+    const endDate = document.getElementById('mvf-c-end').value;
+    const prize = document.getElementById('mvf-c-prize').value.trim();
+
+    if (!name || !subject || !startDate || !endDate) {
+      Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05DB\u05DC \u05D4\u05E9\u05D3\u05D5\u05EA', 'warning');
+      return;
+    }
+
+    // Deactivate current active campaigns
+    this._mvzCampaigns.forEach(c => {
+      if (c.status === '\u05E4\u05E2\u05D9\u05DC') c.status = '\u05D4\u05D5\u05E9\u05DC\u05DD';
+    });
+
+    const campaign = {
+      id: 'c_' + Date.now(),
+      name, subject, targetPages, startDate, endDate, prize,
+      status: '\u05E4\u05E2\u05D9\u05DC'
+    };
+    this._mvzCampaigns.unshift(campaign);
+
+    bootstrap.Modal.getInstance(document.getElementById('mvz-create-modal')).hide();
+    Utils.toast('\u05DE\u05D1\u05E6\u05E2 \u05D7\u05D3\u05E9 \u05E0\u05D5\u05E6\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
+
+    this.renderMvzStats();
+    this.mvzSwitchTab('active');
+  },
+
   async deleteCampaign(id) { return this.deleteMvz(id); },
   async deleteMvz(id) {
-    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete','\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
+    try { await App.apiCall('delete', '\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3', { id }); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
   },
 });
