@@ -898,50 +898,404 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     RANKINGS
+     RANKINGS — Comprehensive Student Achievement System
      ====================================================================== */
-  rankings() {
-    return `<div class="page-header"><h1><i class="bi bi-trophy-fill me-2"></i>\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD</h1></div><div id="student-of-week" class="mb-3" style="display:none"></div><div class="card p-3 mb-3"><select class="form-select" id="rank-type"><option value="behavior">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</option><option value="attendance">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</option></select></div><div class="row g-3 mb-4 justify-content-center" id="rank-podium" style="display:none"><div class="col-auto text-center" id="rank-silver"></div><div class="col-auto text-center" id="rank-gold"></div><div class="col-auto text-center" id="rank-bronze"></div></div><div id="rank-table">${Utils.skeleton(3)}</div>`;
-  },
-  async rankingsInit() {
-    document.getElementById('rank-type').addEventListener('change', () => this.loadRankings());
-    this.loadRankings();
-  },
-  async loadRankings() {
-    const type = document.getElementById('rank-type').value;
-    let data = [];
-    if (type === 'behavior') {
-      const beh = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
-      const scores = {};
-      beh.forEach(r => { const n=r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]=0; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n]++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n]--; });
-      data = Object.keys(scores).map(n => ({name:n, score:scores[n]})).sort((a,b)=>b.score-a.score);
-    } else {
-      const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-      const counts = {};
-      att.forEach(a => { const n=a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!counts[n]) counts[n]={p:0,t:0}; counts[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') counts[n].p++; });
-      data = Object.keys(counts).map(n => ({name:n, score:counts[n].t?Math.round(counts[n].p/counts[n].t*100):0})).sort((a,b)=>b.score-a.score);
-    }
-    if (!data.length) { document.getElementById('rank-table').innerHTML = '<div class="empty-state"><i class="bi bi-trophy"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h5></div>'; document.getElementById('rank-podium').style.display='none'; return; }
-    const max = data[0].score || 1;
-    // Podium
-    if (data.length >= 3) {
-      document.getElementById('rank-podium').style.display = '';
-      [{el:'rank-gold',idx:0,color:'#fbbf24',sz:'80px'},{el:'rank-silver',idx:1,color:'#94a3b8',sz:'64px'},{el:'rank-bronze',idx:2,color:'#d97706',sz:'56px'}].forEach(m => {
-        const d = data[m.idx]; document.getElementById(m.el).innerHTML = `<div style="font-size:${m.sz};color:${m.color}"><i class="bi bi-trophy-fill"></i></div><h6 class="fw-bold mt-1">${d.name}</h6><div class="fs-4 fw-bold">${d.score}</div>`;
-      });
-    }
-    document.getElementById('rank-table').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>#</th><th>\u05E9\u05DD</th><th>\u05E0\u05D9\u05E7\u05D5\u05D3</th><th>\u05D2\u05E8\u05E3</th></tr></thead><tbody>${data.slice(0,20).map((d,i) => { const w=Math.max(5,Math.round(d.score/max*100)); const c=i===0?'#fbbf24':i===1?'#94a3b8':i===2?'#d97706':'#2563eb'; return `<tr><td class="fw-bold">${i+1}</td><td class="fw-medium">${d.name}</td><td class="fw-bold">${d.score}</td><td><div class="progress" style="height:20px"><div class="progress-bar" style="width:${w}%;background:${c}">${d.score}</div></div></td></tr>`; }).join('')}</tbody></table></div>`;
 
-    // Student of the week
-    const sowEl = document.getElementById('student-of-week');
-    if (sowEl && data.length) {
-      const weekData = data.filter(d => d.score > 0);
-      const studentOfWeek = weekData.length ? weekData[0] : null;
-      if (studentOfWeek) {
-        sowEl.style.display = '';
-        sowEl.innerHTML = `<div class="card border-warning" style="border-width:2px"><div class="card-body text-center"><div class="d-flex align-items-center justify-content-center gap-3"><i class="bi bi-star-fill text-warning fs-1"></i><div><small class="text-muted d-block">\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D4\u05E9\u05D1\u05D5\u05E2</small><h4 class="fw-bold mb-0">${studentOfWeek.name}</h4><span class="badge bg-warning text-dark mt-1">${studentOfWeek.score} \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA</span></div><i class="bi bi-star-fill text-warning fs-1"></i></div></div></div>`;
-      } else { sowEl.style.display = 'none'; }
+  /* --- Demo data: 20 students with composite scores --- */
+  _rankDemoStudents: [
+    {id:'r1',  name:'\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF',       cls:'\u05D0', att:96, gradeAvg:92, behPts:18, prevRank:2},
+    {id:'r2',  name:'\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9',        cls:'\u05D0', att:88, gradeAvg:78, behPts:12, prevRank:4},
+    {id:'r3',  name:'\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',  cls:'\u05D0', att:94, gradeAvg:87, behPts:15, prevRank:1},
+    {id:'r4',  name:'\u05D9\u05E2\u05E7\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',   cls:'\u05D0', att:72, gradeAvg:55, behPts:4,  prevRank:12},
+    {id:'r5',  name:'\u05D3\u05D5\u05D3 \u05E9\u05E4\u05D9\u05E8\u05D0',      cls:'\u05D1', att:91, gradeAvg:85, behPts:14, prevRank:5},
+    {id:'r6',  name:'\u05E9\u05DE\u05D5\u05D0\u05DC \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9',   cls:'\u05D1', att:82, gradeAvg:71, behPts:8,  prevRank:9},
+    {id:'r7',  name:'\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D1\u05DF \u05D3\u05D5\u05D3',   cls:'\u05D1', att:98, gradeAvg:95, behPts:20, prevRank:3},
+    {id:'r8',  name:'\u05E0\u05EA\u05E0\u05D0\u05DC \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2',  cls:'\u05D1', att:68, gradeAvg:58, behPts:3,  prevRank:15},
+    {id:'r9',  name:'\u05D7\u05D9\u05D9\u05DD \u05E8\u05D1\u05D9\u05E0\u05D5\u05D1\u05D9\u05E5', cls:'\u05D0', att:90, gradeAvg:76, behPts:11, prevRank:6},
+    {id:'r10', name:'\u05D0\u05E8\u05D9\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF', cls:'\u05D0', att:99, gradeAvg:98, behPts:19, prevRank:1},
+    {id:'r11', name:'\u05E8\u05E4\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5', cls:'\u05D1', att:85, gradeAvg:80, behPts:13, prevRank:7},
+    {id:'r12', name:'\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF \u05E9\u05D8\u05E8\u05E0\u05D1\u05E8\u05D2', cls:'\u05D1', att:70, gradeAvg:48, behPts:2,  prevRank:18},
+    {id:'r13', name:'\u05D9\u05E9\u05E8\u05D0\u05DC \u05D0\u05D3\u05DC\u05E8',    cls:'\u05D0', att:93, gradeAvg:84, behPts:16, prevRank:8},
+    {id:'r14', name:'\u05DE\u05E0\u05D7\u05DD \u05D4\u05D5\u05E8\u05D5\u05D1\u05D9\u05E5',  cls:'\u05D1', att:87, gradeAvg:73, behPts:10, prevRank:10},
+    {id:'r15', name:'\u05E2\u05DE\u05D9\u05EA\u05D9 \u05E4\u05E8\u05DC',     cls:'\u05D0', att:78, gradeAvg:62, behPts:6,  prevRank:14},
+    {id:'r16', name:'\u05D0\u05D9\u05EA\u05DF \u05D3\u05D4\u05DF',       cls:'\u05D1', att:95, gradeAvg:90, behPts:17, prevRank:4},
+    {id:'r17', name:'\u05E0\u05D7\u05DE\u05DF \u05D1\u05D5\u05D8\u05E8\u05D0\u05E9\u05D5\u05D9\u05DC\u05D9', cls:'\u05D0', att:80, gradeAvg:68, behPts:7, prevRank:11},
+    {id:'r18', name:'\u05D3\u05E0\u05D9\u05D0\u05DC \u05D5\u05D9\u05E0\u05E8',    cls:'\u05D1', att:75, gradeAvg:60, behPts:5,  prevRank:16},
+    {id:'r19', name:'\u05D0\u05D4\u05E8\u05DF \u05DE\u05D6\u05E8\u05D7\u05D9',   cls:'\u05D0', att:92, gradeAvg:88, behPts:15, prevRank:6},
+    {id:'r20', name:'\u05E9\u05DC\u05DE\u05D4 \u05D1\u05E8\u05D2\u05E8',    cls:'\u05D1', att:65, gradeAvg:45, behPts:1,  prevRank:20}
+  ],
+
+  _rankUseDemo: true,
+  _rankActiveTab: 'overall',
+  _rankChart: null,
+
+  _rankCalcComposite(s) {
+    // Weighted composite: attendance 30%, grades 40%, behavior 30%
+    return Math.round(s.att * 0.3 + s.gradeAvg * 0.4 + (s.behPts / 20 * 100) * 0.3);
+  },
+
+  _rankGetSorted(tab) {
+    const students = this._rankUseDemo ? [...this._rankDemoStudents] : [...(this._rankLiveStudents || [])];
+    students.forEach(s => { s.composite = this._rankCalcComposite(s); });
+    switch(tab) {
+      case 'attendance': students.sort((a,b) => b.att - a.att); break;
+      case 'academics':  students.sort((a,b) => b.gradeAvg - a.gradeAvg); break;
+      case 'behavior':   students.sort((a,b) => b.behPts - a.behPts); break;
+      default:           students.sort((a,b) => b.composite - a.composite); break;
     }
+    return students;
+  },
+
+  rankings() {
+    return `
+    <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+      <div><h1><i class="bi bi-trophy-fill me-2"></i>\u05D3\u05D9\u05E8\u05D5\u05D2\u05D9\u05DD \u05D5\u05D4\u05D9\u05E9\u05D2\u05D9\u05DD</h1></div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="Pages._rankUseDemo=!Pages._rankUseDemo;Pages.rankingsInit()">
+        <i class="bi bi-database me-1"></i><span id="rank-demo-btn">\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</span>
+      </button>
+    </div>
+
+    <!-- Monthly MVP -->
+    <div id="rank-mvp" class="mb-3"></div>
+
+    <!-- Category Tabs -->
+    <ul class="nav nav-pills mb-3 gap-1 flex-wrap" id="rank-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" data-tab="overall" onclick="Pages.switchRankTab('overall',this);return false"><i class="bi bi-bar-chart-fill me-1"></i>\u05DB\u05DC\u05DC\u05D9</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-tab="attendance" onclick="Pages.switchRankTab('attendance',this);return false"><i class="bi bi-calendar-check me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-tab="academics" onclick="Pages.switchRankTab('academics',this);return false"><i class="bi bi-journal-text me-1"></i>\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-tab="behavior" onclick="Pages.switchRankTab('behavior',this);return false"><i class="bi bi-emoji-smile me-1"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></li>
+    </ul>
+
+    <!-- Podium -->
+    <div class="row g-3 mb-4 justify-content-center align-items-end" id="rank-podium"></div>
+
+    <!-- Full Leaderboard -->
+    <div id="rank-table" class="mb-4">${Utils.skeleton(3)}</div>
+
+    <!-- Class Comparison Radar Chart -->
+    <div class="card mb-4" id="rank-radar-card">
+      <div class="card-body">
+        <h6 class="fw-bold mb-3"><i class="bi bi-diagram-3 me-2"></i>\u05D4\u05E9\u05D5\u05D5\u05D0\u05EA \u05DB\u05D9\u05EA\u05D5\u05EA</h6>
+        <div style="max-width:450px;margin:auto"><canvas id="rank-radar-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Student Detail Modal -->
+    <div class="modal fade" id="rank-detail-modal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="rank-detail-title">\u05E4\u05E8\u05D5\u05E4\u05D9\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body" id="rank-detail-body"></div>
+    </div></div></div>`;
+  },
+
+  async rankingsInit() {
+    // Update demo toggle text
+    const btn = document.getElementById('rank-demo-btn');
+    if (btn) btn.textContent = this._rankUseDemo ? '\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5' : '\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D7\u05D9\u05D9\u05DD';
+
+    // Load live data if not demo
+    if (!this._rankUseDemo) {
+      await this._rankLoadLiveData();
+    }
+
+    this._rankActiveTab = 'overall';
+    // Reset tabs UI
+    document.querySelectorAll('#rank-tabs .nav-link').forEach(el => {
+      el.classList.toggle('active', el.dataset.tab === 'overall');
+    });
+    this.renderRankings();
+  },
+
+  async _rankLoadLiveData() {
+    try {
+      const [students, beh, att, grades] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
+        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'),
+        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
+        App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD')
+      ]);
+      // Build per-student metrics
+      const map = {};
+      students.forEach(s => {
+        const id = s['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(s);
+        const name = Utils.fullName(s);
+        if (!name) return;
+        map[name] = {id, name, cls: s['\u05DB\u05D9\u05EA\u05D4'] || '-', att: 0, _attTotal: 0, _attPresent: 0, gradeAvg: 0, _gradeSum: 0, _gradeCount: 0, behPts: 0, prevRank: 0};
+      });
+      att.forEach(a => {
+        const n = a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''; if (!n || !map[n]) return;
+        map[n]._attTotal++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7') map[n]._attPresent++;
+      });
+      grades.forEach(g => {
+        const n = g['\u05E9\u05DD'] || ''; const sc = parseFloat(g['\u05E6\u05D9\u05D5\u05DF']); if (!n || !map[n] || isNaN(sc)) return;
+        map[n]._gradeSum += sc; map[n]._gradeCount++;
+      });
+      beh.forEach(r => {
+        const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''; if (!n || !map[n]) return;
+        if (r['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9') map[n].behPts++; else if (r['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') map[n].behPts--;
+      });
+      Object.values(map).forEach(s => {
+        s.att = s._attTotal ? Math.round(s._attPresent / s._attTotal * 100) : 0;
+        s.gradeAvg = s._gradeCount ? Math.round(s._gradeSum / s._gradeCount) : 0;
+        s.behPts = Math.max(0, Math.min(20, s.behPts));
+        s.prevRank = 0; // no previous data
+      });
+      this._rankLiveStudents = Object.values(map).filter(s => s.att > 0 || s.gradeAvg > 0 || s.behPts > 0);
+    } catch(e) {
+      this._rankLiveStudents = [];
+    }
+  },
+
+  switchRankTab(tab, el) {
+    this._rankActiveTab = tab;
+    document.querySelectorAll('#rank-tabs .nav-link').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    this.renderRankings();
+  },
+
+  renderRankings() {
+    const tab = this._rankActiveTab;
+    const sorted = this._rankGetSorted(tab);
+
+    if (!sorted.length) {
+      document.getElementById('rank-podium').innerHTML = '';
+      document.getElementById('rank-table').innerHTML = '<div class="empty-state"><i class="bi bi-trophy"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h5></div>';
+      document.getElementById('rank-mvp').innerHTML = '';
+      return;
+    }
+
+    // Monthly MVP
+    const mvp = sorted[0];
+    document.getElementById('rank-mvp').innerHTML = `
+      <div class="card border-warning position-relative overflow-hidden" style="border-width:2px;background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 50%,#fffbeb 100%)">
+        <div class="card-body text-center py-4">
+          <div class="position-absolute top-0 start-0 w-100 h-100" style="background:radial-gradient(circle at 50% 0%,rgba(251,191,36,0.15) 0%,transparent 70%);pointer-events:none"></div>
+          <div class="d-flex align-items-center justify-content-center gap-3 position-relative">
+            <div class="rank-mvp-star"><i class="bi bi-star-fill text-warning fs-1"></i></div>
+            <div>
+              <small class="text-muted d-block fw-semibold">\u2B50 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D4\u05D7\u05D5\u05D3\u05E9 \u2B50</small>
+              <div class="d-flex align-items-center justify-content-center gap-2 mt-1">
+                ${Utils.avatarHTML(mvp.name, 'sm')}
+                <h4 class="fw-bold mb-0">${mvp.name}</h4>
+              </div>
+              <div class="mt-2 d-flex gap-2 justify-content-center flex-wrap">
+                <span class="badge bg-warning text-dark">\u05E6\u05D9\u05D5\u05DF \u05DB\u05DC\u05DC\u05D9: ${mvp.composite}</span>
+                <span class="badge bg-success">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA: ${mvp.att}%</span>
+                <span class="badge bg-primary">\u05DE\u05DE\u05D5\u05E6\u05E2: ${mvp.gradeAvg}</span>
+                <span class="badge bg-info">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: ${mvp.behPts}</span>
+              </div>
+            </div>
+            <div class="rank-mvp-star"><i class="bi bi-star-fill text-warning fs-1"></i></div>
+          </div>
+        </div>
+      </div>`;
+
+    // Podium - top 3 with animated styling
+    const podiumOrder = sorted.length >= 3
+      ? [{d:sorted[1],pos:'silver',medal:'\uD83E\uDD48',color:'#94a3b8',h:'120px',order:1},{d:sorted[0],pos:'gold',medal:'\uD83E\uDD47',color:'#fbbf24',h:'160px',order:2},{d:sorted[2],pos:'bronze',medal:'\uD83E\uDD49',color:'#d97706',h:'100px',order:3}]
+      : sorted.length >= 1
+        ? [{d:sorted[0],pos:'gold',medal:'\uD83E\uDD47',color:'#fbbf24',h:'160px',order:1}]
+        : [];
+
+    const scoreKey = tab === 'attendance' ? 'att' : tab === 'academics' ? 'gradeAvg' : tab === 'behavior' ? 'behPts' : 'composite';
+    const scoreLabel = tab === 'attendance' ? '%' : tab === 'behavior' ? ' \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA' : '';
+
+    document.getElementById('rank-podium').innerHTML = podiumOrder.map(p => {
+      const rank = p.pos === 'gold' ? 1 : p.pos === 'silver' ? 2 : 3;
+      const trendHTML = this._rankTrendArrow(p.d, rank);
+      return `
+      <div class="col-auto text-center rank-podium-entry" style="order:${p.order}">
+        <div class="rank-podium-block" style="--podium-color:${p.color};--podium-h:${p.h}">
+          <div class="rank-medal-icon">${p.medal}</div>
+          ${Utils.avatarHTML(p.d.name)}
+          <h6 class="fw-bold mt-2 mb-0">${p.d.name}</h6>
+          <small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${p.d.cls}</small>
+          <div class="fs-4 fw-bold mt-1" style="color:${p.color}">${p.d[scoreKey]}${scoreLabel}</div>
+          ${trendHTML}
+          <div class="rank-podium-base" style="height:${p.h};background:linear-gradient(180deg,${p.color}33 0%,${p.color}11 100%);border-top:3px solid ${p.color}"></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Full leaderboard table
+    const max = sorted[0][scoreKey] || 1;
+    document.getElementById('rank-table').innerHTML = `
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-bht table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width:50px">#</th>
+              <th>\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+              <th>\u05DB\u05D9\u05EA\u05D4</th>
+              <th>\u05E6\u05D9\u05D5\u05DF \u05DB\u05DC\u05DC\u05D9</th>
+              <th>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA %</th>
+              <th>\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</th>
+              <th>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</th>
+              <th>\u05DE\u05D2\u05DE\u05D4</th>
+              <th style="min-width:120px">\u05D2\u05E8\u05E3</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sorted.map((d, i) => {
+              const rank = i + 1;
+              const w = Math.max(5, Math.round(d[scoreKey] / max * 100));
+              const c = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#d97706' : '#2563eb';
+              const medalIcon = i === 0 ? '\uD83E\uDD47' : i === 1 ? '\uD83E\uDD48' : i === 2 ? '\uD83E\uDD49' : '';
+              const trendHTML = this._rankTrendArrow(d, rank);
+              return `<tr class="rank-row ${i < 3 ? 'rank-top3' : ''}" style="cursor:pointer" onclick="Pages.showRankDetail('${d.id}')">
+                <td class="fw-bold">${medalIcon || rank}</td>
+                <td><div class="d-flex align-items-center gap-2">${Utils.avatarHTML(d.name,'sm')}<span class="fw-medium">${d.name}</span></div></td>
+                <td><span class="badge bg-secondary">${d.cls}</span></td>
+                <td class="fw-bold">${d.composite}</td>
+                <td>${this._rankMiniBar(d.att, 100, d.att >= 90 ? '#10b981' : d.att >= 75 ? '#f59e0b' : '#ef4444')}</td>
+                <td>${this._rankMiniBar(d.gradeAvg, 100, d.gradeAvg >= 80 ? '#10b981' : d.gradeAvg >= 60 ? '#f59e0b' : '#ef4444')}</td>
+                <td class="fw-bold">${d.behPts}</td>
+                <td>${trendHTML}</td>
+                <td><div class="progress" style="height:18px"><div class="progress-bar" style="width:${w}%;background:${c};transition:width .6s ease">${d[scoreKey]}${scoreLabel}</div></div></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+    // Radar chart - class comparison
+    this._renderRankRadar(sorted);
+
+    // Inject podium CSS animation
+    if (!document.getElementById('rank-anim-style')) {
+      const style = document.createElement('style');
+      style.id = 'rank-anim-style';
+      style.textContent = `
+        .rank-podium-entry { animation: rankSlideUp .5s ease both; }
+        .rank-podium-entry:nth-child(1) { animation-delay:.1s; }
+        .rank-podium-entry:nth-child(2) { animation-delay:.25s; }
+        .rank-podium-entry:nth-child(3) { animation-delay:.4s; }
+        @keyframes rankSlideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        .rank-podium-block { position:relative; padding:16px 24px 0; }
+        .rank-podium-base { border-radius:8px 8px 0 0; margin-top:8px; width:100%; }
+        .rank-medal-icon { font-size:2.5rem; line-height:1; }
+        .rank-top3 td { background:rgba(251,191,36,0.04); }
+        .rank-row:hover td { background:rgba(37,99,235,0.06)!important; }
+        .rank-trend-up { color:#10b981; font-weight:700; }
+        .rank-trend-down { color:#ef4444; font-weight:700; }
+        .rank-trend-same { color:#94a3b8; }
+        .rank-mvp-star { animation: rankPulse 2s ease-in-out infinite; }
+        @keyframes rankPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+        .rank-mini-bar { display:inline-flex; align-items:center; gap:4px; }
+        .rank-mini-bar-track { width:50px; height:6px; background:#e5e7eb; border-radius:3px; overflow:hidden; }
+        .rank-mini-bar-fill { height:100%; border-radius:3px; transition:width .4s ease; }
+        .rank-breakdown-bar { height:24px; border-radius:4px; overflow:hidden; display:flex; }
+        .rank-breakdown-bar > div { display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.75rem; font-weight:600; transition:width .4s ease; }
+      `;
+      document.head.appendChild(style);
+    }
+  },
+
+  _rankTrendArrow(student, currentRank) {
+    if (!student.prevRank || student.prevRank === 0) return '<span class="rank-trend-same"><i class="bi bi-dash"></i></span>';
+    const diff = student.prevRank - currentRank;
+    if (diff > 0) return `<span class="rank-trend-up"><i class="bi bi-arrow-up-short"></i>${diff}</span>`;
+    if (diff < 0) return `<span class="rank-trend-down"><i class="bi bi-arrow-down-short"></i>${Math.abs(diff)}</span>`;
+    return '<span class="rank-trend-same"><i class="bi bi-dash"></i></span>';
+  },
+
+  _rankMiniBar(val, max, color) {
+    const pct = Math.round(val / max * 100);
+    return `<div class="rank-mini-bar"><span class="fw-semibold" style="min-width:30px">${val}</span><div class="rank-mini-bar-track"><div class="rank-mini-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+  },
+
+  _renderRankRadar(sorted) {
+    const canvas = document.getElementById('rank-radar-chart');
+    if (!canvas) return;
+    // Group by class
+    const classes = {};
+    sorted.forEach(s => {
+      if (!classes[s.cls]) classes[s.cls] = {att:[], grade:[], beh:[], composite:[]};
+      classes[s.cls].att.push(s.att);
+      classes[s.cls].grade.push(s.gradeAvg);
+      classes[s.cls].beh.push(s.behPts / 20 * 100);
+      classes[s.cls].composite.push(s.composite);
+    });
+    const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
+    const labels = ['\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD','\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05E6\u05D9\u05D5\u05DF \u05DB\u05DC\u05DC\u05D9'];
+    const colors = ['rgba(37,99,235,0.7)','rgba(16,185,129,0.7)','rgba(239,68,68,0.7)','rgba(245,158,11,0.7)','rgba(139,92,246,0.7)'];
+    const datasets = Object.keys(classes).map((cls,i) => ({
+      label: '\u05DB\u05D9\u05EA\u05D4 ' + cls,
+      data: [avg(classes[cls].att), avg(classes[cls].grade), avg(classes[cls].beh), avg(classes[cls].composite)],
+      backgroundColor: colors[i % colors.length].replace('0.7','0.15'),
+      borderColor: colors[i % colors.length],
+      borderWidth: 2,
+      pointBackgroundColor: colors[i % colors.length],
+      pointRadius: 4
+    }));
+    if (this._rankChart) { this._rankChart.destroy(); this._rankChart = null; }
+    this._rankChart = new Chart(canvas, {
+      type: 'radar',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20, font:{family:'Heebo'} }, pointLabels: { font:{family:'Heebo',size:13,weight:'600'} } } },
+        plugins: { legend: { labels: { font:{family:'Heebo',size:12} } } }
+      }
+    });
+  },
+
+  showRankDetail(id) {
+    const students = this._rankUseDemo ? this._rankDemoStudents : (this._rankLiveStudents || []);
+    const s = students.find(st => st.id === id);
+    if (!s) return;
+    s.composite = this._rankCalcComposite(s);
+    const sorted = this._rankGetSorted('overall');
+    const rank = sorted.findIndex(st => st.id === id) + 1;
+
+    // Score breakdown percentages
+    const attContrib = Math.round(s.att * 0.3);
+    const gradeContrib = Math.round(s.gradeAvg * 0.4);
+    const behContrib = Math.round((s.behPts / 20 * 100) * 0.3);
+    const total = attContrib + gradeContrib + behContrib;
+    const attPct = total ? Math.round(attContrib / total * 100) : 33;
+    const gradePct = total ? Math.round(gradeContrib / total * 100) : 33;
+    const behPct = total ? 100 - attPct - gradePct : 34;
+
+    const trendHTML = this._rankTrendArrow(s, rank);
+
+    document.getElementById('rank-detail-title').textContent = s.name;
+    document.getElementById('rank-detail-body').innerHTML = `
+      <div class="text-center mb-3">
+        ${Utils.avatarHTML(s.name)}
+        <h5 class="fw-bold mt-2 mb-0">${s.name}</h5>
+        <span class="badge bg-secondary mt-1">\u05DB\u05D9\u05EA\u05D4 ${s.cls}</span>
+        <div class="mt-1">\u05D3\u05D9\u05E8\u05D5\u05D2 \u05E0\u05D5\u05DB\u05D7\u05D9: <strong>#${rank}</strong> ${trendHTML}</div>
+      </div>
+
+      <h6 class="fw-bold mb-2"><i class="bi bi-pie-chart me-1"></i>\u05E4\u05D9\u05E8\u05D5\u05D8 \u05E0\u05D9\u05E7\u05D5\u05D3</h6>
+      <div class="rank-breakdown-bar mb-2">
+        <div style="width:${attPct}%;background:#10b981" title="\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA ${attContrib}">${attContrib}</div>
+        <div style="width:${gradePct}%;background:#2563eb" title="\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD ${gradeContrib}">${gradeContrib}</div>
+        <div style="width:${behPct}%;background:#f59e0b" title="\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA ${behContrib}">${behContrib}</div>
+      </div>
+      <div class="d-flex gap-3 mb-3 flex-wrap justify-content-center" style="font-size:.85rem">
+        <span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#10b981"></span> \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA (30%)</span>
+        <span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2563eb"></span> \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD (40%)</span>
+        <span><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b"></span> \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA (30%)</span>
+      </div>
+
+      <div class="row g-2 text-center">
+        <div class="col-6 col-md-3">
+          <div class="card p-2"><div class="fs-4 fw-bold text-primary">${s.composite}</div><small class="text-muted">\u05E6\u05D9\u05D5\u05DF \u05DB\u05DC\u05DC\u05D9</small></div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-2"><div class="fs-4 fw-bold" style="color:#10b981">${s.att}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-2"><div class="fs-4 fw-bold" style="color:#2563eb">${s.gradeAvg}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-2"><div class="fs-4 fw-bold" style="color:#f59e0b">${s.behPts}</div><small class="text-muted">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div>
+        </div>
+      </div>`;
+    new bootstrap.Modal(document.getElementById('rank-detail-modal')).show();
   },
 
 
