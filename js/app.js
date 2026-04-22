@@ -80,11 +80,34 @@ const App = {
     document.getElementById('landing-page').classList.add('d-none');
     document.getElementById('login-screen').classList.add('d-none');
     document.getElementById('app-shell').classList.remove('d-none');
-    this.startSessionTimer();
+    try { this.startSessionTimer(); } catch(e) {}
     this.handleRoute();
-    this.loadNotifications();
-    this.updateNotifBadgeFromStorage();
-    this.updateSyncStatus();
+    try { this.loadNotifications(); } catch(e) {}
+    try { this.updateNotifBadgeFromStorage(); } catch(e) {}
+    try { this.updateSyncStatus(); } catch(e) {}
+  },
+
+  startSessionTimer() {
+    this._sessionStart = Date.now();
+    const el = document.getElementById('session-timer');
+    if (!el) return;
+    setInterval(() => {
+      const diff = Math.floor((Date.now() - this._sessionStart) / 1000);
+      const h = Math.floor(diff / 3600);
+      const m = Math.floor((diff % 3600) / 60);
+      el.textContent = (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(diff % 60).padStart(2, '0');
+    }, 1000);
+  },
+
+  updateNotifBadgeFromStorage() {
+    const badge = document.getElementById('notif-count');
+    if (!badge) return;
+    try {
+      const notifs = JSON.parse(localStorage.getItem('bht_notifications') || '[]');
+      const unread = notifs.filter(n => !n.read).length;
+      if (unread > 0) { badge.textContent = unread; badge.classList.remove('d-none'); }
+      else { badge.classList.add('d-none'); }
+    } catch(e) {}
   },
 
   handleLogin() {
