@@ -417,5 +417,128 @@ const Utils = {
     if (diff < 86400) return Math.round(diff/3600) + ' \u05E9\u05E2\u05D5\u05EA';
     if (diff < 604800) return Math.round(diff/86400) + ' \u05D9\u05DE\u05D9\u05DD';
     return this.formatDateShort(date);
+  },
+
+  /* ---- timeAgo: Hebrew relative time with "לפני" prefix ---- */
+  timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    const diff = Math.round((Date.now() - d) / 1000);
+    if (diff < 60) return '\u05DC\u05E4\u05E0\u05D9 \u05E9\u05E0\u05D9\u05D5\u05EA \u05E1\u05E4\u05D5\u05E8\u05D5\u05EA';
+    if (diff < 3600) {
+      const m = Math.round(diff / 60);
+      return '\u05DC\u05E4\u05E0\u05D9 ' + m + (m === 1 ? ' \u05D3\u05E7\u05D4' : ' \u05D3\u05E7\u05D5\u05EA');
+    }
+    if (diff < 86400) {
+      const h = Math.round(diff / 3600);
+      return '\u05DC\u05E4\u05E0\u05D9 ' + (h === 1 ? '\u05E9\u05E2\u05D4' : h + ' \u05E9\u05E2\u05D5\u05EA');
+    }
+    if (diff < 2592000) {
+      const days = Math.round(diff / 86400);
+      return '\u05DC\u05E4\u05E0\u05D9 ' + (days === 1 ? '\u05D9\u05D5\u05DD' : days + ' \u05D9\u05DE\u05D9\u05DD');
+    }
+    if (diff < 31536000) {
+      const months = Math.round(diff / 2592000);
+      return '\u05DC\u05E4\u05E0\u05D9 ' + (months === 1 ? '\u05D7\u05D5\u05D3\u05E9' : months + ' \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD');
+    }
+    const years = Math.round(diff / 31536000);
+    return '\u05DC\u05E4\u05E0\u05D9 ' + (years === 1 ? '\u05E9\u05E0\u05D4' : years + ' \u05E9\u05E0\u05D9\u05DD');
+  },
+
+  /* ---- Print section with RTL Hebrew styling ---- */
+  printSection(html, title) {
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="UTF-8">
+      <title>${title || '\u05D4\u05D3\u05E4\u05E1\u05D4'}</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
+        *{font-family:'Heebo',sans-serif;direction:rtl}
+        body{padding:20px;color:#333;font-size:14px}
+        h1{font-size:20px;margin-bottom:10px;border-bottom:2px solid #1a73e8;padding-bottom:8px}
+        table{width:100%;border-collapse:collapse;margin-top:10px}
+        th,td{border:1px solid #ddd;padding:6px 10px;text-align:right}
+        th{background:#f5f5f5;font-weight:600}
+        @media print{body{padding:0} .no-print{display:none}}
+      </style>
+    </head><body>
+      ${title ? '<h1>' + title + '</h1>' : ''}
+      ${html}
+      <script>window.onload=function(){window.print();}<\/script>
+    </body></html>`);
+    win.document.close();
+  },
+
+  /* ---- Generate random 8-char alphanumeric ID ---- */
+  generateId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    for (let i = 0; i < 8; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+    return id;
+  },
+
+  /* ---- Group array of objects by key ---- */
+  groupBy(arr, key) {
+    if (!Array.isArray(arr)) return {};
+    return arr.reduce((groups, item) => {
+      const val = item[key] ?? '';
+      (groups[val] = groups[val] || []).push(item);
+      return groups;
+    }, {});
+  },
+
+  /* ---- Sort array by key, ascending or descending ---- */
+  sortBy(arr, key, dir = 'asc') {
+    if (!Array.isArray(arr)) return [];
+    return [...arr].sort((a, b) => {
+      let aVal = a[key], bVal = b[key];
+      // Numeric comparison if both are numbers
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return dir === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+      // String comparison (Hebrew-aware)
+      aVal = String(aVal ?? '');
+      bVal = String(bVal ?? '');
+      const cmp = aVal.localeCompare(bVal, 'he');
+      return dir === 'asc' ? cmp : -cmp;
+    });
+  },
+
+  /* ---- Truncate string with ellipsis ---- */
+  truncate(str, len = 50) {
+    if (!str) return '';
+    str = String(str);
+    return str.length > len ? str.slice(0, len) + '\u2026' : str;
+  },
+
+  /* ---- Hebrew day name for any date ---- */
+  hebrewDayName(date) {
+    const d = date instanceof Date ? date : new Date(date || Date.now());
+    if (isNaN(d)) return '';
+    return '\u05D9\u05D5\u05DD ' + this.HEB_DAYS[d.getDay()];
+  },
+
+  /* ---- Check if date string is today ---- */
+  isToday(dateStr) {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    if (isNaN(d)) return false;
+    const today = new Date();
+    return d.getFullYear() === today.getFullYear() &&
+           d.getMonth() === today.getMonth() &&
+           d.getDate() === today.getDate();
+  },
+
+  /* ---- Calculate age in years from date string ---- */
+  calculateAge(birthDate) {
+    return this.calcAge(birthDate);
+  },
+
+  /* ---- Sanitize HTML: basic XSS prevention ---- */
+  sanitizeHTML(str) {
+    if (!str) return '';
+    const map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;', '/':'&#x2F;' };
+    return String(str).replace(/[&<>"'/]/g, c => map[c]);
   }
 };
