@@ -550,26 +550,349 @@
 
   <!-- Login Screen -->
   <div id="login-screen" class="d-none">
-    <div class="login-container">
-      <div class="login-card">
-        <div class="login-logo">
+    <style>
+      @keyframes loginGradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      @keyframes loginCardEntrance {
+        0% { opacity: 0; transform: translateY(40px) scale(.92); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes loginIconFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      @keyframes loginIconGlow {
+        0%, 100% { box-shadow: 0 16px 50px rgba(59,130,246,.4), 0 0 60px rgba(139,92,246,.15); }
+        50% { box-shadow: 0 16px 60px rgba(59,130,246,.6), 0 0 100px rgba(139,92,246,.35); }
+      }
+      @keyframes loginTitleGlow {
+        0%, 100% { text-shadow: 0 0 20px rgba(147,197,253,.4), 0 0 60px rgba(147,197,253,.1); }
+        50% { text-shadow: 0 0 30px rgba(147,197,253,.7), 0 0 80px rgba(147,197,253,.3); }
+      }
+      @keyframes loginDotFill {
+        0% { transform: scale(.6); background: rgba(255,255,255,.15); }
+        50% { transform: scale(1.25); }
+        100% { transform: scale(1); background: #60a5fa; box-shadow: 0 0 12px rgba(96,165,250,.6); }
+      }
+      @keyframes loginDotPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(96,165,250,.4); }
+        50% { box-shadow: 0 0 0 6px rgba(96,165,250,0); }
+      }
+      @keyframes loginParticle {
+        0% { opacity: 0; transform: translateY(0) scale(0); }
+        20% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: translateY(-200px) scale(.5); }
+      }
+      @keyframes loginShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+      }
+      @keyframes loginBtnShimmer {
+        0% { background-position: -200% center; }
+        100% { background-position: 200% center; }
+      }
+      .login-screen-v2 {
+        background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #1e3a5f, #0f172a);
+        background-size: 400% 400%;
+        animation: loginGradientShift 12s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .login-screen-v2::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 40%, rgba(99,102,241,.2) 0%, transparent 60%),
+                    radial-gradient(circle at 70% 60%, rgba(59,130,246,.15) 0%, transparent 50%);
+        pointer-events: none;
+      }
+      .login-particles {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .login-particles span {
+        position: absolute;
+        bottom: -20px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(147,197,253,.3);
+        animation: loginParticle 6s linear infinite;
+      }
+      .login-particles span:nth-child(1) { right: 10%; animation-delay: 0s; animation-duration: 7s; }
+      .login-particles span:nth-child(2) { right: 25%; animation-delay: 1.5s; animation-duration: 5s; width: 6px; height: 6px; }
+      .login-particles span:nth-child(3) { right: 45%; animation-delay: 3s; animation-duration: 8s; width: 10px; height: 10px; }
+      .login-particles span:nth-child(4) { right: 65%; animation-delay: .5s; animation-duration: 6s; }
+      .login-particles span:nth-child(5) { right: 80%; animation-delay: 2s; animation-duration: 9s; width: 5px; height: 5px; }
+      .login-particles span:nth-child(6) { right: 40%; animation-delay: 4s; animation-duration: 6.5s; width: 7px; height: 7px; }
+      .login-particles span:nth-child(7) { right: 55%; animation-delay: 1s; animation-duration: 7.5s; width: 4px; height: 4px; }
+      .login-particles span:nth-child(8) { right: 90%; animation-delay: 3.5s; animation-duration: 5.5s; width: 9px; height: 9px; }
+      .login-glass-card {
+        background: rgba(255,255,255,.06);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 28px;
+        padding: 3rem 2.5rem 2.5rem;
+        width: 100%;
+        max-width: 420px;
+        position: relative;
+        z-index: 1;
+        animation: loginCardEntrance .7s cubic-bezier(.16,1,.3,1) both;
+        box-shadow: 0 24px 80px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
+      }
+      .login-glass-card::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+      }
+      .login-icon-v2 {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        border-radius: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #fff;
+        margin: 0 auto 1.5rem;
+        animation: loginIconFloat 4s ease-in-out infinite, loginIconGlow 3s ease-in-out infinite;
+        position: relative;
+      }
+      .login-icon-v2::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: 32px;
+        background: linear-gradient(135deg, rgba(59,130,246,.3), rgba(139,92,246,.3));
+        z-index: -1;
+        filter: blur(12px);
+      }
+      .login-title-v2 {
+        font-size: 2.6rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, #93c5fd 50%, #c4b5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: loginTitleGlow 3s ease-in-out infinite;
+        text-align: center;
+        margin-bottom: .25rem;
+        letter-spacing: -.5px;
+      }
+      .login-subtitle-v2 {
+        text-align: center;
+        color: rgba(255,255,255,.5);
+        font-size: .95rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+      }
+      .login-pin-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      .login-pin-wrapper .pin-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        cursor: pointer;
+      }
+      .login-pin-dots {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        padding: 1.2rem 0;
+      }
+      .login-pin-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.12);
+        border: 2px solid rgba(255,255,255,.2);
+        transition: all .3s cubic-bezier(.16,1,.3,1);
+        position: relative;
+      }
+      .login-pin-dot.filled {
+        animation: loginDotFill .35s cubic-bezier(.16,1,.3,1) forwards;
+        border-color: #60a5fa;
+      }
+      .login-pin-dot.current {
+        animation: loginDotPulse 1.2s infinite;
+        border-color: rgba(96,165,250,.6);
+      }
+      .login-pin-label {
+        text-align: center;
+        color: rgba(255,255,255,.4);
+        font-size: .8rem;
+        margin-bottom: .5rem;
+        letter-spacing: 1px;
+      }
+      .login-btn-v2 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 24px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        color: #fff;
+        cursor: pointer;
+        transition: transform .25s ease, box-shadow .25s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .login-btn-v2::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,.15) 50%, transparent 75%);
+        background-size: 200% 100%;
+        animation: loginBtnShimmer 3s linear infinite;
+      }
+      .login-btn-v2:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(99,102,241,.5);
+      }
+      .login-btn-v2:active {
+        transform: translateY(0) scale(.98);
+      }
+      .login-error-v2 {
+        background: rgba(239,68,68,.15);
+        border: 1px solid rgba(239,68,68,.3);
+        color: #fca5a5;
+        border-radius: 12px;
+        padding: .75rem 1rem;
+        font-size: .9rem;
+        text-align: center;
+        margin-top: 1rem;
+        backdrop-filter: blur(8px);
+      }
+      .login-error-v2.shake {
+        animation: loginShake .5s ease;
+      }
+      .login-footer-v2 {
+        text-align: center;
+        margin-top: 2rem;
+        color: rgba(255,255,255,.25);
+        font-size: .78rem;
+        letter-spacing: .5px;
+      }
+      .login-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 1.25rem 0;
+        color: rgba(255,255,255,.2);
+        font-size: .8rem;
+      }
+      .login-divider::before,
+      .login-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+      }
+      @media (max-width: 480px) {
+        .login-glass-card {
+          margin: 1rem;
+          padding: 2rem 1.5rem 1.5rem;
+          border-radius: 20px;
+        }
+        .login-title-v2 { font-size: 2rem; }
+        .login-icon-v2 { width: 80px; height: 80px; font-size: 2.4rem; border-radius: 22px; }
+        .login-pin-dots { gap: 10px; }
+        .login-pin-dot { width: 15px; height: 15px; }
+      }
+    </style>
+    <div class="login-screen-v2">
+      <div class="login-particles">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="login-glass-card">
+        <div class="login-icon-v2">
           <i class="bi bi-mortarboard-fill"></i>
         </div>
-        <h2 class="login-title">בית התלמוד</h2>
-        <p class="login-subtitle">מערכת ניהול מוסד חינוכי</p>
-        <div class="pin-input-group">
-          <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="הזן קוד PIN" autocomplete="off" inputmode="numeric">
-          <div class="pin-dots" id="pin-dots"></div>
+        <h2 class="login-title-v2">בית התלמוד</h2>
+        <p class="login-subtitle-v2">מערכת ניהול מוסד חינוכי</p>
+        <div class="login-divider">הזן קוד גישה</div>
+        <div class="login-pin-wrapper">
+          <div class="login-pin-label">PIN</div>
+          <div class="login-pin-dots" id="pin-dots">
+            <div class="login-pin-dot" data-idx="0"></div>
+            <div class="login-pin-dot" data-idx="1"></div>
+            <div class="login-pin-dot" data-idx="2"></div>
+            <div class="login-pin-dot" data-idx="3"></div>
+            <div class="login-pin-dot" data-idx="4"></div>
+            <div class="login-pin-dot" data-idx="5"></div>
+          </div>
+          <input type="password" id="pin-input" class="pin-input" maxlength="6" autocomplete="off" inputmode="numeric" placeholder="">
         </div>
-        <button id="login-btn" class="btn btn-primary btn-lg w-100 mt-3">
-          <i class="bi bi-box-arrow-in-left me-2"></i>כניסה
+        <button id="login-btn" class="login-btn-v2">
+          <i class="bi bi-box-arrow-in-left"></i>כניסה
         </button>
-        <div id="login-error" class="alert alert-danger mt-3 d-none"></div>
-        <div class="login-footer mt-4">
-          <small class="text-muted">גרסה 5.0 | בית התלמוד &copy; 2026</small>
+        <div id="login-error" class="login-error-v2 d-none"></div>
+        <div class="login-footer-v2">
+          <small>גרסה 6.0 | בית התלמוד &copy; 2026</small>
         </div>
       </div>
     </div>
+    <script>
+    (function(){
+      const pinInput = document.getElementById('pin-input');
+      const dots = document.querySelectorAll('.login-pin-dot');
+      function updateDots() {
+        const len = pinInput.value.length;
+        dots.forEach((dot, i) => {
+          dot.classList.remove('filled', 'current');
+          if (i < len) dot.classList.add('filled');
+          else if (i === len) dot.classList.add('current');
+        });
+      }
+      pinInput.addEventListener('input', updateDots);
+      pinInput.addEventListener('focus', updateDots);
+      // Click on dots area focuses input
+      document.getElementById('pin-dots').addEventListener('click', () => pinInput.focus());
+      // Add shake on error
+      const observer = new MutationObserver(() => {
+        const errEl = document.getElementById('login-error');
+        if (errEl && !errEl.classList.contains('d-none')) {
+          errEl.classList.add('shake');
+          setTimeout(() => errEl.classList.remove('shake'), 500);
+          // Reset dots
+          pinInput.value = '';
+          updateDots();
+        }
+      });
+      const errEl = document.getElementById('login-error');
+      if (errEl) observer.observe(errEl, { attributes: true, attributeFilter: ['class'] });
+    })();
+    </script>
   </div>
 
   <!-- App Shell -->
