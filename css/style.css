@@ -2987,3 +2987,411 @@ img.lazy-load.loaded {
   0%, 100% { opacity: 1; }
   50% { opacity: .3; }
 }
+
+/* ============================================================
+   PREMIUM SIDEBAR STYLING
+   ============================================================ */
+
+/* ===== 1. Category Headers — Unique Gradient Left Borders ===== */
+.sidebar-category[data-cat="main"] .sidebar-cat-header,
+.sidebar-category:nth-child(1) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #2563eb, #6366f1) 1;
+}
+.sidebar-category[data-cat="students"] .sidebar-cat-header,
+.sidebar-category:nth-child(2) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #059669, #10b981) 1;
+}
+.sidebar-category[data-cat="finance"] .sidebar-cat-header,
+.sidebar-category:nth-child(3) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #f59e0b, #f97316) 1;
+}
+.sidebar-category[data-cat="academics"] .sidebar-cat-header,
+.sidebar-category:nth-child(4) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #7c3aed, #a855f7) 1;
+}
+.sidebar-category[data-cat="staff"] .sidebar-cat-header,
+.sidebar-category:nth-child(5) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #ec4899, #f472b6) 1;
+}
+.sidebar-category[data-cat="tools"] .sidebar-cat-header,
+.sidebar-category:nth-child(6) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #0ea5e9, #06b6d4) 1;
+}
+.sidebar-category[data-cat="reports"] .sidebar-cat-header,
+.sidebar-category:nth-child(7) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #dc2626, #ef4444) 1;
+}
+.sidebar-category[data-cat="settings"] .sidebar-cat-header,
+.sidebar-category:nth-child(8) > .sidebar-cat-header {
+  border-right: 3px solid transparent;
+  border-image: linear-gradient(180deg, #64748b, #94a3b8) 1;
+}
+
+/* ===== 2. Sidebar Link Icons — Gradient Background Circle on Hover ===== */
+.sidebar-link i,
+.sidebar-link .bi {
+  position: relative;
+  z-index: 1;
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+}
+.sidebar-link i::before,
+.sidebar-link .bi::before {
+  position: relative;
+  z-index: 2;
+}
+.sidebar-link::before {
+  /* Reset existing ::before if needed — keeping backward compat */
+}
+.sidebar-link .sidebar-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  flex-shrink: 0;
+}
+.sidebar-link:hover .sidebar-icon-wrap,
+.sidebar-link:hover > i,
+.sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(37, 99, 235, .12), rgba(99, 102, 241, .12));
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(37, 99, 235, .15);
+}
+.sidebar-link.active .sidebar-icon-wrap,
+.sidebar-link.active > i,
+.sidebar-link.active > .bi {
+  background: linear-gradient(135deg, rgba(37, 99, 235, .18), rgba(99, 102, 241, .18));
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(37, 99, 235, .2);
+}
+/* Per-category icon hover colors */
+.sidebar-category:nth-child(2) .sidebar-link:hover > i,
+.sidebar-category:nth-child(2) .sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(5, 150, 105, .12), rgba(16, 185, 129, .12));
+  box-shadow: 0 0 12px rgba(5, 150, 105, .15);
+}
+.sidebar-category:nth-child(3) .sidebar-link:hover > i,
+.sidebar-category:nth-child(3) .sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(245, 158, 11, .12), rgba(249, 115, 22, .12));
+  box-shadow: 0 0 12px rgba(245, 158, 11, .15);
+}
+.sidebar-category:nth-child(4) .sidebar-link:hover > i,
+.sidebar-category:nth-child(4) .sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(124, 58, 237, .12), rgba(168, 85, 247, .12));
+  box-shadow: 0 0 12px rgba(124, 58, 237, .15);
+}
+.sidebar-category:nth-child(5) .sidebar-link:hover > i,
+.sidebar-category:nth-child(5) .sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(236, 72, 153, .12), rgba(244, 114, 182, .12));
+  box-shadow: 0 0 12px rgba(236, 72, 153, .15);
+}
+.sidebar-category:nth-child(6) .sidebar-link:hover > i,
+.sidebar-category:nth-child(6) .sidebar-link:hover > .bi {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .12), rgba(6, 182, 212, .12));
+  box-shadow: 0 0 12px rgba(14, 165, 233, .15);
+}
+
+/* ===== 3. Active Link — Animated Gradient Left Border with Glow ===== */
+.sidebar-link.active {
+  position: relative;
+  border-right: none;
+}
+.sidebar-link.active::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  right: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(180deg, #2563eb, #7c3aed, #ec4899);
+  background-size: 100% 200%;
+  animation: sidebarActiveGlow 3s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(37, 99, 235, .4), 0 0 16px rgba(124, 58, 237, .2);
+}
+[dir="rtl"] .sidebar-link.active::after {
+  right: 0;
+  left: auto;
+  border-radius: 3px 0 0 3px;
+}
+@keyframes sidebarActiveGlow {
+  0%, 100% {
+    background-position: 0% 0%;
+    box-shadow: 0 0 8px rgba(37, 99, 235, .4), 0 0 16px rgba(124, 58, 237, .2);
+  }
+  33% {
+    background-position: 0% 100%;
+    box-shadow: 0 0 8px rgba(124, 58, 237, .4), 0 0 16px rgba(236, 72, 153, .2);
+  }
+  66% {
+    background-position: 0% 200%;
+    box-shadow: 0 0 8px rgba(236, 72, 153, .4), 0 0 16px rgba(37, 99, 235, .2);
+  }
+}
+.sidebar-link.active {
+  background: linear-gradient(90deg, transparent 0%, rgba(37, 99, 235, .06) 50%, rgba(124, 58, 237, .04) 100%);
+}
+
+/* ===== 4. Category Badges — Pill Style with Gradient Backgrounds ===== */
+.sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(37, 99, 235, .1), rgba(99, 102, 241, .1)) !important;
+  color: var(--bht-primary) !important;
+  font-weight: 700;
+  font-size: .6rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: .02em;
+  border: 1px solid rgba(37, 99, 235, .15);
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+}
+.sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #2563eb, #6366f1) !important;
+  color: #fff !important;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+  transform: scale(1.05);
+}
+/* Per-category badge gradient variants */
+.sidebar-category:nth-child(2) .sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(5, 150, 105, .1), rgba(16, 185, 129, .1)) !important;
+  color: #059669 !important;
+  border-color: rgba(5, 150, 105, .15);
+}
+.sidebar-category:nth-child(2) .sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  color: #fff !important;
+}
+.sidebar-category:nth-child(3) .sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(245, 158, 11, .1), rgba(249, 115, 22, .1)) !important;
+  color: #d97706 !important;
+  border-color: rgba(245, 158, 11, .15);
+}
+.sidebar-category:nth-child(3) .sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+  color: #fff !important;
+}
+.sidebar-category:nth-child(4) .sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(124, 58, 237, .1), rgba(168, 85, 247, .1)) !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, .15);
+}
+.sidebar-category:nth-child(4) .sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  color: #fff !important;
+}
+.sidebar-category:nth-child(5) .sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(236, 72, 153, .1), rgba(244, 114, 182, .1)) !important;
+  color: #db2777 !important;
+  border-color: rgba(236, 72, 153, .15);
+}
+.sidebar-category:nth-child(5) .sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #ec4899, #f472b6) !important;
+  color: #fff !important;
+}
+.sidebar-category:nth-child(6) .sidebar-cat-badge {
+  background: linear-gradient(135deg, rgba(14, 165, 233, .1), rgba(6, 182, 212, .1)) !important;
+  color: #0284c7 !important;
+  border-color: rgba(14, 165, 233, .15);
+}
+.sidebar-category:nth-child(6) .sidebar-cat-header:hover .sidebar-cat-badge {
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4) !important;
+  color: #fff !important;
+}
+
+/* Dark mode badge adjustments */
+[data-theme="dark"] .sidebar-cat-badge {
+  border-color: rgba(37, 99, 235, .25);
+}
+
+/* ===== 5. Sidebar Footer — Version Text with Gradient ===== */
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--bht-border);
+  margin-top: auto;
+}
+.sidebar-footer .sidebar-version {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  background: linear-gradient(135deg, #2563eb, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 100%;
+  animation: versionGradientShift 4s ease-in-out infinite;
+}
+@keyframes versionGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.sidebar-footer .sidebar-version-label {
+  font-size: .65rem;
+  color: var(--bht-text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+.sidebar-footer:hover .sidebar-version {
+  animation-duration: 1.5s;
+}
+
+/* ===== 6. Mobile Sidebar — Full-Screen Overlay with Blur Backdrop ===== */
+@media (max-width: 991.98px) {
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(8px) saturate(1.2);
+    -webkit-backdrop-filter: blur(8px) saturate(1.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .35s ease, visibility .35s ease;
+  }
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar.sidebar-mobile {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    z-index: 1050;
+    transform: translateX(100%);
+    transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: none;
+    overflow-y: auto;
+    background: var(--bht-card-bg);
+  }
+  [dir="rtl"] .sidebar.sidebar-mobile {
+    right: auto;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  .sidebar.sidebar-mobile.open {
+    transform: translateX(0);
+    box-shadow: -8px 0 30px rgba(0, 0, 0, .2);
+  }
+  [dir="rtl"] .sidebar.sidebar-mobile.open {
+    box-shadow: 8px 0 30px rgba(0, 0, 0, .2);
+  }
+
+  /* Mobile sidebar header */
+  .sidebar-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bht-border);
+    background: linear-gradient(135deg, rgba(37, 99, 235, .04), rgba(124, 58, 237, .04));
+  }
+  .sidebar-mobile-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bht-body-bg);
+    color: var(--bht-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .sidebar-mobile-close:hover {
+    background: rgba(220, 38, 38, .1);
+    color: #dc2626;
+    transform: rotate(90deg);
+  }
+
+  /* Full-screen overlay effect */
+  .sidebar.sidebar-mobile .sidebar-nav {
+    padding-bottom: 80px;
+  }
+
+  /* Offcanvas sidebar override for full blur */
+  .offcanvas.offcanvas-end,
+  .offcanvas.offcanvas-start {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+[data-theme="dark"] .sidebar-overlay {
+  background: rgba(0, 0, 0, .65);
+  backdrop-filter: blur(12px) saturate(1.5);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+}
+[data-theme="dark"] .sidebar.sidebar-mobile {
+  background: var(--bht-surface-1);
+}
+[data-theme="dark"] .sidebar.sidebar-mobile.open {
+  box-shadow: -8px 0 40px rgba(0, 0, 0, .5);
+}
+
+/* ===== 7. Sidebar Scrollbar — Thin Custom Scrollbar ===== */
+.sidebar::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-track,
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+.sidebar::-webkit-scrollbar-thumb,
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(37, 99, 235, .2), rgba(124, 58, 237, .2));
+  border-radius: 4px;
+  transition: background .2s;
+}
+.sidebar::-webkit-scrollbar-thumb:hover,
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(37, 99, 235, .4), rgba(124, 58, 237, .4));
+}
+.sidebar::-webkit-scrollbar-corner,
+.sidebar-nav::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox sidebar scrollbar */
+.sidebar,
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(37, 99, 235, .2) transparent;
+}
+.sidebar:hover,
+.sidebar-nav:hover {
+  scrollbar-color: rgba(37, 99, 235, .35) transparent;
+}
+
+/* Dark mode sidebar scrollbar */
+[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb,
+[data-theme="dark"] .sidebar-nav::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(99, 102, 241, .25), rgba(168, 85, 247, .25));
+}
+[data-theme="dark"] .sidebar::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(99, 102, 241, .45), rgba(168, 85, 247, .45));
+}
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .sidebar-nav {
+  scrollbar-color: rgba(99, 102, 241, .25) transparent;
+}
+[data-theme="dark"] .sidebar:hover,
+[data-theme="dark"] .sidebar-nav:hover {
+  scrollbar-color: rgba(99, 102, 241, .4) transparent;
+}
