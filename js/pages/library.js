@@ -152,6 +152,20 @@ Object.assign(Pages, {
   /* ---- Init ---- */
   async libraryInit() {
     this._libView = 'grid';
+
+    // Try loading from API, fall back to localStorage, then demo data
+    try {
+      const apiData = await App.getData('ספריה');
+      if (apiData && apiData.length) {
+        this._libBooks = apiData.filter(r => r.type === 'book' || !r.type);
+        this._libLoans = apiData.filter(r => r.type === 'loan');
+      } else {
+        this._libLoadFromStorage();
+      }
+    } catch(e) {
+      this._libLoadFromStorage();
+    }
+
     this._updateLoanStatuses();
     this._syncBookBorrowCounts();
 
@@ -161,6 +175,24 @@ Object.assign(Pages, {
     document.getElementById('lib-avail-filter').addEventListener('change', render);
 
     this.renderLibrary();
+  },
+
+  /* ---- localStorage helpers ---- */
+  _libLoadFromStorage() {
+    try {
+      const stored = localStorage.getItem('bht_library_data');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.books) this._libBooks = parsed.books;
+        if (parsed.loans) this._libLoans = parsed.loans;
+      }
+    } catch(e) { /* keep demo data */ }
+  },
+
+  _libSaveToStorage() {
+    try {
+      localStorage.setItem('bht_library_data', JSON.stringify({ books: this._libBooks, loans: this._libLoans }));
+    } catch(e) {}
   },
 
   /* ---- Auto-detect overdue based on today ---- */
@@ -364,6 +396,8 @@ Object.assign(Pages, {
     };
 
     this._libBooks.push(newBook);
+    this._libSaveToStorage();
+    try { App.apiCall('add', 'ספריה', { row: { ...newBook, type: 'book' } }); } catch(e) {}
     bootstrap.Modal.getInstance(document.getElementById('add-book-modal')).hide();
     Utils.toast(`\u05D4\u05E1\u05E4\u05E8 "${title}" \u05E0\u05D5\u05E1\u05E3 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4`);
     this.renderLibrary();
@@ -380,6 +414,8 @@ Object.assign(Pages, {
     }
     if (!confirm(`\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "${book.title}"?`)) return;
     this._libBooks = this._libBooks.filter(b => b.id !== bookId);
+    this._libSaveToStorage();
+    try { App.apiCall('delete', 'ספריה', { id: bookId }); } catch(e) {}
     Utils.toast(`"${book.title}" \u05E0\u05DE\u05D7\u05E7`, 'info');
     this.renderLibrary();
   },
@@ -433,6 +469,8 @@ Object.assign(Pages, {
 
     this._libLoans.push(loan);
     book.borrowed++;
+    this._libSaveToStorage();
+    try { App.apiCall('add', 'ספריה', { row: { ...loan, type: 'loan' } }); } catch(e) {}
     bootstrap.Modal.getInstance(document.getElementById('loan-modal')).hide();
     Utils.toast(`"${book.title}" \u05D4\u05D5\u05E9\u05D0\u05DC \u05DC${student}`);
     this.renderLibrary();
@@ -446,6 +484,8 @@ Object.assign(Pages, {
     loan.status = 'returned';
     const book = this._libBooks.find(b => b.id === loan.bookId);
     if (book) book.borrowed = Math.max(0, book.borrowed - 1);
+    this._libSaveToStorage();
+    try { App.apiCall('update', 'ספריה', { id: loan.id, row: { ...loan, type: 'loan' } }); } catch(e) {}
 
     Utils.toast(`\u05D4\u05E1\u05E4\u05E8 \u05D4\u05D5\u05D7\u05D6\u05E8 \u05DE${loan.student}`);
     this.renderLibrary();

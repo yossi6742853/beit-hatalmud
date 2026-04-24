@@ -285,7 +285,17 @@ Object.assign(Pages, {
 
   /* ---------- Init ---------- */
   async paymentplansInit() {
-    this._ppPlans = this._ppDemoData();
+    // Try API first, fall back to demo
+    try {
+      const apiData = await App.getData('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD');
+      if (apiData && apiData.length > 0) {
+        this._ppPlans = apiData;
+      } else {
+        this._ppPlans = this._ppDemoData();
+      }
+    } catch (e) {
+      this._ppPlans = this._ppDemoData();
+    }
     this._ppFilter = 'all';
     this._ppSearch = '';
     this._ppRender();
@@ -471,7 +481,7 @@ Object.assign(Pages, {
   },
 
   /* ---------- Toggle payment status ---------- */
-  ppTogglePayment(planId, instNum) {
+  async ppTogglePayment(planId, instNum) {
     const plan = this._ppPlans.find(p => p.id === planId);
     if (!plan) return;
     const inst = plan.installments.find(i => i.num === instNum);
@@ -484,6 +494,11 @@ Object.assign(Pages, {
       inst.status = 'paid';
       inst.paidDate = Utils.todayISO();
     }
+
+    // Persist to API
+    try {
+      await App.apiCall('update', '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD', { id: plan.id, row: plan });
+    } catch (e) { /* fallback: local state already updated */ }
 
     // Re-render everything
     this._ppRender();
@@ -746,7 +761,7 @@ Object.assign(Pages, {
     if (body) body.innerHTML = html;
   },
 
-  ppCreatePlan() {
+  async ppCreatePlan() {
     const studentName = document.getElementById('ppf-student')?.value;
     const total = parseFloat(document.getElementById('ppf-total')?.value) || 0;
     const tplId = document.getElementById('ppf-template')?.value || 'monthly';
@@ -789,6 +804,12 @@ Object.assign(Pages, {
     };
 
     this._ppPlans.unshift(newPlan);
+
+    // Persist to API
+    try {
+      await App.apiCall('add', '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD', { row: newPlan });
+    } catch (e) { /* fallback: local state already updated */ }
+
     this._ppRender();
     this._ppRenderCharts();
 

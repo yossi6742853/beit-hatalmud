@@ -295,7 +295,40 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  roomsInit() {},
+  async roomsInit() {
+    // Try API first, then localStorage, fall back to demo
+    try {
+      const apiData = await App.getData('\u05D7\u05D3\u05E8\u05D9\u05DD');
+      if (apiData && apiData.length > 0) {
+        if (apiData.rooms) this._rooms = apiData.rooms;
+        if (apiData.bookings) this._roomBookings = apiData.bookings;
+      } else {
+        this._roomLoadFromStorage();
+      }
+    } catch (e) {
+      this._roomLoadFromStorage();
+    }
+  },
+
+  _roomLoadFromStorage() {
+    const saved = localStorage.getItem('bht_rooms');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.rooms) this._rooms = data.rooms;
+        if (data.bookings) this._roomBookings = data.bookings;
+        if (data.nextId) this._roomNextId = data.nextId;
+      } catch (e) { /* use defaults */ }
+    }
+  },
+
+  _roomSaveToStorage() {
+    localStorage.setItem('bht_rooms', JSON.stringify({
+      rooms: this._rooms,
+      bookings: this._roomBookings,
+      nextId: this._roomNextId
+    }));
+  },
 
   _roomFilter(type) {
     this._roomSelectedFilter = type;
@@ -333,7 +366,7 @@ Object.assign(Pages, {
     }
   },
 
-  _roomSave() {
+  async _roomSave() {
     const roomId = +document.getElementById('rb-room').value;
     const person = document.getElementById('rb-person').value.trim();
     const date = document.getElementById('rb-date').value;
@@ -359,15 +392,20 @@ Object.assign(Pages, {
       return;
     }
 
-    this._roomBookings.push({ id: this._roomNextId++, roomId, person, date, start, end, purpose, color, recurring });
+    const newBooking = { id: this._roomNextId++, roomId, person, date, start, end, purpose, color, recurring };
+    this._roomBookings.push(newBooking);
+    try { await App.apiCall('add', '\u05D7\u05D3\u05E8\u05D9\u05DD', { row: newBooking }); } catch (e) { /* localStorage fallback */ }
+    this._roomSaveToStorage();
     bootstrap.Modal.getInstance(document.getElementById('room-book-modal'))?.hide();
     Utils.toast('ההזמנה נשמרה בהצלחה', 'success');
     App.loadPage('rooms');
   },
 
-  _roomCancel(id) {
+  async _roomCancel(id) {
     if (!confirm('לבטל הזמנה זו?')) return;
     this._roomBookings = this._roomBookings.filter(b => b.id !== id);
+    try { await App.apiCall('delete', '\u05D7\u05D3\u05E8\u05D9\u05DD', { id }); } catch (e) { /* localStorage fallback */ }
+    this._roomSaveToStorage();
     Utils.toast('ההזמנה בוטלה', 'success');
     App.loadPage('rooms');
   },

@@ -223,8 +223,37 @@ Object.assign(Pages, {
 
   /* ---- Init ---- */
   async inventoryInit() {
+    // Try loading from API, fall back to localStorage, then demo data
+    try {
+      const apiData = await App.getData('רכוש');
+      if (apiData && apiData.length) {
+        this._invData = apiData.map(r => ({ ...r, checkouts: r.checkouts || [] }));
+        this._invNextId = Math.max(...this._invData.map(i => i.id || 0)) + 1;
+      } else {
+        this._invLoadFromStorage();
+      }
+    } catch(e) {
+      this._invLoadFromStorage();
+    }
     this._invBuildLocationFilter();
     this.renderInventory();
+  },
+
+  _invLoadFromStorage() {
+    try {
+      const stored = localStorage.getItem('bht_inventory_data');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.length) {
+          this._invData = parsed.map(r => ({ ...r, checkouts: r.checkouts || [] }));
+          this._invNextId = Math.max(...this._invData.map(i => i.id || 0)) + 1;
+        }
+      }
+    } catch(e) { /* keep demo data */ }
+  },
+
+  _invSaveToStorage() {
+    try { localStorage.setItem('bht_inventory_data', JSON.stringify(this._invData)); } catch(e) {}
   },
 
   _invBuildLocationFilter() {
@@ -410,11 +439,15 @@ Object.assign(Pages, {
     if (this._invEditId) {
       const item = this._invData.find(i => i.id === this._invEditId);
       if (item) Object.assign(item, data);
+      this._invSaveToStorage();
+      try { App.apiCall('update', 'רכוש', { id: this._invEditId, row: { ...item } }); } catch(e) {}
       Utils.toast('פריט עודכן בהצלחה');
     } else {
       data.id = this._invNextId++;
       data.checkouts = [];
       this._invData.push(data);
+      this._invSaveToStorage();
+      try { App.apiCall('add', 'רכוש', { row: data }); } catch(e) {}
       Utils.toast('פריט חדש נוסף בהצלחה');
     }
 
@@ -430,6 +463,8 @@ Object.assign(Pages, {
     const ok = await Utils.confirm('מחיקת פריט', `למחוק את "${item.name}"?`);
     if (!ok) return;
     this._invData = this._invData.filter(i => i.id !== id);
+    this._invSaveToStorage();
+    try { App.apiCall('delete', 'רכוש', { id }); } catch(e) {}
     Utils.toast('פריט נמחק', 'warning');
     this._invBuildLocationFilter();
     this.renderInventory();
@@ -463,6 +498,8 @@ Object.assign(Pages, {
       date: new Date().toISOString().slice(0, 10)
     });
     item.quantity -= qty;
+    this._invSaveToStorage();
+    try { App.apiCall('update', 'רכוש', { id: item.id, row: item }); } catch(e) {}
 
     bootstrap.Modal.getInstance(document.getElementById('inv-checkout-modal'))?.hide();
     Utils.toast(`${item.name} הושאל ל${who}`, 'info');
@@ -500,6 +537,8 @@ Object.assign(Pages, {
     if (!co) return;
     item.quantity += co.qty;
     item.checkouts.splice(checkoutIdx, 1);
+    this._invSaveToStorage();
+    try { App.apiCall('update', 'רכוש', { id: item.id, row: item }); } catch(e) {}
     Utils.toast(`${co.qty} יח׳ של ${item.name} הוחזרו מ${co.who}`);
     bootstrap.Modal.getInstance(document.getElementById('inv-checkout-modal'))?.hide();
     this.renderInventory();

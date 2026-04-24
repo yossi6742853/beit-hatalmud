@@ -469,9 +469,39 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  transportInit() {
+  async transportInit() {
+    // Try API first, fall back to demo/localStorage
+    try {
+      const apiData = await App.getData('\u05D4\u05E1\u05E2\u05D5\u05EA');
+      if (apiData && apiData.length > 0) {
+        if (apiData.drivers) this._transportDrivers = apiData.drivers;
+        if (apiData.routes) this._transportRoutes = apiData.routes;
+      } else {
+        this._trLoadFromStorage();
+      }
+    } catch (e) {
+      this._trLoadFromStorage();
+    }
     // Activate first tab by default
     this._trCurrentTab = 'routes';
+  },
+
+  _trLoadFromStorage() {
+    const saved = localStorage.getItem('bht_transport');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.drivers) this._transportDrivers = data.drivers;
+        if (data.routes) this._transportRoutes = data.routes;
+      } catch (e) { /* use defaults */ }
+    }
+  },
+
+  _trSaveToStorage() {
+    localStorage.setItem('bht_transport', JSON.stringify({
+      drivers: this._transportDrivers,
+      routes: this._transportRoutes
+    }));
   },
 
   /* ======================================================================
@@ -531,7 +561,7 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('trRouteModal')).show();
   },
 
-  trSaveRoute() {
+  async trSaveRoute() {
     const editId = document.getElementById('trRouteEditId').value;
     const name = document.getElementById('trRouteName').value.trim();
     const time = document.getElementById('trRouteTime').value;
@@ -551,29 +581,34 @@ Object.assign(Pages, {
         route.time = time;
         route.driverId = driverId;
         route.stops = stops;
+        try { await App.apiCall('update', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: editId, row: route }); } catch (e) { /* localStorage fallback below */ }
         Utils.toast('הקו עודכן בהצלחה', 'success');
       }
     } else {
-      const newId = 'r' + (Date.now());
-      this._transportRoutes.push({
-        id: newId, name, driverId, time,
+      const newRoute = {
+        id: 'r' + (Date.now()), name, driverId, time,
         color: colors[this._transportRoutes.length % colors.length],
         stops
-      });
+      };
+      this._transportRoutes.push(newRoute);
+      try { await App.apiCall('add', '\u05D4\u05E1\u05E2\u05D5\u05EA', { row: newRoute }); } catch (e) { /* localStorage fallback below */ }
       Utils.toast('קו חדש נוסף בהצלחה', 'success');
     }
 
+    this._trSaveToStorage();
     bootstrap.Modal.getInstance(document.getElementById('trRouteModal')).hide();
     this._trRefresh();
   },
 
-  trDeleteRoute(routeId) {
+  async trDeleteRoute(routeId) {
     const route = this._transportRoutes.find(r => r.id === routeId);
     if (!route) return;
     if (!confirm(`למחוק את "${route.name}"?`)) return;
 
     const idx = this._transportRoutes.indexOf(route);
     this._transportRoutes.splice(idx, 1);
+    try { await App.apiCall('delete', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: routeId }); } catch (e) { /* localStorage fallback below */ }
+    this._trSaveToStorage();
     Utils.toast('הקו נמחק', 'info');
     this._trRefresh();
   },
@@ -611,7 +646,7 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('trDriverModal')).show();
   },
 
-  trSaveDriver() {
+  async trSaveDriver() {
     const editId = document.getElementById('trDriverEditId').value;
     const name = document.getElementById('trDriverName').value.trim();
     const phone = document.getElementById('trDriverPhone').value.trim();
@@ -628,26 +663,30 @@ Object.assign(Pages, {
       const d = this._transportDrivers.find(x => x.id === editId);
       if (d) {
         Object.assign(d, { name, phone, license, licenseExpiry, vehicle, vehicleNum, seats, notes });
+        try { await App.apiCall('update', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: editId, row: d }); } catch (e) { /* localStorage fallback */ }
         Utils.toast('הנהג עודכן בהצלחה', 'success');
       }
     } else {
-      this._transportDrivers.push({
-        id: 'd' + Date.now(), name, phone, license, licenseExpiry, vehicle, vehicleNum, seats, notes
-      });
+      const newDriver = { id: 'd' + Date.now(), name, phone, license, licenseExpiry, vehicle, vehicleNum, seats, notes };
+      this._transportDrivers.push(newDriver);
+      try { await App.apiCall('add', '\u05D4\u05E1\u05E2\u05D5\u05EA', { row: newDriver }); } catch (e) { /* localStorage fallback */ }
       Utils.toast('נהג חדש נוסף בהצלחה', 'success');
     }
 
+    this._trSaveToStorage();
     bootstrap.Modal.getInstance(document.getElementById('trDriverModal')).hide();
     this._trRefresh();
   },
 
-  trDeleteDriver(driverId) {
+  async trDeleteDriver(driverId) {
     const d = this._transportDrivers.find(x => x.id === driverId);
     if (!d) return;
     if (!confirm(`למחוק את הנהג "${d.name}"?`)) return;
 
     const idx = this._transportDrivers.indexOf(d);
     this._transportDrivers.splice(idx, 1);
+    try { await App.apiCall('delete', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: driverId }); } catch (e) { /* localStorage fallback */ }
+    this._trSaveToStorage();
     Utils.toast('הנהג נמחק', 'info');
     this._trRefresh();
   },
@@ -706,12 +745,14 @@ Object.assign(Pages, {
     this._trRenderStopsList(stops);
   },
 
-  trSaveStops() {
+  async trSaveStops() {
     const routeId = document.getElementById('trStopsRouteId').value;
     const route = this._transportRoutes.find(r => r.id === routeId);
     if (!route) return;
 
     route.stops = this._trGetCurrentStops();
+    try { await App.apiCall('update', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: routeId, row: route }); } catch (e) { /* localStorage fallback */ }
+    this._trSaveToStorage();
     Utils.toast('התחנות עודכנו', 'success');
     bootstrap.Modal.getInstance(document.getElementById('trStopsModal')).hide();
     this._trRefresh();

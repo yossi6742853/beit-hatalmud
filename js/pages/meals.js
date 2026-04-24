@@ -346,8 +346,21 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  mealsInit() {
+  async mealsInit() {
     this._mealsGenerateDemo();
+
+    // Try API first, then localStorage, fall back to demo
+    try {
+      const apiData = await App.getData('\u05EA\u05E4\u05E8\u05D9\u05D8');
+      if (apiData && Object.keys(apiData).length > 0) {
+        this._mealsDemoMenu = apiData;
+      } else {
+        this._mealsLoadFromStorage();
+      }
+    } catch (e) {
+      this._mealsLoadFromStorage();
+    }
+
     this._mealsEditMode = false;
 
     // Enter key in edit modal
@@ -357,6 +370,17 @@ Object.assign(Pages, {
         if (e.key === 'Enter') { e.preventDefault(); this._mealsSaveCell(); }
       });
     }
+  },
+
+  _mealsLoadFromStorage() {
+    const saved = localStorage.getItem('bht_meals_menu');
+    if (saved) {
+      try { this._mealsDemoMenu = JSON.parse(saved); } catch (e) { /* use demo default */ }
+    }
+  },
+
+  _mealsSaveToStorage() {
+    localStorage.setItem('bht_meals_menu', JSON.stringify(this._mealsDemoMenu));
   },
 
   /* ======================================================================
@@ -406,7 +430,7 @@ Object.assign(Pages, {
     setTimeout(() => input && input.focus(), 300);
   },
 
-  _mealsSaveCell() {
+  async _mealsSaveCell() {
     const day = document.getElementById('mealEditDay')?.value;
     const slot = document.getElementById('mealEditSlot')?.value;
     const val = document.getElementById('mealEditInput')?.value?.trim();
@@ -418,6 +442,10 @@ Object.assign(Pages, {
       const span = cell.querySelector('.meal-text');
       if (span) span.textContent = val;
     }
+
+    // Persist to API + localStorage
+    try { await App.apiCall('update', '\u05EA\u05E4\u05E8\u05D9\u05D8', { id: day, row: this._mealsDemoMenu[day] }); } catch (e) { /* localStorage fallback */ }
+    this._mealsSaveToStorage();
 
     bootstrap.Modal.getInstance(document.getElementById('mealEditModal'))?.hide();
 

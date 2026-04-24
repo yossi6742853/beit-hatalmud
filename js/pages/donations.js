@@ -272,7 +272,14 @@ Object.assign(Pages, {
 
   /* ---------- Init ---------- */
   async donationsInit() {
-    const data = this._donDemoData();
+    let data;
+    try {
+      const apiData = await App.getData('קופה_קטנה');
+      data = (apiData && apiData.length) ? apiData : this._donDemoData();
+    } catch(e) {
+      data = this._donDemoData();
+    }
+    this._donLiveData = data;
     const campaigns = this._donCampaigns();
     const now = new Date();
     const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -403,7 +410,7 @@ Object.assign(Pages, {
 
   /* ---------- Table ---------- */
   _donGetFilteredData() {
-    let data = this._donDemoData();
+    let data = this._donLiveData || this._donDemoData();
     const method = document.getElementById('don-filter-method')?.value || '';
     const purpose = document.getElementById('don-filter-purpose')?.value || '';
     const search = (document.getElementById('don-search')?.value || '').trim().toLowerCase();
@@ -608,7 +615,7 @@ Object.assign(Pages, {
     new bootstrap.Modal(modal).show();
   },
 
-  donSave() {
+  async donSave() {
     const donor = document.getElementById('donf-donor')?.value?.trim();
     const amount = parseFloat(document.getElementById('donf-amount')?.value);
     if (!donor) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05EA\u05D5\u05E8\u05DD', 'danger'); return; }
@@ -626,9 +633,17 @@ Object.assign(Pages, {
       campaign: document.getElementById('donf-campaign')?.value || ''
     };
 
-    // In production: save to backend. Demo: just show toast
+    // Save to API
+    try {
+      await App.apiCall('add', 'קופה_קטנה', { row: donation });
+    } catch(e) {
+      console.warn('API save failed, keeping locally:', e);
+    }
+    if (this._donLiveData) this._donLiveData.push(donation);
     Utils.toast(`\u05EA\u05E8\u05D5\u05DE\u05D4 \u05E2\u05DC \u05E1\u05DA ${Utils.formatCurrency(amount)} \u05DE${donor} \u05E0\u05E9\u05DE\u05E8\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!`);
     bootstrap.Modal.getInstance(document.getElementById('don-add-modal'))?.hide();
+    this._donRenderTable();
+    this._donRenderCharts(this._donLiveData || this._donDemoData());
   },
 
   /* ---------- Campaign Modal ---------- */
@@ -654,7 +669,7 @@ Object.assign(Pages, {
 
   /* ---------- Receipt Generator ---------- */
   donShowReceipt(donId) {
-    const data = this._donDemoData();
+    const data = this._donLiveData || this._donDemoData();
     const d = data.find(x => x.id === donId);
     if (!d) return;
 
@@ -778,9 +793,18 @@ Object.assign(Pages, {
   },
 
   /* ---------- Delete (demo) ---------- */
-  donDelete(donId) {
+  async donDelete(donId) {
     if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05EA\u05E8\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
+    try {
+      await App.apiCall('delete', 'קופה_קטנה', { id: donId });
+    } catch(e) {
+      console.warn('API delete failed:', e);
+    }
+    if (this._donLiveData) {
+      this._donLiveData = this._donLiveData.filter(d => d.id !== donId);
+    }
     Utils.toast('\u05EA\u05E8\u05D5\u05DE\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'warning');
+    this._donRenderTable();
   },
 
   /* ---------- CSV Export ---------- */
