@@ -236,35 +236,31 @@ Object.assign(Pages, {
     `;
   },
 
-  /* ---- Demo flag ---- */
-  _dashUseDemo: false,
-
-  dashLoadDemo() {
-    this._dashUseDemo = true;
-    this.dashboardInit();
-  },
-
-  /* ---- Dashboard Init: populate all sections with data ---- */
+  /* ---- Dashboard Init: populate all sections with real API data ---- */
   async dashboardInit() {
-    // Load data in parallel
-    let students, finance, attendance, calendar, tasks;
+    // Load ALL 6 sheets in parallel
+    let students, finance, attendance, calendar, tasks, activityLog;
     try {
-      [students, finance, attendance, calendar, tasks] = await Promise.all([
+      [students, finance, attendance, calendar, tasks, activityLog] = await Promise.all([
         App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
         App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
         App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
         App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
-        App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => [])
+        App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []),
+        App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA').catch(() => [])
       ]);
     } catch(e) {
-      students = []; finance = []; attendance = []; calendar = []; tasks = [];
+      console.error('Dashboard data load error:', e);
+      students = []; finance = []; attendance = []; calendar = []; tasks = []; activityLog = [];
     }
     if (!students) students = [];
     if (!finance) finance = [];
     if (!attendance) attendance = [];
     if (!calendar) calendar = [];
     if (!tasks) tasks = [];
+    if (!activityLog) activityLog = [];
 
+    // --- Compute stats ---
     const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     const todayISO = Utils.todayISO();
     const todayAtt = attendance.filter(a => a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === todayISO);
@@ -274,168 +270,167 @@ Object.assign(Pages, {
     const attPct = todayAtt.length > 0 ? Math.round(presentCount / todayAtt.length * 100) : 0;
 
     const unpaidFinance = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05E9\u05D5\u05DC\u05DD');
-    const totalDebt = unpaidFinance.reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
-    const totalPaid = finance.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E9\u05D5\u05DC\u05DD')
-      .reduce((s, f) => s + (Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0), 0);
     const activeTasks = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05D4\u05D5\u05E9\u05DC\u05DD').length;
 
-    // === 1. Stats Cards ===
+    // --- Class breakdown ---
+    const classCounts = {};
+    activeStudents.forEach(s => {
+      const cls = s['\u05DB\u05D9\u05EA\u05D4'] || s['\u05DE\u05E1\u05D2\u05E8\u05EA'] || '\u05DC\u05D0 \u05DE\u05E9\u05D5\u05D9\u05DA';
+      classCounts[cls] = (classCounts[cls] || 0) + 1;
+    });
+
+    // === 1. Stats Cards — REAL numbers only ===
     this._setText('stat-students', activeStudents.length);
     this._setText('stat-attendance', todayAtt.length > 0 ? attPct + '%' : '\u05DC\u05D0 \u05E0\u05E8\u05E9\u05DD');
-    this._setText('stat-pending', Utils.formatCurrency ? Utils.formatCurrency(totalDebt) : totalDebt);
+    this._setText('stat-pending', unpaidFinance.length);
     this._setText('stat-tasks', activeTasks);
 
-    // === 2. Attendance Doughnut ===
+    // === 2. Attendance Doughnut — real today's data ===
     const attCtx = document.getElementById('chart-att-doughnut');
     if (attCtx) {
       const hasData = todayAtt.length > 0;
-      const dPresent = hasData ? presentCount : 0;
-      const dAbsent = hasData ? absentCount : 0;
-      const dLate = hasData ? lateCount : 0;
-      const dPct = hasData ? attPct : 0;
 
-      this._setText('att-center-pct', hasData ? dPct + '%' : '--');
-      this._setText('att-present', dPresent);
-      this._setText('att-absent', dAbsent);
-      this._setText('att-late', dLate);
+      this._setText('att-center-pct', hasData ? attPct + '%' : '--');
+      this._setText('att-present', hasData ? presentCount : 0);
+      this._setText('att-absent', hasData ? absentCount : 0);
+      this._setText('att-late', hasData ? lateCount : 0);
 
       if (App.charts.attDoughnut) App.charts.attDoughnut.destroy();
-      App.charts.attDoughnut = new Chart(attCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD', '\u05D7\u05E1\u05E8\u05D9\u05DD', '\u05D0\u05D9\u05D7\u05D5\u05E8'],
-          datasets: [{
-            data: [dPresent, dAbsent, dLate],
-            backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
-            borderWidth: 0,
-            hoverOffset: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => ctx.label + ': ' + ctx.raw
+
+      if (hasData) {
+        App.charts.attDoughnut = new Chart(attCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD', '\u05D7\u05E1\u05E8\u05D9\u05DD', '\u05D0\u05D9\u05D7\u05D5\u05E8'],
+            datasets: [{
+              data: [presentCount, absentCount, lateCount],
+              backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+              borderWidth: 0,
+              hoverOffset: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => ctx.label + ': ' + ctx.raw
+                }
               }
             }
           }
-        }
-      });
+        });
+      } else {
+        // No attendance data today — show empty state on canvas
+        const ctx2d = attCtx.getContext('2d');
+        ctx2d.clearRect(0, 0, attCtx.width, attCtx.height);
+      }
     }
 
-    // === 3. Recent Payments ===
+    // === 3. Recent Payments — last 5 from שכר_לימוד ===
     const paymentsEl = document.getElementById('recent-payments');
     if (paymentsEl) {
-      const paidRecords = finance
-        .filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E9\u05D5\u05DC\u05DD')
-        .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
-        .slice(0, 5);
-
-      if (paidRecords.length > 0) {
-        paymentsEl.innerHTML = paidRecords.map(p => {
-          const name = p['\u05E9\u05DD'] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
-          const amount = Number(p['\u05E1\u05DB\u05D5\u05DD']) || 0;
-          const date = p['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
-          return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
-            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dcfce7">
-              <i class="bi bi-check-lg text-success"></i>
-            </div>
-            <div class="flex-grow-1">
-              <div class="fw-semibold small">${Utils.fullName ? Utils.fullName(p) : name}</div>
-              <small class="text-muted">${Utils.formatDateShort(date)}</small>
-            </div>
-            <span class="badge bg-success-subtle text-success">${Utils.formatCurrency ? Utils.formatCurrency(amount) : amount}</span>
-          </div>`;
-        }).join('');
+      if (finance.length === 0) {
+        paymentsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-credit-card fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
       } else {
-        paymentsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-credit-card fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</div>';
+        const recentPayments = finance
+          .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+          .slice(0, 5);
+
+        if (recentPayments.length > 0) {
+          paymentsEl.innerHTML = recentPayments.map(p => {
+            const name = Utils.fullName(p) || p['\u05E9\u05DD'] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+            const amount = Number(p['\u05E1\u05DB\u05D5\u05DD']) || 0;
+            const date = p['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+            const isPaid = (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') === '\u05E9\u05D5\u05DC\u05DD';
+            const statusIcon = isPaid ? 'check-lg' : 'clock';
+            const statusColor = isPaid ? 'success' : 'warning';
+            const statusBg = isPaid ? '#dcfce7' : '#fef3c7';
+            return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${statusBg}">
+                <i class="bi bi-${statusIcon} text-${statusColor}"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold small">${name}</div>
+                <small class="text-muted">${Utils.formatDateShort(date)}</small>
+              </div>
+              <span class="badge bg-${statusColor}-subtle text-${statusColor}">${Utils.formatCurrency(amount)}</span>
+            </div>`;
+          }).join('');
+        } else {
+          paymentsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-credit-card fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
+        }
       }
     }
 
-    // === 4. Upcoming Events ===
+    // === 4. Upcoming Events — next 5 from לוח_שנה ===
     const eventsEl = document.getElementById('upcoming-events');
     if (eventsEl) {
-      const upcoming = calendar
-        .filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= todayISO)
-        .sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
-        .slice(0, 5);
-
-      if (upcoming.length > 0) {
-        eventsEl.innerHTML = upcoming.map(e => {
-          const eventDate = e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
-          const isToday = eventDate === todayISO;
-          const title = e['\u05E9\u05DD'] || e['\u05E0\u05D5\u05E9\u05D0'] || e['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '--';
-          return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
-            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${isToday ? '#fee2e2' : '#ede9fe'}">
-              <i class="bi bi-calendar-event ${isToday ? 'text-danger' : 'text-purple'}"></i>
-            </div>
-            <div class="flex-grow-1">
-              <div class="fw-semibold small">${title}</div>
-              <small class="text-muted">${Utils.formatDateShort(eventDate)}</small>
-            </div>
-            ${isToday ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : ''}
-          </div>`;
-        }).join('');
+      if (calendar.length === 0) {
+        eventsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-calendar-x fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
       } else {
-        eventsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-calendar-x fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>';
+        const upcoming = calendar
+          .filter(e => (e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '') >= todayISO)
+          .sort((a, b) => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+          .slice(0, 5);
+
+        if (upcoming.length > 0) {
+          eventsEl.innerHTML = upcoming.map(e => {
+            const eventDate = e['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+            const isToday = eventDate === todayISO;
+            const title = e['\u05E9\u05DD'] || e['\u05E0\u05D5\u05E9\u05D0'] || e['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '--';
+            return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${isToday ? '#fee2e2' : '#ede9fe'}">
+                <i class="bi bi-calendar-event ${isToday ? 'text-danger' : 'text-purple'}"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold small">${title}</div>
+                <small class="text-muted">${Utils.formatDateShort(eventDate)}</small>
+              </div>
+              ${isToday ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : ''}
+            </div>`;
+          }).join('');
+        } else {
+          eventsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-calendar-x fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>';
+        }
       }
     }
 
-    // === 5. Activity Feed ===
+    // === 5. Activity Feed — last 10 from יומן_פעילות (NO fallback/demo data) ===
     const feedEl = document.getElementById('activity-feed');
     if (feedEl) {
-      let activities = [];
+      if (activityLog.length > 0) {
+        const activities = activityLog
+          .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
+          .slice(0, 10);
 
-      // Try loading activity log
-      try {
-        const activityLog = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
-        if (activityLog.length > 0) {
-          activities = activityLog
-            .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''))
-            .slice(0, 10)
-            .map(a => ({
-              icon: a['\u05D0\u05D9\u05E7\u05D5\u05DF'] || 'activity',
-              color: a['\u05E6\u05D1\u05E2'] || 'primary',
-              text: a['\u05EA\u05D9\u05D0\u05D5\u05E8'] || a['\u05E4\u05E2\u05D5\u05DC\u05D4'] || '',
-              time: Utils.timeAgo ? Utils.timeAgo(a['\u05EA\u05D0\u05E8\u05D9\u05DA']) : Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA'])
-            }));
-        }
-      } catch (e) { /* no activity log */ }
+        const typeIcons = {
+          'success': '#dcfce7', 'primary': '#dbeafe', 'warning': '#fef3c7',
+          'danger': '#fee2e2', 'info': '#cffafe', 'secondary': '#f3f4f6'
+        };
 
-      // Fallback: generate from current data
-      if (activities.length === 0) {
-        activities = [
-          { icon: 'calendar-check-fill', color: 'success', text: '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA: ' + presentCount + '/' + todayAtt.length + ' \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD (' + attPct + '%)', time: '\u05D4\u05D9\u05D5\u05DD' },
-          { icon: 'cash-coin', color: 'warning', text: unpaidFinance.length + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD \u05D1\u05E1\u05DA ' + (Utils.formatCurrency ? Utils.formatCurrency(totalDebt) : totalDebt), time: '\u05D4\u05D9\u05D5\u05DD' },
-          { icon: 'people-fill', color: 'primary', text: activeStudents.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
-          { icon: 'list-task', color: 'info', text: activeTasks + ' \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA', time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' },
-          { icon: 'credit-card', color: 'success', text: '\u05E1\u05D4\u05F4\u05DB \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E9\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5: ' + (Utils.formatCurrency ? Utils.formatCurrency(totalPaid) : totalPaid), time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' }
-        ];
-
-        // Only show real data-based activities
+        feedEl.innerHTML = activities.map(a => {
+          const icon = a['\u05D0\u05D9\u05E7\u05D5\u05DF'] || 'activity';
+          const color = a['\u05E6\u05D1\u05E2'] || 'primary';
+          const text = a['\u05EA\u05D9\u05D0\u05D5\u05E8'] || a['\u05E4\u05E2\u05D5\u05DC\u05D4'] || '';
+          const time = Utils.timeAgo ? Utils.timeAgo(a['\u05EA\u05D0\u05E8\u05D9\u05DA']) : Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA']);
+          const bg = typeIcons[color] || '#f3f4f6';
+          return `<div class="d-flex align-items-center gap-3 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:${bg}">
+              <i class="bi bi-${icon} text-${color}"></i>
+            </div>
+            <div class="flex-grow-1">
+              <span class="small">${text}</span>
+            </div>
+            <small class="text-muted text-nowrap">${time}</small>
+          </div>`;
+        }).join('');
+      } else {
+        feedEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-clock-history fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
       }
-
-      const typeIcons = {
-        'success': '#dcfce7', 'primary': '#dbeafe', 'warning': '#fef3c7',
-        'danger': '#fee2e2', 'info': '#cffafe', 'secondary': '#f3f4f6'
-      };
-
-      feedEl.innerHTML = activities.map(a => {
-        const bg = typeIcons[a.color] || '#f3f4f6';
-        return `<div class="d-flex align-items-center gap-3 py-2 border-bottom">
-          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:${bg}">
-            <i class="bi bi-${a.icon} text-${a.color}"></i>
-          </div>
-          <div class="flex-grow-1">
-            <span class="small">${a.text}</span>
-          </div>
-          <small class="text-muted text-nowrap">${a.time}</small>
-        </div>`;
-      }).join('');
     }
 
     // === 6. System Health ===
@@ -474,7 +469,7 @@ Object.assign(Pages, {
       storageBar.className = 'progress-bar ' + (storagePct > 80 ? 'bg-danger' : storagePct > 50 ? 'bg-warning' : 'bg-success');
     }
 
-    // Last backup (use store timestamp or demo)
+    // Last backup (use store timestamp)
     const lastSync = App.store && App.store._lastSync
       ? Utils.timeAgo(App.store._lastSync)
       : '\u05D4\u05D9\u05D5\u05DD, ' + new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
