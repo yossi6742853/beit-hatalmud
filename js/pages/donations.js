@@ -637,7 +637,7 @@ Object.assign(Pages, {
     try {
       await App.apiCall('add', 'קופה_קטנה', { row: donation });
     } catch(e) {
-      console.warn('API save failed, keeping locally:', e);
+      /* API save failed, keeping locally */
     }
     if (this._donLiveData) this._donLiveData.push(donation);
     Utils.toast(`\u05EA\u05E8\u05D5\u05DE\u05D4 \u05E2\u05DC \u05E1\u05DA ${Utils.formatCurrency(amount)} \u05DE${donor} \u05E0\u05E9\u05DE\u05E8\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!`);
@@ -798,7 +798,7 @@ Object.assign(Pages, {
     try {
       await App.apiCall('delete', 'קופה_קטנה', { id: donId });
     } catch(e) {
-      console.warn('API delete failed:', e);
+      /* API delete failed */
     }
     if (this._donLiveData) {
       this._donLiveData = this._donLiveData.filter(d => d.id !== donId);

@@ -234,7 +234,7 @@ Object.assign(Pages, {
         exams: this._gbExams,
         grades: this._gbGrades
       }));
-    } catch(e) { console.warn('Gradebook save error:', e); }
+    } catch(e) { /* gradebook save failed */ }
   },
 
   _populateGbFilters() {

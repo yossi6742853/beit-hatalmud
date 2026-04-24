@@ -297,7 +297,9 @@ const App = {
 
       if (!resp.ok) {
         Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05E8\u05EA - \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1 \u05DE\u05D0\u05D5\u05D7\u05E8 \u05D9\u05D5\u05EA\u05E8', 'danger');
-        throw new Error('HTTP ' + resp.status);
+        const httpErr = new Error('HTTP ' + resp.status);
+        httpErr._toastShown = true;
+        throw httpErr;
       }
 
       const result = await resp.json();
@@ -661,7 +663,7 @@ const App = {
         const data = await this.fetchSheet(sheet);
         if (data && data.length > 0) return data;
       } catch(e) {
-        console.warn('API failed for', sheet, '- using demo data');
+        /* fallback to demo data */
       }
     }
     return this.getDemoData(sheet);
@@ -919,7 +921,7 @@ const App = {
           ).join('');
         }
       }
-    } catch(e) { console.warn('Notifications error:', e); }
+    } catch(e) { /* notification load failed silently */ }
   },
 
   initGlobalSearch() {
