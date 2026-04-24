@@ -5,13 +5,16 @@ Object.assign(Pages, {
      DEMO FLAGS
      ====================================================================== */
   _rptUseDemo: false,
+  _rptClassFilter: '',
+  _rptDateFrom: '',
+  _rptDateTo: '',
   _umUseDemo: false,
   _logUseDemo: false,
   _phoneUseDemo: false,
 
   rptLoadDemo() {
     this._rptUseDemo = true;
-    this.loadReport(document.querySelector('#rpt-tabs .nav-link.active')?.dataset?.rpt || 'overview');
+    this._rptApplyFiltersAndLoad();
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5 \u05DC\u05D3\u05D5\u05D7\u05D5\u05EA', 'info');
   },
   umLoadDemo() {
@@ -106,36 +109,194 @@ Object.assign(Pages, {
      REPORTS
      ====================================================================== */
   reports() {
+    const today = new Date().toISOString().slice(0,10);
+    const monthStart = today.slice(0,8) + '01';
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div><h1><i class="bi bi-file-earmark-bar-graph me-2"></i>\u05D3\u05D5\u05D7\u05D5\u05EA</h1></div>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm" onclick="window.print()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.rptPrint()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1</button>
+          <button class="btn btn-outline-info btn-sm" onclick="Pages.rptExportCSV()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 CSV</button>
         </div>
       </div>
-      <ul class="nav nav-pills mb-3" id="rpt-tabs">
-        <li class="nav-item"><a class="nav-link active" href="#" data-rpt="overview">\u05E1\u05E7\u05D9\u05E8\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-rpt="attendance">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-rpt="finance">\u05DB\u05E1\u05E4\u05D9\u05DD</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-rpt="behavior">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" data-rpt="classes">\u05DB\u05D9\u05EA\u05D5\u05EA</a></li>
-      </ul>
+
+      <!-- Filters bar -->
+      <div class="card p-3 mb-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label fw-bold mb-1">\u05E1\u05D5\u05D2 \u05D3\u05D5\u05D7</label>
+            <select class="form-select form-select-sm" id="rpt-type">
+              <option value="overview">\u05E1\u05E7\u05D9\u05E8\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA</option>
+              <option value="att_daily">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA - \u05D3\u05D5\u05D7 \u05D9\u05D5\u05DE\u05D9</option>
+              <option value="att_monthly">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA - \u05D3\u05D5\u05D7 \u05D7\u05D5\u05D3\u05E9\u05D9</option>
+              <option value="finance">\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</option>
+              <option value="students_by_class">\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</option>
+              <option value="behavior">\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-bold mb-1">\u05DE\u05EA\u05D0\u05E8\u05D9\u05DA</label>
+            <input type="date" class="form-control form-control-sm" id="rpt-date-from" value="${monthStart}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-bold mb-1">\u05E2\u05D3 \u05EA\u05D0\u05E8\u05D9\u05DA</label>
+            <input type="date" class="form-control form-control-sm" id="rpt-date-to" value="${today}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-bold mb-1">\u05DB\u05D9\u05EA\u05D4</label>
+            <select class="form-select form-select-sm" id="rpt-class-filter">
+              <option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary btn-sm w-100" onclick="Pages._rptApplyFiltersAndLoad()"><i class="bi bi-funnel me-1"></i>\u05D4\u05E4\u05E7 \u05D3\u05D5\u05D7</button>
+          </div>
+        </div>
+      </div>
+
       <div id="rpt-content">${Utils.skeleton(3)}</div>`;
   },
+
   async reportsInit() {
-    document.querySelectorAll('#rpt-tabs .nav-link').forEach(a => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.querySelectorAll('#rpt-tabs .nav-link').forEach(x => x.classList.remove('active'));
-        a.classList.add('active');
-        this.loadReport(a.dataset.rpt);
+    // Read stored filter values
+    const typeEl = document.getElementById('rpt-type');
+    const fromEl = document.getElementById('rpt-date-from');
+    const toEl = document.getElementById('rpt-date-to');
+    const classEl = document.getElementById('rpt-class-filter');
+
+    if (this._rptClassFilter) classEl.value = this._rptClassFilter;
+    if (this._rptDateFrom) fromEl.value = this._rptDateFrom;
+    if (this._rptDateTo) toEl.value = this._rptDateTo;
+
+    // Populate class dropdown from student data
+    try {
+      const students = this._rptUseDemo ? this._rptDemoStudents() : await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]);
+      const classes = new Set();
+      students.forEach(s => { const c = s['\u05DB\u05D9\u05EA\u05D4']||''; if (c) classes.add(c); });
+      [...classes].sort().forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        classEl.appendChild(opt);
       });
-    });
-    this.loadReport('overview');
+      if (this._rptClassFilter) classEl.value = this._rptClassFilter;
+    } catch(e) {}
+
+    // Quick-change on type select
+    typeEl.addEventListener('change', () => this._rptApplyFiltersAndLoad());
+
+    // Load initial report
+    this._rptApplyFiltersAndLoad();
   },
+
+  _rptApplyFiltersAndLoad() {
+    const typeEl = document.getElementById('rpt-type');
+    const fromEl = document.getElementById('rpt-date-from');
+    const toEl = document.getElementById('rpt-date-to');
+    const classEl = document.getElementById('rpt-class-filter');
+    if (!typeEl) return;
+
+    this._rptClassFilter = classEl ? classEl.value : '';
+    this._rptDateFrom = fromEl ? fromEl.value : '';
+    this._rptDateTo = toEl ? toEl.value : '';
+
+    this.loadReport(typeEl.value);
+  },
+
+  /* Filter helpers */
+  _rptFilterByDate(arr, dateField) {
+    const from = this._rptDateFrom;
+    const to = this._rptDateTo;
+    if (!from && !to) return arr;
+    return arr.filter(r => {
+      const d = r[dateField] || '';
+      if (!d) return false;
+      if (from && d < from) return false;
+      if (to && d > to) return false;
+      return true;
+    });
+  },
+  _rptFilterByClass(students, classField) {
+    if (!this._rptClassFilter) return students;
+    return students.filter(s => (s[classField]||'') === this._rptClassFilter);
+  },
+  _rptStudentClass(students) {
+    const map = {};
+    students.forEach(s => {
+      const name = Utils.fullName ? Utils.fullName(s) : (s['\u05E9\u05DD']||s['\u05EA\u05DC\u05DE\u05D9\u05D3']||'');
+      map[name] = s['\u05DB\u05D9\u05EA\u05D4'] || '';
+    });
+    return map;
+  },
+
+  /* Print report in new window */
+  rptPrint() {
+    const content = document.getElementById('rpt-content');
+    if (!content) return;
+    const typeEl = document.getElementById('rpt-type');
+    const title = typeEl ? typeEl.options[typeEl.selectedIndex].text : '\u05D3\u05D5\u05D7';
+    const win = window.open('', '_blank', 'width=900,height=700');
+    win.document.write(`<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>${title} - \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</title>
+      <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+      <style>
+        *{font-family:'Heebo',sans-serif;direction:rtl}
+        body{padding:30px;color:#333}
+        h2{margin-bottom:5px}
+        .meta{color:#666;margin-bottom:20px;font-size:14px}
+        table{width:100%;border-collapse:collapse;margin:15px 0}
+        th,td{border:1px solid #ddd;padding:8px;text-align:right}
+        th{background:#f5f5f5;font-weight:700}
+        tr:nth-child(even){background:#fafafa}
+        .stats-row{display:flex;gap:20px;margin:15px 0}
+        .stat-box{flex:1;border:2px solid #eee;border-radius:8px;padding:15px;text-align:center}
+        .stat-box .val{font-size:28px;font-weight:700}
+        .stat-box .lbl{color:#666;font-size:13px}
+        .text-success{color:#0f9d58}.text-danger{color:#ea4335}.text-warning{color:#f9ab00}.text-primary{color:#2563eb}
+        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:500}
+        .badge-success{background:#d4edda;color:#155724}.badge-danger{background:#f8d7da;color:#721c24}
+        .badge-warning{background:#fff3cd;color:#856404}.badge-secondary{background:#e9ecef;color:#495057}
+        .progress-bar-print{height:16px;background:#e9ecef;border-radius:8px;overflow:hidden}
+        .progress-bar-print .fill{height:100%;border-radius:8px}
+        @media print{body{padding:10px}button{display:none!important}}
+      </style>
+    </head><body>
+      <h2><i class="bi bi-file-earmark-bar-graph"></i> ${title}</h2>
+      <div class="meta">\u05D4\u05D5\u05E4\u05E7: ${new Date().toLocaleDateString('he-IL')} | \u05EA\u05D0\u05E8\u05D9\u05DB\u05D9\u05DD: ${this._rptDateFrom || '-'} \u05E2\u05D3 ${this._rptDateTo || '-'}${this._rptClassFilter ? ' | \u05DB\u05D9\u05EA\u05D4: ' + this._rptClassFilter : ''}</div>
+      ${document.getElementById('rpt-print-area')?.innerHTML || content.innerHTML}
+      <br><button onclick="window.print()" style="padding:8px 24px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">\u05D4\u05D3\u05E4\u05E1</button>
+    </body></html>`);
+    win.document.close();
+  },
+
+  /* Export CSV */
+  rptExportCSV() {
+    const table = document.querySelector('#rpt-content table');
+    if (!table) { Utils.toast('\u05D0\u05D9\u05DF \u05D8\u05D1\u05DC\u05D4 \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'warning'); return; }
+    const rows = [];
+    table.querySelectorAll('tr').forEach(tr => {
+      const cells = [];
+      tr.querySelectorAll('th,td').forEach(td => cells.push('"' + (td.textContent||'').replace(/"/g,'""') + '"'));
+      rows.push(cells.join(','));
+    });
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + rows.join('\n')], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = '\u05D3\u05D5\u05D7_' + (document.getElementById('rpt-type')?.value||'report') + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+    Utils.toast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D9\u05D5\u05E8\u05D3', 'success');
+  },
+
+  /* Destroy old chart instances */
+  _rptDestroyCharts() {
+    ['rptAtt','rptFin','rptBeh','rptCls','rptAtt14','rptFinM','rptBehR','rptAttDaily','rptAttMonthly','rptFinSummary','rptBehSummary'].forEach(k => {
+      if (App.charts[k]) { App.charts[k].destroy(); delete App.charts[k]; }
+    });
+  },
+
   async loadReport(type) {
     const c = document.getElementById('rpt-content');
+    if (!c) return;
     c.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
+    this._rptDestroyCharts();
 
     let students, att, fin, beh;
     if (this._rptUseDemo) {
@@ -144,31 +305,40 @@ Object.assign(Pages, {
       fin = this._rptDemoFin();
       beh = this._rptDemoBeh();
     } else {
-      [students, att, fin, beh] = await Promise.all([
-        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
-        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
-        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
-        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])
-      ]);
+      const needed = { overview:4, att_daily:2, att_monthly:2, finance:2, students_by_class:1, behavior:2 };
+      const n = needed[type] || 4;
+      const fetches = [App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[])];
+      if (n >= 2) fetches.push(type.startsWith('att') || type==='overview' ? App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]) : Promise.resolve([]));
+      if (n >= 2 && (type==='finance'||type==='overview')) fetches.push(App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[])); else fetches.push(Promise.resolve([]));
+      if (n >= 2 && (type==='behavior'||type==='overview')) fetches.push(App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])); else fetches.push(Promise.resolve([]));
+      [students, att, fin, beh] = await Promise.all(fetches);
     }
+
     if (!this._rptUseDemo && !students.length && !att.length && !fin.length && !beh.length) {
       c.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-file-earmark-bar-graph fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D3\u05D5\u05D7\u05D5\u05EA</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D3\u05D5\u05D7\u05D5\u05EA</p><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.rptLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
       return;
     }
+
     const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const classMap = this._rptStudentClass(students);
 
+    /* ---- OVERVIEW ---- */
     if (type === 'overview') {
-      const present = att.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
-      const absent = att.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8').length;
-      const totalFin = fin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
-      const paidFin = fin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
-      const posB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
-      const negB = beh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+      const filteredAtt = this._rptFilterByDate(att, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const filteredFin = this._rptFilterByDate(fin, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const filteredBeh = this._rptFilterByDate(beh, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const present = filteredAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
+      const absent = filteredAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8').length;
+      const late = filteredAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D0\u05D9\u05D7\u05D5\u05E8').length;
+      const totalFin = filteredFin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const paidFin = filteredFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const posB = filteredBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+      const negB = filteredBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
 
-      c.innerHTML = `
+      c.innerHTML = `<div id="rpt-print-area">
         <div class="row g-3 mb-4">
           <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${active.length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small></div></div>
-          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${att.length ? Math.round(present/att.length*100) : 0}%</div><small>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05DE\u05D5\u05E6\u05E2\u05EA</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${filteredAtt.length ? Math.round(present/filteredAtt.length*100) : 0}%</div><small>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05DE\u05D5\u05E6\u05E2\u05EA</small></div></div>
           <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${Utils.formatCurrency(totalFin-paidFin)}</div><small>\u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7</small></div></div>
           <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-warning">${posB-negB}</div><small>\u05E0\u05D9\u05E7\u05D5\u05D3 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E0\u05D8\u05D5</small></div></div>
         </div>
@@ -177,82 +347,309 @@ Object.assign(Pages, {
           <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-pie-chart me-2"></i>\u05DE\u05E6\u05D1 \u05DB\u05E1\u05E4\u05D9</h6><div style="height:250px"><canvas id="rpt-fin-chart"></canvas></div></div></div>
           <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-star me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div style="height:250px"><canvas id="rpt-beh-chart"></canvas></div></div></div>
           <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-people me-2"></i>\u05DB\u05D9\u05EA\u05D5\u05EA</h6><div style="height:250px"><canvas id="rpt-cls-chart"></canvas></div></div></div>
-        </div>`;
+        </div>
+      </div>`;
 
-      // Attendance bar
       const attCtx = document.getElementById('rpt-att-chart');
-      if (attCtx) App.charts.rptAtt = new Chart(attCtx, {type:'bar', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present, absent, att.filter(a=>a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D0\u05D9\u05D7\u05D5\u05E8').length], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
-
-      // Finance doughnut
+      if (attCtx) App.charts.rptAtt = new Chart(attCtx, {type:'bar', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present, absent, late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
       const finCtx = document.getElementById('rpt-fin-chart');
       if (finCtx) App.charts.rptFin = new Chart(finCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1'], datasets:[{data:[paidFin, totalFin-paidFin], backgroundColor:['#0f9d58','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom'}}}});
-
-      // Behavior bar
       const behCtx = document.getElementById('rpt-beh-chart');
-      if (behCtx) App.charts.rptBeh = new Chart(behCtx, {type:'bar', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[posB, negB, beh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D4\u05E2\u05E8\u05D4').length], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
-
-      // Classes pie
+      if (behCtx) App.charts.rptBeh = new Chart(behCtx, {type:'bar', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[posB, negB, filteredBeh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D4\u05E2\u05E8\u05D4').length], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
       const classes = {}; active.forEach(s => { const cl = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; classes[cl]=(classes[cl]||0)+1; });
       const clsCtx = document.getElementById('rpt-cls-chart');
       if (clsCtx) App.charts.rptCls = new Chart(clsCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.values(classes), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}});
     }
-    else if (type === 'attendance') {
-      // Group by date, last 14 days
-      const byDate = {};
-      att.forEach(a => { const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''; if (!d) return; if (!byDate[d]) byDate[d]={p:0,a:0,l:0}; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') byDate[d].p++; else if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8') byDate[d].a++; else byDate[d].l++; });
-      const dates = Object.keys(byDate).sort().slice(-14);
 
-      // Per student attendance ranking
-      const perStudent = {};
-      att.forEach(a => { const n = a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!perStudent[n]) perStudent[n]={p:0,t:0}; perStudent[n].t++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') perStudent[n].p++; });
-      const ranked = Object.keys(perStudent).map(n => ({name:n, pct:perStudent[n].t?Math.round(perStudent[n].p/perStudent[n].t*100):0})).sort((a,b)=>a.pct-b.pct);
+    /* ---- ATTENDANCE DAILY ---- */
+    else if (type === 'att_daily') {
+      const selectedDate = this._rptDateTo || new Date().toISOString().slice(0,10);
+      const dayAtt = att.filter(a => (a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'') === selectedDate);
+      // Apply class filter
+      let filtered = dayAtt;
+      if (this._rptClassFilter) {
+        const classStudents = new Set();
+        active.forEach(s => { if ((s['\u05DB\u05D9\u05EA\u05D4']||'') === this._rptClassFilter) classStudents.add(Utils.fullName ? Utils.fullName(s) : (s['\u05E9\u05DD']||s['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')); });
+        filtered = dayAtt.filter(a => classStudents.has(a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''));
+      }
 
-      c.innerHTML = `
-        <div class="card p-3 mb-3"><h6 class="fw-bold">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA 14 \u05D9\u05DE\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</h6><div style="height:300px"><canvas id="rpt-att14"></canvas></div></div>
-        <div class="card p-3"><h6 class="fw-bold">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05E1\u05D9\u05DB\u05D5\u05DF (\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05DE\u05D5\u05DB\u05D4)</h6>
-          ${ranked.filter(r=>r.pct<80).length ? `<table class="table table-sm table-bht"><thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</th><th>\u05DE\u05E6\u05D1</th></tr></thead><tbody>${ranked.filter(r=>r.pct<80).map(r => `<tr><td class="fw-bold">${r.name}</td><td>${r.pct}%</td><td><div class="progress" style="height:20px;width:120px"><div class="progress-bar ${r.pct>=60?'bg-warning':'bg-danger'}" style="width:${r.pct}%">${r.pct}%</div></div></td></tr>`).join('')}</tbody></table>` : '<div class="text-success text-center py-3"><i class="bi bi-check-circle me-1"></i>\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E2\u05DC 80% \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>'}
-        </div>`;
+      const present = filtered.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
+      const absent = filtered.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8').length;
+      const late = filtered.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D0\u05D9\u05D7\u05D5\u05E8').length;
+      const pct = filtered.length ? Math.round(present/filtered.length*100) : 0;
 
-      const att14Ctx = document.getElementById('rpt-att14');
-      if (att14Ctx && dates.length) App.charts.rptAtt14 = new Chart(att14Ctx, {type:'bar', data:{labels:dates.map(d=>d.substring(5)), datasets:[{label:'\u05E0\u05D5\u05DB\u05D7',data:dates.map(d=>byDate[d].p),backgroundColor:'#0f9d58'},{label:'\u05D7\u05D9\u05E1\u05D5\u05E8',data:dates.map(d=>byDate[d].a),backgroundColor:'#ea4335'},{label:'\u05D0\u05D9\u05D7\u05D5\u05E8',data:dates.map(d=>byDate[d].l),backgroundColor:'#f9ab00'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}, plugins:{legend:{position:'top'}}}});
+      const statusBadge = (s) => {
+        if (s==='\u05E0\u05D5\u05DB\u05D7') return '<span class="badge bg-success">\u05E0\u05D5\u05DB\u05D7</span>';
+        if (s==='\u05D7\u05D9\u05E1\u05D5\u05E8') return '<span class="badge bg-danger">\u05D7\u05D9\u05E1\u05D5\u05E8</span>';
+        if (s==='\u05D0\u05D9\u05D7\u05D5\u05E8') return '<span class="badge bg-warning text-dark">\u05D0\u05D9\u05D7\u05D5\u05E8</span>';
+        return '<span class="badge bg-secondary">' + (s||'-') + '</span>';
+      };
+
+      c.innerHTML = `<div id="rpt-print-area">
+        <h5 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2"></i>\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D9\u05D5\u05DE\u05D9 - ${selectedDate}</h5>
+        <div class="row g-3 mb-3">
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${filtered.length}</div><small>\u05E1\u05D4"\u05DB \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${present}</div><small>\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${absent}</div><small>\u05D7\u05E1\u05E8\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-warning">${late}</div><small>\u05DE\u05D0\u05D7\u05E8\u05D9\u05DD</small></div></div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4"><div class="card p-3"><div style="height:220px"><canvas id="rpt-att-daily-chart"></canvas></div></div></div>
+          <div class="col-md-8"><div class="card p-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="fw-bold">\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA:</span>
+              <div class="progress flex-grow-1" style="height:24px">
+                <div class="progress-bar bg-success" style="width:${pct}%">${pct}%</div>
+              </div>
+            </div>
+            ${!filtered.length ? '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DC\u05EA\u05D0\u05E8\u05D9\u05DA \u05D6\u05D4</div>' : ''}
+          </div></div>
+        </div>
+        ${filtered.length ? `<div class="card p-3"><table class="table table-sm table-hover table-bht">
+          <thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D4\u05E2\u05E8\u05D4</th></tr></thead>
+          <tbody>${filtered.map((a,i) => {
+            const name = a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'';
+            return `<tr><td>${i+1}</td><td class="fw-bold">${name}</td><td>${classMap[name]||'-'}</td><td>${statusBadge(a['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</td><td>${a['\u05D4\u05E2\u05E8\u05D4']||'-'}</td></tr>`;
+          }).join('')}</tbody>
+        </table></div>` : ''}
+      </div>`;
+
+      const adCtx = document.getElementById('rpt-att-daily-chart');
+      if (adCtx && filtered.length) App.charts.rptAttDaily = new Chart(adCtx, {type:'doughnut', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present,absent,late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
     }
+
+    /* ---- ATTENDANCE MONTHLY ---- */
+    else if (type === 'att_monthly') {
+      let filteredAtt = this._rptFilterByDate(att, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      // Class filter
+      if (this._rptClassFilter) {
+        const classStudents = new Set();
+        active.forEach(s => { if ((s['\u05DB\u05D9\u05EA\u05D4']||'') === this._rptClassFilter) classStudents.add(Utils.fullName ? Utils.fullName(s) : (s['\u05E9\u05DD']||s['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')); });
+        filteredAtt = filteredAtt.filter(a => classStudents.has(a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''));
+      }
+
+      // Per-student stats
+      const perStudent = {};
+      filteredAtt.forEach(a => {
+        const n = a['\u05E9\u05DD']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return;
+        if (!perStudent[n]) perStudent[n]={present:0,absent:0,late:0,total:0};
+        perStudent[n].total++;
+        if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') perStudent[n].present++;
+        else if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8') perStudent[n].absent++;
+        else perStudent[n].late++;
+      });
+      const sorted = Object.entries(perStudent).map(([name,d]) => ({name, ...d, pct: d.total ? Math.round(d.present/d.total*100) : 0})).sort((a,b)=>a.pct-b.pct);
+
+      // Daily trend
+      const byDate = {};
+      filteredAtt.forEach(a => {
+        const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''; if (!d) return;
+        if (!byDate[d]) byDate[d]={p:0,a:0,l:0};
+        if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7') byDate[d].p++;
+        else if (a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05D7\u05D9\u05E1\u05D5\u05E8') byDate[d].a++;
+        else byDate[d].l++;
+      });
+      const dates = Object.keys(byDate).sort();
+
+      const totalPresent = sorted.reduce((s,r)=>s+r.present,0);
+      const totalAll = sorted.reduce((s,r)=>s+r.total,0);
+      const avgPct = totalAll ? Math.round(totalPresent/totalAll*100) : 0;
+      const atRisk = sorted.filter(r=>r.pct<80);
+
+      c.innerHTML = `<div id="rpt-print-area">
+        <h5 class="fw-bold mb-3"><i class="bi bi-calendar-range me-2"></i>\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 (${this._rptDateFrom || '-'} \u05E2\u05D3 ${this._rptDateTo || '-'})</h5>
+        <div class="row g-3 mb-3">
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${sorted.length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${avgPct}%</div><small>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05DE\u05D5\u05E6\u05E2\u05EA</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${atRisk.length}</div><small>\u05D1\u05E1\u05D9\u05DB\u05D5\u05DF (&lt;80%)</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold">${dates.length}</div><small>\u05D9\u05DE\u05D9 \u05DC\u05D9\u05DE\u05D5\u05D3</small></div></div>
+        </div>
+        <div class="card p-3 mb-3"><h6 class="fw-bold">\u05DE\u05D2\u05DE\u05D4 \u05D9\u05D5\u05DE\u05D9\u05EA</h6><div style="height:280px"><canvas id="rpt-att-monthly-chart"></canvas></div></div>
+        <div class="card p-3">
+          <h6 class="fw-bold">\u05E4\u05D9\u05E8\u05D5\u05D8 \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3</h6>
+          <table class="table table-sm table-hover table-bht">
+            <thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05E0\u05D5\u05DB\u05D7</th><th>\u05D7\u05D9\u05E1\u05D5\u05E8</th><th>\u05D0\u05D9\u05D7\u05D5\u05E8</th><th>\u05E1\u05D4"\u05DB</th><th>\u05D0\u05D7\u05D5\u05D6</th><th>\u05DE\u05E6\u05D1</th></tr></thead>
+            <tbody>${sorted.map((r,i) => `<tr class="${r.pct<60?'table-danger':r.pct<80?'table-warning':''}">
+              <td>${i+1}</td><td class="fw-bold">${r.name}</td><td>${classMap[r.name]||'-'}</td>
+              <td class="text-success">${r.present}</td><td class="text-danger">${r.absent}</td><td class="text-warning">${r.late}</td><td>${r.total}</td>
+              <td class="fw-bold ${r.pct>=80?'text-success':r.pct>=60?'text-warning':'text-danger'}">${r.pct}%</td>
+              <td><div class="progress" style="height:18px;width:100px"><div class="progress-bar ${r.pct>=80?'bg-success':r.pct>=60?'bg-warning':'bg-danger'}" style="width:${r.pct}%"></div></div></td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+
+      const amCtx = document.getElementById('rpt-att-monthly-chart');
+      if (amCtx && dates.length) App.charts.rptAttMonthly = new Chart(amCtx, {type:'bar', data:{labels:dates.map(d=>d.substring(5)), datasets:[{label:'\u05E0\u05D5\u05DB\u05D7',data:dates.map(d=>byDate[d].p),backgroundColor:'#0f9d58'},{label:'\u05D7\u05D9\u05E1\u05D5\u05E8',data:dates.map(d=>byDate[d].a),backgroundColor:'#ea4335'},{label:'\u05D0\u05D9\u05D7\u05D5\u05E8',data:dates.map(d=>byDate[d].l),backgroundColor:'#f9ab00'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}, plugins:{legend:{position:'top'}}}});
+    }
+
+    /* ---- FINANCE SUMMARY ---- */
     else if (type === 'finance') {
+      let filteredFin = this._rptFilterByDate(fin, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      if (this._rptClassFilter) {
+        const classStudents = new Set();
+        active.forEach(s => { if ((s['\u05DB\u05D9\u05EA\u05D4']||'') === this._rptClassFilter) classStudents.add(Utils.fullName ? Utils.fullName(s) : (s['\u05E9\u05DD']||s['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')); });
+        filteredFin = filteredFin.filter(f => classStudents.has(f['\u05EA\u05DC\u05DE\u05D9\u05D3']||f['\u05E9\u05DD']||''));
+      }
+
+      const totalAmount = filteredFin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const paidAmount = filteredFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const pendingAmount = filteredFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D7\u05D5\u05D1').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const overdueAmount = filteredFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8'||(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const unpaid = totalAmount - paidAmount;
+      const paidPct = totalAmount ? Math.round(paidAmount/totalAmount*100) : 0;
+
+      // Per-student breakdown
+      const perStudent = {};
+      filteredFin.forEach(f => {
+        const n = f['\u05EA\u05DC\u05DE\u05D9\u05D3']||f['\u05E9\u05DD']||''; if (!n) return;
+        if (!perStudent[n]) perStudent[n]={total:0,paid:0,pending:0};
+        const amt = Number(f['\u05E1\u05DB\u05D5\u05DD'])||0;
+        perStudent[n].total += amt;
+        if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD') perStudent[n].paid += amt;
+        else perStudent[n].pending += amt;
+      });
+      const studentList = Object.entries(perStudent).map(([name,d])=>({name,...d})).sort((a,b)=>b.pending-a.pending);
+
       // Monthly breakdown
       const byMonth = {};
-      fin.forEach(f => { const m = f['\u05D7\u05D5\u05D3\u05E9']||''; if (!m) return; if (!byMonth[m]) byMonth[m]={total:0,paid:0}; byMonth[m].total += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD') byMonth[m].paid += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0; });
-      const months = Object.keys(byMonth).sort().slice(-6);
+      filteredFin.forEach(f => {
+        const d = f['\u05EA\u05D0\u05E8\u05D9\u05DA']||f['\u05D7\u05D5\u05D3\u05E9']||'';
+        const m = d.length >= 7 ? d.slice(0,7) : d;
+        if (!m) return;
+        if (!byMonth[m]) byMonth[m]={total:0,paid:0};
+        byMonth[m].total += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0;
+        if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD') byMonth[m].paid += Number(f['\u05E1\u05DB\u05D5\u05DD'])||0;
+      });
+      const months = Object.keys(byMonth).sort().slice(-12);
 
-      c.innerHTML = `
+      c.innerHTML = `<div id="rpt-print-area">
+        <h5 class="fw-bold mb-3"><i class="bi bi-cash-stack me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</h5>
         <div class="row g-3 mb-3">
-          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold">${Utils.formatCurrency(fin.reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05E1\u05D4"\u05DB</small></div></div>
-          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05E0\u05D2\u05D1\u05D4</small></div></div>
-          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(fin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')!=='\u05E9\u05D5\u05DC\u05DD').reduce((s,f)=>s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0))}</div><small>\u05D7\u05D5\u05D1</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold">${Utils.formatCurrency(totalAmount)}</div><small>\u05E1\u05D4"\u05DB \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(paidAmount)}</div><small>\u05E0\u05D2\u05D1\u05D4</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(unpaid)}</div><small>\u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold ${paidPct>=70?'text-success':'text-warning'}">${paidPct}%</div><small>\u05D0\u05D7\u05D5\u05D6 \u05D2\u05D1\u05D9\u05D4</small></div></div>
         </div>
-        <div class="card p-3"><h6 class="fw-bold">\u05DE\u05D2\u05DE\u05D4 \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA</h6><div style="height:300px"><canvas id="rpt-fin-monthly"></canvas></div></div>`;
+        <div class="row g-3 mb-3">
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold">\u05D4\u05EA\u05E4\u05DC\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA</h6><div style="height:280px"><canvas id="rpt-fin-monthly-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold">\u05D7\u05DC\u05D5\u05E7\u05EA \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD</h6><div style="height:280px"><canvas id="rpt-fin-pie-chart"></canvas></div></div></div>
+        </div>
+        <div class="card p-3">
+          <h6 class="fw-bold">\u05E4\u05D9\u05E8\u05D5\u05D8 \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3</h6>
+          <table class="table table-sm table-hover table-bht">
+            <thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05E1\u05D4"\u05DB \u05D7\u05D9\u05D5\u05D1</th><th>\u05E9\u05D5\u05DC\u05DD</th><th>\u05D9\u05EA\u05E8\u05D4</th><th>\u05DE\u05E6\u05D1</th></tr></thead>
+            <tbody>${studentList.map((r,i) => {
+              const pp = r.total ? Math.round(r.paid/r.total*100) : 0;
+              return `<tr class="${r.pending>0?'':'table-success'}">
+                <td>${i+1}</td><td class="fw-bold">${r.name}</td><td>${classMap[r.name]||'-'}</td>
+                <td>${Utils.formatCurrency(r.total)}</td><td class="text-success">${Utils.formatCurrency(r.paid)}</td>
+                <td class="text-danger fw-bold">${Utils.formatCurrency(r.pending)}</td>
+                <td><div class="progress" style="height:18px;width:100px"><div class="progress-bar ${pp>=80?'bg-success':pp>=50?'bg-warning':'bg-danger'}" style="width:${pp}%">${pp}%</div></div></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
 
-      const fmCtx = document.getElementById('rpt-fin-monthly');
+      const fmCtx = document.getElementById('rpt-fin-monthly-chart');
       if (fmCtx && months.length) App.charts.rptFinM = new Chart(fmCtx, {type:'bar', data:{labels:months, datasets:[{label:'\u05D7\u05D9\u05D5\u05D1',data:months.map(m=>byMonth[m].total),backgroundColor:'rgba(37,99,235,.3)',borderColor:'#2563eb',borderWidth:2},{label:'\u05D2\u05D1\u05D9\u05D4',data:months.map(m=>byMonth[m].paid),backgroundColor:'rgba(15,157,88,.3)',borderColor:'#0f9d58',borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}}});
+      const fpCtx = document.getElementById('rpt-fin-pie-chart');
+      if (fpCtx) App.charts.rptFinSummary = new Chart(fpCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1','\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8'], datasets:[{data:[paidAmount, pendingAmount, overdueAmount], backgroundColor:['#0f9d58','#f9ab00','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
     }
-    else if (type === 'behavior') {
-      const scores = {};
-      beh.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return; if (!scores[n]) scores[n]={p:0,n:0}; if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++; else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++; });
-      const sorted = Object.keys(scores).map(n => ({name:n, net:scores[n].p-scores[n].n, pos:scores[n].p, neg:scores[n].n})).sort((a,b)=>b.net-a.net);
 
-      c.innerHTML = `
-        <div class="card p-3 mb-3"><h6 class="fw-bold">\u05E0\u05D9\u05E7\u05D5\u05D3 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3</h6><div style="height:350px"><canvas id="rpt-beh-rank"></canvas></div></div>
-        <div class="card p-3"><h6 class="fw-bold">\u05D8\u05D1\u05DC\u05D4 \u05DE\u05E4\u05D5\u05E8\u05D8\u05EA</h6><table class="table table-sm table-bht"><thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05D7\u05D9\u05D5\u05D1\u05D9</th><th>\u05E9\u05DC\u05D9\u05DC\u05D9</th><th>\u05E0\u05D8\u05D5</th></tr></thead><tbody>${sorted.map((r,i) => `<tr><td>${i+1}</td><td class="fw-bold">${r.name}</td><td class="text-success">${r.pos}</td><td class="text-danger">${r.neg}</td><td class="fw-bold ${r.net>=0?'text-success':'text-danger'}">${r.net>=0?'+':''}${r.net}</td></tr>`).join('')}</tbody></table></div>`;
-
-      const brCtx = document.getElementById('rpt-beh-rank');
-      if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}});
-    }
-    else if (type === 'classes') {
+    /* ---- STUDENTS BY CLASS ---- */
+    else if (type === 'students_by_class') {
+      let filteredStudents = active;
+      if (this._rptClassFilter) {
+        filteredStudents = active.filter(s => (s['\u05DB\u05D9\u05EA\u05D4']||'') === this._rptClassFilter);
+      }
       const classes = {};
-      active.forEach(s => { const cls = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; if (!classes[cls]) classes[cls]=[]; classes[cls].push(s); });
+      filteredStudents.forEach(s => { const cls = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; if (!classes[cls]) classes[cls]=[]; classes[cls].push(s); });
 
-      c.innerHTML = `<div class="row g-3">${Object.keys(classes).sort().map(cls => {
-        const list = classes[cls];
-        return `<div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-people-fill text-primary me-2"></i>\u05DB\u05D9\u05EA\u05D4 ${cls} <span class="badge bg-primary">${list.length}</span></h6><div class="mt-2">${list.map(s => `<div class="d-flex align-items-center gap-2 py-1 border-bottom">${Utils.avatarHTML(Utils.fullName(s),'sm')}<a href="#student/${Utils.rowId(s)}" class="text-decoration-none">${Utils.fullName(s)}</a></div>`).join('')}</div></div></div>`;
-      }).join('')}</div>`;
+      c.innerHTML = `<div id="rpt-print-area">
+        <h5 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</h5>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${filteredStudents.length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small></div></div>
+          <div class="col-md-4"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-info">${Object.keys(classes).length}</div><small>\u05DB\u05D9\u05EA\u05D5\u05EA</small></div></div>
+          <div class="col-md-4"><div class="card p-3"><div style="height:150px"><canvas id="rpt-cls-pie"></canvas></div></div></div>
+        </div>
+        <div class="row g-3">${Object.keys(classes).sort().map(cls => {
+          const list = classes[cls];
+          return `<div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold"><i class="bi bi-people-fill text-primary me-2"></i>\u05DB\u05D9\u05EA\u05D4 ${cls} <span class="badge bg-primary">${list.length}</span></h6>
+            <table class="table table-sm table-bht mt-2">
+              <thead><tr><th>#</th><th>\u05E9\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead>
+              <tbody>${list.map((s,i) => `<tr>
+                <td>${i+1}</td>
+                <td class="fw-bold"><span class="d-inline-flex">${Utils.avatarHTML ? Utils.avatarHTML(Utils.fullName(s),'sm') : ''}<a href="#student/${Utils.rowId(s)}" class="text-decoration-none me-1">${Utils.fullName(s)}</a></span></td>
+                <td><span class="badge ${(s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')=== '\u05E4\u05E2\u05D9\u05DC'?'bg-success':'bg-secondary'}">${s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05E4\u05E2\u05D9\u05DC'}</span></td>
+              </tr>`).join('')}</tbody>
+            </table>
+          </div></div>`;
+        }).join('')}</div>
+      </div>`;
+
+      const cpCtx = document.getElementById('rpt-cls-pie');
+      if (cpCtx) App.charts.rptCls = new Chart(cpCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.keys(classes).map(k=>classes[k].length), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
+    }
+
+    /* ---- BEHAVIOR SUMMARY ---- */
+    else if (type === 'behavior') {
+      let filteredBeh = this._rptFilterByDate(beh, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      if (this._rptClassFilter) {
+        const classStudents = new Set();
+        active.forEach(s => { if ((s['\u05DB\u05D9\u05EA\u05D4']||'') === this._rptClassFilter) classStudents.add(Utils.fullName ? Utils.fullName(s) : (s['\u05E9\u05DD']||s['\u05EA\u05DC\u05DE\u05D9\u05D3']||'')); });
+        filteredBeh = filteredBeh.filter(b => {
+          const n = b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||b['\u05E9\u05DD']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'';
+          return classStudents.has(n);
+        });
+      }
+
+      const scores = {};
+      filteredBeh.forEach(r => {
+        const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05E9\u05DD']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||''; if (!n) return;
+        if (!scores[n]) scores[n]={p:0,n:0,note:0};
+        if (r['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9') scores[n].p++;
+        else if (r['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9') scores[n].n++;
+        else scores[n].note++;
+      });
+      const sorted = Object.keys(scores).map(n => ({name:n, net:scores[n].p-scores[n].n, pos:scores[n].p, neg:scores[n].n, note:scores[n].note})).sort((a,b)=>b.net-a.net);
+
+      const totalPos = sorted.reduce((s,r)=>s+r.pos,0);
+      const totalNeg = sorted.reduce((s,r)=>s+r.neg,0);
+      const totalNote = sorted.reduce((s,r)=>s+r.note,0);
+
+      c.innerHTML = `<div id="rpt-print-area">
+        <h5 class="fw-bold mb-3"><i class="bi bi-star-half me-2"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h5>
+        <div class="row g-3 mb-3">
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-primary">${filteredBeh.length}</div><small>\u05E1\u05D4"\u05DB \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-success">${totalPos}</div><small>\u05D7\u05D9\u05D5\u05D1\u05D9</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-danger">${totalNeg}</div><small>\u05E9\u05DC\u05D9\u05DC\u05D9</small></div></div>
+          <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-2 fw-bold text-info">${totalNote}</div><small>\u05D4\u05E2\u05E8\u05D5\u05EA</small></div></div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold">\u05E0\u05D9\u05E7\u05D5\u05D3 \u05DC\u05E4\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3 (Top 15)</h6><div style="height:350px"><canvas id="rpt-beh-rank-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold">\u05D7\u05DC\u05D5\u05E7\u05D4 \u05DC\u05E4\u05D9 \u05E1\u05D5\u05D2</h6><div style="height:350px"><canvas id="rpt-beh-type-chart"></canvas></div></div></div>
+        </div>
+        <div class="card p-3">
+          <h6 class="fw-bold">\u05D8\u05D1\u05DC\u05D4 \u05DE\u05E4\u05D5\u05E8\u05D8\u05EA</h6>
+          <table class="table table-sm table-hover table-bht">
+            <thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05D7\u05D9\u05D5\u05D1\u05D9</th><th>\u05E9\u05DC\u05D9\u05DC\u05D9</th><th>\u05D4\u05E2\u05E8\u05D5\u05EA</th><th>\u05E0\u05D8\u05D5</th><th>\u05DE\u05E6\u05D1</th></tr></thead>
+            <tbody>${sorted.map((r,i) => `<tr>
+              <td>${i+1}</td><td class="fw-bold">${r.name}</td><td>${classMap[r.name]||'-'}</td>
+              <td class="text-success">${r.pos}</td><td class="text-danger">${r.neg}</td><td class="text-info">${r.note}</td>
+              <td class="fw-bold ${r.net>=0?'text-success':'text-danger'}">${r.net>=0?'+':''}${r.net}</td>
+              <td>${r.net>0?'<i class="bi bi-emoji-smile text-success"></i>':r.net<0?'<i class="bi bi-emoji-frown text-danger"></i>':'<i class="bi bi-emoji-neutral text-muted"></i>'}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+
+      const brCtx = document.getElementById('rpt-beh-rank-chart');
+      if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}});
+      const btCtx = document.getElementById('rpt-beh-type-chart');
+      if (btCtx) App.charts.rptBehSummary = new Chart(btCtx, {type:'doughnut', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[totalPos,totalNeg,totalNote], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
     }
   },
 
