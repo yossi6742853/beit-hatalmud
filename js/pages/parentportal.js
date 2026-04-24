@@ -344,8 +344,10 @@ Object.assign(Pages, {
       }
     } catch(e) { /* keep demo data */ }
 
-    // Auto-refresh active count
+    // Auto-refresh active count (clear previous interval to prevent leaks)
+    if (this._portalRefreshTimer) clearInterval(this._portalRefreshTimer);
     this._portalRefreshTimer = setInterval(() => {
+      if (App.currentPage !== 'parentportal') { clearInterval(this._portalRefreshTimer); return; }
       const badge = document.querySelector('#portal-tabs .nav-link.active .badge');
       if (badge) badge.textContent = this._portalParents.filter(p => p.active).length;
     }, 60000);
