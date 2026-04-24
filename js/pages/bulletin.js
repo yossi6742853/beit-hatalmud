@@ -178,7 +178,38 @@ Object.assign(Pages, {
   /* ---------- init ---------- */
   async bulletinInit() {
     this._bulletinFilter = { search:'', category:'all', showArchive:false };
+
+    // Try loading from API, fall back to localStorage, then demo data
+    try {
+      const apiData = await App.getData('לוח_מודעות');
+      if (apiData && apiData.length) {
+        this._bulletinData = apiData;
+        this._bulletinNextId = Math.max(...apiData.map(b => b.id || 0)) + 1;
+      } else {
+        this._blnLoadFromStorage();
+      }
+    } catch(e) {
+      this._blnLoadFromStorage();
+    }
+
     this._bulletinRender();
+  },
+
+  _blnLoadFromStorage() {
+    try {
+      const stored = localStorage.getItem('bht_bulletin_data');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.length) {
+          this._bulletinData = parsed;
+          this._bulletinNextId = Math.max(...parsed.map(b => b.id || 0)) + 1;
+        }
+      }
+    } catch(e) { /* keep demo data */ }
+  },
+
+  _blnSaveToStorage() {
+    try { localStorage.setItem('bht_bulletin_data', JSON.stringify(this._bulletinData)); } catch(e) {}
   },
 
   /* ---------- rendering ---------- */
@@ -341,7 +372,13 @@ Object.assign(Pages, {
   /* ---------- pin toggle ---------- */
   bulletinTogglePin(id) {
     const b = this._bulletinData.find(x => x.id === id);
-    if (b) { b.pinned = !b.pinned; this._bulletinRender(); Utils.toast(b.pinned ? 'המודעה נעוצה' : 'הנעיצה בוטלה'); }
+    if (b) {
+      b.pinned = !b.pinned;
+      this._blnSaveToStorage();
+      try { App.apiCall('update', 'לוח_מודעות', { id, row: b }); } catch(e) {}
+      this._bulletinRender();
+      Utils.toast(b.pinned ? 'המודעה נעוצה' : 'הנעיצה בוטלה');
+    }
   },
 
   /* ---------- create / edit ---------- */
@@ -387,14 +424,19 @@ Object.assign(Pages, {
     if (this._blnEditId) {
       const b = this._bulletinData.find(x => x.id === this._blnEditId);
       if (b) { Object.assign(b, { title, content, category, priority, expiry, pinned }); }
+      this._blnSaveToStorage();
+      try { App.apiCall('update', 'לוח_מודעות', { id: this._blnEditId, row: b }); } catch(e) {}
       Utils.toast('המודעה עודכנה');
     } else {
-      this._bulletinData.unshift({
+      const newItem = {
         id: this._bulletinNextId++,
         title, content, category, priority, pinned, expiry,
         date: new Date().toISOString().slice(0,10),
         author: 'מזכירות',
-      });
+      };
+      this._bulletinData.unshift(newItem);
+      this._blnSaveToStorage();
+      try { App.apiCall('add', 'לוח_מודעות', { row: newItem }); } catch(e) {}
       Utils.toast('מודעה חדשה נוספה');
     }
 
@@ -406,6 +448,8 @@ Object.assign(Pages, {
   deleteBulletin(id) {
     if (!confirm('למחוק את המודעה?')) return;
     this._bulletinData = this._bulletinData.filter(x => x.id !== id);
+    this._blnSaveToStorage();
+    try { App.apiCall('delete', 'לוח_מודעות', { id }); } catch(e) {}
     this._bulletinRender();
     Utils.toast('המודעה נמחקה');
   },

@@ -266,7 +266,17 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
-  emergencyInit() {
+  async emergencyInit() {
+    // Try API first, then localStorage, fall back to defaults
+    try {
+      const apiData = await App.getData('\u05D7\u05D9\u05E8\u05D5\u05DD');
+      if (apiData && (apiData.drills || apiData.contacts)) {
+        this._emergencySaveData(apiData);
+      }
+    } catch (e) {
+      // Use localStorage/defaults via _emergencyLoadData
+    }
+
     const searchEl = document.getElementById('emg-student-search');
     if (searchEl) {
       searchEl.addEventListener('input', () => {
@@ -335,7 +345,7 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('addDrillModal')).show();
   },
 
-  saveDrill() {
+  async saveDrill() {
     const date = document.getElementById('drill-date').value;
     const type = document.getElementById('drill-type').value;
     const duration = parseInt(document.getElementById('drill-duration').value) || 0;
@@ -349,8 +359,12 @@ Object.assign(Pages, {
 
     const data = this._emergencyLoadData();
     const maxId = data.drills.reduce((mx, d) => Math.max(mx, d.id || 0), 0);
-    data.drills.push({ id: maxId + 1, date, type, duration, participants, notes });
+    const newDrill = { id: maxId + 1, date, type, duration, participants, notes };
+    data.drills.push(newDrill);
     this._emergencySaveData(data);
+
+    // Persist to API
+    try { await App.apiCall('add', '\u05D7\u05D9\u05E8\u05D5\u05DD', { row: newDrill }); } catch (e) { /* localStorage already saved */ }
 
     // Close modal
     bootstrap.Modal.getInstance(document.getElementById('addDrillModal'))?.hide();
@@ -360,11 +374,12 @@ Object.assign(Pages, {
     document.getElementById('emg-drill-tbody').innerHTML = this._renderDrillRows(data.drills);
   },
 
-  deleteDrill(id) {
+  async deleteDrill(id) {
     if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05EA\u05E8\u05D2\u05D9\u05DC \u05D6\u05D4?')) return;
     const data = this._emergencyLoadData();
     data.drills = data.drills.filter(d => d.id !== id);
     this._emergencySaveData(data);
+    try { await App.apiCall('delete', '\u05D7\u05D9\u05E8\u05D5\u05DD', { id }); } catch (e) { /* localStorage already saved */ }
     document.getElementById('emg-drill-tbody').innerHTML = this._renderDrillRows(data.drills);
     Utils.toast('\u05EA\u05E8\u05D2\u05D9\u05DC \u05E0\u05DE\u05D7\u05E7', 'info');
   }

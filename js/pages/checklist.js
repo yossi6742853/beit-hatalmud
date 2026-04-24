@@ -70,18 +70,20 @@ Object.assign(Pages, {
     }
   },
 
-  /* ---- Load checklists from localStorage ---- */
+  /* ---- Load checklists from localStorage (with API sync) ---- */
   _clLoad() {
     const raw = localStorage.getItem(this._clKey);
     if (raw) return JSON.parse(raw);
     // First time — generate demo data
     const demo = this._clGenerateDemo();
-    this._clSave(demo);
+    localStorage.setItem(this._clKey, JSON.stringify(demo));
     return demo;
   },
 
   _clSave(data) {
     localStorage.setItem(this._clKey, JSON.stringify(data));
+    // Sync to API in background
+    try { App.apiCall('update', 'משימות', { id: 'checklists', row: data }); } catch(e) {}
   },
 
   /* ---- Generate demo data ---- */
@@ -357,8 +359,17 @@ Object.assign(Pages, {
   },
 
   /* ---- Init: set up keyboard and state ---- */
-  checklistInit() {
-    // Nothing async needed — modals are in DOM from render
+  async checklistInit() {
+    // Try to load from API and merge/replace local data
+    try {
+      const apiData = await App.getData('משימות');
+      if (apiData && apiData.length && apiData[0].lists) {
+        // API returned checklist data object
+        localStorage.setItem(this._clKey, JSON.stringify(apiData[0]));
+      } else if (apiData && apiData.lists) {
+        localStorage.setItem(this._clKey, JSON.stringify(apiData));
+      }
+    } catch(e) { /* keep local data */ }
   },
 
   /* ============================================================

@@ -345,7 +345,20 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  tutoringInit() {
+  async tutoringInit() {
+    // Try API first, then localStorage, fall back to demo
+    try {
+      const apiData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8');
+      if (apiData && apiData.length > 0) {
+        if (apiData.tutors) this._tutors = apiData.tutors;
+        if (apiData.sessions) this._tutorSessions = apiData.sessions;
+      } else {
+        this._tutorLoadFromStorage();
+      }
+    } catch (e) {
+      this._tutorLoadFromStorage();
+    }
+
     // Update cost preview on changes
     const updateCost = () => {
       const dur = parseFloat(document.getElementById('ts-duration')?.value) || 1;
@@ -355,6 +368,26 @@ Object.assign(Pages, {
     };
     document.getElementById('ts-duration')?.addEventListener('input', updateCost);
     document.getElementById('ts-rate')?.addEventListener('input', updateCost);
+  },
+
+  _tutorLoadFromStorage() {
+    const saved = localStorage.getItem('bht_tutoring');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.tutors) this._tutors = data.tutors;
+        if (data.sessions) this._tutorSessions = data.sessions;
+        if (data.nextId) this._tutorNextId = data.nextId;
+      } catch (e) { /* use defaults */ }
+    }
+  },
+
+  _tutorSaveToStorage() {
+    localStorage.setItem('bht_tutoring', JSON.stringify({
+      tutors: this._tutors,
+      sessions: this._tutorSessions,
+      nextId: this._tutorNextId
+    }));
   },
 
   _tutorAutoRate() {
@@ -386,7 +419,7 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('tutor-add-modal')).show();
   },
 
-  _tutorSave() {
+  async _tutorSave() {
     const tutorId = +document.getElementById('ts-tutor').value;
     const student = document.getElementById('ts-student').value.trim();
     const subject = document.getElementById('ts-subject').value;
@@ -402,15 +435,20 @@ Object.assign(Pages, {
     }
 
     const status = date < Utils.todayISO() ? 'completed' : 'scheduled';
-    this._tutorSessions.push({ id: this._tutorNextId++, tutorId, student, subject, date, time, duration, rate, status, notes, feedback: 0 });
+    const newSession = { id: this._tutorNextId++, tutorId, student, subject, date, time, duration, rate, status, notes, feedback: 0 };
+    this._tutorSessions.push(newSession);
+    try { await App.apiCall('add', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8', { row: newSession }); } catch (e) { /* localStorage fallback */ }
+    this._tutorSaveToStorage();
     bootstrap.Modal.getInstance(document.getElementById('tutor-add-modal'))?.hide();
     Utils.toast('השיעור נוסף בהצלחה', 'success');
     App.loadPage('tutoring');
   },
 
-  _tutorDelete(id) {
+  async _tutorDelete(id) {
     if (!confirm('למחוק שיעור זה?')) return;
     this._tutorSessions = this._tutorSessions.filter(s => s.id !== id);
+    try { await App.apiCall('delete', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8', { id }); } catch (e) { /* localStorage fallback */ }
+    this._tutorSaveToStorage();
     Utils.toast('השיעור נמחק', 'success');
     App.loadPage('tutoring');
   },
@@ -429,7 +467,7 @@ Object.assign(Pages, {
     });
   },
 
-  _tutorPay(tutorId) {
+  async _tutorPay(tutorId) {
     const tutor = this._tutors.find(t => t.id === tutorId);
     if (!tutor) return;
     if (tutor.owed <= 0) { Utils.toast('אין חוב למתגבר זה', 'info'); return; }
@@ -438,6 +476,8 @@ Object.assign(Pages, {
     const pay = Math.min(parseFloat(amount), tutor.owed);
     tutor.paid += pay;
     tutor.owed -= pay;
+    try { await App.apiCall('update', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8', { id: tutorId, row: tutor }); } catch (e) { /* localStorage fallback */ }
+    this._tutorSaveToStorage();
     Utils.toast(`שולם ${pay} \u20AA ל${tutor.name}`, 'success');
     App.loadPage('tutoring');
   },

@@ -154,19 +154,65 @@ Object.assign(Pages, {
 
   /* ---- Init ---- */
   async gradebookInit() {
-    // Load from localStorage or use demo data
-    const saved = localStorage.getItem(this._GB_STORAGE_KEY);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        this._gbStudents = data.students || [];
-        this._gbExams = data.exams || [];
-        this._gbGrades = data.grades || {};
-      } catch(e) {
+    // Try loading from API first
+    let loaded = false;
+    try {
+      const apiGrades = await App.getData('ציונים');
+      if (apiGrades && apiGrades.length) {
+        // API returns flat grade rows — build grades map
+        this._gbGrades = {};
+        apiGrades.forEach(row => {
+          if (row.studentId && row.examId) {
+            this._gbGrades[row.studentId + '_' + row.examId] = row.grade;
+          }
+        });
+        loaded = true;
+      }
+    } catch(e) { /* fall through */ }
+
+    try {
+      const apiStudents = await App.getData('תלמידים');
+      if (apiStudents && apiStudents.length) {
+        this._gbStudents = apiStudents.map((s, i) => ({
+          id: s.id || ('s' + (i + 1)),
+          '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || s.firstName || '',
+          '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || s.lastName || '',
+          '\u05DB\u05D9\u05EA\u05D4': s['\u05DB\u05D9\u05EA\u05D4'] || s.class || ''
+        }));
+        loaded = true;
+      }
+    } catch(e) { /* fall through */ }
+
+    try {
+      const apiExams = await App.getData('מבחנים');
+      if (apiExams && apiExams.length) {
+        this._gbExams = apiExams.map((ex, i) => ({
+          id: ex.id || ('e' + (i + 1)),
+          name: ex.name || ex['\u05E9\u05DD'] || '',
+          subject: ex.subject || ex['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '',
+          date: ex.date || ex['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
+          maxScore: ex.maxScore || 100,
+          weight: ex.weight || 100
+        }));
+        loaded = true;
+      }
+    } catch(e) { /* fall through */ }
+
+    if (!loaded) {
+      // Load from localStorage or use demo data
+      const saved = localStorage.getItem(this._GB_STORAGE_KEY);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          this._gbStudents = data.students || [];
+          this._gbExams = data.exams || [];
+          this._gbGrades = data.grades || {};
+        } catch(e) {
+          this._loadDemoGradebook();
+        }
+      } else {
         this._loadDemoGradebook();
       }
-    } else {
-      this._loadDemoGradebook();
     }
 
     this._populateGbFilters();
@@ -323,6 +369,11 @@ Object.assign(Pages, {
     }
 
     this._saveGbData();
+    // Sync grade to API
+    if (val !== '') {
+      const [studentId, examId] = key.split('_');
+      try { App.apiCall('update', 'ציונים', { id: key, row: { studentId, examId, grade: val } }); } catch(e2) {}
+    }
     this.renderGradebook();
   },
 
@@ -364,16 +415,18 @@ Object.assign(Pages, {
 
     if (!name) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD \u05DE\u05D1\u05D7\u05DF', 'warning'); return; }
 
-    this._gbExams.push({
+    const newExam = {
       id: 'e' + Date.now(),
       name,
       subject,
       date,
       maxScore,
       weight
-    });
+    };
+    this._gbExams.push(newExam);
 
     this._saveGbData();
+    try { App.apiCall('add', 'מבחנים', { row: newExam }); } catch(e) {}
     this._populateGbFilters();
     this.renderGradebook();
     bootstrap.Modal.getInstance(document.getElementById('gb-exam-modal')).hide();

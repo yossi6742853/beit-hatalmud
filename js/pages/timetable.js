@@ -518,7 +518,7 @@ Object.assign(Pages, {
     warnEl.classList.add('d-none');
   },
 
-  _ttSaveLesson() {
+  async _ttSaveLesson() {
     const cell = this._ttEditingCell;
     if (!cell) return;
     const subVal = document.getElementById('ttEditSubject').value;
@@ -534,6 +534,14 @@ Object.assign(Pages, {
         room: roomVal
       };
     }
+
+    // Persist to API
+    try {
+      await App.apiCall('update', '\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA', {
+        id: `${cell.cls}_${cell.day}_${cell.period}`,
+        row: { class: cell.cls, day: cell.day, period: cell.period, lesson: this._ttSchedule[cell.cls][cell.day][cell.period] }
+      });
+    } catch (e) { /* fallback: local state already updated */ }
 
     bootstrap.Modal.getInstance(document.getElementById('ttEditModal'))?.hide();
     this._ttEditingCell = null;
@@ -585,7 +593,18 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  timetableInit() {
-    // Initialization after render if needed
+  async timetableInit() {
+    // Try API first, fall back to demo
+    try {
+      const apiData = await App.getData('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
+      if (apiData && Object.keys(apiData).length > 0) {
+        if (apiData.schedule) this._ttSchedule = apiData.schedule;
+        if (apiData.subjects) this._ttSubjects = apiData.subjects;
+        if (apiData.teachers) this._ttTeachers = apiData.teachers;
+        if (apiData.periods) this._ttPeriods = apiData.periods;
+      }
+    } catch (e) {
+      // Use demo data (already generated in timetable() render)
+    }
   }
 });
