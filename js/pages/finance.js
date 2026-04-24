@@ -1101,13 +1101,28 @@ Object.assign(Pages, {
   _pcMonthlyChart: null,
   _pcCatChart: null,
 
+  _pcUseDemo: false,
+
+  pcLoadDemo() {
+    this._pcUseDemo = true;
+    this._pcData = this._pcDemoData();
+    this.renderPc();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async pettycashInit() {
     try {
       this._pcData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
     } catch(e) {
       this._pcData = [];
     }
-    if (!this._pcData || !this._pcData.length) this._pcData = this._pcDemoData();
+    if (!this._pcData || !this._pcData.length) {
+      if (this._pcUseDemo) {
+        this._pcData = this._pcDemoData();
+      } else {
+        this._pcData = [];
+      }
+    }
     this.renderPc();
   },
 
@@ -1178,7 +1193,7 @@ Object.assign(Pages, {
 
   _renderPcTable(data, startBal) {
     if (!data.length) {
-      document.getElementById('pc-list').innerHTML = '<div class="empty-state"><i class="bi bi-cash-coin"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5></div>';
+      document.getElementById('pc-list').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-cash-coin fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4 \u05DC\u05E7\u05D5\u05E4\u05D4 \u05D4\u05E7\u05D8\u05E0\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.pcLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
       return;
     }
     let bal = startBal;
@@ -1673,10 +1688,30 @@ Object.assign(Pages, {
   _budgData: [],
   _budgEditId: null,
   _budgFilteredData: [],
+  _budgUseDemo: false,
+
+  budgLoadDemo() {
+    this._budgUseDemo = true;
+    this._budgData = this._budgDemoData();
+    this._budgFilteredData = [...this._budgData];
+    this.renderBudget();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
 
   async budgetInit() {
-    let data = await App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1');
-    if (!data || !data.length) data = this._budgDemoData();
+    let data;
+    try {
+      data = await App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1');
+    } catch(e) {
+      data = [];
+    }
+    if (!data || !data.length) {
+      if (this._budgUseDemo) {
+        data = this._budgDemoData();
+      } else {
+        data = [];
+      }
+    }
     this._budgData = data;
     this._budgFilteredData = [...data];
     this.renderBudget();
@@ -1929,7 +1964,10 @@ Object.assign(Pages, {
     document.getElementById('budg-count-badge').textContent = filtered.length + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u2022 ' + Utils.formatCurrency(filteredTotal);
 
     if (!filtered.length) {
-      document.getElementById('budg-list').innerHTML = '<div class="empty-state py-4 text-center"><i class="bi bi-wallet2 fs-1 text-muted"></i><h5 class="mt-2">\u05D0\u05D9\u05DF \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05DC\u05D4\u05E6\u05D9\u05D2</h5></div>';
+      const isReallyEmpty = !(this._budgData || []).length && !this._budgUseDemo;
+      document.getElementById('budg-list').innerHTML = isReallyEmpty
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-wallet2 fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05EA\u05E7\u05E6\u05D9\u05D1</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05D4\u05D5\u05E6\u05D0\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.budgLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state py-4 text-center"><i class="bi bi-wallet2 fs-1 text-muted"></i><h5 class="mt-2">\u05D0\u05D9\u05DF \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05DC\u05D4\u05E6\u05D9\u05D2</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05E1\u05D9\u05E0\u05D5\u05DF</p></div>';
       return;
     }
 
