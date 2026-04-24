@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v6.3-0422';
+const CACHE_VERSION = 'bht-v6.4-0422';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -62,8 +62,11 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon.svg',
-  './img/logo.svg',
-  // CDN dependencies
+  './img/logo.svg'
+];
+
+/* ─── CDN resources — cached with stale-while-revalidate ─── */
+const CDN_ASSETS = [
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
@@ -71,7 +74,7 @@ const ASSETS = [
   'https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap'
 ];
 
-/* ─── Offline fallback page (Hebrew) ─── */
+/* ─── Offline fallback page (Hebrew) with retry ─── */
 const OFFLINE_HTML = `<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -85,11 +88,20 @@ color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:cent
 .container{padding:2rem;max-width:480px}
 .icon{font-size:5rem;margin-bottom:1.5rem;animation:pulse 2s ease-in-out infinite}
 h1{font-size:1.8rem;font-weight:700;margin-bottom:1rem}
-p{font-size:1.1rem;opacity:.85;margin-bottom:2rem;line-height:1.7}
-button{background:#e94560;color:#fff;border:none;padding:.75rem 2rem;border-radius:12px;
-font-size:1rem;font-family:inherit;cursor:pointer;transition:transform .2s,box-shadow .2s}
-button:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(233,69,96,.4)}
+p{font-size:1.1rem;opacity:.85;margin-bottom:1.5rem;line-height:1.7}
+.status{font-size:.9rem;opacity:.6;margin-bottom:2rem;min-height:1.4em}
+.btn-retry{background:#e94560;color:#fff;border:none;padding:.75rem 2rem;border-radius:12px;
+font-size:1rem;font-family:inherit;cursor:pointer;transition:transform .2s,box-shadow .2s;margin:0 .5rem}
+.btn-retry:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(233,69,96,.4)}
+.btn-retry:disabled{opacity:.6;transform:none;cursor:wait}
+.btn-secondary{background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff;
+padding:.75rem 2rem;border-radius:12px;font-size:1rem;font-family:inherit;cursor:pointer;
+transition:border-color .2s}
+.btn-secondary:hover{border-color:#fff}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #fff;border-top-color:transparent;
+border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:8px}
 </style>
 </head>
 <body>
@@ -97,18 +109,66 @@ button:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(233,69,96,.4)}
 <div class="icon">\u26A0\uFE0F</div>
 <h1>\u05D0\u05D9\u05DF \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8</h1>
 <p>\u05E0\u05E8\u05D0\u05D4 \u05E9\u05D0\u05D9\u05DF \u05DC\u05DA \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8 \u05DB\u05E8\u05D2\u05E2.<br>
-\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05E2\u05D1\u05D5\u05D3 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05DB\u05E9\u05D4\u05D7\u05D9\u05D1\u05D5\u05E8 \u05D9\u05D7\u05D6\u05D5\u05E8.</p>
-<button onclick="location.reload()">\u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1</button>
+\u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05E0\u05E1\u05D4 \u05DC\u05D4\u05EA\u05D7\u05D1\u05E8 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA.</p>
+<div class="status" id="retry-status"></div>
+<div>
+<button class="btn-retry" id="btn-retry" onclick="retryConnection()">\u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1</button>
+<button class="btn-secondary" onclick="location.href='./#dashboard'">\u05E2\u05DE\u05D5\u05D3 \u05E8\u05D0\u05E9\u05D9</button>
 </div>
+</div>
+<script>
+let retryCount = 0;
+const maxRetries = 5;
+const statusEl = document.getElementById('retry-status');
+const btnEl = document.getElementById('btn-retry');
+
+// Auto-retry every 5 seconds
+let autoRetryTimer = setInterval(autoRetry, 5000);
+
+function autoRetry() {
+  retryCount++;
+  if (retryCount > maxRetries) {
+    clearInterval(autoRetryTimer);
+    statusEl.textContent = '\\u05E0\\u05DB\\u05E9\\u05DC\\u05D5 ' + maxRetries + ' \\u05E0\\u05D9\\u05E1\\u05D9\\u05D5\\u05E0\\u05D5\\u05EA. \\u05DC\\u05D7\\u05E5 \\u05E0\\u05E1\\u05D4 \\u05E9\\u05D5\\u05D1 \\u05DC\\u05E0\\u05E1\\u05D5\\u05EA \\u05E9\\u05D5\\u05D1.';
+    return;
+  }
+  statusEl.textContent = '\\u05E0\\u05D9\\u05E1\\u05D9\\u05D5\\u05DF ' + retryCount + '/' + maxRetries + '...';
+  checkOnline();
+}
+
+function retryConnection() {
+  btnEl.disabled = true;
+  btnEl.innerHTML = '\\u05DE\\u05EA\\u05D7\\u05D1\\u05E8...<span class="spinner"></span>';
+  statusEl.textContent = '\\u05D1\\u05D5\\u05D3\\u05E7 \\u05D7\\u05D9\\u05D1\\u05D5\\u05E8...';
+  retryCount = 0;
+  clearInterval(autoRetryTimer);
+  checkOnline();
+}
+
+function checkOnline() {
+  fetch('./', {cache:'no-store'}).then(r => {
+    if (r.ok) location.reload();
+    else onFail();
+  }).catch(onFail);
+}
+
+function onFail() {
+  btnEl.disabled = false;
+  btnEl.textContent = '\\u05E0\\u05E1\\u05D4 \\u05E9\\u05D5\\u05D1';
+  if (retryCount >= maxRetries) {
+    statusEl.textContent = '\\u05E2\\u05D3\\u05D9\\u05D9\\u05DF \\u05D0\\u05D9\\u05DF \\u05D7\\u05D9\\u05D1\\u05D5\\u05E8. \\u05D1\\u05D3\\u05D5\\u05E7 \\u05D0\\u05EA \\u05D4\\u05E8\\u05E9\\u05EA \\u05D5\\u05E0\\u05E1\\u05D4 \\u05E9\\u05D5\\u05D1.';
+  }
+}
+</script>
 </body>
 </html>`;
 
-/* ─── Install: pre-cache all assets + offline page ─── */
+/* ─── Install: pre-cache all assets + CDN + offline page ─── */
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(ASSETS).then(() =>
+      cache.addAll([...ASSETS, ...CDN_ASSETS]).then(() =>
         cache.put(
           new Request('/_offline'),
           new Response(OFFLINE_HTML, {
@@ -120,14 +180,19 @@ self.addEventListener('install', e => {
   );
 });
 
-/* ─── Activate: purge old caches, claim clients ─── */
+/* ─── Activate: enable navigation preload, purge old caches, claim clients ─── */
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      ))
-      .then(() => self.clients.claim())
+    (async () => {
+      // Enable navigation preload if supported
+      if (self.registration.navigationPreload) {
+        await self.registration.navigationPreload.enable();
+      }
+      // Purge old caches
+      const keys = await caches.keys();
+      await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+      await self.clients.claim();
+    })()
   );
 });
 
@@ -143,10 +208,15 @@ async function trimCache(cacheName, maxEntries) {
 }
 
 /* ─── Fetch strategies ─── */
-function isCssOrFontOrIcon(url) {
-  return /\.(css|woff2?|ttf|eot|svg|png|ico)(\?.*)?$/i.test(url) ||
+function isCdnResource(url) {
+  return url.includes('cdn.jsdelivr.net') ||
     url.includes('fonts.googleapis.com') ||
     url.includes('fonts.gstatic.com') ||
+    url.includes('cdnjs.cloudflare.com');
+}
+
+function isCssOrFontOrIcon(url) {
+  return /\.(css|woff2?|ttf|eot|svg|png|ico)(\?.*)?$/i.test(url) ||
     url.includes('bootstrap-icons');
 }
 
@@ -228,7 +298,13 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // CSS, fonts, icons, images: cache-first (rarely change)
+  // CDN resources: stale-while-revalidate (serve fast, update in background)
+  if (isCdnResource(url)) {
+    e.respondWith(staleWhileRevalidate(e.request));
+    return;
+  }
+
+  // CSS, fonts, icons, images (local): cache-first (rarely change)
   if (isCssOrFontOrIcon(url)) {
     e.respondWith(cacheFirst(e.request));
     return;
@@ -239,20 +315,29 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       networkFirst(e.request).then(resp => {
         if (resp) return resp;
-        // JS not available at all: return offline page if navigating
         return caches.match('/_offline');
       })
     );
     return;
   }
 
-  // HTML / navigation: stale-while-revalidate
+  // HTML / navigation: use navigation preload if available, stale-while-revalidate fallback
   if (isHtmlFile(e.request)) {
     e.respondWith(
-      staleWhileRevalidate(e.request).then(resp => {
+      (async () => {
+        // Try navigation preload response first
+        const preloadResp = e.preloadResponse ? await e.preloadResponse : null;
+        if (preloadResp) {
+          // Cache the preloaded response
+          const clone = preloadResp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+          return preloadResp;
+        }
+        // Fall back to stale-while-revalidate
+        const resp = await staleWhileRevalidate(e.request);
         if (resp) return resp;
         return caches.match('/_offline');
-      })
+      })()
     );
     return;
   }

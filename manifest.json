@@ -1,15 +1,43 @@
 {
   "name": "בית התלמוד - מערכת ניהול",
   "short_name": "בית התלמוד",
-  "description": "מערכת ניהול מוסד חינוכי",
+  "description": "מערכת ניהול מוסד חינוכי — תלמידים, נוכחות, כספים, ציונים ועוד",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#2563eb",
   "dir": "rtl",
   "lang": "he",
+  "categories": ["education", "productivity", "business"],
   "icons": [
     {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"}
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {
+      "name": "לוח בקרה",
+      "short_name": "דשבורד",
+      "url": "./#dashboard",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "תלמידים",
+      "short_name": "תלמידים",
+      "url": "./#students",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "נוכחות",
+      "short_name": "נוכחות",
+      "url": "./#attendance",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "כספים",
+      "short_name": "כספים",
+      "url": "./#finance",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    }
   ]
 }

@@ -86,6 +86,7 @@ const App = {
     try { this.loadNotifications(); } catch(e) {}
     try { this.updateNotifBadgeFromStorage(); } catch(e) {}
     try { this.updateSyncStatus(); } catch(e) {}
+    try { this._startPreload(); } catch(e) {}
   },
 
   startSessionTimer() {
@@ -202,15 +203,20 @@ const App = {
     this.trackRecentPage(page);
     const content = document.getElementById('main-content');
 
-    // Render page
-    if (Pages[page]) {
-      content.innerHTML = '<div class="fade-in">' + Pages[page](param) + '</div>';
-      if (Pages[page + 'Init']) {
-        Pages[page + 'Init'](param);
+    // Show skeleton loader while page renders
+    content.innerHTML = this._skeletonHTML();
+
+    // Render page (use requestAnimationFrame so skeleton paints first)
+    requestAnimationFrame(() => {
+      if (Pages[page]) {
+        content.innerHTML = '<div class="fade-in">' + Pages[page](param) + '</div>';
+        if (Pages[page + 'Init']) {
+          Pages[page + 'Init'](param);
+        }
+      } else {
+        content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
       }
-    } else {
-      content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
-    }
+    });
   },
 
   /* ==============================
@@ -1147,6 +1153,80 @@ const App = {
     el.style.opacity = '1';
     clearTimeout(this._saveTimeout);
     this._saveTimeout = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  },
+
+  /* ==============================
+     SKELETON LOADER
+     ============================== */
+  _skeletonHTML() {
+    const bar = (w, h = '16px', mb = '12px') =>
+      `<div style="background:var(--bs-tertiary-bg,#e9ecef);border-radius:6px;width:${w};height:${h};margin-bottom:${mb};animation:bht-sk-pulse 1.2s ease-in-out infinite"></div>`;
+    return `
+      <div class="p-3" aria-busy="true" aria-label="\u05D8\u05D5\u05E2\u05DF...">
+        ${bar('45%','28px','20px')}
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">${bar('100%','90px','0')}</div>
+          <div class="col-md-3">${bar('100%','90px','0')}</div>
+          <div class="col-md-3">${bar('100%','90px','0')}</div>
+          <div class="col-md-3">${bar('100%','90px','0')}</div>
+        </div>
+        ${bar('100%','200px','16px')}
+        ${bar('80%')}${bar('60%')}${bar('90%')}
+      </div>
+      <style>
+        @keyframes bht-sk-pulse{0%,100%{opacity:.45}50%{opacity:.85}}
+      </style>`;
+  },
+
+  /* ==============================
+     LAZY DATA LOADING
+     ============================== */
+  /**
+   * Lazily fetch sheet data only when a page needs it.
+   * Returns cached data instantly if available, otherwise fetches.
+   * Pages should call: const data = await App.lazyLoad('students');
+   */
+  async lazyLoad(sheet) {
+    const cacheKey = this.CACHE_PREFIX + sheet;
+    const cached = this.getCache(cacheKey);
+    if (cached) return cached;
+    return this.fetchSheet(sheet);
+  },
+
+  /**
+   * Preload common pages' data in the background after login.
+   * Call once after showApp to warm the cache without blocking UI.
+   */
+  _preloadQueue: ['dashboard', 'students', 'attendance', 'finance', 'staff'],
+  _preloaded: false,
+
+  preloadPage(name) {
+    // Map page names to their primary sheet(s)
+    const pageSheets = {
+      dashboard: ['_stats'],
+      students: ['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'],
+      attendance: ['\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'],
+      finance: ['\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'],
+      staff: ['\u05E6\u05D5\u05D5\u05EA'],
+    };
+    const sheets = pageSheets[name];
+    if (!sheets) return;
+    sheets.forEach(s => {
+      if (s === '_stats') {
+        this.fetchStats().catch(() => {});
+      } else {
+        this.fetchSheet(s).catch(() => {});
+      }
+    });
+  },
+
+  _startPreload() {
+    if (this._preloaded) return;
+    this._preloaded = true;
+    // Stagger preloads so we don't flood the network
+    this._preloadQueue.forEach((page, i) => {
+      setTimeout(() => this.preloadPage(page), 2000 + i * 1500);
+    });
   },
 };
 
