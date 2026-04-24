@@ -4,61 +4,11 @@ Object.assign(Pages, {
      ACADEMICS — Full Exam & Grade Management
      ====================================================================== */
 
-  /* --- Demo data --- */
-  _acaDemoStudents: [
-    {'\u05DE\u05D6\u05D4\u05D4':'s1','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D9\u05D5\u05E1\u05E3','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s2','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05DE\u05E9\u05D4','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DC\u05D5\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s3','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D0\u05D1\u05E8\u05D4\u05DD','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D9\u05E6\u05D7\u05E7\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s4','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D9\u05E2\u05E7\u05D1','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s5','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D3\u05D5\u05D3','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05E4\u05D9\u05E8\u05D0','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s6','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05E9\u05DE\u05D5\u05D0\u05DC','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05D6\u05D5\u05DC\u05D0\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s7','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D0\u05DC\u05D9\u05D4\u05D5','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05DF \u05D3\u05D5\u05D3','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s8','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05E0\u05EA\u05E0\u05D0\u05DC','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s9','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D7\u05D9\u05D9\u05DD','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E8\u05D1\u05D9\u05E0\u05D5\u05D1\u05D9\u05E5','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s10','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D0\u05E8\u05D9\u05D4','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s11','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05E8\u05E4\u05D0\u05DC','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'},
-    {'\u05DE\u05D6\u05D4\u05D4':'s12','\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05D8\u05E8\u05E0\u05D1\u05E8\u05D2','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC'}
-  ],
-  _acaDemoExams: [
-    {'\u05DE\u05D6\u05D4\u05D4':'e1','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D2\u05DE\u05E8\u05D0 \u05D0','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D2\u05DE\u05E8\u05D0','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-03-15','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e2','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05D0','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D7\u05D5\u05DE\u05E9','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-03-20','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e3','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D4\u05DC\u05DB\u05D4 \u05D0','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D4\u05DC\u05DB\u05D4','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-04-01','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e4','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05E0"\u05DA \u05D0','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05E0"\u05DA','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-04-10','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e5','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D2\u05DE\u05E8\u05D0 \u05D1','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D2\u05DE\u05E8\u05D0','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-03-18','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e6','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05D1','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D7\u05D5\u05DE\u05E9','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-03-25','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e7','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05D4\u05DC\u05DB\u05D4 \u05D1','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05D4\u05DC\u05DB\u05D4','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-04-05','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D4\u05D5\u05E9\u05DC\u05DD'},
-    {'\u05DE\u05D6\u05D4\u05D4':'e8','\u05E9\u05DD':'\u05DE\u05D1\u05D7\u05DF \u05E0"\u05DA \u05D1','\u05DE\u05E7\u05E6\u05D5\u05E2':'\u05E0"\u05DA','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05D0\u05E8\u05D9\u05DA':'2026-04-15','\u05E0\u05D9\u05E7\u05D5\u05D3_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9':'100','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}
-  ],
+  /* --- Demo data (lightweight, generated on demand) --- */
+  _acaDemoStudents: [],
+  _acaDemoExams: [],
   _acaDemoGrades: null,
-  _getAcaDemoGrades() {
-    if (this._acaDemoGrades) return this._acaDemoGrades;
-    // Generate grades: 12 students x 8 exams
-    const grades = [];
-    const scoreMap = {
-      's1':  [92,88,95,90,0,0,0,0], 's2':  [78,65,72,0,0,0,0,0], 's3':  [85,91,88,82,0,0,0,0],
-      's4':  [60,55,48,0,0,0,0,0], 's5':  [0,0,0,0,88,92,85,78], 's6':  [0,0,0,0,72,68,75,0],
-      's7':  [0,0,0,0,95,90,98,92], 's8':  [0,0,0,0,58,62,55,0], 's9':  [70,82,76,68,0,0,0,0],
-      's10': [98,95,100,94,0,0,0,0], 's11': [0,0,0,0,80,85,78,82], 's12': [0,0,0,0,45,50,42,0]
-    };
-    const examIds = ['e1','e2','e3','e4','e5','e6','e7','e8'];
-    Object.keys(scoreMap).forEach(sid => {
-      const st = this._acaDemoStudents.find(s => s['\u05DE\u05D6\u05D4\u05D4'] === sid);
-      scoreMap[sid].forEach((score, i) => {
-        if (score > 0) {
-          grades.push({
-            '\u05DE\u05D6\u05D4\u05D4': 'g_' + sid + '_' + examIds[i],
-            '\u05DE\u05D1\u05D7\u05DF_\u05DE\u05D6\u05D4\u05D4': examIds[i],
-            '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': sid,
-            '\u05E9\u05DD': st ? Utils.fullName(st) : sid,
-            '\u05E6\u05D9\u05D5\u05DF': String(score),
-            '\u05D4\u05E2\u05E8\u05D5\u05EA': ''
-          });
-        }
-      });
-    });
-    this._acaDemoGrades = grades;
-    return grades;
-  },
+  _getAcaDemoGrades() { return this._acaDemoGrades || []; },
 
   /* --- Page render --- */
   academics() {
@@ -905,28 +855,7 @@ Object.assign(Pages, {
      ====================================================================== */
 
   /* --- Demo data: 20 students with composite scores --- */
-  _rankDemoStudents: [
-    {id:'r1',  name:'\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF',       cls:'\u05D0', att:96, gradeAvg:92, behPts:18, prevRank:2},
-    {id:'r2',  name:'\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9',        cls:'\u05D0', att:88, gradeAvg:78, behPts:12, prevRank:4},
-    {id:'r3',  name:'\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',  cls:'\u05D0', att:94, gradeAvg:87, behPts:15, prevRank:1},
-    {id:'r4',  name:'\u05D9\u05E2\u05E7\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',   cls:'\u05D0', att:72, gradeAvg:55, behPts:4,  prevRank:12},
-    {id:'r5',  name:'\u05D3\u05D5\u05D3 \u05E9\u05E4\u05D9\u05E8\u05D0',      cls:'\u05D1', att:91, gradeAvg:85, behPts:14, prevRank:5},
-    {id:'r6',  name:'\u05E9\u05DE\u05D5\u05D0\u05DC \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9',   cls:'\u05D1', att:82, gradeAvg:71, behPts:8,  prevRank:9},
-    {id:'r7',  name:'\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D1\u05DF \u05D3\u05D5\u05D3',   cls:'\u05D1', att:98, gradeAvg:95, behPts:20, prevRank:3},
-    {id:'r8',  name:'\u05E0\u05EA\u05E0\u05D0\u05DC \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2',  cls:'\u05D1', att:68, gradeAvg:58, behPts:3,  prevRank:15},
-    {id:'r9',  name:'\u05D7\u05D9\u05D9\u05DD \u05E8\u05D1\u05D9\u05E0\u05D5\u05D1\u05D9\u05E5', cls:'\u05D0', att:90, gradeAvg:76, behPts:11, prevRank:6},
-    {id:'r10', name:'\u05D0\u05E8\u05D9\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF', cls:'\u05D0', att:99, gradeAvg:98, behPts:19, prevRank:1},
-    {id:'r11', name:'\u05E8\u05E4\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5', cls:'\u05D1', att:85, gradeAvg:80, behPts:13, prevRank:7},
-    {id:'r12', name:'\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF \u05E9\u05D8\u05E8\u05E0\u05D1\u05E8\u05D2', cls:'\u05D1', att:70, gradeAvg:48, behPts:2,  prevRank:18},
-    {id:'r13', name:'\u05D9\u05E9\u05E8\u05D0\u05DC \u05D0\u05D3\u05DC\u05E8',    cls:'\u05D0', att:93, gradeAvg:84, behPts:16, prevRank:8},
-    {id:'r14', name:'\u05DE\u05E0\u05D7\u05DD \u05D4\u05D5\u05E8\u05D5\u05D1\u05D9\u05E5',  cls:'\u05D1', att:87, gradeAvg:73, behPts:10, prevRank:10},
-    {id:'r15', name:'\u05E2\u05DE\u05D9\u05EA\u05D9 \u05E4\u05E8\u05DC',     cls:'\u05D0', att:78, gradeAvg:62, behPts:6,  prevRank:14},
-    {id:'r16', name:'\u05D0\u05D9\u05EA\u05DF \u05D3\u05D4\u05DF',       cls:'\u05D1', att:95, gradeAvg:90, behPts:17, prevRank:4},
-    {id:'r17', name:'\u05E0\u05D7\u05DE\u05DF \u05D1\u05D5\u05D8\u05E8\u05D0\u05E9\u05D5\u05D9\u05DC\u05D9', cls:'\u05D0', att:80, gradeAvg:68, behPts:7, prevRank:11},
-    {id:'r18', name:'\u05D3\u05E0\u05D9\u05D0\u05DC \u05D5\u05D9\u05E0\u05E8',    cls:'\u05D1', att:75, gradeAvg:60, behPts:5,  prevRank:16},
-    {id:'r19', name:'\u05D0\u05D4\u05E8\u05DF \u05DE\u05D6\u05E8\u05D7\u05D9',   cls:'\u05D0', att:92, gradeAvg:88, behPts:15, prevRank:6},
-    {id:'r20', name:'\u05E9\u05DC\u05DE\u05D4 \u05D1\u05E8\u05D2\u05E8',    cls:'\u05D1', att:65, gradeAvg:45, behPts:1,  prevRank:20}
-  ],
+  _rankDemoStudents: [],
 
   _rankUseDemo: false,
   _rankActiveTab: 'overall',
@@ -1313,85 +1242,12 @@ Object.assign(Pages, {
      ====================================================================== */
 
   /* --- Demo data for campaigns --- */
-  _mvzDemoCampaigns: [
-    {
-      id: 'c1', name: '\u05DE\u05D1\u05E6\u05E2 \u05D2\u05DE\u05E8\u05D0 \u05EA\u05E9\u05E4"\u05D5',
-      subject: '\u05D2\u05DE\u05E8\u05D0', targetPages: 120, startDate: '2026-03-01', endDate: '2026-05-15',
-      prize: '\u05E1\u05E4\u05E8 \u05E7\u05D5\u05D3\u05E9 + \u05D8\u05D9\u05D5\u05DC \u05DC\u05DE\u05D9\u05E8\u05D5\u05DF',
-      status: '\u05E4\u05E2\u05D9\u05DC'
-    },
-    {
-      id: 'c2', name: '\u05DE\u05D1\u05E6\u05E2 \u05DE\u05E9\u05E0\u05D9\u05D5\u05EA \u05EA\u05E9\u05E4"\u05D5',
-      subject: '\u05DE\u05E9\u05E0\u05D9\u05D5\u05EA', targetPages: 60, startDate: '2025-10-01', endDate: '2026-01-15',
-      prize: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05E6\u05D8\u05D9\u05D9\u05E0\u05D5\u05EA',
-      status: '\u05D4\u05D5\u05E9\u05DC\u05DD'
-    },
-    {
-      id: 'c3', name: '\u05DE\u05D1\u05E6\u05E2 \u05D4\u05DC\u05DB\u05D4 \u05EA\u05E9\u05E4"\u05D5',
-      subject: '\u05D4\u05DC\u05DB\u05D4', targetPages: 80, startDate: '2025-06-01', endDate: '2025-09-01',
-      prize: '\u05E9\u05D5\u05D1\u05E8 \u05DE\u05EA\u05E0\u05D4',
-      status: '\u05D4\u05D5\u05E9\u05DC\u05DD'
-    }
-  ],
+  _mvzDemoCampaigns: [],
 
-  _mvzDemoStudentNames: [
-    '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',
-    '\u05D9\u05E2\u05E7\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05D3\u05D5\u05D3 \u05E9\u05E4\u05D9\u05E8\u05D0', '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D0\u05D6\u05D5\u05DC\u05D0\u05D9',
-    '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D1\u05DF \u05D3\u05D5\u05D3', '\u05E0\u05EA\u05E0\u05D0\u05DC \u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2',
-    '\u05D7\u05D9\u05D9\u05DD \u05E8\u05D1\u05D9\u05E0\u05D5\u05D1\u05D9\u05E5', '\u05D0\u05E8\u05D9\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF',
-    '\u05E8\u05E4\u05D0\u05DC \u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5', '\u05D1\u05E0\u05D9\u05DE\u05D9\u05DF \u05E9\u05D8\u05E8\u05E0\u05D1\u05E8\u05D2',
-    '\u05E2\u05DE\u05D9\u05EA\u05D9 \u05D4\u05DC\u05D5\u05D9', '\u05D9\u05D4\u05D5\u05D3\u05D4 \u05D2\u05E8\u05D9\u05E0\u05D1\u05E8\u05D2',
-    '\u05E0\u05D7\u05DE\u05DF \u05E4\u05DC\u05D3\u05DE\u05DF'
-  ],
+  _mvzDemoStudentNames: [],
 
   _mvzDemoProgress: null,
-  _getMvzDemoProgress() {
-    if (this._mvzDemoProgress) return this._mvzDemoProgress;
-    const names = this._mvzDemoStudentNames;
-    const progress = [];
-    // Active campaign c1: 15 students with varying pages completed
-    const c1Pages = [98, 87, 75, 72, 68, 65, 55, 50, 48, 42, 38, 35, 28, 22, 15];
-    // Daily log entries spread over last 45 days
-    names.forEach((name, i) => {
-      const totalPages = c1Pages[i];
-      // Create 5-8 log entries per student
-      const entries = Math.floor(Math.random() * 4) + 5;
-      const pagesPerEntry = Math.ceil(totalPages / entries);
-      let remaining = totalPages;
-      for (let e = 0; e < entries && remaining > 0; e++) {
-        const pg = Math.min(pagesPerEntry + Math.floor(Math.random() * 4) - 2, remaining);
-        const daysAgo = Math.floor((entries - e) * (45 / entries));
-        const d = new Date(); d.setDate(d.getDate() - daysAgo);
-        progress.push({
-          id: `p_c1_${i}_${e}`,
-          campaignId: 'c1',
-          studentName: name,
-          pages: Math.max(1, pg),
-          date: d.toISOString().slice(0, 10),
-          note: ''
-        });
-        remaining -= Math.max(1, pg);
-      }
-    });
-    // Past campaign c2: completed results
-    const c2Pages = [60, 58, 55, 52, 48, 45, 42, 38, 35, 30, 28, 25, 20, 15, 10];
-    names.forEach((name, i) => {
-      progress.push({
-        id: `p_c2_${i}`, campaignId: 'c2', studentName: name,
-        pages: c2Pages[i], date: '2026-01-10', note: ''
-      });
-    });
-    // Past campaign c3
-    const c3Pages = [80, 76, 70, 65, 60, 55, 50, 45, 40, 35, 30, 25, 20, 15, 8];
-    names.forEach((name, i) => {
-      progress.push({
-        id: `p_c3_${i}`, campaignId: 'c3', studentName: name,
-        pages: c3Pages[i], date: '2025-08-25', note: ''
-      });
-    });
-    this._mvzDemoProgress = progress;
-    return progress;
-  },
+  _getMvzDemoProgress() { return this._mvzDemoProgress || []; },
 
   _mvzData: [],
   _mvzCampaigns: [],
@@ -2087,7 +1943,7 @@ Object.assign(Pages, {
     try { students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'); } catch(e) { students = []; }
     const names = students.length
       ? students.map(s => Utils.fullName(s))
-      : this._mvzDemoStudentNames;
+      : [];
     document.getElementById('mvf-log-student').innerHTML =
       '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' +
       names.map(n => `<option value="${n}">${n}</option>`).join('');
