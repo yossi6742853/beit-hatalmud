@@ -13,6 +13,25 @@ const App = {
   FAVORITES_KEY: 'bht_favorite_pages',
   USE_API: true, // true = real data from Apps Script, false = demo fallback
 
+  /* ---- Sheet name mapping ----
+     Maps module sheet names that don't exist yet to existing sheets,
+     or marks them for auto-creation. */
+  SHEET_MAP: {
+    // Modules that map to existing sheets
+    '\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8': '\u05D4\u05D5\u05E8\u05D9\u05DD',           // אנשי_קשר → הורים
+    '\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3': '\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD', // מסמכי_תלמיד → קבצים_מצורפים
+    '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA_\u05E6\u05D5\u05D5\u05EA': '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', // נוכחות_צוות → נוכחות
+    '\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD': '\u05E6\u05D5\u05D5\u05EA',                   // משתמשים → צוות
+    '\u05D7\u05D3\u05E8\u05D9\u05DD': '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA',                   // חדרים → מסגרות
+    '\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA': '\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA', // התראות → יומן_פעילות
+    '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8': '\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA' // שיעורי_עזר → מערכת_שעות
+    // Sheets that need auto-creation (not in map = will be created on demand):
+    // ספריה, רכוש, לוח_מודעות, הסעות, תפריט, חירום, טפסים, הצבעות, פרסים, תעודות
+  },
+
+  /* Set of sheets we already attempted to auto-create this session */
+  _createdSheets: new Set(),
+
   currentPage: null,
   charts: {},
   _sessionTimerInterval: null,
@@ -248,8 +267,27 @@ const App = {
     }
   },
 
+  /* Resolve sheet name through SHEET_MAP */
+  _resolveSheet(sheet) {
+    return this.SHEET_MAP[sheet] || sheet;
+  },
+
+  /* Ensure a sheet exists in the spreadsheet — creates it if needed */
+  async ensureSheet(name) {
+    if (this._createdSheets.has(name)) return;
+    try {
+      await this.apiCall('createSheet', name, {});
+      this._createdSheets.add(name);
+    } catch(e) {
+      // Sheet may already exist — that's fine
+      this._createdSheets.add(name);
+    }
+  },
+
   async fetchSheet(sheet, forceRefresh = false) {
-    const cacheKey = this.CACHE_PREFIX + sheet;
+    // Resolve mapped sheet name
+    const resolvedSheet = this._resolveSheet(sheet);
+    const cacheKey = this.CACHE_PREFIX + resolvedSheet;
 
     // Check cache
     if (!forceRefresh) {
@@ -259,19 +297,37 @@ const App = {
 
     this._showLoadingBar();
     try {
-      const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(sheet)}&token=${this.API_TOKEN}`;
+      const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(resolvedSheet)}&token=${this.API_TOKEN}`;
       const resp = await fetch(url);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const json = await resp.json();
 
-      if (json.error) throw new Error(json.error);
+      if (json.error) {
+        // Auto-create sheet if not found
+        if (json.error.toLowerCase().includes('not found') || json.error.includes('\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0')) {
+          console.warn(`Sheet "${resolvedSheet}" not found — creating automatically`);
+          await this.ensureSheet(resolvedSheet);
+          // Retry once after creation
+          const retry = await fetch(url);
+          if (retry.ok) {
+            const retryJson = await retry.json();
+            if (!retryJson.error) {
+              const data = retryJson.data || [];
+              this.setCache(cacheKey, data);
+              return data;
+            }
+          }
+          return [];
+        }
+        throw new Error(json.error);
+      }
       const data = json.data || [];
 
       // Cache it
       this.setCache(cacheKey, data);
       return data;
     } catch (err) {
-      console.error('fetchSheet error:', sheet, err);
+      console.error('fetchSheet error:', resolvedSheet, err);
       // Return cached even if expired
       const stale = localStorage.getItem(cacheKey);
       if (stale) {
@@ -286,9 +342,11 @@ const App = {
   async apiCall(action, sheet, data = {}) {
     try {
       const url = `${this.API_URL}`;
+      // Resolve sheet name through SHEET_MAP (skip for createSheet action)
+      const resolvedSheet = action === 'createSheet' ? sheet : this._resolveSheet(sheet);
       // Map action names to API actions: add -> api_add, update -> api_update, delete -> api_delete
       const apiAction = 'api_' + action;
-      const body = { action: apiAction, sheet, token: this.API_TOKEN, ...data };
+      const body = { action: apiAction, sheet: resolvedSheet, token: this.API_TOKEN, ...data };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -315,7 +373,7 @@ const App = {
       }
 
       // Invalidate cache for this sheet
-      localStorage.removeItem(this.CACHE_PREFIX + sheet);
+      localStorage.removeItem(this.CACHE_PREFIX + resolvedSheet);
 
       return result;
     } catch (err) {
