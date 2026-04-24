@@ -162,9 +162,9 @@ Object.assign(Pages, {
     this._acaGrades = grades;
     this._acaStudents = students;
 
-    // If no data and not explicitly using demo, auto-enable demo
-    if (!exams.length && !grades.length) {
-      this._acaUseDemo = true;
+    // Only use demo if explicitly toggled by user — never auto-enable
+    if (!this._acaUseDemo) {
+      this._acaUseDemo = false;
     }
     this._acaApplyData();
     this._acaPopulateFilters();
@@ -259,7 +259,10 @@ Object.assign(Pages, {
 
     // Exam list
     if (!filtered.length) {
-      document.getElementById('aca-list').innerHTML = '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</h5></div>';
+      const isReallyEmpty = !exams.length && !this._acaUseDemo;
+      document.getElementById('aca-list').innerHTML = isReallyEmpty
+        ? '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05DE\u05D1\u05D7\u05DF \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.acaToggleDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</h5></div>';
       return;
     }
 
@@ -925,7 +928,7 @@ Object.assign(Pages, {
     {id:'r20', name:'\u05E9\u05DC\u05DE\u05D4 \u05D1\u05E8\u05D2\u05E8',    cls:'\u05D1', att:65, gradeAvg:45, behPts:1,  prevRank:20}
   ],
 
-  _rankUseDemo: true,
+  _rankUseDemo: false,
   _rankActiveTab: 'overall',
   _rankChart: null,
 
@@ -990,11 +993,17 @@ Object.assign(Pages, {
   async rankingsInit() {
     // Update demo toggle text
     const btn = document.getElementById('rank-demo-btn');
-    if (btn) btn.textContent = this._rankUseDemo ? '\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5' : '\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D7\u05D9\u05D9\u05DD';
+    if (btn) btn.textContent = this._rankUseDemo ? '\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D0\u05DE\u05D9\u05EA\u05D9\u05D9\u05DD' : '\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5';
 
     // Load live data if not demo
     if (!this._rankUseDemo) {
       await this._rankLoadLiveData();
+      // Show empty state if no live data
+      if (!this._rankLiveStudents || !this._rankLiveStudents.length) {
+        const tableEl = document.getElementById('rank-table');
+        if (tableEl) tableEl.innerHTML = '<div class="empty-state"><i class="bi bi-trophy"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages._rankUseDemo=true;Pages.rankingsInit();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
+        return;
+      }
     }
 
     this._rankActiveTab = 'overall';
@@ -1551,20 +1560,51 @@ Object.assign(Pages, {
     </div>`;
   },
 
+  _mvzUseDemo: false,
+
+  mvzLoadDemo() {
+    this._mvzUseDemo = true;
+    this._mvzCampaigns = [...this._mvzDemoCampaigns];
+    this._mvzProgress = this._getMvzDemoProgress();
+    this.renderMvzStats();
+    this.renderMvzActiveTab();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async mivtzaInit() {
-    // Try loading from API, fallback to demo
+    this._mvzActiveTab = 'active';
+    // Try loading from API
     try {
       const data = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
       if (data && data.length) {
         this._mvzData = data;
+        this._mvzCampaigns = data;
+        this._mvzProgress = [];
+        try {
+          const prog = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA');
+          if (prog && prog.length) this._mvzProgress = prog;
+        } catch(e) {}
+        this.renderMvzStats();
+        this.renderMvzActiveTab();
+        return;
       }
-    } catch(e) { /* use demo */ }
-    // Load demo data
-    this._mvzCampaigns = [...this._mvzDemoCampaigns];
-    this._mvzProgress = this._getMvzDemoProgress();
-    this._mvzActiveTab = 'active';
+    } catch(e) { /* no data */ }
+
+    // If demo was previously toggled, keep it
+    if (this._mvzUseDemo) {
+      this._mvzCampaigns = [...this._mvzDemoCampaigns];
+      this._mvzProgress = this._getMvzDemoProgress();
+      this.renderMvzStats();
+      this.renderMvzActiveTab();
+      return;
+    }
+
+    // Empty state — no data, no demo
+    this._mvzCampaigns = [];
+    this._mvzProgress = [];
     this.renderMvzStats();
-    this.renderMvzActiveTab();
+    const tabEl = document.getElementById('mvz-tab-active');
+    if (tabEl) tabEl.innerHTML = '<div class="empty-state"><i class="bi bi-award"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05E6\u05D5\u05E8 \u05DE\u05D1\u05E6\u05E2 \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.mvzLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
   },
 
   mvzSwitchTab(tab, event) {

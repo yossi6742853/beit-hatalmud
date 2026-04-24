@@ -145,15 +145,28 @@ Object.assign(Pages, {
     `;
   },
 
+  _parUseDemo: false,
+
+  parLoadDemo() {
+    this._parUseDemo = true;
+    this._parData = this._parDemoParents;
+    this._parStudents = this._parDemoStudents;
+    this._parCommLog = this._parDemoCommLog;
+    this._parMeetings = this._parDemoMeetings;
+    this._parRenderStats();
+    this.renderParents();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async parentsInit() {
     const [parents, students] = await Promise.all([
       App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => []),
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => [])
     ]);
-    this._parData = parents.length ? parents : this._parDemoParents;
-    this._parStudents = students.length ? students : this._parDemoStudents;
-    this._parCommLog = this._parDemoCommLog;
-    this._parMeetings = this._parDemoMeetings;
+    this._parData = parents.length ? parents : (this._parUseDemo ? this._parDemoParents : []);
+    this._parStudents = students.length ? students : (this._parUseDemo ? this._parDemoStudents : []);
+    this._parCommLog = parents.length ? [] : (this._parUseDemo ? this._parDemoCommLog : []);
+    this._parMeetings = parents.length ? [] : (this._parUseDemo ? this._parDemoMeetings : []);
     this._parTab = 'cards';
     this._parSearch = '';
     this._parFilterClass = '';
@@ -262,7 +275,10 @@ Object.assign(Pages, {
   /* --- CARDS VIEW --- */
   _parRenderCards(el, filtered) {
     if (!filtered.length) {
-      el.innerHTML = '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>';
+      const isReallyEmpty = !this._parData.length && !this._parUseDemo;
+      el.innerHTML = isReallyEmpty
+        ? '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.parLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-house-heart"></i><h5>\u05D0\u05D9\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</h5></div>';
       return;
     }
     el.innerHTML = `<div class="row g-3">${filtered.map(p => {
@@ -689,16 +705,16 @@ Object.assign(Pages, {
       App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => []),
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => [])
     ]);
-    const allParents = parents.length ? parents : this._parDemoParents;
-    const allStudents = students.length ? students : this._parDemoStudents;
+    const allParents = parents.length ? parents : (this._parUseDemo ? this._parDemoParents : []);
+    const allStudents = students.length ? students : (this._parUseDemo ? this._parDemoStudents : []);
     const p = allParents.find(x => String(x.id || Utils.rowId(x)) === String(id));
     if (!p) { document.getElementById('parent-card-content').innerHTML = '<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05D4\u05D5\u05E8\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5></div>'; return; }
 
     const family = p['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '';
     const children = allStudents.filter(s => (s['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === family);
     const familyParents = allParents.filter(x => (x['\u05DE\u05E9\u05E4\u05D7\u05D4'] || '') === family && x !== p);
-    const commLogs = this._parDemoCommLog.filter(c => c['\u05D4\u05D5\u05E8\u05D4_id'] == id);
-    const meetings = this._parDemoMeetings.filter(m => m['\u05D4\u05D5\u05E8\u05D4_id'] == id);
+    const commLogs = (this._parCommLog || this._parDemoCommLog || []).filter(c => c['\u05D4\u05D5\u05E8\u05D4_id'] == id);
+    const meetings = (this._parMeetings || this._parDemoMeetings || []).filter(m => m['\u05D4\u05D5\u05E8\u05D4_id'] == id);
     const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
     const cleanPhone = phone.replace(/[-\s]/g, '').replace(/^0/, '972');
     const statusBadge = (p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC'
@@ -910,6 +926,20 @@ Object.assign(Pages, {
     {'\u05E9\u05DD':'\u05E4\u05E0\u05D9\u05E0\u05D4 \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF','\u05E7\u05E9\u05E8':'\u05D0\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF':'054-1113322','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'penina.l@example.com','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05EA\u05DC\u05DE\u05D9\u05D3':'\u05D0\u05DC\u05D9\u05E7\u05D9\u05DD \u05DC\u05D5\u05D9\u05E0\u05E9\u05D8\u05D9\u05D9\u05DF'}
   ],
 
+  _commUseDemo: false,
+
+  commLoadDemo() {
+    this._commUseDemo = true;
+    this._commData = this._commDemoMessages;
+    this._commParents = this._commDemoContacts;
+    const classSet = new Set();
+    this._commDemoContacts.forEach(c => { if (c['\u05DB\u05D9\u05EA\u05D4']) classSet.add(c['\u05DB\u05D9\u05EA\u05D4']); });
+    this._commClasses = [...classSet].sort();
+    this._renderCommStats();
+    this.renderComm();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   /* --- Init --- */
   async communicationsInit() {
     const [commData, students, parents] = await Promise.all([
@@ -917,13 +947,13 @@ Object.assign(Pages, {
       App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
       App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => [])
     ]);
-    this._commData = commData.length ? commData : this._commDemoMessages;
+    this._commData = commData.length ? commData : (this._commUseDemo ? this._commDemoMessages : []);
     this._commStudents = students;
-    this._commParents = parents.length ? parents : this._commDemoContacts;
+    this._commParents = parents.length ? parents : (this._commUseDemo ? this._commDemoContacts : []);
     // Build class list
     const classSet = new Set();
     students.forEach(s => { if (s['\u05DB\u05D9\u05EA\u05D4']) classSet.add(s['\u05DB\u05D9\u05EA\u05D4']); });
-    if (!classSet.size) this._commDemoContacts.forEach(c => { if (c['\u05DB\u05D9\u05EA\u05D4']) classSet.add(c['\u05DB\u05D9\u05EA\u05D4']); });
+    if (!classSet.size && this._commUseDemo) this._commDemoContacts.forEach(c => { if (c['\u05DB\u05D9\u05EA\u05D4']) classSet.add(c['\u05DB\u05D9\u05EA\u05D4']); });
     this._commClasses = [...classSet].sort();
     this._commSelectedClasses = new Set();
     this._commSelectedIndividuals = new Set();
@@ -983,6 +1013,11 @@ Object.assign(Pages, {
       a.classList.toggle('active', a.dataset.commTab === this._commTab);
     });
     const el = document.getElementById('comm-content');
+    // Show empty state if no data at all and not demo
+    if (!this._commData.length && !this._commParents.length && !this._commUseDemo) {
+      el.innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.commLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
     if (this._commTab === 'compose') this._renderCommCompose(el);
     else if (this._commTab === 'templates') this._renderCommTemplates(el);
     else if (this._commTab === 'history') this._renderCommHistory(el);

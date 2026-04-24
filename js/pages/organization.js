@@ -223,10 +223,10 @@ Object.assign(Pages, {
       }
     });
     classes = Object.values(classMap);
-    if (!classes.length) classes = this._orgDemoClasses;
+    // Don't auto-load demo classes — show zero if no data
 
     // Statistics
-    const totalStudents = activeStudents.length || this._orgDemoClasses.reduce((s, c) => s + c.students, 0);
+    const totalStudents = activeStudents.length || (classes.length ? classes.reduce((s, c) => s + (c.students||0), 0) : 0);
     const totalClasses = classes.length;
     const totalStaff = activeStaff.length || 8;
     const totalBudget = budget.reduce((s, b) => s + (parseFloat(b['\u05E1\u05DB\u05D5\u05DD'] || b['\u05EA\u05E7\u05E6\u05D9\u05D1'] || 0)), 0);
@@ -264,7 +264,7 @@ Object.assign(Pages, {
     }).join('');
 
     // Render committees
-    const commData = committees.length ? committees : this._commDemoCommittees;
+    const commData = committees.length ? committees : [];
     document.getElementById('org-comm-count').textContent = commData.length;
     if (!commData.length) {
       document.getElementById('org-committees-list').innerHTML = '<div class="p-3 text-center text-muted">\u05D0\u05D9\u05DF \u05D5\u05E2\u05D3\u05D5\u05EA</div>';
@@ -309,8 +309,11 @@ Object.assign(Pages, {
       }).join('') + '</div>';
     }
 
-    // Render contacts
-    const contacts = this._orgDemoContacts;
+    // Render contacts (use saved or show empty)
+    const contacts = (App.store?.orgContacts) || [];
+    if (!contacts.length) {
+      document.getElementById('org-contacts-list').innerHTML = '<div class="p-3 text-center text-muted">\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</div>';
+    } else {
     document.getElementById('org-contacts-list').innerHTML = '<div class="list-group list-group-flush">' + contacts.map(c => {
       return `<div class="list-group-item">
         <div class="d-flex align-items-center gap-2 mb-1">
@@ -326,6 +329,7 @@ Object.assign(Pages, {
         </div>
       </div>`;
     }).join('') + '</div>';
+    }
 
     Utils.toast('\u05D0\u05E8\u05D2\u05D5\u05DF \u05E0\u05D8\u05E2\u05DF');
   },
@@ -535,10 +539,20 @@ Object.assign(Pages, {
   _taskData: [],
   _taskFilteredData: null,
 
+  _taskUseDemo: false,
+
+  taskLoadDemo() {
+    this._taskUseDemo = true;
+    this._taskData = this._getDemoTasks();
+    this._taskFilteredData = null;
+    this.filterTasks();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async tasksInit() {
     this._taskData = await App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []);
-    // If no data at all, seed with demo tasks
-    if (!this._taskData || this._taskData.length === 0) {
+    // Only use demo if explicitly toggled by user
+    if ((!this._taskData || this._taskData.length === 0) && this._taskUseDemo) {
       this._taskData = this._getDemoTasks();
     }
     this._taskFilteredData = null;
@@ -589,6 +603,13 @@ Object.assign(Pages, {
     const data = this._taskFilteredData || this._taskData || [];
     const allData = this._taskData || [];
     const today = Utils.todayISO();
+
+    // Empty state when no data
+    if (!allData.length && !this._taskUseDemo) {
+      const boardEl = document.getElementById('task-board');
+      if (boardEl) boardEl.innerHTML = '<div class="empty-state"><i class="bi bi-kanban"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05DE\u05E9\u05D9\u05DE\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.taskLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
 
     // Build columns
     const cols = { '\u05D7\u05D3\u05E9':[], '\u05D1\u05EA\u05D4\u05DC\u05D9\u05DA':[], '\u05D4\u05D5\u05E9\u05DC\u05DD':[] };
@@ -1053,11 +1074,20 @@ Object.assign(Pages, {
     });
   },
 
+  _calUseDemo: false,
+
+  calLoadDemo() {
+    this._calUseDemo = true;
+    this._calEvents = this._calDemoEvents;
+    this.renderCalView();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async loadCalendar() {
     let serverEvents = [];
-    try { serverEvents = await App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4'); } catch(e) { /* use demo */ }
-    // Merge server events with demo data (demo only if server is empty)
-    this._calEvents = serverEvents.length ? serverEvents : this._calDemoEvents;
+    try { serverEvents = await App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4'); } catch(e) { /* no data */ }
+    // Use API data if available, otherwise demo only if explicitly toggled
+    this._calEvents = serverEvents.length ? serverEvents : (this._calUseDemo ? this._calDemoEvents : []);
     this.renderCalView();
   },
 
@@ -1090,6 +1120,12 @@ Object.assign(Pages, {
 
     // Hide day panel
     document.getElementById('cal-day-panel')?.classList.add('d-none');
+
+    // Show empty state notice if no events and not demo
+    if (!this._calEvents.length && !this._calUseDemo) {
+      const upcoming = document.getElementById('cal-upcoming');
+      if (upcoming) upcoming.innerHTML = '<div class="text-center py-4"><i class="bi bi-calendar-x fs-1 text-muted d-block mb-2"></i><h6>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h6><a href="#" class="btn btn-sm btn-outline-secondary mt-1" onclick="Pages.calLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
+    }
   },
 
   _updateCalStats() {
@@ -1643,9 +1679,19 @@ Object.assign(Pages, {
   _requiredStudentDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9','\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E6\u05D9\u05DC\u05D5\u05DD','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC'],
   _requiredStaffDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05EA\u05E2\u05D5\u05D3\u05EA \u05D4\u05D5\u05E8\u05D0\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05DE\u05E9\u05D8\u05E8\u05D4','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9'],
 
-  async documentsInit() {
-    // Ensure demo data exists
+  _docsUseDemo: false,
+
+  docsLoadDemo() {
+    this._docsUseDemo = true;
     this._ensureDemoData();
+    this._localDocs = this._getLocalDocs();
+    this.renderDocs();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
+  async documentsInit() {
+    // Only seed demo data if user explicitly requested it
+    if (this._docsUseDemo) this._ensureDemoData();
 
     const [docs, students, staff] = await Promise.all([
       App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(()=>[]),
@@ -2399,14 +2445,24 @@ Object.assign(Pages, {
     `;
   },
 
+  _commtUseDemo: false,
+
+  commtLoadDemo() {
+    this._commtUseDemo = true;
+    this._commtData = this._commDemoCommittees;
+    this._commMeetings = this._commDemoMeetings;
+    this.renderCommittees();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async committeesInit() {
     try {
       const raw = await App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA');
-      this._commtData = raw && raw.length ? raw : this._commDemoCommittees;
+      this._commtData = raw && raw.length ? raw : (this._commtUseDemo ? this._commDemoCommittees : []);
     } catch(e) {
-      this._commtData = this._commDemoCommittees;
+      this._commtData = this._commtUseDemo ? this._commDemoCommittees : [];
     }
-    this._commMeetings = this._commDemoMeetings;
+    this._commMeetings = this._commtData.length ? [] : (this._commtUseDemo ? this._commDemoMeetings : []);
     this.renderCommittees();
   },
 
@@ -2421,10 +2477,17 @@ Object.assign(Pages, {
   },
 
   renderCommittees() {
-    const data = this._commtData;
+    const data = this._commtData || [];
     const filter = this._commFilter;
     const filtered = filter ? data.filter(c => (c.status || '\u05E4\u05E2\u05D9\u05DC') === filter) : data;
     const today = Utils.todayISO();
+
+    // Empty state
+    if (!data.length && !this._commtUseDemo) {
+      const el = document.getElementById('comm-list');
+      if (el) el.innerHTML = '<div class="empty-state"><i class="bi bi-people"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05D5\u05E2\u05D3\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.commtLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
 
     // Stats
     const active = data.filter(c => (c.status || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC').length;
@@ -2978,9 +3041,20 @@ Object.assign(Pages, {
   _tripView: 'cards',
   _tripParticipants: {},
 
+  _tripUseDemo: false,
+
+  tripLoadDemo() {
+    this._tripUseDemo = true;
+    this._tripData = this._tripDemoData;
+    this._updateTripStats();
+    this.renderTrips();
+    this._renderTripBudget();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async tripsInit() {
     let data = await App.getData('\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD');
-    if (!data || !data.length) data = this._tripDemoData;
+    if (!data || !data.length) data = this._tripUseDemo ? this._tripDemoData : [];
     this._tripData = data;
     this._updateTripStats();
     this.renderTrips();
@@ -3041,7 +3115,10 @@ Object.assign(Pages, {
     if (!container) return;
 
     if (!data.length) {
-      container.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-geo-alt fs-1 text-muted"></i><h5 class="mt-3">\u05D0\u05D9\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p></div>';
+      const isReallyEmpty = !this._tripData.length && !this._tripUseDemo;
+      container.innerHTML = isReallyEmpty
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-geo-alt fs-1 text-muted"></i><h5 class="mt-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05D8\u05D9\u05D5\u05DC \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.tripLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state text-center py-5"><i class="bi bi-geo-alt fs-1 text-muted"></i><h5 class="mt-3">\u05D0\u05D9\u05DF \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p></div>';
       return;
     }
 
@@ -3573,10 +3650,19 @@ Object.assign(Pages, {
   },
   _instData: [],
   _instEditId: null,
+  _instUseDemo: false,
+
+  instLoadDemo() {
+    this._instUseDemo = true;
+    this._instData = this._instDemoData;
+    this.renderInst();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async institutionsInit() {
     let data = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
     if (!data || !data.length) {
-      data = this._instDemoData;
+      data = this._instUseDemo ? this._instDemoData : [];
     }
     this._instData = data;
     document.getElementById('inst-search').addEventListener('input', Utils.debounce(() => this.renderInst(), 200));
@@ -3618,7 +3704,10 @@ Object.assign(Pages, {
       : `\u05DE\u05E6\u05D9\u05D2 ${data.length} \u05DE\u05EA\u05D5\u05DA ${allData.length}`;
 
     if (!data.length) {
-      document.getElementById('inst-list').innerHTML = '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</p></div>';
+      const isReallyEmpty = !allData.length && !this._instUseDemo;
+      document.getElementById('inst-list').innerHTML = isReallyEmpty
+        ? '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.instLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</p></div>';
       return;
     }
 

@@ -104,7 +104,7 @@ Object.assign(Pages, {
   },
 
   _mealsGenerateShoppingList() {
-    this._mealsGenerateDemo();
+    if (!this._mealsDemoMenu) return new Map();
     const allIngredients = new Map();
     const menu = this._mealsDemoMenu;
 
@@ -129,7 +129,22 @@ Object.assign(Pages, {
      RENDER
      ====================================================================== */
   meals() {
-    this._mealsGenerateDemo();
+    // Only generate demo if explicitly using demo mode
+    if (this._mealsUseDemo && !this._mealsDemoMenu) this._mealsGenerateDemo();
+
+    // Empty state if no menu data at all
+    if (!this._mealsDemoMenu) {
+      return `
+      <div class="page-header d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0"><i class="bi bi-egg-fried me-2"></i>ניהול ארוחות</h1>
+      </div>
+      <div class="empty-state text-center py-5">
+        <i class="bi bi-egg-fried fs-1 text-muted d-block mb-2"></i>
+        <h5>אין נתונים עדיין – הוסף תפריט ראשון</h5>
+        <a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.mealsLoadDemo();return false"><i class="bi bi-database me-1"></i>טען נתוני דמו</a>
+      </div>`;
+    }
+
     const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי'];
     const slots = ['breakfast','lunch','snack'];
     const todayIdx = this._mealsTodayIndex();
@@ -346,19 +361,44 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  async mealsInit() {
-    this._mealsGenerateDemo();
+  _mealsUseDemo: false,
 
-    // Try API first, then localStorage, fall back to demo
+  mealsLoadDemo() {
+    this._mealsUseDemo = true;
+    this._mealsGenerateDemo();
+    this._mealsDemoMenu = null; // Force regeneration
+    this._mealsGenerateDemo();
+    App.navigate('meals'); // Re-render page
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
+  async mealsInit() {
+    // Try API first, then localStorage
+    let hasData = false;
     try {
       const apiData = await App.getData('\u05EA\u05E4\u05E8\u05D9\u05D8');
       if (apiData && Object.keys(apiData).length > 0) {
         this._mealsDemoMenu = apiData;
-      } else {
-        this._mealsLoadFromStorage();
+        hasData = true;
       }
-    } catch (e) {
-      this._mealsLoadFromStorage();
+    } catch (e) { /* no API data */ }
+
+    if (!hasData) {
+      // Try localStorage
+      const saved = localStorage.getItem('bht_meals_menu');
+      if (saved) {
+        try {
+          this._mealsDemoMenu = JSON.parse(saved);
+          hasData = true;
+        } catch(e) {}
+      }
+    }
+
+    if (!hasData && this._mealsUseDemo) {
+      this._mealsGenerateDemo();
+    } else if (!hasData) {
+      // No data at all — show will render with null menu
+      this._mealsDemoMenu = null;
     }
 
     this._mealsEditMode = false;
@@ -375,8 +415,9 @@ Object.assign(Pages, {
   _mealsLoadFromStorage() {
     const saved = localStorage.getItem('bht_meals_menu');
     if (saved) {
-      try { this._mealsDemoMenu = JSON.parse(saved); } catch (e) { /* use demo default */ }
+      try { this._mealsDemoMenu = JSON.parse(saved); return true; } catch (e) { /* no data */ }
     }
+    return false;
   },
 
   _mealsSaveToStorage() {
@@ -558,7 +599,7 @@ Object.assign(Pages, {
   _mealsShowRestrictions() {
     const body = document.getElementById('restrictionsBody');
     if (!body) return;
-    const restrictions = this._mealsDemoRestrictions;
+    const restrictions = this._mealsDemoRestrictions || [];
 
     body.innerHTML = `
     <div class="alert alert-warning d-flex align-items-center mb-3">

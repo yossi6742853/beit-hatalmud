@@ -58,18 +58,26 @@ Object.assign(Pages, {
 
   /* ---- Get emails for current folder ---- */
   _getEmailsForFolder(folder) {
+    // Use API data if available, else demo if toggled, else empty
+    const hasApi = this._emailApiInbox.length > 0 || this._emailApiSent.length > 0;
+    const useDemo = !hasApi && this._emailUseDemo;
     switch(folder) {
-      case 'SENT': return this._demoSent;
-      case 'DRAFT': return this._demoDrafts;
-      case 'STARRED': return [...this._demoInbox, ...this._demoSent].filter(e => this._emailStarred.has(e.id));
+      case 'SENT': return hasApi ? this._emailApiSent : (useDemo ? this._demoSent : []);
+      case 'DRAFT': return hasApi ? this._emailApiDrafts : (useDemo ? this._demoDrafts : []);
+      case 'STARRED': {
+        const inbox = hasApi ? this._emailApiInbox : (useDemo ? this._demoInbox : []);
+        const sent = hasApi ? this._emailApiSent : (useDemo ? this._demoSent : []);
+        return [...inbox, ...sent].filter(e => this._emailStarred.has(e.id));
+      }
       case 'TRASH': return [];
-      default: return this._demoInbox;
+      default: return hasApi ? this._emailApiInbox : (useDemo ? this._demoInbox : []);
     }
   },
 
   /* ---- Unread count ---- */
   _emailUnreadCount() {
-    return this._demoInbox.filter(e => !this._emailRead.has(e.id)).length;
+    const inbox = this._getEmailsForFolder('INBOX');
+    return inbox.filter(e => !this._emailRead.has(e.id)).length;
   },
 
   /* ================================================================
@@ -253,6 +261,18 @@ Object.assign(Pages, {
       </div>`;
   },
 
+  _emailUseDemo: false,
+  _emailApiInbox: [],
+  _emailApiSent: [],
+  _emailApiDrafts: [],
+
+  emailLoadDemo() {
+    this._emailUseDemo = true;
+    this._emailRenderList();
+    this._emailUpdateStats();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   /* ================================================================
      INIT
      ================================================================ */
@@ -260,6 +280,17 @@ Object.assign(Pages, {
     this._emailFolder = 'INBOX';
     this._emailSelected = new Set();
     this._emailSearchQuery = '';
+
+    // Try loading real email data from API
+    try {
+      const data = await App.getData('\u05D3\u05D5\u05D0\u05E8');
+      if (data && data.length) {
+        this._emailApiInbox = data.filter(e => !e.folder || e.folder === 'INBOX');
+        this._emailApiSent = data.filter(e => e.folder === 'SENT');
+        this._emailApiDrafts = data.filter(e => e.folder === 'DRAFT');
+      }
+    } catch(e) { /* no API data */ }
+
     this.emailLoadFolder('INBOX');
   },
 
@@ -321,8 +352,14 @@ Object.assign(Pages, {
     const list = document.getElementById('email-list');
     if (!emails.length) {
       const emptyIcon = this._emailFolder === 'TRASH' ? 'bi-trash3' : 'bi-inbox';
-      const emptyText = this._emailFolder === 'TRASH' ? '\u05D0\u05E9\u05E4\u05D4 \u05E8\u05D9\u05E7\u05D4' : q ? '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA' : '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA';
-      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${emptyIcon} fs-1 d-block mb-2"></i><h6>${emptyText}</h6></div>`;
+      const hasNoData = !this._emailApiInbox.length && !this._emailUseDemo;
+      let emptyText;
+      if (this._emailFolder === 'TRASH') emptyText = '\u05D0\u05E9\u05E4\u05D4 \u05E8\u05D9\u05E7\u05D4';
+      else if (q) emptyText = '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA';
+      else if (hasNoData) emptyText = '\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF';
+      else emptyText = '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA';
+      const demoLink = hasNoData && this._emailFolder !== 'TRASH' ? '<br><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.emailLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a>' : '';
+      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${emptyIcon} fs-1 d-block mb-2"></i><h6>${emptyText}</h6>${demoLink}</div>`;
       return;
     }
 
@@ -386,7 +423,7 @@ Object.assign(Pages, {
   emailViewDetail(id) {
     // Mark as read
     this._emailRead.add(id);
-    const allEmails = [...this._demoInbox, ...this._demoSent, ...this._demoDrafts];
+    const allEmails = [...this._getEmailsForFolder('INBOX'), ...this._getEmailsForFolder('SENT'), ...this._getEmailsForFolder('DRAFT')];
     const email = allEmails.find(e => e.id === id);
     if (!email) return;
 
@@ -618,7 +655,7 @@ Object.assign(Pages, {
   },
 
   emailForward(subject, id) {
-    const allEmails = [...this._demoInbox, ...this._demoSent, ...this._demoDrafts];
+    const allEmails = [...this._getEmailsForFolder('INBOX'), ...this._getEmailsForFolder('SENT'), ...this._getEmailsForFolder('DRAFT')];
     const email = allEmails.find(e => e.id === id);
     document.getElementById('compose-to').value = '';
     document.getElementById('compose-cc').value = '';
@@ -700,11 +737,14 @@ Object.assign(Pages, {
     const inboxCountEl = document.getElementById('inbox-count');
     const starredCountEl = document.getElementById('starred-count');
 
+    const inbox = this._getEmailsForFolder('INBOX');
+    const sent = this._getEmailsForFolder('SENT');
+    const drafts = this._getEmailsForFolder('DRAFT');
     const unread = this._emailUnreadCount();
-    if (totalEl) totalEl.textContent = this._demoInbox.length;
+    if (totalEl) totalEl.textContent = inbox.length;
     if (unreadEl) unreadEl.textContent = unread;
-    if (sentEl) sentEl.textContent = this._demoSent.filter(e => e.date === new Date().toLocaleDateString('he-IL') || e.date === '22/04/2026').length;
-    if (draftsEl) draftsEl.textContent = this._demoDrafts.length;
+    if (sentEl) sentEl.textContent = sent.filter(e => e.date === new Date().toLocaleDateString('he-IL') || e.date === '22/04/2026').length;
+    if (draftsEl) draftsEl.textContent = drafts.length;
     if (inboxCountEl) inboxCountEl.textContent = unread || '';
     if (starredCountEl) starredCountEl.textContent = this._emailStarred.size;
   }
