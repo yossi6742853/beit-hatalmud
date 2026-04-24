@@ -1,5 +1,107 @@
 /* ===== BHT v5.6 — Admin ===== */
 Object.assign(Pages, {
+
+  /* ======================================================================
+     DEMO FLAGS
+     ====================================================================== */
+  _rptUseDemo: false,
+  _umUseDemo: false,
+  _logUseDemo: false,
+  _phoneUseDemo: false,
+
+  rptLoadDemo() {
+    this._rptUseDemo = true;
+    this.loadReport(document.querySelector('#rpt-tabs .nav-link.active')?.dataset?.rpt || 'overview');
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5 \u05DC\u05D3\u05D5\u05D7\u05D5\u05EA', 'info');
+  },
+  umLoadDemo() {
+    this._umUseDemo = true;
+    this._umData = this._umDemoData();
+    this.renderUsers();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5 \u05DC\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD', 'info');
+  },
+  logLoadDemo() {
+    this._logUseDemo = true;
+    this._logData = this._logDemoData();
+    this.renderLog();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5 \u05DC\u05D9\u05D5\u05DE\u05DF', 'info');
+  },
+  phoneLoadDemo() {
+    this._phoneUseDemo = true;
+    this.phoneInit();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5 \u05DC\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8', 'info');
+  },
+
+  /* Demo data generators */
+  _rptDemoStudents() {
+    return [
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D9\u05D5\u05E1\u05E3','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DB\u05D4\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d1'},
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05DE\u05E9\u05D4','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05DC\u05D5\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D0','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d2'},
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D3\u05D5\u05D3','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d3'},
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D0\u05D1\u05E8\u05D4\u05DD','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D1','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d4'},
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05D9\u05E2\u05E7\u05D1','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05E9\u05D8\u05E8\u05DF','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d5'},
+      {'\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9':'\u05E9\u05DE\u05D5\u05D0\u05DC','\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4':'\u05D1\u05E8\u05D2\u05E8','\u05DB\u05D9\u05EA\u05D4':'\u05D2','\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC','\u05DE\u05D6\u05D4\u05D4':'d6'}
+    ];
+  },
+  _rptDemoAtt() {
+    const statuses = ['\u05E0\u05D5\u05DB\u05D7','\u05E0\u05D5\u05DB\u05D7','\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'];
+    const names = ['\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF','\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9','\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05D9\u05E2\u05E7\u05D1 \u05E9\u05D8\u05E8\u05DF'];
+    const data = [];
+    for (let d = 14; d >= 0; d--) {
+      const dt = new Date(); dt.setDate(dt.getDate()-d);
+      const dateStr = dt.toISOString().slice(0,10);
+      names.forEach(n => data.push({'\u05E9\u05DD':n,'\u05EA\u05DC\u05DE\u05D9\u05D3':n,'\u05EA\u05D0\u05E8\u05D9\u05DA':dateStr,'\u05E1\u05D8\u05D8\u05D5\u05E1':statuses[Math.floor(Math.random()*statuses.length)]}));
+    }
+    return data;
+  },
+  _rptDemoFin() {
+    const months = ['2025-09','2025-10','2025-11','2025-12','2026-01','2026-02'];
+    const data = [];
+    ['\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF','\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9','\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05D9\u05E2\u05E7\u05D1 \u05E9\u05D8\u05E8\u05DF'].forEach(n => {
+      months.forEach(m => data.push({'\u05EA\u05DC\u05DE\u05D9\u05D3':n,'\u05D7\u05D5\u05D3\u05E9':m,'\u05E1\u05DB\u05D5\u05DD':1500,'\u05E1\u05D8\u05D8\u05D5\u05E1':Math.random()>0.3?'\u05E9\u05D5\u05DC\u05DD':'\u05D7\u05D5\u05D1'}));
+    });
+    return data;
+  },
+  _rptDemoBeh() {
+    const types = ['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'];
+    const names = ['\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF','\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9','\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05D9\u05E2\u05E7\u05D1 \u05E9\u05D8\u05E8\u05DF'];
+    return Array.from({length:30}, (_,i) => ({'\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3':names[i%names.length],'\u05E9\u05DD':names[i%names.length],'\u05EA\u05DC\u05DE\u05D9\u05D3':names[i%names.length],'\u05E1\u05D5\u05D2':types[Math.floor(Math.random()*types.length)]}));
+  },
+  _umDemoData() {
+    return [
+      {'\u05E9\u05DD':'\u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'admin@bht.org','\u05EA\u05E4\u05E7\u05D9\u05D3':'admin','PIN':'1234','\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4':'22/04/2026 09:30','\u05DE\u05D6\u05D4\u05D4':'demo1'},
+      {'\u05E9\u05DD':'\u05E8\u05D1\u05E7\u05D4 \u05DB\u05D4\u05DF','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'rivka@bht.org','\u05EA\u05E4\u05E7\u05D9\u05D3':'secretary','PIN':'5678','\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4':'22/04/2026 08:15','\u05DE\u05D6\u05D4\u05D4':'demo2'},
+      {'\u05E9\u05DD':'\u05D0\u05D1\u05E8\u05D4\u05DD \u05DC\u05D5\u05D9','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'avraham@bht.org','\u05EA\u05E4\u05E7\u05D9\u05D3':'teacher','PIN':'9012','\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4':'21/04/2026 14:00','\u05DE\u05D6\u05D4\u05D4':'demo3'},
+      {'\u05E9\u05DD':'\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'david@parent.com','\u05EA\u05E4\u05E7\u05D9\u05D3':'parent','PIN':'3456','\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4':'20/04/2026 18:00','\u05DE\u05D6\u05D4\u05D4':'demo4'},
+      {'\u05E9\u05DD':'\u05E9\u05E8\u05D4 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC':'sara@parent.com','\u05EA\u05E4\u05E7\u05D9\u05D3':'parent','PIN':'7890','\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4':'19/04/2026 16:30','\u05DE\u05D6\u05D4\u05D4':'demo5'}
+    ];
+  },
+  _logDemoData() {
+    const actions = [
+      {'\u05E1\u05D5\u05D2':'\u05D4\u05D5\u05E1\u05E4\u05D4','\u05D9\u05E9\u05D5\u05EA':'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E0\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D7\u05D3\u05E9: \u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF'},
+      {'\u05E1\u05D5\u05D2':'\u05E2\u05D3\u05DB\u05D5\u05DF','\u05D9\u05E9\u05D5\u05EA':'\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E1\u05D5\u05DE\u05E0\u05D4 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DC\u05DB\u05D9\u05EA\u05D4 \u05D0'},
+      {'\u05E1\u05D5\u05D2':'\u05DE\u05D7\u05D9\u05E7\u05D4','\u05D9\u05E9\u05D5\u05EA':'\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05DE\u05E9\u05D9\u05DE\u05D4 "\u05D4\u05D6\u05DE\u05E0\u05EA \u05E1\u05E4\u05E8\u05D9\u05DD" \u05D4\u05D5\u05E9\u05DC\u05DE\u05D4'},
+      {'\u05E1\u05D5\u05D2':'\u05DB\u05E0\u05D9\u05E1\u05D4','\u05D9\u05E9\u05D5\u05EA':'\u05DE\u05E2\u05E8\u05DB\u05EA','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05DB\u05E0\u05D9\u05E1\u05EA \u05DE\u05E0\u05D4\u05DC: admin@bht.org'},
+      {'\u05E1\u05D5\u05D2':'\u05E2\u05D3\u05DB\u05D5\u05DF','\u05D9\u05E9\u05D5\u05EA':'\u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E2\u05D5\u05D3\u05DB\u05DF \u05EA\u05E9\u05DC\u05D5\u05DD \u05DC\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9'},
+      {'\u05E1\u05D5\u05D2':'\u05D4\u05D5\u05E1\u05E4\u05D4','\u05D9\u05E9\u05D5\u05EA':'\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E0\u05E8\u05E9\u05DD \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D7\u05D9\u05D5\u05D1\u05D9 \u05DC\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9'},
+      {'\u05E1\u05D5\u05D2':'\u05E2\u05D3\u05DB\u05D5\u05DF','\u05D9\u05E9\u05D5\u05EA':'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E2\u05D5\u05D3\u05DB\u05E0\u05D5 \u05E4\u05E8\u05D8\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3: \u05D0\u05D1\u05E8\u05D4\u05DD \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF'},
+      {'\u05E1\u05D5\u05D2':'\u05D4\u05D5\u05E1\u05E4\u05D4','\u05D9\u05E9\u05D5\u05EA':'\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA','\u05E4\u05E2\u05D5\u05DC\u05D4':'\u05E0\u05D5\u05E1\u05E3 \u05E9\u05D9\u05E2\u05D5\u05E8: \u05D2\u05DE\u05E8\u05D0 \u05D3\u05E3 \u05DC\u05D7'}
+    ];
+    const today = new Date();
+    return actions.map((a, i) => {
+      const dt = new Date(today); dt.setHours(9+i, i*7%60);
+      return {...a, '\u05EA\u05D0\u05E8\u05D9\u05DA': today.toISOString().slice(0,10), '\u05E9\u05E2\u05D4': dt.toTimeString().slice(0,5)};
+    });
+  },
+  _phoneDemoContacts() {
+    return [
+      {name:'\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9',phone:'052-1234567',role:'\u05E8\u05D0\u05E9 \u05DE\u05D5\u05E1\u05D3'},
+      {name:'\u05D0\u05D1\u05E8\u05D4\u05DD \u05DC\u05D5\u05D9',phone:'053-7654321',role:'\u05DE\u05DC\u05DE\u05D3'},
+      {name:'\u05E8\u05D1\u05E7\u05D4 \u05DB\u05D4\u05DF',phone:'054-9876543',role:'\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA'},
+      {name:'\u05D3\u05D5\u05D3 \u05D9\u05E9\u05E8\u05D0\u05DC\u05D9',phone:'050-1112233',role:'\u05DE\u05DC\u05DE\u05D3'},
+      {name:'\u05DE\u05E9\u05D4 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',phone:'058-4445566',role:'\u05E1\u05D2\u05DF \u05DE\u05E0\u05D4\u05DC'}
+    ];
+  },
   /* ======================================================================
      REPORTS
      ====================================================================== */
@@ -35,12 +137,24 @@ Object.assign(Pages, {
     const c = document.getElementById('rpt-content');
     c.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
 
-    const [students, att, fin, beh] = await Promise.all([
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
-      App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
-      App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
-      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])
-    ]);
+    let students, att, fin, beh;
+    if (this._rptUseDemo) {
+      students = this._rptDemoStudents();
+      att = this._rptDemoAtt();
+      fin = this._rptDemoFin();
+      beh = this._rptDemoBeh();
+    } else {
+      [students, att, fin, beh] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
+        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
+        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
+        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])
+      ]);
+    }
+    if (!this._rptUseDemo && !students.length && !att.length && !fin.length && !beh.length) {
+      c.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-file-earmark-bar-graph fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05D3\u05D5\u05D7\u05D5\u05EA</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D3\u05D5\u05D7\u05D5\u05EA</p><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.rptLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
+      return;
+    }
     const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
 
     if (type === 'overview') {
@@ -547,9 +661,18 @@ Object.assign(Pages, {
     return `<div class="page-header"><h1><i class="bi bi-telephone-fill me-2"></i>\u05D8\u05DC\u05E4\u05D5\u05DF</h1></div><div class="row g-4"><div class="col-md-5"><div class="card p-3"><div class="dialer-display" id="dial-display">${num}</div><div class="dialer-grid">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(d=>`<button class="dialer-btn" onclick="Pages.dialPress('${d}')">${d}</button>`).join('')}</div><div class="d-flex gap-2 justify-content-center mt-2"><button class="dialer-btn dialer-delete" onclick="Pages.dialBackspace()"><i class="bi bi-backspace"></i></button><button class="dialer-btn dialer-call" onclick="Pages.makeCall()"><i class="bi bi-telephone-fill"></i></button><button class="dialer-btn" onclick="Pages.dialClear()" style="color:var(--bht-danger,#dc3545)"><i class="bi bi-x-lg"></i></button></div></div></div><div class="col-md-7"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</h6><div id="phone-contacts">\u05D8\u05D5\u05E2\u05DF...</div></div></div></div>`;
   },
   async phoneInit() {
-    const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
-    const contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
-    document.getElementById('phone-contacts').innerHTML = contacts.length ? contacts.map(c=>`<div class="d-flex align-items-center gap-3 py-2 border-bottom clickable" onclick="Pages.quickDial('${c.phone}')">${Utils.avatarHTML(c.name,'sm')}<div class="flex-grow-1"><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.role}</small></div><small dir="ltr">${Utils.formatPhone(c.phone)}</small></div>`).join('') : '<div class="text-muted text-center">\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</div>';
+    let contacts;
+    if (this._phoneUseDemo) {
+      contacts = this._phoneDemoContacts();
+    } else {
+      try {
+        const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
+        contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
+      } catch(e) {
+        contacts = [];
+      }
+    }
+    document.getElementById('phone-contacts').innerHTML = contacts.length ? contacts.map(c=>`<div class="d-flex align-items-center gap-3 py-2 border-bottom clickable" onclick="Pages.quickDial('${c.phone}')">${Utils.avatarHTML(c.name,'sm')}<div class="flex-grow-1"><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.role}</small></div><small dir="ltr">${Utils.formatPhone(c.phone)}</small></div>`).join('') : '<div class="text-center text-muted py-4"><i class="bi bi-telephone fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.phoneLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
   },
   dialPress(d) { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'')+d; },
   dialBackspace() { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'').slice(0,-1); },
@@ -1005,7 +1128,16 @@ Object.assign(Pages, {
   },
   _umData: [],
   async user_managementInit() {
-    this._umData = await App.getData('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
+    if (this._umUseDemo) {
+      this._umData = this._umDemoData();
+    } else {
+      try {
+        const apiData = await App.getData('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
+        this._umData = (apiData && apiData.length) ? apiData : [];
+      } catch(e) {
+        this._umData = [];
+      }
+    }
     this.renderUsers();
     document.getElementById('um-search')?.addEventListener('input', Utils.debounce(() => this.renderUsers(), 200));
   },
@@ -1026,7 +1158,7 @@ Object.assign(Pages, {
     const roleLabels = {admin:'\u05DE\u05E0\u05D4\u05DC',secretary:'\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA',teacher:'\u05DE\u05DC\u05DE\u05D3',parent:'\u05D4\u05D5\u05E8\u05D4'};
     const roleColors = {admin:'danger',secretary:'primary',teacher:'success',parent:'warning'};
     const roleIcons = {admin:'bi-shield-fill',secretary:'bi-person-workspace',teacher:'bi-person-video3',parent:'bi-house-heart'};
-    if (!data.length) { document.getElementById('um-list').innerHTML = '<div class="empty-state"><i class="bi bi-shield-lock"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h5></div>'; return; }
+    if (!data.length) { document.getElementById('um-list').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-shield-lock fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA</p><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.umLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>'; return; }
     document.getElementById('um-list').innerHTML = `<div class="card"><table class="table table-bht mb-0"><thead><tr><th></th><th>\u05E9\u05DD</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>PIN</th><th>\u05DB\u05E0\u05D9\u05E1\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead><tbody>${data.map(u => {
       const role = u['\u05EA\u05E4\u05E7\u05D9\u05D3']||'teacher';
       const name = u['\u05E9\u05DD']||u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'';
@@ -1106,7 +1238,16 @@ Object.assign(Pages, {
   },
   _logData: [],
   async activity_logInit() {
-    this._logData = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
+    if (this._logUseDemo) {
+      this._logData = this._logDemoData();
+    } else {
+      try {
+        const apiData = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
+        this._logData = (apiData && apiData.length) ? apiData : [];
+      } catch(e) {
+        this._logData = [];
+      }
+    }
     document.getElementById('log-date').value = Utils.todayISO();
     document.getElementById('log-date').addEventListener('change', () => this.renderLog());
     document.getElementById('log-search').addEventListener('input', Utils.debounce(() => this.renderLog(), 200));
@@ -1120,7 +1261,7 @@ Object.assign(Pages, {
       if (search && !(r['\u05E4\u05E2\u05D5\u05DC\u05D4']||'').toLowerCase().includes(search) && !(r['\u05D9\u05E9\u05D5\u05EA']||'').toLowerCase().includes(search)) return false;
       return true;
     }).slice().reverse();
-    if (!filtered.length) { document.getElementById('log-list').innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h5></div>'; return; }
+    if (!filtered.length) { document.getElementById('log-list').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-clock-history fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h5><p class="text-muted">\u05D0\u05D9\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA \u05DC\u05D4\u05E6\u05D9\u05D2</p><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.logLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>'; return; }
     const typeIcons = {'\u05D4\u05D5\u05E1\u05E4\u05D4':'plus-circle','\u05E2\u05D3\u05DB\u05D5\u05DF':'pencil','\u05DE\u05D7\u05D9\u05E7\u05D4':'trash','\u05DB\u05E0\u05D9\u05E1\u05D4':'box-arrow-in-right'};
     const typeColors = {'\u05D4\u05D5\u05E1\u05E4\u05D4':'success','\u05E2\u05D3\u05DB\u05D5\u05DF':'primary','\u05DE\u05D7\u05D9\u05E7\u05D4':'danger','\u05DB\u05E0\u05D9\u05E1\u05D4':'info'};
     document.getElementById('log-list').innerHTML = `<div class="card p-3">${filtered.slice(0,100).map(r => {

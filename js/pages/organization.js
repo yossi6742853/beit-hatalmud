@@ -1451,20 +1451,41 @@ Object.assign(Pages, {
 
 
   /* ======================================================================
-     DOCUMENTS — Comprehensive Document Management System v2
-     Student folders, categories, bulk upload, localStorage metadata, demo data
+     DOCUMENTS — Comprehensive Filing & Cataloging System v3
+     4-tab interface: students, parents, staff, general
+     Cross-referencing, required checklists, expiry tracking
      ====================================================================== */
 
-  // Document categories with icons and colors
+  // ── Document type definitions per entity ──
   _docCategories: {
-    '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA': { label: '\u05EA.\u05D6\u05D4\u05D5\u05EA / \u05D3\u05E8\u05DB\u05D5\u05DF', icon: 'bi-person-vcard', color: 'primary', required: true },
-    '\u05E8\u05E4\u05D5\u05D0\u05D9': { label: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9', icon: 'bi-heart-pulse', color: 'danger', required: false },
-    '\u05D4\u05E8\u05E9\u05DE\u05D4': { label: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', icon: 'bi-pencil-square', color: 'success', required: true },
-    '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA': { label: '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA / \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD', icon: 'bi-award', color: 'warning', required: false },
-    '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA': { label: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', icon: 'bi-envelope-paper', color: 'info', required: false },
-    '\u05D0\u05D7\u05E8': { label: '\u05D0\u05D7\u05E8', icon: 'bi-file-earmark', color: 'secondary', required: false }
+    // Student document types
+    '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA': { label: '\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA', icon: 'bi-person-vcard', color: 'primary', required: true, entity: 'student' },
+    '\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9': { label: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9', icon: 'bi-heart-pulse', color: 'danger', required: true, entity: 'student' },
+    '\u05D8\u05D5\u05E4\u05E1_\u05D4\u05E8\u05E9\u05DE\u05D4': { label: '\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4', icon: 'bi-pencil-square', color: 'success', required: true, entity: 'student' },
+    '\u05EA\u05E2\u05D5\u05D3\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4': { label: '\u05EA\u05E2\u05D5\u05D3\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4', icon: 'bi-award', color: 'warning', required: true, entity: 'student' },
+    '\u05E6\u05D9\u05DC\u05D5\u05DD_\u05EA\u05DE\u05D5\u05E0\u05D4': { label: '\u05E6\u05D9\u05DC\u05D5\u05DD \u05EA\u05DE\u05D5\u05E0\u05D4', icon: 'bi-camera', color: 'info', required: true, entity: 'student' },
+    // Parent document types
+    '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA': { label: '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA', icon: 'bi-envelope-paper', color: 'info', required: false, entity: 'parent' },
+    '\u05E7\u05D1\u05DC\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD': { label: '\u05E7\u05D1\u05DC\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', icon: 'bi-receipt', color: 'success', required: false, entity: 'parent' },
+    '\u05E1\u05D9\u05DB\u05D5\u05DE\u05D9_\u05E4\u05D2\u05D9\u05E9\u05D4': { label: '\u05E1\u05D9\u05DB\u05D5\u05DE\u05D9 \u05E4\u05D2\u05D9\u05E9\u05D4', icon: 'bi-journal-text', color: 'primary', required: false, entity: 'parent' },
+    // Staff document types
+    '\u05D7\u05D5\u05D6\u05D4': { label: '\u05D7\u05D5\u05D6\u05D4', icon: 'bi-file-earmark-text', color: 'primary', required: true, entity: 'staff' },
+    '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA_\u05E6\u05D5\u05D5\u05EA': { label: '\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA', icon: 'bi-award', color: 'warning', required: false, entity: 'staff' },
+    '\u05E8\u05D9\u05E9\u05D9\u05D5\u05DF': { label: '\u05E8\u05D9\u05E9\u05D9\u05D5\u05DF', icon: 'bi-shield-check', color: 'danger', required: true, entity: 'staff', hasExpiry: true },
+    '\u05E7\u05D5\u05E8\u05D5\u05EA_\u05D7\u05D9\u05D9\u05DD': { label: '\u05E7\u05D5\u05E8\u05D5\u05EA \u05D7\u05D9\u05D9\u05DD', icon: 'bi-file-person', color: 'info', required: false, entity: 'staff' },
+    // General document types
+    '\u05E8\u05D2\u05D5\u05DC\u05E6\u05D9\u05D4': { label: '\u05E8\u05D2\u05D5\u05DC\u05E6\u05D9\u05D4', icon: 'bi-building', color: 'primary', required: false, entity: 'general' },
+    '\u05D1\u05D9\u05D8\u05D5\u05D7': { label: '\u05D1\u05D9\u05D8\u05D5\u05D7', icon: 'bi-shield-fill', color: 'success', required: false, entity: 'general' },
+    '\u05E8\u05D9\u05E9\u05D5\u05D9': { label: '\u05E8\u05D9\u05E9\u05D5\u05D9', icon: 'bi-patch-check', color: 'warning', required: false, entity: 'general' },
+    '\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC\u05D9\u05DD': { label: '\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC\u05D9\u05DD', icon: 'bi-clipboard-check', color: 'info', required: false, entity: 'general' },
+    '\u05D0\u05D7\u05E8': { label: '\u05D0\u05D7\u05E8', icon: 'bi-file-earmark', color: 'secondary', required: false, entity: 'any' }
   },
-  _docCategoryKeys: ['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA','\u05E8\u05E4\u05D5\u05D0\u05D9','\u05D4\u05E8\u05E9\u05DE\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA','\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA','\u05D0\u05D7\u05E8'],
+  _docCategoryKeys: [
+    '\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA','\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9','\u05D8\u05D5\u05E4\u05E1_\u05D4\u05E8\u05E9\u05DE\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4','\u05E6\u05D9\u05DC\u05D5\u05DD_\u05EA\u05DE\u05D5\u05E0\u05D4',
+    '\u05D4\u05EA\u05DB\u05EA\u05D1\u05D5\u05EA','\u05E7\u05D1\u05DC\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD','\u05E1\u05D9\u05DB\u05D5\u05DE\u05D9_\u05E4\u05D2\u05D9\u05E9\u05D4',
+    '\u05D7\u05D5\u05D6\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA_\u05E6\u05D5\u05D5\u05EA','\u05E8\u05D9\u05E9\u05D9\u05D5\u05DF','\u05E7\u05D5\u05E8\u05D5\u05EA_\u05D7\u05D9\u05D9\u05DD',
+    '\u05E8\u05D2\u05D5\u05DC\u05E6\u05D9\u05D4','\u05D1\u05D9\u05D8\u05D5\u05D7','\u05E8\u05D9\u05E9\u05D5\u05D9','\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC\u05D9\u05DD','\u05D0\u05D7\u05E8'
+  ],
 
   // Required docs per student (category keys)
   _requiredStudentDocKeys: ['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA', '\u05D4\u05E8\u05E9\u05DE\u05D4'],
