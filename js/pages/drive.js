@@ -195,27 +195,37 @@ Object.assign(Pages, {
 
   /* ---- Drag-Drop Setup ---- */
   _initDragDrop() {
+    // Remove previous listeners to prevent leaks on re-init
+    if (this._driveDragEnter) {
+      document.body.removeEventListener('dragenter', this._driveDragEnter);
+      document.body.removeEventListener('dragleave', this._driveDragLeave);
+      document.body.removeEventListener('dragover', this._driveDragOver);
+      document.body.removeEventListener('drop', this._driveDrop);
+    }
     const zone = document.getElementById('drive-dropzone');
-    const body = document.body;
     let dragCounter = 0;
 
-    body.addEventListener('dragenter', e => {
+    this._driveDragEnter = e => {
       e.preventDefault();
       dragCounter++;
       if (zone) zone.style.display = 'block';
-    });
-    body.addEventListener('dragleave', e => {
+    };
+    this._driveDragLeave = e => {
       e.preventDefault();
       dragCounter--;
       if (dragCounter <= 0) { dragCounter = 0; if (zone) zone.style.display = 'none'; }
-    });
-    body.addEventListener('dragover', e => e.preventDefault());
-    body.addEventListener('drop', e => {
+    };
+    this._driveDragOver = e => e.preventDefault();
+    this._driveDrop = e => {
       e.preventDefault();
       dragCounter = 0;
       if (zone) zone.style.display = 'none';
       if (e.dataTransfer?.files?.length) this.handleFileUpload(e.dataTransfer.files);
-    });
+    };
+    document.body.addEventListener('dragenter', this._driveDragEnter);
+    document.body.addEventListener('dragleave', this._driveDragLeave);
+    document.body.addEventListener('dragover', this._driveDragOver);
+    document.body.addEventListener('drop', this._driveDrop);
   },
 
   /* ---- File Type Helpers ---- */

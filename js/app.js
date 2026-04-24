@@ -88,10 +88,11 @@ const App = {
   },
 
   startSessionTimer() {
+    if (this._sessionTimerInterval) clearInterval(this._sessionTimerInterval);
     this._sessionStart = Date.now();
     const el = document.getElementById('session-timer');
     if (!el) return;
-    setInterval(() => {
+    this._sessionTimerInterval = setInterval(() => {
       const diff = Math.floor((Date.now() - this._sessionStart) / 1000);
       const h = Math.floor(diff / 3600);
       const m = Math.floor((diff % 3600) / 60);
@@ -187,9 +188,14 @@ const App = {
       if (instance) instance.hide();
     });
 
-    // Destroy old charts
+    // Destroy old charts (App.charts + Pages._XXX chart instances)
     Object.values(this.charts).forEach(c => { try { c.destroy(); } catch(e){} });
     this.charts = {};
+    // Cleanup chart instances stored on Pages object
+    const chartKeys = ['_donChartMonth','_donChartMethod','_rankChart','_mvzChartLine','_mvzChartBar',
+      '_pcMonthlyChart','_pcCatChart','_ppChartCollection','_ppChartMonthly','_salChartInstance'];
+    chartKeys.forEach(k => { if (Pages[k]) { try { Pages[k].destroy(); } catch(e){} Pages[k] = null; } });
+    if (Pages._gbCharts) { Object.values(Pages._gbCharts).forEach(c => { try { c.destroy(); } catch(e){} }); Pages._gbCharts = {}; }
 
     this.currentPage = page;
     this.trackRecentPage(page);
@@ -665,9 +671,10 @@ const App = {
     // Theme toggle
     document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
 
-    // Hash routing
+    // Hash routing + close FAB menu on navigation
     window.addEventListener('hashchange', () => {
       if (this.isLoggedIn()) this.handleRoute();
+      document.getElementById('fab-menu')?.classList.add('d-none');
     });
 
     // Sidebar collapsible categories
@@ -680,11 +687,6 @@ const App = {
     window.addEventListener('scroll', () => {
       const btn = document.getElementById('scroll-top');
       if (btn) btn.classList.toggle('d-none', window.scrollY < 300);
-    });
-
-    // Close FAB menu on page navigation
-    window.addEventListener('hashchange', () => {
-      document.getElementById('fab-menu')?.classList.add('d-none');
     });
 
     // Global keyboard shortcuts

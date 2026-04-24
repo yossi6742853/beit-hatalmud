@@ -1806,7 +1806,6 @@ body {
 .stat-card .stat-icon.gradient-pink { background: var(--bht-gradient-pink); }
 
 /* ===== Stat Card Gradient Strips ===== */
-.stat-card { position: relative; }
 .stat-card::after {
   content: '';
   position: absolute;
@@ -1817,9 +1816,9 @@ body {
   border-radius: 0 0 var(--bht-radius) var(--bht-radius);
   background: var(--bht-gradient-primary);
 }
-.stat-card:nth-child(2) .stat-card::after { background: var(--bht-gradient-success); }
-.stat-card:nth-child(3) .stat-card::after { background: var(--bht-gradient-info); }
-.stat-card:nth-child(4) .stat-card::after { background: var(--bht-gradient-warning); }
+.stat-card:nth-child(2)::after { background: var(--bht-gradient-success); }
+.stat-card:nth-child(3)::after { background: var(--bht-gradient-info); }
+.stat-card:nth-child(4)::after { background: var(--bht-gradient-warning); }
 
 /* ===== Global Search Dropdown ===== */
 #search-results {
@@ -2944,11 +2943,7 @@ img.lazy-load.loaded {
   border-radius: 10px;
 }
 
-/* Number counter animation */
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Number counter animation (reuses @keyframes countUp defined above) */
 .stat-number {
   animation: countUp .5s ease-out both;
 }
