@@ -1,21 +1,5 @@
-/* ===== BHT v5.4 — Staff (Enhanced) ===== */
+/* ===== BHT v5.5 — Staff (Real Data) ===== */
 Object.assign(Pages, {
-
-  /* ======================================================================
-     DEMO DATA
-     ====================================================================== */
-  _staffDemoData: [
-    { שם_פרטי:'אברהם', שם_משפחה:'כהן', תפקיד:'מורה', טלפון:'0501234567', אימייל:'avraham@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2019-09-01', כישורים:'תעודת הוראה, תואר ראשון', כיתות:'א,ב,ג', משכורת_בסיס:8500, בונוסים:500, ניכויים:850, הערות:'ותיק במוסד' },
-    { שם_פרטי:'יצחק', שם_משפחה:'לוי', תפקיד:'רב', טלפון:'0529876543', אימייל:'yitzchak@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2018-03-15', כישורים:'סמיכה לרבנות, דיינות', כיתות:'ד,ה', משכורת_בסיס:9500, בונוסים:0, ניכויים:950, הערות:'ר"מ בכיר' },
-    { שם_פרטי:'יעקב', שם_משפחה:'ישראלי', תפקיד:'מנהל', טלפון:'0531112233', אימייל:'yaakov@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2017-01-10', כישורים:'MBA, ניהול חינוכי', כיתות:'', משכורת_בסיס:12000, בונוסים:1500, ניכויים:1350, הערות:'מנהל המוסד' },
-    { שם_פרטי:'משה', שם_משפחה:'פרידמן', תפקיד:'מורה', טלפון:'0541234567', אימייל:'moshe@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2021-09-01', כישורים:'תעודת הוראה', כיתות:'ג,ד', משכורת_בסיס:7800, בונוסים:300, ניכויים:810, הערות:'' },
-    { שם_פרטי:'דוד', שם_משפחה:'שוורץ', תפקיד:'עוזר הוראה', טלפון:'0551234567', אימייל:'david@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2023-09-01', כישורים:'סטודנט שנה ג', כיתות:'א,ב', משכורת_בסיס:5500, בונוסים:0, ניכויים:550, הערות:'עוזר הוראה' },
-    { שם_פרטי:'שמעון', שם_משפחה:'גולדשטיין', תפקיד:'רב', טלפון:'0521234567', אימייל:'shimon@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2020-09-01', כישורים:'סמיכה לרבנות', כיתות:'ו', משכורת_בסיס:9000, בונוסים:400, ניכויים:940, הערות:'מגיד שיעור' },
-    { שם_פרטי:'ראובן', שם_משפחה:'ברגר', תפקיד:'תחזוקה', טלפון:'0501112233', אימייל:'', סטטוס:'פעיל', תאריך_התחלה:'2022-01-15', כישורים:'חשמלאי מוסמך', כיתות:'', משכורת_בסיס:6500, בונוסים:200, ניכויים:670, הערות:'אחראי תחזוקת מבנה' },
-    { שם_פרטי:'נפתלי', שם_משפחה:'וייס', תפקיד:'מנהל', טלפון:'0541112233', אימייל:'naftali@bht.org', סטטוס:'לא_פעיל', תאריך_התחלה:'2016-09-01', כישורים:'MBA, חשבונאות', כיתות:'', משכורת_בסיס:11000, בונוסים:0, ניכויים:1100, הערות:'חופשה ללא תשלום' },
-    { שם_פרטי:'גד', שם_משפחה:'רוזנברג', תפקיד:'עוזר הוראה', טלפון:'0551112233', אימייל:'gad@bht.org', סטטוס:'פעיל', תאריך_התחלה:'2024-09-01', כישורים:'סטודנט שנה ב', כיתות:'ד,ה', משכורת_בסיס:5000, בונוסים:0, ניכויים:500, הערות:'' },
-    { שם_פרטי:'אשר', שם_משפחה:'הלפרין', תפקיד:'תחזוקה', טלפון:'0501234568', אימייל:'', סטטוס:'פעיל', תאריך_התחלה:'2023-03-01', כישורים:'שרברב מוסמך, מיזוג', כיתות:'', משכורת_בסיס:6200, בונוסים:150, ניכויים:635, הערות:'אחראי מיזוג ואינסטלציה' }
-  ],
 
   /* ======================================================================
      ROLE DEFINITIONS
@@ -83,19 +67,6 @@ Object.assign(Pages, {
   _staffActiveRole: '',
   _staffExpandedId: null,
   _staffCurrentView: null,
-  _staffUseDemo: false,
-
-  staffLoadDemo() {
-    this._staffUseDemo = true;
-    this._staffData = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
-    this._staffActiveRole = '';
-    this._staffExpandedId = null;
-    this._staffCurrentView = null;
-    this.renderStaffStats();
-    this.renderRolesBreakdown();
-    this.renderStaffList();
-    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
-  },
 
   async staffInit() {
     let data;
@@ -104,14 +75,7 @@ Object.assign(Pages, {
     } catch(e) {
       data = [];
     }
-    if (!data || data.length === 0) {
-      if (this._staffUseDemo) {
-        data = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
-      } else {
-        data = [];
-      }
-    }
-    this._staffData = data;
+    this._staffData = data || [];
     this._staffActiveRole = '';
     this._staffExpandedId = null;
     this._staffCurrentView = null;
@@ -194,9 +158,8 @@ Object.assign(Pages, {
     });
     document.getElementById('staff-count').textContent = `${filtered.length} אנשי צוות`;
     if (filtered.length === 0) {
-      const isReallyEmpty = !this._staffData.length && !this._staffUseDemo;
-      document.getElementById('staff-list').innerHTML = isReallyEmpty
-        ? '<div class="empty-state text-center py-5"><i class="bi bi-person-badge fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E9 \u05E6\u05D5\u05D5\u05EA \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.staffLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
+      document.getElementById('staff-list').innerHTML = !this._staffData.length
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-person-badge fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E9 \u05E6\u05D5\u05D5\u05EA \u05E8\u05D0\u05E9\u05D5\u05DF</p></div>'
         : '<div class="empty-state"><i class="bi bi-person-badge"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>';
       return;
     }
@@ -292,32 +255,28 @@ Object.assign(Pages, {
   /* ======================================================================
      STAFF SCHEDULE — Weekly Grid
      ====================================================================== */
-  _renderScheduleView(container) {
+  async _renderScheduleView(container) {
     const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
     const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-    const staff = (this._staffData || []).filter(s => (s['סטטוס'] || 'פעיל') === 'פעיל');
 
-    // Generate a deterministic schedule from demo data
+    // Load real schedule data from מערכת_שעות
+    let scheduleData = [];
+    try { scheduleData = await App.getData('מערכת_שעות'); } catch (e) {}
+
     const scheduleMap = {};
-    staff.forEach((s, idx) => {
-      const name = Utils.fullName(s);
-      const role = s['תפקיד'] || '';
-      // Teachers/rabbis: most hours, maintenance: fewer, admin: mid
-      let dayCount = 5, hourStart = 0, hourEnd = 7;
-      if (role === 'תחזוקה') { dayCount = 5; hourStart = 0; hourEnd = 5; }
-      else if (role === 'מנהל') { dayCount = 5; hourStart = 1; hourEnd = 8; }
-      else if (role === 'עוזר הוראה') { dayCount = 4; hourStart = 0; hourEnd = 5; }
-
-      for (let d = 0; d < dayCount && d < 6; d++) {
-        for (let h = hourStart; h <= hourEnd && h < hours.length; h++) {
-          // Only assign partial hours based on index to avoid overlap
-          if ((h + idx) % 3 === 0) continue;
-          const key = `${d}-${h}`;
+    if (scheduleData.length > 0) {
+      scheduleData.forEach(entry => {
+        const dayIdx = days.indexOf(entry['יום'] || '');
+        const hour = entry['שעה'] || '';
+        const hourIdx = hours.indexOf(hour);
+        if (dayIdx >= 0 && hourIdx >= 0) {
+          const key = `${dayIdx}-${hourIdx}`;
           if (!scheduleMap[key]) scheduleMap[key] = [];
-          scheduleMap[key].push(name);
+          const name = entry['שם_עובד'] || entry['מורה'] || '';
+          if (name) scheduleMap[key].push(name);
         }
-      }
-    });
+      });
+    }
 
     container.innerHTML = `<div class="card p-3">
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -408,16 +367,6 @@ Object.assign(Pages, {
       const key = a['שם_עובד'] || a['מזהה_עובד'] || '';
       attMap[key] = { status: a['סטטוס'] || 'נוכח', checkIn: a['כניסה'] || '', checkOut: a['יציאה'] || '' };
     });
-
-    // Generate demo attendance if empty
-    if (todayAtt.length === 0) {
-      const statuses = ['נוכח', 'נוכח', 'נוכח', 'נוכח', 'נוכח', 'נוכח', 'חיסור', 'איחור', 'נוכח', 'נוכח'];
-      const times = ['07:45', '08:02', '07:55', '08:10', '08:30', '07:50', '', '08:45', '08:00', '07:58'];
-      staff.forEach((s, i) => {
-        const name = Utils.fullName(s);
-        attMap[name] = { status: statuses[i] || 'נוכח', checkIn: times[i] || '', checkOut: '' };
-      });
-    }
 
     this._stfAttData = {};
     const present = Object.values(attMap).filter(a => a.status === 'נוכח').length;
@@ -662,8 +611,9 @@ Object.assign(Pages, {
   staff_card(id) { return `<div id="staff-card-content">${Utils.skeleton(2)}</div>`; },
 
   async staff_cardInit(id) {
-    let staff = await App.getData('צוות');
-    if (!staff || staff.length === 0) staff = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+    let staff = [];
+    try { staff = await App.getData('צוות'); } catch(e) {}
+    if (!staff) staff = [];
     const s = staff.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {
       document.getElementById('staff-card-content').innerHTML = `<div class="empty-state"><i class="bi bi-person-x"></i><h5>עובד לא נמצא</h5><a href="#staff" class="btn btn-primary mt-2">חזרה</a></div>`;
@@ -769,38 +719,8 @@ Object.assign(Pages, {
      STAFF SALARY PAGE — Comprehensive Payroll Management
      ====================================================================== */
 
-  /* ---------- Demo salary data for 10 staff ---------- */
-  _salaryDemoData: [
-    { שם:'אברהם כהן', תפקיד:'מורה', משכורת_בסיס:8500, בונוס_הוראה:500, בונוס_ותק:300, בונוס_אחר:0, מס_הכנסה:930, ביטוח_לאומי:340, קרן_פנסיה:510, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
-    { שם:'יצחק לוי', תפקיד:'רב', משכורת_בסיס:9500, בונוס_הוראה:0, בונוס_ותק:400, בונוס_אחר:200, מס_הכנסה:1010, ביטוח_לאומי:380, קרן_פנסיה:570, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
-    { שם:'יעקב ישראלי', תפקיד:'מנהל', משכורת_בסיס:12000, בונוס_הוראה:0, בונוס_ותק:800, בונוס_אחר:700, מס_הכנסה:1620, ביטוח_לאומי:540, קרן_פנסיה:720, ניכוי_אחר:100, סטטוס_תשלום:'שולם' },
-    { שם:'משה פרידמן', תפקיד:'מורה', משכורת_בסיס:7800, בונוס_הוראה:300, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:810, ביטוח_לאומי:312, קרן_פנסיה:468, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
-    { שם:'דוד שוורץ', תפקיד:'עוזר הוראה', משכורת_בסיס:5500, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:440, ביטוח_לאומי:220, קרן_פנסיה:330, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
-    { שם:'שמעון גולדשטיין', תפקיד:'רב', משכורת_בסיס:9000, בונוס_הוראה:0, בונוס_ותק:200, בונוס_אחר:200, מס_הכנסה:940, ביטוח_לאומי:360, קרן_פנסיה:540, ניכוי_אחר:0, סטטוס_תשלום:'שולם' },
-    { שם:'ראובן ברגר', תפקיד:'תחזוקה', משכורת_בסיס:6500, בונוס_הוראה:0, בונוס_ותק:100, בונוס_אחר:100, מס_הכנסה:570, ביטוח_לאומי:260, קרן_פנסיה:390, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
-    { שם:'נפתלי וייס', תפקיד:'מנהל', משכורת_בסיס:11000, בונוס_הוראה:0, בונוס_ותק:600, בונוס_אחר:0, מס_הכנסה:1392, ביטוח_לאומי:464, קרן_פנסיה:660, ניכוי_אחר:200, סטטוס_תשלום:'שולם' },
-    { שם:'גד רוזנברג', תפקיד:'עוזר הוראה', משכורת_בסיס:5000, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:0, מס_הכנסה:400, ביטוח_לאומי:200, קרן_פנסיה:300, ניכוי_אחר:0, סטטוס_תשלום:'ממתין' },
-    { שם:'אשר הלפרין', תפקיד:'תחזוקה', משכורת_בסיס:6200, בונוס_הוראה:0, בונוס_ותק:0, בונוס_אחר:150, מס_הכנסה:540, ביטוח_לאומי:254, קרן_פנסיה:372, ניכוי_אחר:0, סטטוס_תשלום:'שולם' }
-  ],
-
-  /* ---------- Monthly historical demo (12 months) ---------- */
-  _salaryMonthlyDemo: (() => {
-    const months = [];
-    const d = new Date();
-    for (let i = 11; i >= 0; i--) {
-      const md = new Date(d.getFullYear(), d.getMonth() - i, 1);
-      const label = md.toLocaleDateString('he-IL', { month: 'short', year: 'numeric' });
-      const key = `${md.getFullYear()}-${String(md.getMonth() + 1).padStart(2, '0')}`;
-      // Slight variation per month
-      const base = 81000 + Math.round((Math.sin(i * 0.8) * 3000));
-      const bonuses = 2800 + Math.round(Math.sin(i * 1.2) * 800);
-      const deductions = Math.round(base * 0.12 + bonuses * 0.05);
-      months.push({ label, key, base, bonuses, deductions, net: base + bonuses - deductions });
-    }
-    return months;
-  })(),
-
   _salData: [],
+  _salMonthlyData: [],
   _salPaymentFilter: 'all',
   _salChartInstance: null,
 
@@ -947,19 +867,52 @@ Object.assign(Pages, {
   },
 
   async staff_salaryInit() {
-    // Load real data or fallback to demo
     let realData = [];
     try { realData = await App.getData('שכר_צוות'); } catch (e) {}
-    if (realData && realData.length > 0) {
-      this._salData = realData;
-    } else {
-      this._salData = this._salaryDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
-    }
+    this._salData = (realData && realData.length > 0) ? realData : [];
+    // Build monthly data from real salary records (grouped by חודש field)
+    this._salMonthlyData = this._buildMonthlyFromData(this._salData);
     this._salPaymentFilter = 'all';
     document.getElementById('sal-search').addEventListener('input', Utils.debounce(() => this.renderSalary(), 200));
     document.getElementById('sal-month').addEventListener('change', () => this.renderSalary());
     this.renderSalary();
     this._renderSalaryChart();
+  },
+
+  /* ---------- Build monthly aggregates from real salary data ---------- */
+  _buildMonthlyFromData(data) {
+    if (!data.length) return [];
+    // Group by month field or compute from current data for current month
+    const monthMap = {};
+    data.forEach(r => {
+      const month = r['חודש'] || '';
+      if (month) {
+        if (!monthMap[month]) monthMap[month] = { base: 0, bonuses: 0, deductions: 0, net: 0 };
+        const c = this._salCalcRow(r);
+        monthMap[month].base += c.base;
+        monthMap[month].bonuses += c.totalBonus;
+        monthMap[month].deductions += c.totalDeductions;
+        monthMap[month].net += c.net;
+      }
+    });
+    // If no month grouping exists, just use current month total
+    if (!Object.keys(monthMap).length) {
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const label = now.toLocaleDateString('he-IL', { month: 'short', year: 'numeric' });
+      let base = 0, bonuses = 0, deductions = 0, net = 0;
+      data.forEach(r => {
+        const c = this._salCalcRow(r);
+        base += c.base; bonuses += c.totalBonus; deductions += c.totalDeductions; net += c.net;
+      });
+      return [{ label, key, base, bonuses, deductions, net }];
+    }
+    return Object.entries(monthMap).sort((a, b) => a[0].localeCompare(b[0])).map(([key, d]) => {
+      const parts = key.split('-');
+      const md = parts.length === 2 ? new Date(+parts[0], +parts[1] - 1, 1) : new Date();
+      const label = md.toLocaleDateString('he-IL', { month: 'short', year: 'numeric' });
+      return { label, key, ...d };
+    });
   },
 
   /* ---------- Helpers ---------- */
@@ -1107,7 +1060,8 @@ Object.assign(Pages, {
     if (!canvas) return;
     if (this._salChartInstance) { this._salChartInstance.destroy(); this._salChartInstance = null; }
 
-    const months = this._salaryMonthlyDemo;
+    const months = this._salMonthlyData || [];
+    if (!months.length) { return; }
     this._salChartInstance = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: {
@@ -1309,9 +1263,9 @@ Object.assign(Pages, {
     if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
 
     const data = this._salData || [];
-    const months = this._salaryMonthlyDemo;
+    const months = this._salMonthlyData || [];
 
-    // Calculate annual totals from monthly demo
+    // Calculate annual totals from monthly data
     const annualBase = months.reduce((s, m) => s + m.base, 0);
     const annualBonuses = months.reduce((s, m) => s + m.bonuses, 0);
     const annualDeductions = months.reduce((s, m) => s + m.deductions, 0);
