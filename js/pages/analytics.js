@@ -108,31 +108,18 @@ Object.assign(Pages, {
       </div>`;
   },
 
+  /* ---------- Demo flag ---------- */
+  _anUseDemo: false,
+
+  anLoadDemo() {
+    this._anUseDemo = true;
+    this.analyticsInit();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   /* ---------- Main Analytics HTML ---------- */
   analytics() {
-    const kpi = this._anDemoKPI();
-    const atRisk = this._anDemoAtRisk();
     const classes = this._analyticsClasses;
-
-    const kpiCards = [
-      this._kpiCard('bi-calendar-check-fill', '#10b981', '\u05e0\u05d5\u05db\u05d7\u05d5\u05ea', kpi.attendanceRate, '%', kpi.attendanceTrend, '#10b981'),
-      this._kpiCard('bi-mortarboard-fill', '#6366f1', '\u05de\u05de\u05d5\u05e6\u05e2 \u05e6\u05d9\u05d5\u05e0\u05d9\u05dd', kpi.gradeAvg, '', kpi.gradeTrend, '#6366f1'),
-      this._kpiCard('bi-cash-coin', '#f59e0b', '\u05e9\u05d9\u05e2\u05d5\u05e8 \u05d2\u05d1\u05d9\u05d9\u05d4', kpi.collectionRate, '%', kpi.collectionTrend, '#f59e0b'),
-      this._kpiCard('bi-people-fill', '#3b82f6', '\u05ea\u05dc\u05de\u05d9\u05d3\u05d9\u05dd \u05e4\u05e2\u05d9\u05dc\u05d9\u05dd', kpi.activeStudents, '', kpi.studentsTrend, '#3b82f6'),
-      this._kpiCard('bi-check2-circle', '#8b5cf6', '\u05d4\u05e9\u05dc\u05de\u05ea \u05de\u05e9\u05d9\u05de\u05d5\u05ea', kpi.taskCompletion, '%', kpi.tasksTrend, '#8b5cf6'),
-      this._kpiCard('bi-chat-heart-fill', '#ec4899', '\u05de\u05e2\u05d5\u05e8\u05d1\u05d5\u05ea \u05d4\u05d5\u05e8\u05d9\u05dd', kpi.parentEngagement, '%', kpi.parentTrend, '#ec4899')
-    ].join('');
-
-    const atRiskRows = atRisk.map(s => `
-      <tr class="table-danger">
-        <td class="fw-semibold">${s.name}</td>
-        <td>${s.cls}</td>
-        <td><span class="badge ${s.att < 65 ? 'bg-danger' : 'bg-warning text-dark'}">${s.att}%</span></td>
-        <td><span class="badge ${s.grade < 55 ? 'bg-danger' : 'bg-warning text-dark'}">${s.grade}</span></td>
-        <td class="text-muted small">${s.reason}</td>
-      </tr>
-    `).join('');
-
     const classOptions = classes.map(c => `<option value="${c}">${c}</option>`).join('');
 
     return `
@@ -156,9 +143,9 @@ Object.assign(Pages, {
         </div>
       </div>
 
-      <!-- KPI Cards -->
+      <!-- KPI Cards (populated by analyticsInit) -->
       <div class="row g-3 mb-4" id="an-kpi-row">
-        ${kpiCards}
+        <div class="text-center py-3 text-muted">\u05D8\u05D5\u05E2\u05DF...</div>
       </div>
 
       <!-- Charts Section -->
@@ -233,7 +220,7 @@ Object.assign(Pages, {
                       <th>\u05e4\u05d9\u05e8\u05d5\u05d8</th>
                     </tr>
                   </thead>
-                  <tbody>${atRiskRows}</tbody>
+                  <tbody id="an-atrisk-body"></tbody>
                 </table>
               </div>
             </div>
@@ -280,35 +267,43 @@ Object.assign(Pages, {
 
   /* ---------- Init — build all charts ---------- */
   async analyticsInit() {
-    // Try loading real data from API, fall back to demo
+    // Try loading real data from API
     let apiStudents, apiAttendance, apiGrades, apiFinance;
     try {
       [apiStudents, apiAttendance, apiGrades, apiFinance] = await Promise.all([
-        App.getData('תלמידים').catch(() => []),
-        App.getData('נוכחות').catch(() => []),
-        App.getData('ציונים').catch(() => []),
-        App.getData('שכר_לימוד').catch(() => [])
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
+        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(() => []),
+        App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(() => []),
+        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(() => [])
       ]);
     } catch(e) {
       apiStudents = []; apiAttendance = []; apiGrades = []; apiFinance = [];
     }
 
-    // If we have real data, compute KPIs from it; otherwise use demo
+    const hasData = apiStudents.length || apiAttendance.length || apiGrades.length;
+
+    // If no data and not demo, show empty state
+    if (!hasData && !this._anUseDemo) {
+      const kpiRow = document.getElementById('an-kpi-row');
+      if (kpiRow) kpiRow.innerHTML = '<div class="col-12"><div class="empty-state text-center py-5"><i class="bi bi-graph-up-arrow fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DE\u05E1\u05E4\u05D9\u05E7\u05D9\u05DD \u05DC\u05E0\u05D9\u05EA\u05D5\u05D7</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DC\u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD \u05D4\u05E9\u05D5\u05E0\u05D9\u05DD \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05E0\u05D9\u05EA\u05D5\u05D7\u05D9\u05DD</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.anLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div></div>';
+      return;
+    }
+
     let kpi;
-    if (apiStudents.length || apiAttendance.length || apiGrades.length) {
-      const totalStudents = apiStudents.length || 24;
+    if (hasData) {
+      const totalStudents = apiStudents.length || 0;
       const attRecords = apiAttendance || [];
       const gradeRecords = apiGrades || [];
       const finRecords = apiFinance || [];
       const attRate = attRecords.length > 0
-        ? Math.round(attRecords.filter(r => r['סטטוס'] === 'נוכח' || r['status'] === 'נוכח').length / attRecords.length * 100)
-        : 87;
+        ? Math.round(attRecords.filter(r => r['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' || r['status'] === '\u05E0\u05D5\u05DB\u05D7').length / attRecords.length * 100)
+        : 0;
       const gradeAvg = gradeRecords.length > 0
-        ? Math.round(gradeRecords.reduce((s, r) => s + (parseFloat(r['ציון'] || r['grade']) || 0), 0) / gradeRecords.length * 10) / 10
-        : 76.4;
+        ? Math.round(gradeRecords.reduce((s, r) => s + (parseFloat(r['\u05E6\u05D9\u05D5\u05DF'] || r['grade']) || 0), 0) / gradeRecords.length * 10) / 10
+        : 0;
       const collectionRate = finRecords.length > 0
-        ? Math.round(finRecords.filter(r => r['סטטוס'] === 'שולם' || r['status'] === 'שולם').length / finRecords.length * 100)
-        : 91;
+        ? Math.round(finRecords.filter(r => r['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E9\u05D5\u05DC\u05DD' || r['status'] === '\u05E9\u05D5\u05DC\u05DD').length / finRecords.length * 100)
+        : 0;
       kpi = this._anDemoKPI();
       kpi.attendanceRate = attRate;
       kpi.gradeAvg = gradeAvg;
@@ -316,6 +311,34 @@ Object.assign(Pages, {
       kpi.activeStudents = totalStudents;
     } else {
       kpi = this._anDemoKPI();
+    }
+
+    // Populate KPI cards
+    const kpiRow = document.getElementById('an-kpi-row');
+    if (kpiRow) {
+      kpiRow.innerHTML = [
+        this._kpiCard('bi-calendar-check-fill', '#10b981', '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', kpi.attendanceRate, '%', kpi.attendanceTrend, '#10b981'),
+        this._kpiCard('bi-mortarboard-fill', '#6366f1', '\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', kpi.gradeAvg, '', kpi.gradeTrend, '#6366f1'),
+        this._kpiCard('bi-cash-coin', '#f59e0b', '\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D2\u05D1\u05D9\u05D9\u05D4', kpi.collectionRate, '%', kpi.collectionTrend, '#f59e0b'),
+        this._kpiCard('bi-people-fill', '#3b82f6', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD', kpi.activeStudents, '', kpi.studentsTrend, '#3b82f6'),
+        this._kpiCard('bi-check2-circle', '#8b5cf6', '\u05D4\u05E9\u05DC\u05DE\u05EA \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA', kpi.taskCompletion, '%', kpi.tasksTrend, '#8b5cf6'),
+        this._kpiCard('bi-chat-heart-fill', '#ec4899', '\u05DE\u05E2\u05D5\u05E8\u05D1\u05D5\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD', kpi.parentEngagement, '%', kpi.parentTrend, '#ec4899')
+      ].join('');
+    }
+
+    // Populate at-risk table
+    const atRisk = this._anDemoAtRisk();
+    const atRiskBody = document.getElementById('an-atrisk-body');
+    if (atRiskBody) {
+      atRiskBody.innerHTML = atRisk.map(s => `
+        <tr class="table-danger">
+          <td class="fw-semibold">${s.name}</td>
+          <td>${s.cls}</td>
+          <td><span class="badge ${s.att < 65 ? 'bg-danger' : 'bg-warning text-dark'}">${s.att}%</span></td>
+          <td><span class="badge ${s.grade < 55 ? 'bg-danger' : 'bg-warning text-dark'}">${s.grade}</span></td>
+          <td class="text-muted small">${s.reason}</td>
+        </tr>
+      `).join('');
     }
 
     const months = this._analyticsMonthNames;

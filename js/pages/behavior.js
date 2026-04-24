@@ -287,36 +287,65 @@ Object.assign(Pages, {
   },
 
   /* ======================================================================
+     DEMO FLAG
+     ====================================================================== */
+  _behUseDemo: false,
+
+  behLoadDemo() {
+    this._behUseDemo = true;
+    this._behGenerateDemo();
+    this._behData = this._behDemoData;
+    this._behFilter = { type: '', category: '', student: '', period: 'month' };
+    document.getElementById('beh-f-period').value = 'month';
+    this.behUpdateStats();
+    this.behRenderLog();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
+  /* ======================================================================
      INIT
      ====================================================================== */
   async behaviorInit() {
-    this._behGenerateDemo();
-
-    // Try API, fallback to demo
+    // Try API first
     try {
-      const apiData = await App.getData('התנהגות');
+      const apiData = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
       if (apiData && apiData.length > 0) {
         this._behData = apiData.map(r => ({
-          id: r.id || r.מזהה || Utils.rowId(r),
-          תלמיד_מזהה: r.תלמיד_מזהה || r.תלמיד || '',
-          שם_תלמיד: r.שם_תלמיד || r.שם || r.תלמיד || '',
-          כיתה: r.כיתה || '',
-          תאריך: r.תאריך || '',
-          סוג: r.סוג || '',
-          קטגוריה: r.קטגוריה || '',
-          תיאור: r.תיאור || '',
-          נקודות: parseInt(r.נקודות || r.חומרה || '0', 10),
-          צוות: r.צוות || ''
+          id: r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r),
+          '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
+          '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
+          '\u05DB\u05D9\u05EA\u05D4': r['\u05DB\u05D9\u05EA\u05D4'] || '',
+          '\u05EA\u05D0\u05E8\u05D9\u05DA': r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
+          '\u05E1\u05D5\u05D2': r['\u05E1\u05D5\u05D2'] || '',
+          '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '',
+          '\u05EA\u05D9\u05D0\u05D5\u05E8': r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '',
+          '\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA': parseInt(r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA'] || r['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '0', 10),
+          '\u05E6\u05D5\u05D5\u05EA': r['\u05E6\u05D5\u05D5\u05EA'] || ''
         }));
-      } else {
+      } else if (this._behUseDemo) {
+        this._behGenerateDemo();
         this._behData = this._behDemoData;
+      } else {
+        this._behData = [];
       }
     } catch (e) {
-      this._behData = this._behDemoData;
+      if (this._behUseDemo) {
+        this._behGenerateDemo();
+        this._behData = this._behDemoData;
+      } else {
+        this._behData = [];
+      }
     }
 
     this._behFilter = { type: '', category: '', student: '', period: 'month' };
     document.getElementById('beh-f-period').value = 'month';
+
+    // Show empty state if no data
+    if (!this._behData.length && !this._behUseDemo) {
+      document.getElementById('beh-tab-log').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-star-half fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.behLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
+      this.behUpdateStats();
+      return;
+    }
 
     this.behUpdateStats();
     this.behRenderLog();
@@ -904,7 +933,8 @@ Object.assign(Pages, {
     } catch (e) {
       students = [];
     }
-    if (!students || !students.length) students = this._behDemoStudents.map(s => ({ שם_פרטי: s.name.split(' ')[0], שם_משפחה: s.name.split(' ')[1] || '', מזהה: s.id, _id: s.id }));
+    if ((!students || !students.length) && this._behUseDemo) students = this._behDemoStudents.map(s => ({ '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': s.name.split(' ')[0], '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': s.name.split(' ')[1] || '', '\u05DE\u05D6\u05D4\u05D4': s.id, _id: s.id }));
+    if (!students || !students.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA', 'warning'); return; }
 
     const sel = document.getElementById('bf-student');
     if (sel) {

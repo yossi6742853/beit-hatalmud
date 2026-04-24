@@ -222,23 +222,61 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  async homeworkInit() {
-    this._hwGenerateDemo();
+  /* ---- Demo flag ---- */
+  _hwUseDemo: false,
 
-    // Try API first, fall back to demo
+  hwLoadDemo() {
+    this._hwUseDemo = true;
+    this._hwGenerateDemo();
+    this._hwData = this._hwDemoAssignments;
+    this._hwSubmissions = this._hwDemoSubmissions;
+    this._hwStudents = this._hwDemoStudents;
+    this.homeworkInit();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
+  async homeworkInit() {
+    // Try API first
     try {
       const apiData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
       if (apiData && apiData.length > 0) {
         this._hwData = apiData;
-      } else {
+      } else if (this._hwUseDemo) {
+        this._hwGenerateDemo();
         this._hwData = this._hwDemoAssignments;
+      } else {
+        this._hwData = [];
       }
     } catch (e) {
-      this._hwData = this._hwDemoAssignments;
+      if (this._hwUseDemo) {
+        this._hwGenerateDemo();
+        this._hwData = this._hwDemoAssignments;
+      } else {
+        this._hwData = [];
+      }
     }
 
-    this._hwSubmissions = this._hwDemoSubmissions;
-    this._hwStudents = this._hwDemoStudents;
+    // If no data and not demo, show empty state
+    if (!this._hwData.length && !this._hwUseDemo) {
+      document.getElementById('hw-stats').innerHTML = '';
+      document.getElementById('hw-overdue-alerts').innerHTML = '';
+      document.getElementById('hw-content').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-book fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D7\u05D3\u05E9" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.hwLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
+
+    if (this._hwUseDemo) {
+      this._hwGenerateDemo();
+      this._hwSubmissions = this._hwDemoSubmissions;
+      this._hwStudents = this._hwDemoStudents;
+    } else {
+      this._hwSubmissions = [];
+      this._hwStudents = [];
+      // Try loading students for submissions
+      try {
+        const stuData = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+        if (stuData && stuData.length) this._hwStudents = stuData;
+      } catch(e) {}
+    }
 
     // Populate filters
     const subjects = [...new Set(this._hwData.map(r => r['\u05DE\u05E7\u05E6\u05D5\u05E2']).filter(Boolean))].sort();

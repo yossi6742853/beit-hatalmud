@@ -198,21 +198,63 @@ Object.assign(Pages, {
   _attLateLog: {},
   _attKeyListener: null,
 
+  /* ---- Demo flag ---- */
+  _attUseDemo: false,
+
+  attLoadDemo() {
+    this._attUseDemo = true;
+    this._attGenerateDemo();
+    this._attStudents = this._attDemoStudents;
+    this._attAllRecords = this._attDemoRecords;
+    // Rebuild state from demo records
+    const today = document.getElementById('att-date')?.value || Utils.todayISO();
+    this._attState = {};
+    this._attLateLog = {};
+    this._attStudents.forEach(s => {
+      const sId = s._id;
+      const sName = s._fullName;
+      const existing = this._attAllRecords.find(a =>
+        (String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '') === String(sId) ||
+         (a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '') === sName) &&
+        a['\u05EA\u05D0\u05E8\u05D9\u05DA'] === today
+      );
+      if (existing) {
+        const st = existing['\u05E1\u05D8\u05D8\u05D5\u05E1'];
+        this._attState[sId] = st === '\u05E0\u05D5\u05DB\u05D7' ? 'present' : st === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? 'absent' : st === '\u05D0\u05D9\u05D7\u05D5\u05E8' ? 'late' : st === '\u05E4\u05D8\u05D5\u05E8' ? 'excused' : '';
+        if (existing['\u05E9\u05E2\u05EA_\u05D4\u05D2\u05E2\u05D4']) this._attLateLog[sId] = existing['\u05E9\u05E2\u05EA_\u05D4\u05D2\u05E2\u05D4'];
+      } else {
+        this._attState[sId] = '';
+      }
+    });
+    // Populate class filter
+    const classes = [...new Set(this._attStudents.map(s => s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
+    const classFilter = document.getElementById('att-class-filter');
+    if (classFilter) classFilter.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
+    this.attSetView(this._attCurrentView);
+    this.bindAttKeyboard();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   /* ---- Init ---- */
   async attendanceInit() {
-    this._attGenerateDemo();
     let students, attendance;
     try {
       students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       attendance = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     } catch (e) {
-      // Fallback to demo data
-      students = this._attDemoStudents;
-      attendance = this._attDemoRecords;
+      students = [];
+      attendance = [];
     }
     if (!students || !students.length) {
-      students = this._attDemoStudents;
-      attendance = this._attDemoRecords;
+      if (this._attUseDemo) {
+        this._attGenerateDemo();
+        students = this._attDemoStudents;
+        attendance = this._attDemoRecords;
+      } else {
+        // Show empty state
+        document.getElementById('att-content').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-calendar-check fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05DB\u05D3\u05D9 \u05DC\u05E8\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.attLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
+        return;
+      }
     }
 
     const active = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
@@ -954,14 +996,20 @@ Object.assign(Pages, {
   async loadAttMonthly() {
     const month = document.getElementById('attm-month').value;
     if (!month) return;
-    this._attGenerateDemo();
     let att;
     try {
       att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     } catch (e) {
-      att = this._attDemoRecords || [];
+      att = [];
     }
-    if (!att || !att.length) att = this._attDemoRecords || [];
+    if (!att || !att.length) {
+      if (this._attUseDemo) {
+        this._attGenerateDemo();
+        att = this._attDemoRecords || [];
+      } else {
+        att = [];
+      }
+    }
 
     const monthAtt = att.filter(a => (a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '').startsWith(month));
     const students = [...new Set(monthAtt.map(a => a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''))];

@@ -6,6 +6,41 @@ Object.assign(Pages, {
   _studentsView: localStorage.getItem('bht_students_view') || 'cards',
   _studentsSort: { col: 'name', asc: true },
   _studentsSelected: new Set(),
+  _studentsUseDemo: false,
+
+  _studentsDemoData() {
+    const names = [
+      ['\u05D9\u05D5\u05E1\u05E3','\u05DB\u05D4\u05DF'],['\u05DE\u05E9\u05D4','\u05DC\u05D5\u05D9'],['\u05D0\u05D1\u05E8\u05D4\u05DD','\u05D9\u05E6\u05D7\u05E7\u05D9'],
+      ['\u05D3\u05D5\u05D3','\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF'],['\u05D9\u05E2\u05E7\u05D1','\u05E9\u05E4\u05D9\u05E8\u05D0'],['\u05E9\u05DE\u05D5\u05D0\u05DC','\u05D1\u05E8\u05D2\u05E8'],
+      ['\u05D0\u05DC\u05D9\u05D4\u05D5','\u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF'],['\u05D7\u05D9\u05D9\u05DD','\u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2'],
+      ['\u05E0\u05EA\u05E0\u05D0\u05DC','\u05D5\u05D9\u05E0\u05E8'],['\u05E8\u05E4\u05D0\u05DC','\u05DE\u05D6\u05E8\u05D7\u05D9'],
+      ['\u05E8\u05D0\u05D5\u05D1\u05DF','\u05D3\u05D4\u05DF'],['\u05E9\u05DE\u05E2\u05D5\u05DF','\u05D0\u05DC\u05D1\u05D6'],
+      ['\u05D2\u05D3','\u05E7\u05E4\u05DC\u05DF'],['\u05D0\u05E9\u05E8','\u05D4\u05DC\u05DC'],['\u05DE\u05E0\u05D7\u05DD','\u05D1\u05DF \u05D3\u05D5\u05D3']
+    ];
+    const classes = ['\u05DB\u05D9\u05EA\u05D4 \u05D0','\u05DB\u05D9\u05EA\u05D4 \u05D1'];
+    return names.map(([fn,ln], i) => ({
+      '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': fn, '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': ln,
+      '\u05DB\u05D9\u05EA\u05D4': classes[i < 8 ? 0 : 1],
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC',
+      '\u05D8\u05DC\u05E4\u05D5\u05DF': '050' + String(1234567 + i),
+      '\u05DE\u05D2\u05D3\u05E8': '\u05D6\u05DB\u05E8',
+      '\u05DE\u05D6\u05D4\u05D4': 'S' + (i + 1),
+      _row: i + 2
+    }));
+  },
+
+  studentsLoadDemo() {
+    this._studentsUseDemo = true;
+    this._studentsData = this._studentsDemoData();
+    this._studentsSelected = new Set();
+    this._studentsData.forEach(s => { s._fullName = Utils.fullName(s); s._id = Utils.rowId(s); });
+    const classes = [...new Set(this._studentsData.map(s => s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
+    this._classColors = {};
+    classes.forEach(c => this._getClassColor(c));
+    this.renderStudentsStats(this._studentsData, classes);
+    this.renderStudentsList();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
 
   /* ---- class-based avatar colors ---- */
   _classColors: {},
@@ -143,7 +178,19 @@ Object.assign(Pages, {
   },
 
   async studentsInit() {
-    const data = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    let data;
+    try {
+      data = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    } catch(e) {
+      data = [];
+    }
+    if (!data || !data.length) {
+      if (this._studentsUseDemo) {
+        data = this._studentsDemoData();
+      } else {
+        data = [];
+      }
+    }
     this._studentsData = data;
     this._studentsSelected = new Set();
     data.forEach(s => { s._fullName = Utils.fullName(s); s._id = Utils.rowId(s); });
@@ -286,7 +333,10 @@ Object.assign(Pages, {
     document.getElementById('students-count').textContent = `${filtered.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`;
 
     if (filtered.length === 0) {
-      document.getElementById('students-list').innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>`;
+      const isReallyEmpty = !this._studentsData.length && !this._studentsUseDemo;
+      document.getElementById('students-list').innerHTML = isReallyEmpty
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-people fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.studentsLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>';
       return;
     }
 

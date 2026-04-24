@@ -83,12 +83,33 @@ Object.assign(Pages, {
   _staffActiveRole: '',
   _staffExpandedId: null,
   _staffCurrentView: null,
+  _staffUseDemo: false,
+
+  staffLoadDemo() {
+    this._staffUseDemo = true;
+    this._staffData = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+    this._staffActiveRole = '';
+    this._staffExpandedId = null;
+    this._staffCurrentView = null;
+    this.renderStaffStats();
+    this.renderRolesBreakdown();
+    this.renderStaffList();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
 
   async staffInit() {
-    let data = await App.getData('צוות');
+    let data;
+    try {
+      data = await App.getData('\u05E6\u05D5\u05D5\u05EA');
+    } catch(e) {
+      data = [];
+    }
     if (!data || data.length === 0) {
-      // Use demo data
-      data = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+      if (this._staffUseDemo) {
+        data = this._staffDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+      } else {
+        data = [];
+      }
     }
     this._staffData = data;
     this._staffActiveRole = '';
@@ -173,7 +194,10 @@ Object.assign(Pages, {
     });
     document.getElementById('staff-count').textContent = `${filtered.length} אנשי צוות`;
     if (filtered.length === 0) {
-      document.getElementById('staff-list').innerHTML = `<div class="empty-state"><i class="bi bi-person-badge"></i><h5>לא נמצאו</h5></div>`;
+      const isReallyEmpty = !this._staffData.length && !this._staffUseDemo;
+      document.getElementById('staff-list').innerHTML = isReallyEmpty
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-person-badge fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E9 \u05E6\u05D5\u05D5\u05EA \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.staffLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-person-badge"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5</h5></div>';
       return;
     }
     document.getElementById('staff-list').innerHTML = `<div class="row g-3">${filtered.map(s => {

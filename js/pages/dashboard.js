@@ -236,16 +236,34 @@ Object.assign(Pages, {
     `;
   },
 
+  /* ---- Demo flag ---- */
+  _dashUseDemo: false,
+
+  dashLoadDemo() {
+    this._dashUseDemo = true;
+    this.dashboardInit();
+  },
+
   /* ---- Dashboard Init: populate all sections with data ---- */
   async dashboardInit() {
     // Load data in parallel
-    const [students, finance, attendance, calendar, tasks] = await Promise.all([
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
-      App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
-      App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
-      App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
-      App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => [])
-    ]);
+    let students, finance, attendance, calendar, tasks;
+    try {
+      [students, finance, attendance, calendar, tasks] = await Promise.all([
+        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
+        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
+        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
+        App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
+        App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => [])
+      ]);
+    } catch(e) {
+      students = []; finance = []; attendance = []; calendar = []; tasks = [];
+    }
+    if (!students) students = [];
+    if (!finance) finance = [];
+    if (!attendance) attendance = [];
+    if (!calendar) calendar = [];
+    if (!tasks) tasks = [];
 
     const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     const todayISO = Utils.todayISO();
@@ -270,14 +288,13 @@ Object.assign(Pages, {
     // === 2. Attendance Doughnut ===
     const attCtx = document.getElementById('chart-att-doughnut');
     if (attCtx) {
-      // Use demo data if no attendance today
       const hasData = todayAtt.length > 0;
-      const dPresent = hasData ? presentCount : 18;
-      const dAbsent = hasData ? absentCount : 3;
-      const dLate = hasData ? lateCount : 2;
-      const dPct = hasData ? attPct : 78;
+      const dPresent = hasData ? presentCount : 0;
+      const dAbsent = hasData ? absentCount : 0;
+      const dLate = hasData ? lateCount : 0;
+      const dPct = hasData ? attPct : 0;
 
-      this._setText('att-center-pct', dPct + '%');
+      this._setText('att-center-pct', hasData ? dPct + '%' : '--');
       this._setText('att-present', dPresent);
       this._setText('att-absent', dAbsent);
       this._setText('att-late', dLate);
@@ -335,25 +352,7 @@ Object.assign(Pages, {
           </div>`;
         }).join('');
       } else {
-        // Demo data
-        const demoPayments = [
-          { name: '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF', amount: 1200, time: '\u05DC\u05E4\u05E0\u05D9 \u05E9\u05E2\u05D4' },
-          { name: '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9', amount: 850, time: '\u05DC\u05E4\u05E0\u05D9 3 \u05E9\u05E2\u05D5\u05EA' },
-          { name: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9', amount: 2400, time: '\u05D0\u05EA\u05DE\u05D5\u05DC' },
-          { name: '\u05D3\u05D5\u05D3 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', amount: 600, time: '\u05D0\u05EA\u05DE\u05D5\u05DC' }
-        ];
-        paymentsEl.innerHTML = demoPayments.map(p =>
-          `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
-            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dcfce7">
-              <i class="bi bi-check-lg text-success"></i>
-            </div>
-            <div class="flex-grow-1">
-              <div class="fw-semibold small">${p.name}</div>
-              <small class="text-muted">${p.time}</small>
-            </div>
-            <span class="badge bg-success-subtle text-success">\u20AA${p.amount.toLocaleString()}</span>
-          </div>`
-        ).join('');
+        paymentsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-credit-card fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</div>';
       }
     }
 
@@ -382,25 +381,7 @@ Object.assign(Pages, {
           </div>`;
         }).join('');
       } else {
-        // Demo data
-        const demoEvents = [
-          { title: '\u05DE\u05D1\u05D7\u05DF \u05D0\u05DE\u05E6\u05E2 \u05D7\u05D5\u05D3\u05E9\u05D9', date: '\u05D4\u05D9\u05D5\u05DD', today: true },
-          { title: '\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD', date: '\u05DE\u05D7\u05E8', today: false },
-          { title: '\u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9', date: '\u05D9\u05D5\u05DD \u05E8\u05D1\u05D9\u05E2\u05D9', today: false },
-          { title: '\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF / \u05E4\u05EA\u05D5\u05D7', date: '\u05D9\u05D5\u05DD \u05D7\u05DE\u05D9\u05E9\u05D9', today: false }
-        ];
-        eventsEl.innerHTML = demoEvents.map(e =>
-          `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
-            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:${e.today ? '#fee2e2' : '#ede9fe'}">
-              <i class="bi bi-calendar-event ${e.today ? 'text-danger' : 'text-purple'}"></i>
-            </div>
-            <div class="flex-grow-1">
-              <div class="fw-semibold small">${e.title}</div>
-              <small class="text-muted">${e.date}</small>
-            </div>
-            ${e.today ? '<span class="badge bg-danger">\u05D4\u05D9\u05D5\u05DD</span>' : ''}
-          </div>`
-        ).join('');
+        eventsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-calendar-x fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>';
       }
     }
 
@@ -435,15 +416,7 @@ Object.assign(Pages, {
           { icon: 'credit-card', color: 'success', text: '\u05E1\u05D4\u05F4\u05DB \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E9\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5: ' + (Utils.formatCurrency ? Utils.formatCurrency(totalPaid) : totalPaid), time: '\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF' }
         ];
 
-        // Add demo entries to reach 10
-        const demoActivities = [
-          { icon: 'person-plus-fill', color: 'primary', text: '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D7\u05D3\u05E9 \u05E0\u05E8\u05E9\u05DD: \u05D9\u05E2\u05E7\u05D1 \u05DE\u05D6\u05E8\u05D7\u05D9', time: '\u05DC\u05E4\u05E0\u05D9 2 \u05E9\u05E2\u05D5\u05EA' },
-          { icon: 'chat-dots-fill', color: 'info', text: '\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4 \u05DC-12 \u05D4\u05D5\u05E8\u05D9\u05DD', time: '\u05DC\u05E4\u05E0\u05D9 3 \u05E9\u05E2\u05D5\u05EA' },
-          { icon: 'journal-check', color: 'success', text: '\u05E6\u05D9\u05D5\u05E0\u05D9 \u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', time: '\u05DC\u05E4\u05E0\u05D9 5 \u05E9\u05E2\u05D5\u05EA' },
-          { icon: 'shield-check', color: 'success', text: '\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9 \u05D4\u05D5\u05E9\u05DC\u05DD', time: '\u05DC\u05E4\u05E0\u05D9 \u05D9\u05D5\u05DD' },
-          { icon: 'printer-fill', color: 'secondary', text: '\u05D3\u05D5\u05D7 \u05D7\u05D5\u05D3\u05E9\u05D9 \u05D4\u05D5\u05E4\u05E7', time: '\u05DC\u05E4\u05E0\u05D9 \u05D9\u05D5\u05DD' }
-        ];
-        activities = activities.concat(demoActivities).slice(0, 10);
+        // Only show real data-based activities
       }
 
       const typeIcons = {

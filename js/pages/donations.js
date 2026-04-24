@@ -271,14 +271,39 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
+  _donUseDemo: false,
+
+  donLoadDemo() {
+    this._donUseDemo = true;
+    this._donLiveData = this._donDemoData();
+    this.donationsInit();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async donationsInit() {
     let data;
     try {
-      const apiData = await App.getData('קופה_קטנה');
-      data = (apiData && apiData.length) ? apiData : this._donDemoData();
+      const apiData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+      if (apiData && apiData.length) {
+        data = apiData;
+      } else if (this._donUseDemo) {
+        data = this._donDemoData();
+      } else {
+        data = [];
+      }
     } catch(e) {
-      data = this._donDemoData();
+      data = this._donUseDemo ? this._donDemoData() : [];
     }
+
+    // Empty state
+    if (!data.length && !this._donUseDemo) {
+      document.getElementById('don-top-donors').innerHTML = '';
+      document.getElementById('don-campaigns').innerHTML = '';
+      const tableWrap = document.getElementById('don-table-wrap');
+      if (tableWrap) tableWrap.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-heart fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05EA\u05E8\u05D5\u05DE\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.donLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
+
     this._donLiveData = data;
     const campaigns = this._donCampaigns();
     const now = new Date();

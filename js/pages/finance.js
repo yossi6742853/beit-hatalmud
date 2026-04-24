@@ -166,15 +166,33 @@ Object.assign(Pages, {
   _finSortAsc: true,
 
   /* ---------- Init ---------- */
+  _finUseDemo: false,
+
+  finLoadDemo() {
+    this._finUseDemo = true;
+    this._finData = this._finDemoData();
+    this._finSelectedIds = [];
+    this._finComputeDashboard();
+    this._finPopulateMonthFilter();
+    this._finRenderCharts();
+    this._finRenderOverdue();
+    this._finRenderPlans();
+    this.renderFinList();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+  },
+
   async financeInit() {
     try {
       this._finData = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
     } catch(e) {
       this._finData = [];
     }
-    // Use demo data if no real data
     if (!this._finData || !this._finData.length) {
-      this._finData = this._finDemoData();
+      if (this._finUseDemo) {
+        this._finData = this._finDemoData();
+      } else {
+        this._finData = [];
+      }
     }
     this._finSelectedIds = [];
 
@@ -488,7 +506,10 @@ Object.assign(Pages, {
     if (!container) return;
 
     if (!filtered.length) {
-      container.innerHTML = '<div class="empty-state"><i class="bi bi-cash"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05E1\u05D9\u05E0\u05D5\u05DF</p></div>';
+      const isReallyEmpty = !(this._finData || []).length && !this._finUseDemo;
+      container.innerHTML = isReallyEmpty
+        ? '<div class="empty-state text-center py-5"><i class="bi bi-cash-stack fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05EA\u05E9\u05DC\u05D5\u05DD \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.finLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
+        : '<div class="empty-state"><i class="bi bi-cash"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05E1\u05D9\u05E0\u05D5\u05DF</p></div>';
       return;
     }
 

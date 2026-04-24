@@ -199,7 +199,7 @@ Object.assign(Pages, {
     } catch(e) { /* fall through */ }
 
     if (!loaded) {
-      // Load from localStorage or use demo data
+      // Load from localStorage
       const saved = localStorage.getItem(this._GB_STORAGE_KEY);
       if (saved) {
         try {
@@ -207,16 +207,38 @@ Object.assign(Pages, {
           this._gbStudents = data.students || [];
           this._gbExams = data.exams || [];
           this._gbGrades = data.grades || {};
-        } catch(e) {
-          this._loadDemoGradebook();
-        }
-      } else {
-        this._loadDemoGradebook();
+          loaded = this._gbStudents.length > 0;
+        } catch(e) { /* fall through */ }
       }
+    }
+
+    if (!loaded && !this._gbUseDemo) {
+      // Show empty state
+      this._gbStudents = [];
+      this._gbExams = [];
+      this._gbGrades = {};
+      const tableEl = document.getElementById('gb-table');
+      if (tableEl) tableEl.innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-table fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05DE\u05D1\u05D7\u05DF \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.gbLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
+      return;
+    }
+
+    if (!loaded && this._gbUseDemo) {
+      this._loadDemoGradebook();
     }
 
     this._populateGbFilters();
     this.renderGradebook();
+  },
+
+  /* ---- Demo flag ---- */
+  _gbUseDemo: false,
+
+  gbLoadDemo() {
+    this._gbUseDemo = true;
+    this._loadDemoGradebook();
+    this._populateGbFilters();
+    this.renderGradebook();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
   _loadDemoGradebook() {
