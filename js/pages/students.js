@@ -1,4 +1,4 @@
-/* ===== BHT v5.4 — Students (Full Upgrade) ===== */
+/* ===== BHT v5.5 — Students (Full Upgrade + Student Card with Real Data) ===== */
 Object.assign(Pages, {
 
   /* ---- state ---- */
@@ -793,9 +793,17 @@ Object.assign(Pages, {
   },
 
   /* ======================================================================
-     STUDENT CARD (Detail Page — 10 tabs)
+     STUDENT CARD (Detail Page — 9 tabs, all real data)
      ====================================================================== */
+
+  /* -- Stash current student data for use by tab modals -- */
+  _scStudent: null,
+  _scStudentId: null,
+  _scStudentName: null,
+
   student(id) { return `<div id="student-card-content">${Utils.skeleton(3)}</div>`; },
+
+  async student_cardInit(id) { return this.studentInit(id); },
 
   async studentInit(id) {
     const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
@@ -811,49 +819,139 @@ Object.assign(Pages, {
     const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '';
     const classColor = this._getClassColor(cls);
 
-    const matchId = r => String(r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === sId;
+    // Save for modal usage
+    this._scStudent = s;
+    this._scStudentId = sId;
+    this._scStudentName = name;
+
+    const matchId = r => String(r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05DE\u05D6\u05D4\u05D4']||'') === sId;
     const matchName = r => (r['\u05E9\u05DD']||r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name;
     const match = r => matchId(r) || matchName(r);
 
-    // Load all data in parallel
-    const [attendance, finance, behavior, parents, medical, homework, grades, documents] = await Promise.all([
-      App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
-      App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
-      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'),
+    // Load ALL data in parallel for speed
+    const [attendance, finance, behavior, parents, medical, homework, grades, exams, documents, activityLog, paymentPlans] = await Promise.all([
+      App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
+      App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
+      App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]),
       App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(()=>[]),
       App.getData('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9').catch(()=>[]),
       App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(()=>[]),
       App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(()=>[]),
-      App.getData('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05EA\u05DC\u05DE\u05D9\u05D3').catch(()=>[])
+      App.getData('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD').catch(()=>[]),
+      App.getData('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD').catch(()=>[]),
+      App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA').catch(()=>[]),
+      App.getData('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD').catch(()=>[])
     ]);
 
-    // Attendance
-    const studentAtt = attendance.filter(match);
+    // ---- Attendance ----
+    const studentAtt = (attendance||[]).filter(match);
     const presentCount = studentAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
+    const lateCount = studentAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8').length;
+    const absentCount = studentAtt.length - presentCount - lateCount;
     const attPct = studentAtt.length ? Math.round(presentCount / studentAtt.length * 100) : 0;
 
-    // Finance
-    const studentFin = finance.filter(match);
+    // Build attendance calendar heatmap (last 30 days)
+    const attByDate = {};
+    studentAtt.forEach(a => { const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''; if (d) attByDate[d] = a['\u05E1\u05D8\u05D8\u05D5\u05E1']||''; });
+    const calendarDays = [];
+    const today = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      const iso = d.toISOString().slice(0,10);
+      const dayOfWeek = d.getDay();
+      if (dayOfWeek === 6) continue; // Skip Shabbat
+      const status = attByDate[iso] || '';
+      const color = status === '\u05E0\u05D5\u05DB\u05D7' ? '#0f9d58' : status === '\u05D0\u05D9\u05D7\u05D5\u05E8' ? '#f9ab00' : status === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? '#ea4335' : '#e9ecef';
+      const title = `${iso}: ${status || '\u05DC\u05D0 \u05E0\u05E8\u05E9\u05DD'}`;
+      calendarDays.push(`<div title="${title}" style="width:22px;height:22px;background:${color};border-radius:3px;cursor:help" data-bs-toggle="tooltip"></div>`);
+    }
+
+    // Monthly breakdown
+    const monthMap = {};
+    studentAtt.forEach(a => {
+      const d = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'';
+      const month = d ? d.substring(0,7) : '';
+      if (!month) return;
+      if (!monthMap[month]) monthMap[month] = { present: 0, absent: 0, late: 0, total: 0 };
+      monthMap[month].total++;
+      if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7') monthMap[month].present++;
+      else if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8') monthMap[month].late++;
+      else monthMap[month].absent++;
+    });
+
+    // ---- Finance ----
+    const studentFin = (finance||[]).filter(match);
     const sfTotal = studentFin.reduce((t,f)=>t+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
-    const sfPaid = studentFin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((t,f)=>t+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
+    const sfPaid = studentFin.filter(f=>(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')=== '\u05E9\u05D5\u05DC\u05DD').reduce((t,f)=>t+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0),0);
     const sfDebt = sfTotal - sfPaid;
 
-    // Behavior
+    // Payment plans
+    const studentPlans = (paymentPlans||[]).filter(match);
+
+    // ---- Behavior ----
     const studentBeh = (behavior||[]).filter(match);
     const posB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
     const negB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+    const behPoints = studentBeh.reduce((t,b) => t + (Number(b['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||b['points']||0)),0);
 
-    // Parents, Medical, Homework, Grades, Documents
+    // ---- Grades + Exams ----
+    const studentGrades = (grades||[]).filter(match);
+    const studentExams = (exams||[]).filter(match);
+    // Merge exam data for richer display
+    const allExamNames = {};
+    (exams||[]).forEach(e => { const eid = Utils.rowId(e); if (eid) allExamNames[eid] = e; });
+
+    // Subject averages
+    const subjectMap = {};
+    studentGrades.forEach(g => {
+      const subj = g['\u05DE\u05E7\u05E6\u05D5\u05E2']||g['subject']||'\u05DC\u05DC\u05D0 \u05DE\u05E7\u05E6\u05D5\u05E2';
+      if (!subjectMap[subj]) subjectMap[subj] = [];
+      subjectMap[subj].push(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0));
+    });
+
+    // ---- Parents, Medical, Homework, Documents, Activity ----
     const studentParents = (parents||[]).filter(match);
     const studentMed = (medical||[]).filter(match);
     const studentHW = (homework||[]).filter(match);
-    const studentGrades = (grades||[]).filter(match);
     const studentDocs = (documents||[]).filter(match);
+    const studentActivity = (activityLog||[]).filter(match);
 
     // WhatsApp helper
     const waLink = (ph, text='') => { const num = (ph||'').replace(/\D/g,'').replace(/^0/,'972'); return num ? `https://wa.me/${num}${text?'?text='+encodeURIComponent(text):''}` : '#'; };
     const parentPhone = studentParents.length ? (studentParents[0]['\u05D8\u05DC\u05E4\u05D5\u05DF']||'') : '';
     const primaryPhone = phone || parentPhone;
+
+    // ---- Attendance tab: Monthly bars HTML ----
+    const monthlyBarsHtml = Object.keys(monthMap).sort().reverse().slice(0,6).map(m => {
+      const d = monthMap[m];
+      const pPct = d.total ? Math.round(d.present/d.total*100) : 0;
+      const lPct = d.total ? Math.round(d.late/d.total*100) : 0;
+      const aPct = d.total ? Math.round(d.absent/d.total*100) : 0;
+      return `<div class="d-flex align-items-center gap-2 mb-2">
+        <span class="text-muted small" style="min-width:70px">${m}</span>
+        <div class="progress flex-grow-1" style="height:14px">
+          <div class="progress-bar bg-success" style="width:${pPct}%" title="\u05E0\u05D5\u05DB\u05D7 ${d.present}">${pPct > 15 ? pPct+'%' : ''}</div>
+          <div class="progress-bar bg-warning" style="width:${lPct}%" title="\u05D0\u05D9\u05D7\u05D5\u05E8 ${d.late}">${lPct > 15 ? lPct+'%' : ''}</div>
+          <div class="progress-bar bg-danger" style="width:${aPct}%" title="\u05D7\u05D9\u05E1\u05D5\u05E8 ${d.absent}">${aPct > 15 ? aPct+'%' : ''}</div>
+        </div>
+        <small class="text-muted" style="min-width:30px">${d.total}</small>
+      </div>`;
+    }).join('');
+
+    // ---- Subject averages HTML ----
+    const subjectAvgHtml = Object.keys(subjectMap).map(subj => {
+      const arr = subjectMap[subj];
+      const avg = Math.round(arr.reduce((a,b)=>a+b,0) / arr.length);
+      const color = avg >= 80 ? 'success' : avg >= 60 ? 'warning' : 'danger';
+      return `<div class="d-flex align-items-center gap-2 mb-2">
+        <span class="fw-bold" style="min-width:100px">${subj}</span>
+        <div class="progress flex-grow-1" style="height:10px">
+          <div class="progress-bar bg-${color}" style="width:${avg}%"></div>
+        </div>
+        <span class="badge bg-${color}" style="min-width:40px">${avg}</span>
+        <small class="text-muted">(${arr.length})</small>
+      </div>`;
+    }).join('');
 
     document.getElementById('student-card-content').innerHTML = `
       <!-- Back + Actions -->
@@ -861,7 +959,7 @@ Object.assign(Pages, {
         <a href="#students" class="btn btn-link text-decoration-none"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a>
         <div class="d-flex gap-2 flex-wrap">
           <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printStudentCard('${sId}')"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
-          <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._studentsData.find(x=>String(Utils.rowId(x))==='${sId}'))"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._scStudent)"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           ${primaryPhone ? `<a href="${waLink(primaryPhone)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
           ${parentPhone && parentPhone !== phone ? `<a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-outline-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
           <button class="btn btn-outline-danger btn-sm" onclick="Pages.deleteStudent('${sId}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
@@ -883,7 +981,7 @@ Object.assign(Pages, {
         <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${attPct >= 80 ? 'text-success' : attPct >= 60 ? 'text-warning' : 'text-danger'}">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small><div class="progress mt-2" style="height:4px"><div class="progress-bar ${attPct >= 80 ? 'bg-success' : 'bg-warning'}" style="width:${attPct}%"></div></div></div></div>
         <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${(posB-negB) >= 0 ? 'text-success' : 'text-danger'}">${posB-negB >= 0 ? '+' : ''}${posB-negB}</div><small class="text-muted">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div></div>
         <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold">${Utils.formatCurrency(sfDebt)}</div><small class="text-muted">${sfDebt > 0 ? '\u05D7\u05D5\u05D1' : '\u05DE\u05D0\u05D5\u05D6\u05DF'}</small></div></div>
-        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary">${studentAtt.length}</div><small class="text-muted">\u05D9\u05DE\u05D9 \u05E8\u05D9\u05E9\u05D5\u05DD</small></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary">${studentGrades.length > 0 ? Math.round(studentGrades.reduce((sm,g)=>sm+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length) : '--'}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div></div>
       </div>
 
       <!-- Tabs -->
@@ -895,108 +993,276 @@ Object.assign(Pages, {
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-fin"><i class="bi bi-cash-stack me-1"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-parents"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-docs"><i class="bi bi-folder me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-comm"><i class="bi bi-chat-dots me-1"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</a></li>
       </ul>
       <div class="tab-content">
 
-        <!-- 1. Info -->
-        <div class="tab-pane fade show active" id="tab-info"><div class="card p-3"><div class="row g-3">
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05E9\u05DD</label><div class="fw-bold">${name}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05DB\u05D9\u05EA\u05D4</label><div class="fw-bold">${cls || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone(phone)}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4</label><div class="fw-bold">${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'])}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05E1\u05D8\u05D8\u05D5\u05E1</label><div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05D2\u05D3\u05E8</label><div class="fw-bold">${s['\u05DE\u05D2\u05D3\u05E8'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05DB\u05EA\u05D5\u05D1\u05EA</label><div class="fw-bold">${s['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05E2\u05D9\u05E8</label><div class="fw-bold">${s['\u05E2\u05D9\u05E8'] || s['\u05e2\u05d9\u05e8'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</label><div class="fw-bold">${s['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA'] || s['\u05ea\u05e2\u05d5\u05d3\u05ea_\u05d6\u05d4\u05d5\u05ea'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05E7\u05D5\u05D3\u05DD</label><div class="fw-bold">${s['\u05D1\u05D9\u05EA_\u05E1\u05E4\u05E8_\u05E7\u05D5\u05D3\u05DD'] || s['\u05d1\u05d9\u05ea_\u05e1\u05e4\u05e8_\u05e7\u05d5\u05d3\u05dd'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05E8\u05E9\u05DE\u05D4</label><div class="fw-bold">${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E8\u05E9\u05DE\u05D4'] || s['\u05ea\u05d0\u05e8\u05d9\u05da_\u05d4\u05e8\u05e9\u05de\u05d4'] || '')}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05E1\u05E4\u05E8 \u05D0\u05D7\u05D9\u05DD</label><div class="fw-bold">${s['\u05DE\u05E1\u05E4\u05E8_\u05D0\u05D7\u05D9\u05DD'] || s['\u05de\u05e1\u05e4\u05e8_\u05d0\u05d7\u05d9\u05dd'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05E2\u05D3\u05D4</label><div class="fw-bold">${s['\u05E2\u05D3\u05D4'] || s['\u05e2\u05d3\u05d4'] || '--'}</div></div>
-          <div class="col-sm-6"><label class="form-label text-muted small">\u05D1\u05D9\u05EA \u05DB\u05E0\u05E1\u05EA</label><div class="fw-bold">${s['\u05D1\u05D9\u05EA_\u05DB\u05E0\u05E1\u05EA'] || s['\u05d1\u05d9\u05ea_\u05db\u05e0\u05e1\u05ea'] || '--'}</div></div>
-          ${s['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? `<div class="col-12"><label class="form-label text-muted small">\u05D4\u05E2\u05E8\u05D5\u05EA</label><div>${s['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div></div>` : ''}
-        </div></div></div>
+        <!-- ============ 1. Info Tab ============ -->
+        <div class="tab-pane fade show active" id="tab-info">
+          <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-person-vcard me-2"></i>\u05E4\u05E8\u05D8\u05D9\u05DD \u05D0\u05D9\u05E9\u05D9\u05D9\u05DD</h6>
+              <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._scStudent)"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+            </div>
+            <div class="row g-3">
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05E9\u05DD \u05E4\u05E8\u05D8\u05D9</label><div class="fw-bold">${s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4</label><div class="fw-bold">${s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05DB\u05D9\u05EA\u05D4</label><div class="fw-bold">${cls || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05D8\u05DC\u05E4\u05D5\u05DF</label><div class="fw-bold" dir="ltr">${Utils.formatPhone(phone)}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4</label><div class="fw-bold">${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'])}${age ? ` (\u05D2\u05D9\u05DC ${age})` : ''}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05E1\u05D8\u05D8\u05D5\u05E1</label><div>${Utils.statusBadge(s['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05D2\u05D3\u05E8</label><div class="fw-bold">${s['\u05DE\u05D2\u05D3\u05E8'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</label><div class="fw-bold">${s['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05DB\u05EA\u05D5\u05D1\u05EA</label><div class="fw-bold">${s['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05E2\u05D9\u05E8</label><div class="fw-bold">${s['\u05E2\u05D9\u05E8'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8 \u05E7\u05D5\u05D3\u05DD</label><div class="fw-bold">${s['\u05D1\u05D9\u05EA_\u05E1\u05E4\u05E8_\u05E7\u05D5\u05D3\u05DD'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05E8\u05E9\u05DE\u05D4</label><div class="fw-bold">${Utils.formatDate(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E8\u05E9\u05DE\u05D4'] || '')}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05E1\u05E4\u05E8 \u05D0\u05D7\u05D9\u05DD</label><div class="fw-bold">${s['\u05DE\u05E1\u05E4\u05E8_\u05D0\u05D7\u05D9\u05DD'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05E2\u05D3\u05D4</label><div class="fw-bold">${s['\u05E2\u05D3\u05D4'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05D1\u05D9\u05EA \u05DB\u05E0\u05E1\u05EA</label><div class="fw-bold">${s['\u05D1\u05D9\u05EA_\u05DB\u05E0\u05E1\u05EA'] || '--'}</div></div>
+              <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05E1\u05D2\u05E8\u05EA</label><div class="fw-bold">${s['\u05DE\u05E1\u05D2\u05E8\u05EA'] || '--'}</div></div>
+              ${s['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? `<div class="col-12"><label class="form-label text-muted small">\u05D4\u05E2\u05E8\u05D5\u05EA</label><div class="p-2 bg-light rounded">${s['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div></div>` : ''}
+            </div>
+            ${studentMed.length > 0 ? `<hr><h6 class="fw-bold mb-2"><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h6>
+              <div class="list-group">${studentMed.map(m => `<div class="list-group-item"><div class="fw-bold">${m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||''}</div><small class="text-muted">${m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']||''}</small></div>`).join('')}</div>` : ''}
+          </div>
+        </div>
 
-        <!-- 2. Attendance -->
-        <div class="tab-pane fade" id="tab-att"><div class="row g-3 mb-3">
-          <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
-          <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-primary">${presentCount}</div><small class="text-muted">\u05D9\u05DE\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
-          <div class="col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${studentAtt.length - presentCount}</div><small class="text-muted">\u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD</small></div></div>
-        </div>${studentAtt.length === 0 ? '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>' :
-        `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D4\u05E2\u05E8\u05D4</th></tr></thead><tbody>${studentAtt.slice(-15).reverse().map(a => `<tr><td>${Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</td><td>${a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' ? '<span class="badge bg-success">\u05E0\u05D5\u05DB\u05D7</span>' : a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8' ? '<span class="badge bg-warning text-dark">\u05D0\u05D9\u05D7\u05D5\u05E8</span>' : '<span class="badge bg-danger">\u05D7\u05D9\u05E1\u05D5\u05E8</span>'}</td><td class="text-muted small">${a['\u05D4\u05E2\u05E8\u05D4']||''}</td></tr>`).join('')}</tbody></table></div>`}</div>
+        <!-- ============ 2. Attendance Tab ============ -->
+        <div class="tab-pane fade" id="tab-att">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scAddAttendance()"><i class="bi bi-plus-lg me-1"></i>\u05E8\u05D9\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</button>
+          </div>
 
-        <!-- 3. Grades -->
-        <div class="tab-pane fade" id="tab-grades">${studentGrades.length === 0
-          ? '<div class="empty-state py-4"><i class="bi bi-mortarboard"></i><h6>\u05D0\u05D9\u05DF \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h6></div>'
-          : `<div class="card"><table class="table table-bht mb-0"><thead><tr><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DE\u05D1\u05D7\u05DF</th><th>\u05E6\u05D9\u05D5\u05DF</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead><tbody>${studentGrades.slice(-15).reverse().map(g => {
-              const grade = Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0);
-              const gradeColor = grade >= 80 ? 'success' : grade >= 60 ? 'warning' : 'danger';
-              return `<tr><td>${g['\u05DE\u05E7\u05E6\u05D5\u05E2']||g['subject']||''}</td><td>${g['\u05DE\u05D1\u05D7\u05DF']||g['exam']||''}</td><td><span class="badge bg-${gradeColor} fs-6">${grade}</span></td><td>${Utils.formatDateShort(g['\u05EA\u05D0\u05E8\u05D9\u05DA']||'')}</td></tr>`;
-            }).join('')}</tbody></table></div>
-          ${studentGrades.length >= 2 ? `<div class="card p-3 mt-3"><div class="d-flex justify-content-around text-center">
-            <div><div class="fs-4 fw-bold text-primary">${Math.round(studentGrades.reduce((sm,g)=>sm+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length)}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2</small></div>
-            <div><div class="fs-4 fw-bold text-success">${Math.max(...studentGrades.map(g=>Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)))}</div><small class="text-muted">\u05D2\u05D1\u05D5\u05D4 \u05D1\u05D9\u05D5\u05EA\u05E8</small></div>
-            <div><div class="fs-4 fw-bold text-danger">${Math.min(...studentGrades.map(g=>Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)))}</div><small class="text-muted">\u05E0\u05DE\u05D5\u05DA \u05D1\u05D9\u05D5\u05EA\u05E8</small></div>
-            <div><div class="fs-4 fw-bold">${studentGrades.length}</div><small class="text-muted">\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</small></div>
-          </div></div>` : ''}`
-        }</div>
+          <!-- Stats Row -->
+          <div class="row g-3 mb-3">
+            <div class="col-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
+            <div class="col-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-primary">${presentCount}</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7</small></div></div>
+            <div class="col-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-warning">${lateCount}</div><small class="text-muted">\u05D0\u05D9\u05D7\u05D5\u05E8</small></div></div>
+            <div class="col-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${absentCount}</div><small class="text-muted">\u05D7\u05D9\u05E1\u05D5\u05E8</small></div></div>
+          </div>
 
-        <!-- 4. Behavior -->
-        <div class="tab-pane fade" id="tab-beh"><div class="d-flex gap-3 mb-3"><span class="badge bg-success p-2"><i class="bi bi-hand-thumbs-up me-1"></i>+${posB} \u05D7\u05D9\u05D5\u05D1\u05D9</span><span class="badge bg-danger p-2"><i class="bi bi-hand-thumbs-down me-1"></i>-${negB} \u05E9\u05DC\u05D9\u05DC\u05D9</span><span class="badge bg-secondary p-2">\u05E1\u05D4"\u05DB ${studentBeh.length}</span></div>
-          ${studentBeh.length === 0 ? '<div class="text-muted text-center">\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</div>' :
-          `<div class="card"><table class="table table-sm mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA</th></tr></thead><tbody>${studentBeh.slice(-15).reverse().map(b => `<tr><td>${Utils.formatDateShort(b['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</td><td><span class="badge bg-${b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9'?'success':'danger'}">${b['\u05E1\u05D5\u05D2']||''}</span></td><td>${b['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="text-muted small">${b['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||b['points']||''}</td></tr>`).join('')}</tbody></table></div>`}</div>
+          <!-- Calendar Heatmap -->
+          ${calendarDays.length > 0 ? `<div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-2">\u05DC\u05D5\u05D7 30 \u05D9\u05D5\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</h6>
+            <div class="d-flex flex-wrap gap-1">${calendarDays.join('')}</div>
+            <div class="d-flex gap-3 mt-2">
+              <small><span style="display:inline-block;width:12px;height:12px;background:#0f9d58;border-radius:2px"></span> \u05E0\u05D5\u05DB\u05D7</small>
+              <small><span style="display:inline-block;width:12px;height:12px;background:#f9ab00;border-radius:2px"></span> \u05D0\u05D9\u05D7\u05D5\u05E8</small>
+              <small><span style="display:inline-block;width:12px;height:12px;background:#ea4335;border-radius:2px"></span> \u05D7\u05D9\u05E1\u05D5\u05E8</small>
+              <small><span style="display:inline-block;width:12px;height:12px;background:#e9ecef;border-radius:2px"></span> \u05DC\u05D0 \u05E0\u05E8\u05E9\u05DD</small>
+            </div>
+          </div>` : ''}
 
-        <!-- 5. Finance -->
-        <div class="tab-pane fade" id="tab-fin"><div class="card p-3"><div class="row g-3 text-center mb-3">
-          <div class="col-4"><div class="fs-5 fw-bold">${Utils.formatCurrency(sfTotal || 0)}</div><small class="text-muted">\u05E1\u05D4"\u05DB</small></div>
-          <div class="col-4"><div class="fs-5 fw-bold text-success">${Utils.formatCurrency(sfPaid || 0)}</div><small class="text-muted">\u05E9\u05D5\u05DC\u05DD</small></div>
-          <div class="col-4"><div class="fs-5 fw-bold text-danger">${Utils.formatCurrency(sfDebt || 0)}</div><small class="text-muted">\u05D9\u05EA\u05E8\u05D4</small></div>
-        </div>${sfTotal ? `<div class="finance-progress"><div class="finance-progress-bar bg-success" style="width:${Math.round((sfPaid||0)/(sfTotal||1)*100)}%"></div></div><small class="text-muted mt-1 d-block">${Math.round((sfPaid||0)/(sfTotal||1)*100)}% \u05E9\u05D5\u05DC\u05DD</small>` : '<div class="text-muted text-center">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05DB\u05E1\u05E4\u05D9\u05DD</div>'}
-        ${studentFin.length > 0 ? `<hr><table class="table table-sm mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead><tbody>${studentFin.slice(-10).reverse().map(f => `<tr><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA']||'')}</td><td>${f['\u05EA\u05D9\u05D0\u05D5\u05E8']||f['\u05E4\u05D9\u05E8\u05D5\u05D8']||''}</td><td>${Utils.formatCurrency(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0)}</td><td><span class="badge bg-${(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')=== '\u05E9\u05D5\u05DC\u05DD'?'success':'danger'}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD'}</span></td></tr>`).join('')}</tbody></table>` : ''}
-        </div></div>
+          <!-- Monthly Breakdown -->
+          ${monthlyBarsHtml ? `<div class="card p-3 mb-3">
+            <h6 class="fw-bold mb-2">\u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9</h6>
+            ${monthlyBarsHtml}
+          </div>` : ''}
 
-        <!-- 6. Parents -->
-        <div class="tab-pane fade" id="tab-parents">${studentParents.length === 0
-          ? '<div class="empty-state py-4"><i class="bi bi-people"></i><h6>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DE\u05E9\u05D5\u05D9\u05DB\u05D9\u05DD</h6></div>'
+          <!-- Recent Records Table -->
+          ${studentAtt.length === 0 ? '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>' :
+          `<div class="card"><div class="card-header d-flex justify-content-between"><span class="fw-bold">\u05E8\u05D9\u05E9\u05D5\u05DE\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</span><small class="text-muted">${studentAtt.length} \u05E1\u05D4"\u05DB</small></div>
+          <table class="table table-bht mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05D4\u05E2\u05E8\u05D4</th></tr></thead><tbody>${studentAtt.slice(-20).reverse().map(a => `<tr><td>${Utils.formatDateShort(a['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</td><td>${a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7' ? '<span class="badge bg-success">\u05E0\u05D5\u05DB\u05D7</span>' : a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D0\u05D9\u05D7\u05D5\u05E8' ? '<span class="badge bg-warning text-dark">\u05D0\u05D9\u05D7\u05D5\u05E8</span>' : '<span class="badge bg-danger">\u05D7\u05D9\u05E1\u05D5\u05E8</span>'}</td><td class="text-muted small">${a['\u05D4\u05E2\u05E8\u05D4']||''}</td></tr>`).join('')}</tbody></table></div>`}
+        </div>
+
+        <!-- ============ 3. Grades Tab ============ -->
+        <div class="tab-pane fade" id="tab-grades">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-mortarboard me-2"></i>\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05D5\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scAddGrade()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05E6\u05D9\u05D5\u05DF</button>
+          </div>
+
+          ${studentGrades.length === 0 && studentExams.length === 0
+            ? '<div class="empty-state py-4"><i class="bi bi-mortarboard"></i><h6>\u05D0\u05D9\u05DF \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h6><p class="text-muted small">\u05D4\u05D5\u05E1\u05E3 \u05E6\u05D9\u05D5\u05DF \u05E8\u05D0\u05E9\u05D5\u05DF \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</p></div>'
+            : `
+            <!-- Subject Averages -->
+            ${subjectAvgHtml ? `<div class="card p-3 mb-3">
+              <h6 class="fw-bold mb-2">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05DC\u05E4\u05D9 \u05DE\u05E7\u05E6\u05D5\u05E2</h6>
+              ${subjectAvgHtml}
+            </div>` : ''}
+
+            <!-- Overall Stats -->
+            ${studentGrades.length >= 2 ? `<div class="card p-3 mb-3"><div class="d-flex justify-content-around text-center">
+              <div><div class="fs-4 fw-bold text-primary">${Math.round(studentGrades.reduce((sm,g)=>sm+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length)}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2</small></div>
+              <div><div class="fs-4 fw-bold text-success">${Math.max(...studentGrades.map(g=>Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)))}</div><small class="text-muted">\u05D2\u05D1\u05D5\u05D4 \u05D1\u05D9\u05D5\u05EA\u05E8</small></div>
+              <div><div class="fs-4 fw-bold text-danger">${Math.min(...studentGrades.map(g=>Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)))}</div><small class="text-muted">\u05E0\u05DE\u05D5\u05DA \u05D1\u05D9\u05D5\u05EA\u05E8</small></div>
+              <div><div class="fs-4 fw-bold">${studentGrades.length}</div><small class="text-muted">\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</small></div>
+            </div></div>` : ''}
+
+            <!-- Grades Table -->
+            <div class="card"><div class="card-header d-flex justify-content-between"><span class="fw-bold">\u05E8\u05E9\u05D9\u05DE\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</span><small class="text-muted">${studentGrades.length} \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div>
+            <table class="table table-bht mb-0"><thead><tr><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DE\u05D1\u05D7\u05DF</th><th>\u05E6\u05D9\u05D5\u05DF</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05D4\u05E2\u05E8\u05D5\u05EA</th></tr></thead><tbody>${studentGrades.slice(-20).reverse().map(g => {
+                const grade = Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0);
+                const gradeColor = grade >= 80 ? 'success' : grade >= 60 ? 'warning' : 'danger';
+                return `<tr><td>${g['\u05DE\u05E7\u05E6\u05D5\u05E2']||g['subject']||''}</td><td>${g['\u05DE\u05D1\u05D7\u05DF']||g['exam']||''}</td><td><span class="badge bg-${gradeColor} fs-6">${grade}</span></td><td>${Utils.formatDateShort(g['\u05EA\u05D0\u05E8\u05D9\u05DA']||'')}</td><td class="text-muted small">${g['\u05D4\u05E2\u05E8\u05D5\u05EA']||''}</td></tr>`;
+              }).join('')}</tbody></table></div>
+
+            <!-- Exam Participation -->
+            ${studentExams.length > 0 ? `<div class="card mt-3"><div class="card-header fw-bold">\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD \u05E7\u05E8\u05D5\u05D1\u05D9\u05DD</div>
+            <div class="list-group list-group-flush">${studentExams.slice(-10).reverse().map(e => `<div class="list-group-item d-flex justify-content-between align-items-center">
+              <div><div class="fw-bold">${e['\u05E9\u05DD_\u05DE\u05D1\u05D7\u05DF']||e['\u05DE\u05D1\u05D7\u05DF']||''}</div><small class="text-muted">${e['\u05DE\u05E7\u05E6\u05D5\u05E2']||''} | ${Utils.formatDateShort(e['\u05EA\u05D0\u05E8\u05D9\u05DA']||'')}</small></div>
+              <span class="badge bg-info">${e['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'}</span>
+            </div>`).join('')}</div></div>` : ''}
+          `}</div>
+
+        <!-- ============ 4. Behavior Tab ============ -->
+        <div class="tab-pane fade" id="tab-beh">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-emoji-smile me-2"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success btn-sm" onclick="Pages._scAddBehavior('\u05D7\u05D9\u05D5\u05D1\u05D9')"><i class="bi bi-hand-thumbs-up me-1"></i>\u05D7\u05D9\u05D5\u05D1\u05D9</button>
+              <button class="btn btn-danger btn-sm" onclick="Pages._scAddBehavior('\u05E9\u05DC\u05D9\u05DC\u05D9')"><i class="bi bi-hand-thumbs-down me-1"></i>\u05E9\u05DC\u05D9\u05DC\u05D9</button>
+            </div>
+          </div>
+
+          <!-- Points Balance -->
+          <div class="row g-3 mb-3">
+            <div class="col-4"><div class="card p-3 text-center border-success"><div class="fs-3 fw-bold text-success">+${posB}</div><small class="text-muted">\u05D7\u05D9\u05D5\u05D1\u05D9</small></div></div>
+            <div class="col-4"><div class="card p-3 text-center border-danger"><div class="fs-3 fw-bold text-danger">-${negB}</div><small class="text-muted">\u05E9\u05DC\u05D9\u05DC\u05D9</small></div></div>
+            <div class="col-4"><div class="card p-3 text-center ${(posB-negB) >= 0 ? 'border-primary' : 'border-warning'}"><div class="fs-3 fw-bold ${(posB-negB) >= 0 ? 'text-primary' : 'text-warning'}">${posB-negB >= 0 ? '+' : ''}${posB-negB}</div><small class="text-muted">\u05DE\u05D0\u05D6\u05DF</small></div></div>
+          </div>
+          ${behPoints !== 0 ? `<div class="alert alert-info small mb-3"><i class="bi bi-star me-1"></i>\u05E1\u05D4"\u05DB \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA: <strong>${behPoints}</strong></div>` : ''}
+
+          ${studentBeh.length === 0 ? '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05D3\u05D9\u05D5\u05D5\u05D7\u05D9 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</div>' :
+          `<div class="card"><div class="card-header d-flex justify-content-between"><span class="fw-bold">\u05D9\u05D5\u05DE\u05DF \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</span><small class="text-muted">${studentBeh.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</small></div>
+          <table class="table table-sm mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA</th><th>\u05DE\u05E2\u05E8\u05DB\u05EA</th></tr></thead><tbody>${studentBeh.slice(-20).reverse().map(b => `<tr><td>${Utils.formatDateShort(b['\u05EA\u05D0\u05E8\u05D9\u05DA'])}</td><td><span class="badge bg-${b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9'?'success':'danger'}">${b['\u05E1\u05D5\u05D2']||''}</span></td><td>${b['\u05EA\u05D9\u05D0\u05D5\u05E8']||''}</td><td class="text-muted small">${b['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||b['points']||''}</td><td class="text-muted small">${b['\u05DE\u05E2\u05E8\u05DB\u05EA']||b['\u05E9\u05D9\u05E2\u05D5\u05E8']||''}</td></tr>`).join('')}</tbody></table></div>`}
+        </div>
+
+        <!-- ============ 5. Finance Tab ============ -->
+        <div class="tab-pane fade" id="tab-fin">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-cash-stack me-2"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scAddPayment()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</button>
+          </div>
+          <div class="card p-3 mb-3"><div class="row g-3 text-center">
+            <div class="col-4"><div class="fs-5 fw-bold">${Utils.formatCurrency(sfTotal || 0)}</div><small class="text-muted">\u05E1\u05D4"\u05DB \u05D7\u05D9\u05D5\u05D1</small></div>
+            <div class="col-4"><div class="fs-5 fw-bold text-success">${Utils.formatCurrency(sfPaid || 0)}</div><small class="text-muted">\u05E9\u05D5\u05DC\u05DD</small></div>
+            <div class="col-4"><div class="fs-5 fw-bold text-danger">${Utils.formatCurrency(sfDebt || 0)}</div><small class="text-muted">\u05D9\u05EA\u05E8\u05D4</small></div>
+          </div>${sfTotal ? `<div class="progress mt-3" style="height:12px"><div class="progress-bar bg-success" style="width:${Math.round((sfPaid||0)/(sfTotal||1)*100)}%">${Math.round((sfPaid||0)/(sfTotal||1)*100)}%</div></div>` : ''}</div>
+
+          <!-- Payment Plans -->
+          ${studentPlans.length > 0 ? `<div class="card mb-3"><div class="card-header fw-bold"><i class="bi bi-calendar2-range me-2"></i>\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</div>
+          <div class="list-group list-group-flush">${studentPlans.map(p => {
+            const planTotal = Number(p['\u05E1\u05DB\u05D5\u05DD']||p['\u05E1\u05DB\u05D5\u05DD_\u05DB\u05D5\u05DC\u05DC']||0);
+            const planPaid = Number(p['\u05E9\u05D5\u05DC\u05DD']||p['\u05E1\u05DB\u05D5\u05DD_\u05E9\u05D5\u05DC\u05DD']||0);
+            const planPct = planTotal ? Math.round(planPaid/planTotal*100) : 0;
+            const planStatus = p['\u05E1\u05D8\u05D8\u05D5\u05E1']||'';
+            return `<div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <div class="fw-bold">${p['\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA']||p['\u05E9\u05DD']||'\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD'}</div>
+                <span class="badge bg-${planStatus==='\u05E4\u05E2\u05D9\u05DC'?'success':planStatus==='\u05D4\u05D5\u05E9\u05DC\u05DD'?'info':'secondary'}">${planStatus||'\u05E4\u05E2\u05D9\u05DC'}</span>
+              </div>
+              <div class="d-flex justify-content-between small text-muted mb-1"><span>\u05E9\u05D5\u05DC\u05DD: ${Utils.formatCurrency(planPaid)}</span><span>\u05DE\u05EA\u05D5\u05DA: ${Utils.formatCurrency(planTotal)}</span></div>
+              <div class="progress" style="height:8px"><div class="progress-bar bg-success" style="width:${planPct}%"></div></div>
+            </div>`;
+          }).join('')}</div></div>` : ''}
+
+          <!-- Payment Records -->
+          ${studentFin.length === 0 ? '<div class="text-muted text-center py-3">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05DB\u05E1\u05E4\u05D9\u05DD</div>' :
+          `<div class="card"><div class="card-header d-flex justify-content-between"><span class="fw-bold">\u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</span><small class="text-muted">${studentFin.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</small></div>
+          <table class="table table-sm mb-0"><thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05D0\u05DE\u05E6\u05E2\u05D9 \u05EA\u05E9\u05DC\u05D5\u05DD</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr></thead><tbody>${studentFin.slice(-15).reverse().map(f => `<tr><td>${Utils.formatDateShort(f['\u05EA\u05D0\u05E8\u05D9\u05DA']||'')}</td><td>${f['\u05EA\u05D9\u05D0\u05D5\u05E8']||f['\u05E4\u05D9\u05E8\u05D5\u05D8']||''}</td><td>${Utils.formatCurrency(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0)}</td><td class="text-muted small">${f['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD']||f['\u05D0\u05DE\u05E6\u05E2\u05D9']||''}</td><td><span class="badge bg-${(f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')=== '\u05E9\u05D5\u05DC\u05DD'?'success':'danger'}">${f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD'}</span></td></tr>`).join('')}</tbody></table></div>`}
+        </div>
+
+        <!-- ============ 6. Parents Tab ============ -->
+        <div class="tab-pane fade" id="tab-parents">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scAddParent()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4</button>
+          </div>
+          ${studentParents.length === 0
+          ? '<div class="empty-state py-4"><i class="bi bi-people"></i><h6>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05D4\u05D5\u05E8\u05D9\u05DD \u05DE\u05E9\u05D5\u05D9\u05DB\u05D9\u05DD</h6><p class="text-muted small">\u05D4\u05D5\u05E1\u05E3 \u05D4\u05D5\u05E8\u05D4 \u05E8\u05D0\u05E9\u05D5\u05DF</p></div>'
           : `<div class="row g-3">${studentParents.map(p => {
               const pName = ((p['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (p['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
               const pPhone = p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'';
               const pEmail = p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||p['email']||'';
               const pRelation = p['\u05E7\u05E8\u05D1\u05D4']||p['\u05E7\u05E9\u05E8']||'';
+              const pAddress = p['\u05DB\u05EA\u05D5\u05D1\u05EA']||'';
+              const pWork = p['\u05DE\u05E7\u05D5\u05DD_\u05E2\u05D1\u05D5\u05D3\u05D4']||p['\u05E2\u05D1\u05D5\u05D3\u05D4']||'';
               return `<div class="col-md-6"><div class="card p-3">
                 <div class="d-flex align-items-center gap-3 mb-2">${Utils.avatarHTML(pName||'\u05D4\u05D5\u05E8\u05D4')}<div>
                   <div class="fw-bold">${pName||'\u05DC\u05DC\u05D0 \u05E9\u05DD'}</div>
-                  ${pRelation ? `<small class="text-muted">${pRelation}</small>` : ''}
+                  ${pRelation ? `<small class="badge bg-light text-dark">${pRelation}</small>` : ''}
                 </div></div>
                 ${pPhone ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-telephone text-muted"></i><span dir="ltr">${Utils.formatPhone(pPhone)}</span></div>` : ''}
-                ${pEmail ? `<div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-envelope text-muted"></i><span>${pEmail}</span></div>` : ''}
+                ${pEmail ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-envelope text-muted"></i><span>${pEmail}</span></div>` : ''}
+                ${pAddress ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-geo-alt text-muted"></i><span>${pAddress}</span></div>` : ''}
+                ${pWork ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-briefcase text-muted"></i><span>${pWork}</span></div>` : ''}
                 <div class="d-flex gap-2 mt-2">
                   ${pPhone ? `<a href="${waLink(pPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
                   ${pPhone ? `<a href="tel:${pPhone}" class="btn btn-outline-primary btn-sm"><i class="bi bi-telephone me-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8</a>` : ''}
+                  ${pEmail ? `<a href="mailto:${pEmail}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</a>` : ''}
                 </div>
               </div></div>`;
             }).join('')}</div>`
         }</div>
 
-        <!-- 7. Documents -->
-        <div class="tab-pane fade" id="tab-docs">${studentDocs.length === 0
-          ? '<div class="empty-state py-4"><i class="bi bi-folder"></i><h6>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h6></div>'
-          : `<div class="list-group">${studentDocs.map(d => {
-              const docStatus = d['\u05E1\u05D8\u05D8\u05D5\u05E1']||d['status']||'';
-              const isOk = docStatus === '\u05D4\u05D5\u05D2\u05E9' || docStatus === '\u05EA\u05E7\u05D9\u05DF' || docStatus === 'ok';
-              return `<div class="list-group-item d-flex align-items-center gap-3">
-                <i class="bi bi-${isOk ? 'check-circle-fill text-success' : 'circle text-muted'} fs-5"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-bold">${d['\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA']||d['\u05E1\u05D5\u05D2']||d['name']||'\u05DE\u05E1\u05DE\u05DA'}</div>
-                  ${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']||'' ? `<small class="text-muted">${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']}</small>` : ''}
-                </div>
-                <span class="badge bg-${isOk ? 'success' : 'warning'}">${docStatus||'\u05D7\u05E1\u05E8'}</span>
-              </div>`;
-            }).join('')}</div>`
-        }</div>
+        <!-- ============ 7. Documents Tab ============ -->
+        <div class="tab-pane fade" id="tab-docs">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-folder me-2"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scUploadDoc()"><i class="bi bi-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA</button>
+          </div>
+          ${studentDocs.length === 0
+            ? '<div class="empty-state py-4"><i class="bi bi-folder"></i><h6>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</h6><p class="text-muted small">\u05D4\u05E2\u05DC\u05D4 \u05DE\u05E1\u05DE\u05DA \u05E8\u05D0\u05E9\u05D5\u05DF \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</p></div>'
+            : `<div class="list-group">${studentDocs.map(d => {
+                const docStatus = d['\u05E1\u05D8\u05D8\u05D5\u05E1']||d['status']||'';
+                const isOk = docStatus === '\u05D4\u05D5\u05D2\u05E9' || docStatus === '\u05EA\u05E7\u05D9\u05DF' || docStatus === 'ok';
+                const docType = d['\u05E1\u05D5\u05D2']||d['type']||'';
+                const docDate = d['\u05EA\u05D0\u05E8\u05D9\u05DA']||d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4']||'';
+                const docUrl = d['\u05E7\u05D9\u05E9\u05D5\u05E8']||d['url']||d['link']||'';
+                return `<div class="list-group-item d-flex align-items-center gap-3">
+                  <i class="bi bi-${isOk ? 'check-circle-fill text-success' : 'circle text-muted'} fs-5"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-bold">${d['\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA']||d['\u05E9\u05DD']||d['name']||'\u05DE\u05E1\u05DE\u05DA'}</div>
+                    <div class="d-flex gap-2">
+                      ${docType ? `<small class="badge bg-light text-dark">${docType}</small>` : ''}
+                      ${docDate ? `<small class="text-muted">${Utils.formatDateShort(docDate)}</small>` : ''}
+                    </div>
+                    ${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']||'' ? `<small class="text-muted">${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']}</small>` : ''}
+                  </div>
+                  <div class="d-flex gap-2 align-items-center">
+                    <span class="badge bg-${isOk ? 'success' : 'warning'}">${docStatus||'\u05D7\u05E1\u05E8'}</span>
+                    ${docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>` : ''}
+                  </div>
+                </div>`;
+              }).join('')}</div>`
+          }
+        </div>
 
-        <!-- 8. Communication -->
+        <!-- ============ 8. Notes / Activity Log Tab ============ -->
+        <div class="tab-pane fade" id="tab-notes">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-journal-text me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h6>
+            <button class="btn btn-primary btn-sm" onclick="Pages._scAddNote()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05EA \u05E8\u05E9\u05D5\u05DE\u05D4</button>
+          </div>
+          ${studentActivity.length === 0
+            ? '<div class="empty-state py-4"><i class="bi bi-journal-text"></i><h6>\u05D0\u05D9\u05DF \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05D1\u05D9\u05D5\u05DE\u05DF</h6><p class="text-muted small">\u05D4\u05D5\u05E1\u05E3 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</p></div>'
+            : `<div class="timeline-list">${studentActivity.slice(-25).reverse().map(a => {
+                const aType = a['\u05E1\u05D5\u05D2']||a['\u05E4\u05E2\u05D5\u05DC\u05D4']||a['type']||'';
+                const aDate = a['\u05EA\u05D0\u05E8\u05D9\u05DA']||a['date']||'';
+                const aDesc = a['\u05EA\u05D9\u05D0\u05D5\u05E8']||a['\u05E4\u05D9\u05E8\u05D5\u05D8']||a['description']||'';
+                const aUser = a['\u05DE\u05E9\u05EA\u05DE\u05E9']||a['\u05E2\u05D5\u05D1\u05D3']||a['user']||'';
+                const typeColor = aType === '\u05E9\u05D9\u05D7\u05D4' ? 'primary' : aType === '\u05D4\u05E2\u05E8\u05D4' ? 'info' : aType === '\u05D0\u05D6\u05D4\u05E8\u05D4' ? 'warning' : 'secondary';
+                return `<div class="card p-3 mb-2">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        ${aType ? `<span class="badge bg-${typeColor}">${aType}</span>` : ''}
+                        <small class="text-muted">${Utils.formatDateShort(aDate)}</small>
+                        ${aUser ? `<small class="text-muted">| ${aUser}</small>` : ''}
+                      </div>
+                      <div>${aDesc}</div>
+                    </div>
+                  </div>
+                </div>`;
+              }).join('')}</div>`
+          }
+        </div>
+
+        <!-- ============ 9. Communication Tab ============ -->
         <div class="tab-pane fade" id="tab-comm"><div class="card p-3">
           <h6 class="fw-bold mb-3"><i class="bi bi-chat-dots me-2"></i>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h6>
           <div class="row g-3">
@@ -1021,5 +1287,358 @@ Object.assign(Pages, {
 
       </div>
     `;
+  },
+
+  /* ======================================================================
+     STUDENT CARD — Add/Edit Modals (per tab)
+     ====================================================================== */
+
+  /** Add attendance record for current student */
+  _scAddAttendance() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05E8\u05D9\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="sc-att-date" value="${today}"></div>
+          <div class="mb-3"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+            <select class="form-select" id="sc-att-status">
+              <option value="\u05E0\u05D5\u05DB\u05D7">\u05E0\u05D5\u05DB\u05D7</option>
+              <option value="\u05D0\u05D9\u05D7\u05D5\u05E8">\u05D0\u05D9\u05D7\u05D5\u05E8</option>
+              <option value="\u05D7\u05D9\u05E1\u05D5\u05E8">\u05D7\u05D9\u05E1\u05D5\u05E8</option>
+            </select>
+          </div>
+          <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D4</label><input type="text" class="form-control" id="sc-att-note"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveAttendance()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveAttendance() {
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('sc-att-date').value,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sc-att-status').value,
+      '\u05D4\u05E2\u05E8\u05D4': document.getElementById('sc-att-note').value.trim()
+    };
+    try {
+      await App.apiCall('add', '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05E8\u05E9\u05DE\u05D4', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Add grade for current student */
+  _scAddGrade() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05EA \u05E6\u05D9\u05D5\u05DF - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05DE\u05E7\u05E6\u05D5\u05E2 *</label><input type="text" class="form-control" id="sc-grade-subject" required></div>
+          <div class="mb-3"><label class="form-label">\u05DE\u05D1\u05D7\u05DF</label><input type="text" class="form-control" id="sc-grade-exam"></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E6\u05D9\u05D5\u05DF *</label><input type="number" class="form-control" id="sc-grade-score" min="0" max="100" required></div>
+            <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="sc-grade-date" value="${today}"></div>
+          </div>
+          <div class="mb-3 mt-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input type="text" class="form-control" id="sc-grade-notes"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveGrade()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveGrade() {
+    const subject = document.getElementById('sc-grade-subject').value.trim();
+    const score = document.getElementById('sc-grade-score').value;
+    if (!subject || !score) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05DE\u05E7\u05E6\u05D5\u05E2 \u05D5\u05E6\u05D9\u05D5\u05DF', 'warning'); return; }
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05DE\u05E7\u05E6\u05D5\u05E2': subject,
+      '\u05DE\u05D1\u05D7\u05DF': document.getElementById('sc-grade-exam').value.trim(),
+      '\u05E6\u05D9\u05D5\u05DF': Number(score),
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('sc-grade-date').value,
+      '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('sc-grade-notes').value.trim()
+    };
+    try {
+      await App.apiCall('add', '\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05E6\u05D9\u05D5\u05DF \u05E0\u05D5\u05E1\u05E3', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Add behavior record */
+  _scAddBehavior(type) {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA ${type === '\u05D7\u05D9\u05D5\u05D1\u05D9' ? '\u05D7\u05D9\u05D5\u05D1\u05D9\u05EA' : '\u05E9\u05DC\u05D9\u05DC\u05D9\u05EA'} - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8 *</label><input type="text" class="form-control" id="sc-beh-desc" required></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA</label><input type="number" class="form-control" id="sc-beh-points" value="${type === '\u05D7\u05D9\u05D5\u05D1\u05D9' ? '1' : '-1'}"></div>
+            <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="sc-beh-date" value="${today}"></div>
+          </div>
+          <div class="mb-3 mt-3"><label class="form-label">\u05DE\u05E2\u05E8\u05DB\u05EA/\u05E9\u05D9\u05E2\u05D5\u05E8</label><input type="text" class="form-control" id="sc-beh-lesson"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-${type === '\u05D7\u05D9\u05D5\u05D1\u05D9' ? 'success' : 'danger'}" onclick="Pages._scSaveBehavior('${type}')">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveBehavior(type) {
+    const desc = document.getElementById('sc-beh-desc').value.trim();
+    if (!desc) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05EA\u05D9\u05D0\u05D5\u05E8', 'warning'); return; }
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05E1\u05D5\u05D2': type,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc,
+      '\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA': document.getElementById('sc-beh-points').value,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('sc-beh-date').value,
+      '\u05DE\u05E2\u05E8\u05DB\u05EA': document.getElementById('sc-beh-lesson').value.trim()
+    };
+    try {
+      await App.apiCall('add', '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E0\u05E8\u05E9\u05DE\u05D4', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Add payment record */
+  _scAddPayment() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8 *</label><input type="text" class="form-control" id="sc-fin-desc" required placeholder="\u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 / \u05D0\u05D2\u05E8\u05D4"></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E1\u05DB\u05D5\u05DD *</label><input type="number" class="form-control" id="sc-fin-amount" min="0" required></div>
+            <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="sc-fin-date" value="${today}"></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+              <select class="form-select" id="sc-fin-status">
+                <option value="\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD">\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD</option>
+                <option value="\u05E9\u05D5\u05DC\u05DD">\u05E9\u05D5\u05DC\u05DD</option>
+              </select>
+            </div>
+            <div class="col-6"><label class="form-label">\u05D0\u05DE\u05E6\u05E2\u05D9 \u05EA\u05E9\u05DC\u05D5\u05DD</label><input type="text" class="form-control" id="sc-fin-method" placeholder="\u05DE\u05D6\u05D5\u05DE\u05DF / \u05D4\u05E2\u05D1\u05E8\u05D4 / \u05E6'\u05E7"></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSavePayment()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSavePayment() {
+    const desc = document.getElementById('sc-fin-desc').value.trim();
+    const amount = document.getElementById('sc-fin-amount').value;
+    if (!desc || !amount) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05EA\u05D9\u05D0\u05D5\u05E8 \u05D5\u05E1\u05DB\u05D5\u05DD', 'warning'); return; }
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc,
+      '\u05E1\u05DB\u05D5\u05DD': Number(amount),
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('sc-fin-date').value,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sc-fin-status').value,
+      '\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD': document.getElementById('sc-fin-method').value.trim()
+    };
+    try {
+      await App.apiCall('add', '\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05D5\u05E1\u05E3', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Add parent */
+  _scAddParent() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05EA \u05D4\u05D5\u05E8\u05D4 - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E9\u05DD \u05E4\u05E8\u05D8\u05D9 *</label><input type="text" class="form-control" id="sc-par-fname" required></div>
+            <div class="col-6"><label class="form-label">\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4</label><input type="text" class="form-control" id="sc-par-lname"></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6"><label class="form-label">\u05E7\u05E8\u05D1\u05D4</label>
+              <select class="form-select" id="sc-par-relation">
+                <option value="\u05D0\u05D1">\u05D0\u05D1</option>
+                <option value="\u05D0\u05DD">\u05D0\u05DD</option>
+                <option value="\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1">\u05D0\u05E4\u05D5\u05D8\u05E8\u05D5\u05E4\u05D5\u05E1</option>
+                <option value="\u05D0\u05D7\u05E8">\u05D0\u05D7\u05E8</option>
+              </select>
+            </div>
+            <div class="col-6"><label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF *</label><input type="tel" class="form-control" id="sc-par-phone" dir="ltr" required></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6"><label class="form-label">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label><input type="email" class="form-control" id="sc-par-email" dir="ltr"></div>
+            <div class="col-6"><label class="form-label">\u05DB\u05EA\u05D5\u05D1\u05EA</label><input type="text" class="form-control" id="sc-par-address"></div>
+          </div>
+          <div class="mb-3 mt-3"><label class="form-label">\u05DE\u05E7\u05D5\u05DD \u05E2\u05D1\u05D5\u05D3\u05D4</label><input type="text" class="form-control" id="sc-par-work"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveParent()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveParent() {
+    const fname = document.getElementById('sc-par-fname').value.trim();
+    const phone = document.getElementById('sc-par-phone').value.trim();
+    if (!fname || !phone) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05E9\u05DD \u05D5\u05D8\u05DC\u05E4\u05D5\u05DF', 'warning'); return; }
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': this._scStudentName,
+      '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': fname,
+      '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': document.getElementById('sc-par-lname').value.trim(),
+      '\u05E7\u05E8\u05D1\u05D4': document.getElementById('sc-par-relation').value,
+      '\u05D8\u05DC\u05E4\u05D5\u05DF': phone,
+      '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC': document.getElementById('sc-par-email').value.trim(),
+      '\u05DB\u05EA\u05D5\u05D1\u05EA': document.getElementById('sc-par-address').value.trim(),
+      '\u05DE\u05E7\u05D5\u05DD_\u05E2\u05D1\u05D5\u05D3\u05D4': document.getElementById('sc-par-work').value.trim()
+    };
+    try {
+      await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Upload document */
+  _scUploadDoc() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05E9\u05DD \u05DE\u05E1\u05DE\u05DA *</label><input type="text" class="form-control" id="sc-doc-name" required></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E1\u05D5\u05D2</label>
+              <select class="form-select" id="sc-doc-type">
+                <option value="\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA">\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA</option>
+                <option value="\u05D0\u05D9\u05E9\u05D5\u05E8_\u05E8\u05E4\u05D5\u05D0\u05D9">\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9</option>
+                <option value="\u05EA\u05E2\u05D5\u05D3\u05D4">\u05EA\u05E2\u05D5\u05D3\u05D4</option>
+                <option value="\u05D7\u05D5\u05D6\u05D4">\u05D7\u05D5\u05D6\u05D4</option>
+                <option value="\u05D0\u05D7\u05E8">\u05D0\u05D7\u05E8</option>
+              </select>
+            </div>
+            <div class="col-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+              <select class="form-select" id="sc-doc-status">
+                <option value="\u05D7\u05E1\u05E8">\u05D7\u05E1\u05E8</option>
+                <option value="\u05D4\u05D5\u05D2\u05E9">\u05D4\u05D5\u05D2\u05E9</option>
+                <option value="\u05EA\u05E7\u05D9\u05DF">\u05EA\u05E7\u05D9\u05DF</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3 mt-3"><label class="form-label">\u05E7\u05D9\u05E9\u05D5\u05E8 (URL)</label><input type="url" class="form-control" id="sc-doc-url" dir="ltr" placeholder="https://..."></div>
+          <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input type="text" class="form-control" id="sc-doc-notes"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveDoc()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveDoc() {
+    const docName = document.getElementById('sc-doc-name').value.trim();
+    if (!docName) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05E9\u05DD \u05DE\u05E1\u05DE\u05DA', 'warning'); return; }
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': docName,
+      '\u05E1\u05D5\u05D2': document.getElementById('sc-doc-type').value,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sc-doc-status').value,
+      '\u05E7\u05D9\u05E9\u05D5\u05E8': document.getElementById('sc-doc-url').value.trim(),
+      '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('sc-doc-notes').value.trim(),
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': today
+    };
+    try {
+      await App.apiCall('add', '\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05D5\u05E1\u05E3', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /** Add activity log note */
+  _scAddNote() {
+    const sId = this._scStudentId;
+    const name = this._scStudentName;
+    if (!sId) return;
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5>\u05D4\u05D5\u05E1\u05E4\u05EA \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D1\u05D9\u05D5\u05DE\u05DF - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label">\u05EA\u05D9\u05D0\u05D5\u05E8 *</label><textarea class="form-control" id="sc-note-desc" rows="3" required></textarea></div>
+          <div class="row g-3">
+            <div class="col-6"><label class="form-label">\u05E1\u05D5\u05D2</label>
+              <select class="form-select" id="sc-note-type">
+                <option value="\u05D4\u05E2\u05E8\u05D4">\u05D4\u05E2\u05E8\u05D4</option>
+                <option value="\u05E9\u05D9\u05D7\u05D4">\u05E9\u05D9\u05D7\u05D4</option>
+                <option value="\u05D0\u05D6\u05D4\u05E8\u05D4">\u05D0\u05D6\u05D4\u05E8\u05D4</option>
+                <option value="\u05DE\u05E2\u05E7\u05D1">\u05DE\u05E2\u05E7\u05D1</option>
+                <option value="\u05D0\u05D7\u05E8">\u05D0\u05D7\u05E8</option>
+              </select>
+            </div>
+            <div class="col-6"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input type="date" class="form-control" id="sc-note-date" value="${today}"></div>
+          </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveNote()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  async _scSaveNote() {
+    const desc = document.getElementById('sc-note-desc').value.trim();
+    if (!desc) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05EA\u05D9\u05D0\u05D5\u05E8', 'warning'); return; }
+    const row = {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
+      '\u05E9\u05DD': this._scStudentName,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc,
+      '\u05E1\u05D5\u05D2': document.getElementById('sc-note-type').value,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': document.getElementById('sc-note-date').value
+    };
+    try {
+      await App.apiCall('add', '\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA', { row });
+      bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+      Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4', 'success');
+      this.studentInit(this._scStudentId);
+    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
   },
 });
