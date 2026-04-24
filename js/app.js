@@ -1,4 +1,4 @@
-/* ===== BHT v5.0 — App Core (Router, Auth, Data Layer) ===== */
+/* ===== BHT v6.3 — App Core (Router, Auth, Data Layer) ===== */
 
 const App = {
   /* ---- Config ---- */
@@ -17,6 +17,7 @@ const App = {
   charts: {},
   _sessionTimerInterval: null,
   _lsObserverActive: false,
+  _activeRequests: 0,
 
   /* ==============================
      INITIALIZATION
@@ -215,6 +216,32 @@ const App = {
   /* ==============================
      DATA LAYER
      ============================== */
+  /* ---- Loading bar for fetch operations ---- */
+  _showLoadingBar() {
+    this._activeRequests++;
+    let bar = document.getElementById('bht-loading-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'bht-loading-bar';
+      bar.style.cssText = 'position:fixed;top:0;right:0;width:0;height:3px;background:linear-gradient(90deg,#3b82f6,#6366f1);z-index:9999;transition:width .3s ease;pointer-events:none;';
+      document.body.appendChild(bar);
+    }
+    bar.style.opacity = '1';
+    bar.style.width = '30%';
+    setTimeout(() => { if (bar.style.opacity === '1') bar.style.width = '60%'; }, 300);
+    setTimeout(() => { if (bar.style.opacity === '1') bar.style.width = '80%'; }, 800);
+  },
+
+  _hideLoadingBar() {
+    this._activeRequests = Math.max(0, this._activeRequests - 1);
+    if (this._activeRequests > 0) return;
+    const bar = document.getElementById('bht-loading-bar');
+    if (bar) {
+      bar.style.width = '100%';
+      setTimeout(() => { bar.style.opacity = '0'; bar.style.width = '0'; }, 300);
+    }
+  },
+
   async fetchSheet(sheet, forceRefresh = false) {
     const cacheKey = this.CACHE_PREFIX + sheet;
 
@@ -224,6 +251,7 @@ const App = {
       if (cached) return cached;
     }
 
+    this._showLoadingBar();
     try {
       const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(sheet)}&token=${this.API_TOKEN}`;
       const resp = await fetch(url);
@@ -244,6 +272,8 @@ const App = {
         try { return JSON.parse(stale).data; } catch(e) {}
       }
       return [];
+    } finally {
+      this._hideLoadingBar();
     }
   },
 
@@ -253,11 +283,23 @@ const App = {
       // Map action names to API actions: add -> api_add, update -> api_update, delete -> api_delete
       const apiAction = 'api_' + action;
       const body = { action: apiAction, sheet, token: this.API_TOKEN, ...data };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
+      if (!resp.ok) {
+        Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05E8\u05EA - \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1 \u05DE\u05D0\u05D5\u05D7\u05E8 \u05D9\u05D5\u05EA\u05E8', 'danger');
+        throw new Error('HTTP ' + resp.status);
+      }
+
       const result = await resp.json();
 
       if (result.error) {
@@ -269,9 +311,29 @@ const App = {
 
       return result;
     } catch (err) {
+      if (err.name === 'AbortError') {
+        Utils.toast('\u05D4\u05D1\u05E7\u05E9\u05D4 \u05DC\u05E7\u05D7\u05D4 \u05D9\u05D5\u05EA\u05E8 \u05DE\u05D3\u05D9 \u05D6\u05DE\u05DF', 'warning');
+      } else if (err.name === 'TypeError' || err.message === 'Failed to fetch') {
+        Utils.toast('\u05D0\u05D9\u05DF \u05D7\u05D9\u05D1\u05D5\u05E8 \u05DC\u05D0\u05D9\u05E0\u05D8\u05E8\u05E0\u05D8 - \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E0\u05E9\u05DE\u05E8\u05D5 \u05DE\u05E7\u05D5\u05DE\u05D9\u05EA', 'warning');
+      } else if (!err._toastShown) {
+        Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05E8\u05EA - \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1 \u05DE\u05D0\u05D5\u05D7\u05E8 \u05D9\u05D5\u05EA\u05E8', 'danger');
+      }
       console.error('apiCall error:', err);
-      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05E2\u05DD \u05D4\u05E9\u05E8\u05EA', 'danger');
       throw err;
+    }
+  },
+
+  /* ---- Button loading state helper ---- */
+  setButtonLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+      btn._origHTML = btn.innerHTML;
+      btn.disabled = true;
+      const label = btn.textContent.trim();
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span>${label}`;
+    } else {
+      btn.disabled = false;
+      if (btn._origHTML) btn.innerHTML = btn._origHTML;
     }
   },
 
@@ -798,7 +860,7 @@ const App = {
   // Version check
   checkVersion() {
     const stored = localStorage.getItem('bht_version');
-    const current = 'v5.3';
+    const current = 'v6.3';
     if (stored && stored !== current) {
       // Clear old caches on version change
       Object.keys(localStorage).forEach(k => {
