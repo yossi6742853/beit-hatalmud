@@ -62,6 +62,7 @@ Object.assign(Pages, {
   ],
   _contactsActiveCategory: '',
   _contactsEditingId: null,
+  _contactsUseDemo: false,
 
   /* ======================================================================
      MAIN PAGE HTML
@@ -168,10 +169,21 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
+  contactsLoadDemo() {
+    this._contactsUseDemo = true;
+    this._contactsData = this._contactsDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+    this._ctRenderStats();
+    this._ctRender();
+  },
+
   async contactsInit() {
     let data = await App.getData('\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8');
     if (!data || data.length === 0) {
-      data = this._contactsDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+      if (this._contactsUseDemo) {
+        data = this._contactsDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
+      } else {
+        data = [];
+      }
     }
     this._contactsData = data;
     this._contactsActiveCategory = '';

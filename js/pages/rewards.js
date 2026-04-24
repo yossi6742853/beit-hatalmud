@@ -515,6 +515,13 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT — load data + render chart
      ====================================================================== */
+  _rewardsUseDemo: false,
+
+  rewardsLoadDemo() {
+    this._rewardsUseDemo = true;
+    App.navigate('rewards');
+  },
+
   async rewardsInit() {
     // Try loading from API
     try {
@@ -544,7 +551,12 @@ Object.assign(Pages, {
           });
         }
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep current data */ }
+
+    // If no API data and demo not requested, clear hardcoded
+    if (!this._rewardsUseDemo && this._rewardStudents?.length && this._rewardStudents[0]?.id === 'S1') {
+      this._rewardStudents = [];
+    }
 
     // Render class competition chart
     this._rwdRenderClassChart();

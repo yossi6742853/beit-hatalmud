@@ -222,6 +222,13 @@ Object.assign(Pages, {
       ${modal}`;
   },
 
+  _facilityUseDemo: false,
+
+  facilitymapLoadDemo() {
+    this._facilityUseDemo = true;
+    App.navigate('facilitymap');
+  },
+
   async facilitymapInit() {
     // Try loading rooms from API, fall back to hardcoded data
     let apiRooms = [];

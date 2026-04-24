@@ -308,6 +308,13 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
+  _pcUseDemo: false,
+
+  printcenterLoadDemo() {
+    this._pcUseDemo = true;
+    App.navigate('printcenter');
+  },
+
   async printcenterInit() {
     this._pcSelectedTemplate = null;
 

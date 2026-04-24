@@ -150,6 +150,13 @@ Object.assign(Pages, {
   _libNextLoanId: 9,
 
   /* ---- Init ---- */
+  _libUseDemo: false,
+
+  libraryLoadDemo() {
+    this._libUseDemo = true;
+    App.navigate('library');
+  },
+
   async libraryInit() {
     this._libView = 'grid';
 
@@ -164,6 +171,12 @@ Object.assign(Pages, {
       }
     } catch(e) {
       this._libLoadFromStorage();
+    }
+
+    // If still has hardcoded demo data and not flagged, clear
+    if (!this._libUseDemo && this._libBooks?.length && this._libBooks[0]?.id === 1) {
+      this._libBooks = [];
+      this._libLoans = [];
     }
 
     this._updateLoanStatuses();

@@ -13,7 +13,9 @@ Object.assign(Pages, {
     { type: 'file', label: 'קובץ', icon: 'bi-paperclip', placeholder: 'העלאת קובץ' }
   ],
 
-  _formsData: [
+  _formsUseDemo: false,
+
+  _formsDemoData: [
     { _id: 'f1', name: 'טופס הרשמה - תשפ"ז', desc: 'טופס הרשמה לשנת הלימודים תשפ"ז', status: 'פעיל', color: '#2563eb', date: '2026-04-01',
       fields: [
         { name: 'שם הורה', type: 'text', required: true, options: [] },
@@ -372,8 +374,15 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
+  formsLoadDemo() {
+    this._formsUseDemo = true;
+    this._formsData = this._formsDemoData;
+    App.navigate('forms');
+  },
+
   async formsInit() {
-    // Try loading from API, fall back to demo data
+    // Try loading from API
+    this._formsData = this._formsUseDemo ? this._formsDemoData : [];
     try {
       const apiData = await App.getData('טפסים');
       if (apiData && apiData.length) {
@@ -388,7 +397,7 @@ Object.assign(Pages, {
           responses: row.responses ? (typeof row.responses === 'string' ? JSON.parse(row.responses) : row.responses) : []
         }));
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep current data */ }
     // Show options input if needed
     setTimeout(() => Pages._formToggleOptions(document.getElementById('ff-new-type')?.value), 100);
   },

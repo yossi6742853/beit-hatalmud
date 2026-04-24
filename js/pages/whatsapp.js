@@ -115,6 +115,13 @@ Object.assign(Pages, {
   /* ================================================================
      INIT
      ================================================================ */
+  _waUseDemo: false,
+
+  whatsappLoadDemo() {
+    this._waUseDemo = true;
+    App.navigate('whatsapp');
+  },
+
   async whatsappInit() {
     this._waTab = 'send';
     this._waSelectedRecipients = new Set();
@@ -149,7 +156,12 @@ Object.assign(Pages, {
           }));
         }
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep current data */ }
+
+    // If no API data and demo not requested, clear hardcoded
+    if (!this._waUseDemo && this._waContacts?.length && this._waContacts[0]?.id === 1) {
+      this._waContacts = [];
+    }
 
     this.renderWa();
   },

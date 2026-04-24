@@ -141,6 +141,7 @@ Object.assign(Pages, {
     <!-- Pairs Cards -->
     <div id="chav-pairs-tab">
       <div class="row g-3" id="chav-cards">
+        ${!pairs.length ? '<div class="col-12 text-center text-muted py-5"><i class="bi bi-person-hearts fs-1 d-block mb-2"></i>\u05d0\u05d9\u05df \u05d7\u05d1\u05e8\u05d5\u05ea\u05d5\u05ea<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.chavrutaLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05d8\u05e2\u05df \u05d3\u05de\u05d5</button></div>' : ''}
         ${pairs.map(p => {
           const pairSessions = sessions.filter(s => s.pairId === p.id);
           const pairAvgRating = pairSessions.length ? (pairSessions.reduce((s, x) => s + x.rating, 0) / pairSessions.length).toFixed(1) : '-';
@@ -274,7 +275,29 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  chavrutaInit() {},
+  _chavUseDemo: false,
+
+  chavrutaLoadDemo() {
+    this._chavUseDemo = true;
+    App.navigate('chavruta');
+  },
+
+  async chavrutaInit() {
+    // Try API
+    try {
+      const apiData = await App.getData('חברותות');
+      if (apiData && apiData.length) {
+        this._chavPairs = apiData;
+        return;
+      }
+    } catch(e) {}
+
+    // If no demo flag, clear hardcoded data
+    if (!this._chavUseDemo && this._chavPairs.length && this._chavPairs[0]?.id === 1) {
+      this._chavPairs = [];
+      this._chavSessionLog = [];
+    }
+  },
 
   _chavScheduleGrid(pairs, dayNames) {
     // Build time slots from 08:00 to 17:00

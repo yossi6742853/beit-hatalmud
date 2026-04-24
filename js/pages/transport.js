@@ -469,6 +469,13 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
+  _transportUseDemo: false,
+
+  transportLoadDemo() {
+    this._transportUseDemo = true;
+    App.navigate('transport');
+  },
+
   async transportInit() {
     // Try API first, fall back to demo/localStorage
     try {

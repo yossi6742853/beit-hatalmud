@@ -6,6 +6,7 @@ Object.assign(Pages, {
   _notifLS: 'bht_notifications',
   _notifPrefsLS: 'bht_notif_prefs',
   _notifFilter: 'all',
+  _notifUseDemo: false,
 
   _notifTypes: {
     attendance: { icon: 'bi-clipboard-check', color: 'warning', label: 'נוכחות' },
@@ -34,14 +35,24 @@ Object.assign(Pages, {
     { id: 15, type: 'parent', title: 'תודה מהורי תלמיד', desc: 'משפחת רוזנברג שלחו מכתב תודה על הטיפול המסור בבנם.', ts: Date.now() - 432000000, read: true, important: false, archived: true }
   ],
 
+  notificationsLoadDemo() {
+    this._notifUseDemo = true;
+    const data = JSON.parse(JSON.stringify(this._defaultNotifications));
+    this._saveNotifications(data);
+    App.navigate('notifications');
+  },
+
   _getNotifications() {
     try {
       const raw = localStorage.getItem(this._notifLS);
       if (raw) return JSON.parse(raw);
     } catch(e) {}
-    const data = JSON.parse(JSON.stringify(this._defaultNotifications));
-    this._saveNotifications(data);
-    return data;
+    if (this._notifUseDemo) {
+      const data = JSON.parse(JSON.stringify(this._defaultNotifications));
+      this._saveNotifications(data);
+      return data;
+    }
+    return [];
   },
 
   _saveNotifications(data) {

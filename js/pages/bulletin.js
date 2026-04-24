@@ -16,6 +16,7 @@ Object.assign(Pages, {
   ],
 
   _bulletinNextId: 11,
+  _bulletinUseDemo: false,
   _bulletinFilter: { search:'', category:'all', showArchive:false },
 
   /* ---------- category / priority maps ---------- */
@@ -179,7 +180,7 @@ Object.assign(Pages, {
   async bulletinInit() {
     this._bulletinFilter = { search:'', category:'all', showArchive:false };
 
-    // Try loading from API, fall back to localStorage, then demo data
+    // Try loading from API, fall back to localStorage
     try {
       const apiData = await App.getData('לוח_מודעות');
       if (apiData && apiData.length) {
@@ -190,6 +191,11 @@ Object.assign(Pages, {
       }
     } catch(e) {
       this._blnLoadFromStorage();
+    }
+
+    // If no real data loaded and demo not requested, start empty
+    if (!this._bulletinUseDemo && this._bulletinData.length && this._bulletinData[0]?.id === 1 && this._bulletinData[0]?.title?.includes('שבת גיבוש')) {
+      this._bulletinData = [];
     }
 
     this._bulletinRender();
@@ -206,6 +212,12 @@ Object.assign(Pages, {
         }
       }
     } catch(e) { /* keep demo data */ }
+  },
+
+  bulletinLoadDemo() {
+    this._bulletinUseDemo = true;
+    this._bulletinNextId = 11;
+    this._bulletinRender();
   },
 
   _blnSaveToStorage() {
@@ -282,7 +294,7 @@ Object.assign(Pages, {
     if (unpinned.length > 0) {
       listEl.innerHTML = unpinned.map(b => this._bulletinCard(b, false)).join('');
     } else if (pinned.length === 0) {
-      listEl.innerHTML = `<div class="text-center text-muted py-5"><i class="bi bi-megaphone fs-1 d-block mb-2"></i>אין מודעות להצגה</div>`;
+      listEl.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-megaphone fs-1 d-block mb-2"></i>\u05d0\u05d9\u05df \u05de\u05d5\u05d3\u05e2\u05d5\u05ea<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.bulletinLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05d8\u05e2\u05df \u05d3\u05de\u05d5</button></div>';
     } else {
       listEl.innerHTML = '';
     }

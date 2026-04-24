@@ -33,6 +33,7 @@ Object.assign(Pages, {
   ],
 
   _certNextId: 11,
+  _certUseDemo: false,
   _certFilter: '',
 
   /* ---------- main render ---------- */
@@ -384,8 +385,16 @@ Object.assign(Pages, {
     `;
   },
 
+  certificatesLoadDemo() {
+    this._certUseDemo = true;
+    // Use the hardcoded _certHistory and _certStudents
+    const body = document.getElementById('cert-history-body');
+    if (body) body.innerHTML = this._certRenderHistoryRows(this._certHistory);
+    this._certUpdateStats();
+  },
+
   async certificatesInit() {
-    // Try loading from API, fall back to demo data
+    // Try loading from API
     try {
       const apiData = await App.getData('תעודות');
       if (apiData && apiData.length) {
@@ -402,7 +411,14 @@ Object.assign(Pages, {
         if (body) body.innerHTML = this._certRenderHistoryRows(this._certHistory);
         this._certUpdateStats();
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* use API data if available */ }
+
+    // If no real data and demo not requested, show empty
+    if (!this._certUseDemo && this._certHistory.length && this._certHistory[0]?.id === 1 && this._certHistory[0]?.student === 'יוסף כהן') {
+      this._certHistory = [];
+      const body = document.getElementById('cert-history-body');
+      if (body) body.innerHTML = this._certRenderHistoryRows([]);
+    }
   },
 
   /* ---------- helpers ---------- */
@@ -417,7 +433,7 @@ Object.assign(Pages, {
   },
 
   _certRenderHistoryRows(list) {
-    if (!list.length) return '<tr><td colspan="6" class="text-center text-muted py-4">אין תעודות</td></tr>';
+    if (!list.length) return '<tr><td colspan="6" class="text-center text-muted py-4">\u05d0\u05d9\u05df \u05ea\u05e2\u05d5\u05d3\u05d5\u05ea<br><button class=\'btn btn-outline-primary btn-sm mt-2\' onclick=\'Pages.certificatesLoadDemo()\'>\u05d8\u05e2\u05df \u05d3\u05de\u05d5</button></td></tr>';
     return list.map((h, i) => `
       <tr>
         <td class="text-muted">${h.id}</td>

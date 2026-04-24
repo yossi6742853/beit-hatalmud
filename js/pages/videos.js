@@ -34,6 +34,7 @@ Object.assign(Pages, {
   /* ---------- state ---------- */
   _vidWatched: {},          // { videoId: true }
   _vidSearchTerm: '',
+  _vidUseDemo: false,
   _vidActiveCategory: '',   // '' = all
 
   /* ---------- main render ---------- */
@@ -172,6 +173,11 @@ Object.assign(Pages, {
   },
 
   /* ---------- init ---------- */
+  videosLoadDemo() {
+    this._vidUseDemo = true;
+    App.navigate('videos');
+  },
+
   async videosInit() {
     // Videos use localStorage as primary storage (no matching sheet)
     // Load watched state from store

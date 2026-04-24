@@ -6,6 +6,7 @@ Object.assign(Pages, {
   _driveCurrentFolder: null,
   _driveSearch: '',
   _driveRecentFiles: [],
+  _driveUseDemo: false,
 
   /* ---- Demo Data ---- */
   _driveFolders: [
@@ -185,6 +186,11 @@ Object.assign(Pages, {
   },
 
   /* ---- Init ---- */
+  driveLoadDemo() {
+    this._driveUseDemo = true;
+    this.loadDrive();
+  },
+
   async driveInit() {
     this._driveCurrentFolder = null;
     this._driveSearch = '';
@@ -301,7 +307,11 @@ Object.assign(Pages, {
       }
     } catch (e) { /* fallback to demo */ }
 
-    this._loadedFiles = this._demoFiles;
+    if (this._driveUseDemo) {
+      this._loadedFiles = this._demoFiles;
+    } else {
+      this._loadedFiles = [];
+    }
     this._updateStats();
     this._updateRecent();
     this.renderDriveContent();

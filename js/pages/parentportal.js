@@ -323,6 +323,13 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
+  _portalUseDemo: false,
+
+  parentportalLoadDemo() {
+    this._portalUseDemo = true;
+    App.navigate('parentportal');
+  },
+
   async parentportalInit() {
     // Try loading parents from API
     try {
@@ -342,7 +349,12 @@ Object.assign(Pages, {
           satisfaction: parseInt(row['שביעות_רצון'] || row.satisfaction) || 4
         }));
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep current data */ }
+
+    // If no API data and demo not requested, clear hardcoded
+    if (!this._portalUseDemo && this._portalParents?.length && this._portalParents[0]?.id === 1 && this._portalParents[0]?.name?.includes('יוסף')) {
+      this._portalParents = [];
+    }
 
     // Auto-refresh active count (clear previous interval to prevent leaks)
     if (this._portalRefreshTimer) clearInterval(this._portalRefreshTimer);

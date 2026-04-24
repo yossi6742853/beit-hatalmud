@@ -26,6 +26,8 @@ Object.assign(Pages, {
 
   _ttRooms: ['כיתה א׳', 'כיתה ב׳', 'כיתה ג׳', 'אולם גדול', 'חדר מורים', 'ספרייה'],
 
+  _ttUseDemo: false,
+
   _ttClasses: ['כיתה א׳', 'כיתה ב׳', 'כיתה ג׳'],
 
   _ttDays: ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'],
@@ -174,7 +176,7 @@ Object.assign(Pages, {
      MAIN PAGE RENDER
      ====================================================================== */
   timetable() {
-    this._ttGenerateDemo();
+    if (this._ttUseDemo || this._ttData?.length) { this._ttGenerateDemo(); }
     const stats = this._ttCalcStats();
     const conflicts = this._ttFindConflicts();
 
@@ -593,6 +595,11 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
+  timetableLoadDemo() {
+    this._ttUseDemo = true;
+    App.navigate('timetable');
+  },
+
   async timetableInit() {
     // Try API first, fall back to demo
     try {

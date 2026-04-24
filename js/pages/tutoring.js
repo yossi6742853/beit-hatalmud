@@ -345,6 +345,13 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
+  _tutorUseDemo: false,
+
+  tutoringLoadDemo() {
+    this._tutorUseDemo = true;
+    App.navigate('tutoring');
+  },
+
   async tutoringInit() {
     // Try API first, then localStorage, fall back to demo
     try {

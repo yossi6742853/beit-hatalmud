@@ -222,6 +222,13 @@ Object.assign(Pages, {
   ],
 
   /* ---- Init ---- */
+  _invUseDemo: false,
+
+  inventoryLoadDemo() {
+    this._invUseDemo = true;
+    App.navigate('inventory');
+  },
+
   async inventoryInit() {
     // Try loading from API, fall back to localStorage, then demo data
     try {
@@ -234,6 +241,10 @@ Object.assign(Pages, {
       }
     } catch(e) {
       this._invLoadFromStorage();
+    }
+    // If still has hardcoded demo data and not flagged, clear it
+    if (!this._invUseDemo && this._invData.length && this._invData[0]?.id === 1 && this._invData[0]?.name === 'שולחן תלמיד') {
+      this._invData = [];
     }
     this._invBuildLocationFilter();
     this.renderInventory();
@@ -249,7 +260,8 @@ Object.assign(Pages, {
           this._invNextId = Math.max(...this._invData.map(i => i.id || 0)) + 1;
         }
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep loaded data */ }
+    // If nothing loaded from storage and no demo flag, stay empty
   },
 
   _invSaveToStorage() {

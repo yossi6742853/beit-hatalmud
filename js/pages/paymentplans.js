@@ -284,6 +284,17 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
+  _ppUseDemo: false,
+
+  paymentplansLoadDemo() {
+    this._ppUseDemo = true;
+    this._ppPlans = this._ppDemoData();
+    this._ppFilter = 'all';
+    this._ppSearch = '';
+    this._ppRender();
+    this._ppRenderCharts();
+  },
+
   async paymentplansInit() {
     // Try API first, fall back to demo
     try {
@@ -291,10 +302,10 @@ Object.assign(Pages, {
       if (apiData && apiData.length > 0) {
         this._ppPlans = apiData;
       } else {
-        this._ppPlans = this._ppDemoData();
+        this._ppPlans = this._ppUseDemo ? this._ppDemoData() : [];
       }
     } catch (e) {
-      this._ppPlans = this._ppDemoData();
+      this._ppPlans = this._ppUseDemo ? this._ppDemoData() : [];
     }
     this._ppFilter = 'all';
     this._ppSearch = '';

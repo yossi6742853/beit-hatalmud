@@ -295,6 +295,13 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
+  _roomsUseDemo: false,
+
+  roomsLoadDemo() {
+    this._roomsUseDemo = true;
+    App.navigate('rooms');
+  },
+
   async roomsInit() {
     // Try API first, then localStorage, fall back to demo
     try {
@@ -307,6 +314,11 @@ Object.assign(Pages, {
       }
     } catch (e) {
       this._roomLoadFromStorage();
+    }
+    // If still has hardcoded demo and not flagged, clear
+    if (!this._roomsUseDemo && this._rooms.length && this._rooms[0]?.id === 1 && this._rooms[0]?.name === 'בית מדרש גדול') {
+      this._rooms = [];
+      this._roomBookings = [];
     }
   },
 

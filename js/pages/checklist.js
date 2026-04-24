@@ -3,6 +3,7 @@ Object.assign(Pages, {
 
   /* ---- Storage key ---- */
   _clKey: 'bht_checklists_v2',
+  _clUseDemo: false,
 
   /* ---- Staff names for assignees ---- */
   _clStaff: ['יוסף', 'משה', 'אהרן', 'דוד', 'שמעון', 'יצחק'],
@@ -70,14 +71,24 @@ Object.assign(Pages, {
     }
   },
 
+  checklistLoadDemo() {
+    this._clUseDemo = true;
+    const demo = this._clGenerateDemo();
+    localStorage.setItem(this._clKey, JSON.stringify(demo));
+    App.navigate('checklist');
+  },
+
   /* ---- Load checklists from localStorage (with API sync) ---- */
   _clLoad() {
     const raw = localStorage.getItem(this._clKey);
     if (raw) return JSON.parse(raw);
-    // First time — generate demo data
-    const demo = this._clGenerateDemo();
-    localStorage.setItem(this._clKey, JSON.stringify(demo));
-    return demo;
+    // First time — return empty state (no auto demo)
+    if (this._clUseDemo) {
+      const demo = this._clGenerateDemo();
+      localStorage.setItem(this._clKey, JSON.stringify(demo));
+      return demo;
+    }
+    return { lists: [], activeListId: null, filter: 'all', priorityFilter: 'all' };
   },
 
   _clSave(data) {

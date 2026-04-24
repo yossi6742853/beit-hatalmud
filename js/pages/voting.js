@@ -525,6 +525,13 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init: animate progress bars ---------- */
+  _votingUseDemo: false,
+
+  votingLoadDemo() {
+    this._votingUseDemo = true;
+    App.navigate('voting');
+  },
+
   async votingInit() {
     // Try loading from API, fall back to demo data
     try {
@@ -544,7 +551,12 @@ Object.assign(Pages, {
           voters: row.voters ? (typeof row.voters === 'string' ? JSON.parse(row.voters) : row.voters) : {}
         }));
       }
-    } catch(e) { /* keep demo data */ }
+    } catch(e) { /* keep current data */ }
+
+    // If no API data and demo not requested, clear hardcoded
+    if (!this._votingUseDemo && this._votingPolls?.length && this._votingPolls[0]?.id === 1) {
+      this._votingPolls = [];
+    }
 
     // Animate progress bars after render
     requestAnimationFrame(() => {

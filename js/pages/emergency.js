@@ -32,12 +32,24 @@ Object.assign(Pages, {
     };
   },
 
+  _emergencyUseDemo: false,
+
+  emergencyLoadDemo() {
+    this._emergencyUseDemo = true;
+    const def = this._emergencyDefaults();
+    localStorage.setItem('bht_emergency', JSON.stringify(def));
+    App.navigate('emergency');
+  },
+
   _emergencyLoadData() {
     const saved = localStorage.getItem('bht_emergency');
     if (saved) return JSON.parse(saved);
-    const def = this._emergencyDefaults();
-    localStorage.setItem('bht_emergency', JSON.stringify(def));
-    return def;
+    if (this._emergencyUseDemo) {
+      const def = this._emergencyDefaults();
+      localStorage.setItem('bht_emergency', JSON.stringify(def));
+      return def;
+    }
+    return { drills: [], contacts: [], studentContacts: [] };
   },
 
   _emergencySaveData(data) {

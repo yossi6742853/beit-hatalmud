@@ -235,6 +235,13 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
+  _visitsUseDemo: false,
+
+  visitsLoadDemo() {
+    this._visitsUseDemo = true;
+    App.navigate('visits');
+  },
+
   visitsInit() {
     // set default date to today
     const dateInput = document.getElementById('vf-date');

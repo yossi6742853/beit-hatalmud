@@ -252,6 +252,13 @@ Object.assign(Pages, {
     localStorage.setItem(this._MED_VACCINES_KEY, JSON.stringify(this._medVaccines));
   },
 
+  _medUseDemo: false,
+
+  medicalLoadDemo() {
+    this._medUseDemo = true;
+    App.navigate('medical');
+  },
+
   async medicalInit() {
     this._medData = null;
     this._medEvents = null;
@@ -267,9 +274,11 @@ Object.assign(Pages, {
         this._getMedData();
       }
     } catch(e) {
-      this._getMedData();
+      if (!this._medUseDemo) { this._medData = []; }
+      else { this._getMedData(); }
     }
 
+    if (this._medData === null && !this._medUseDemo) this._medData = [];
     this._getMedEvents();
     this._getMedVaccines();
 

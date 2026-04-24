@@ -1,7 +1,8 @@
 /* ===== BHT v5.3 — Hebrew Calendar (לוח שנה עברי) ===== */
 Object.assign(Pages, {
   _hcViewDate: null,
-  _hcEvents: [
+  _hcUseDemo: false,
+  _hcDemoEvents: [
     { date: '2026-04-26', title: 'מסיבת הורים', type: 'event', color: '#2563eb' },
     { date: '2026-04-30', title: 'מבחן חודשי', type: 'event', color: '#ef4444' },
     { date: '2026-05-05', title: 'טיול שנתי', type: 'event', color: '#16a34a' },
@@ -424,7 +425,26 @@ Object.assign(Pages, {
     </div>`;
   },
 
-  hebrewcalInit() {},
+  hebrewcalLoadDemo() {
+    this._hcUseDemo = true;
+    this._hcEvents = this._hcDemoEvents;
+    App.navigate('hebrewcal');
+  },
+
+  async hebrewcalInit() {
+    // Try API for events
+    try {
+      const apiData = await App.getData('לוח_שנה');
+      if (apiData && apiData.length) {
+        this._hcEvents = apiData;
+        return;
+      }
+    } catch(e) {}
+    // No demo auto-load
+    if (!this._hcUseDemo) {
+      this._hcEvents = [];
+    }
+  },
 
   _hcNav(dir) {
     if (!this._hcViewDate) this._hcViewDate = new Date();
