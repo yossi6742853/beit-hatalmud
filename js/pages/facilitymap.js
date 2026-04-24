@@ -222,8 +222,27 @@ Object.assign(Pages, {
       ${modal}`;
   },
 
-  facilitymapInit() {
+  async facilitymapInit() {
+    // Try loading rooms from API, fall back to hardcoded data
+    let apiRooms = [];
+    try {
+      apiRooms = await App.getData('חדרים');
+    } catch(e) { /* use demo */ }
+
     // Store rooms data globally for modal access
+    if (apiRooms && apiRooms.length) {
+      Pages._facilityRooms = apiRooms.map((r, i) => ({
+        id: r._id || r.id || i + 1,
+        name: r['שם'] || r.name || '',
+        type: r['סוג'] || r.type || 'classroom',
+        floor: parseInt(r['קומה'] || r.floor) || 0,
+        capacity: parseInt(r['קיבולת'] || r.capacity) || 0,
+        status: r['סטטוס'] || r.status || 'available',
+        currentClass: r['שיעור_נוכחי'] || r.currentClass || '',
+        teacher: r['מורה'] || r.teacher || '',
+        equipment: (r['ציוד'] || r.equipment || '').split ? (r['ציוד'] || '').split(',').map(s => s.trim()).filter(Boolean) : (r.equipment || [])
+      }));
+    } else {
     Pages._facilityRooms = [
       {id:1, name:'אולם תפילה', type:'hall', floor:0, capacity:80, status:'available', currentClass:'', teacher:'', equipment:['ארון קודש','במה','מיקרופון','מזגן x2']},
       {id:2, name:'מזכירות', type:'office', floor:0, capacity:4, status:'inuse', currentClass:'', teacher:'יוסף שניידר', equipment:['מחשב','מדפסת','טלפון','מזגן','ארון תיקים']},
@@ -241,6 +260,7 @@ Object.assign(Pages, {
       {id:14, name:'חדר ישיבות', type:'meeting', floor:2, capacity:12, status:'available', currentClass:'', teacher:'', equipment:['שולחן ישיבות','כיסאות x12','מקרן','מזגן','לוח']},
       {id:15, name:'חדר צוות', type:'office', floor:2, capacity:6, status:'available', currentClass:'', teacher:'', equipment:['שולחנות x3','מחשב','מזגן','ארון']}
     ];
+    } // end else (demo data)
 
     Pages._facilityStatusMap = {
       available:  {label:'פנוי',    color:'#22c55e', icon:'bi-check-circle-fill'},
@@ -356,13 +376,19 @@ Object.assign(Pages, {
     Pages._facilityUpdateCard(id);
   },
 
-  _facilitySaveRoom(id) {
+  async _facilitySaveRoom(id) {
     const r = Pages._facilityRooms.find(rm => rm.id === id);
     if (!r) return;
     const classInput = document.getElementById('roomClassInput');
     const teacherInput = document.getElementById('roomTeacherInput');
     if (classInput) r.currentClass = classInput.value;
     if (teacherInput) r.teacher = teacherInput.value;
+
+    // Save to API
+    try {
+      await App.apiCall('update', 'חדרים', { id, row: { 'סטטוס': r.status, 'שיעור_נוכחי': r.currentClass, 'מורה': r.teacher } });
+    } catch(e) { /* localStorage fallback */ }
+
     Pages._facilityUpdateCard(id);
     bootstrap.Modal.getInstance(document.getElementById('roomDetailModal')).hide();
     // Show toast

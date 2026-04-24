@@ -308,8 +308,12 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
-  printcenterInit() {
+  async printcenterInit() {
     this._pcSelectedTemplate = null;
+
+    // Load print history from localStorage (primary storage for print center)
+    // No sheet needed - localStorage is the source of truth for print history
+
     // Pre-populate batch student list
     this._pcBatchFilterStudents();
   },

@@ -115,11 +115,42 @@ Object.assign(Pages, {
   /* ================================================================
      INIT
      ================================================================ */
-  whatsappInit() {
+  async whatsappInit() {
     this._waTab = 'send';
     this._waSelectedRecipients = new Set();
     this._waSelectedGroup = null;
     this._waSearchQuery = '';
+
+    // Try loading contacts/history from API
+    try {
+      const apiData = await App.getData('תקשורת_הורים');
+      if (apiData && apiData.length) {
+        // Map API data to contacts format
+        const contacts = apiData.filter(r => r['סוג_רשומה'] !== 'היסטוריה');
+        if (contacts.length) {
+          this._waContacts = contacts.map(row => ({
+            name: row['שם'] || row.name || '',
+            phone: row['טלפון'] || row.phone || '',
+            class: row['כיתה'] || row.class || '',
+            type: row['סוג'] || row.type || '\u05D4\u05D5\u05E8\u05D4'
+          }));
+        }
+        // Map history entries
+        const histEntries = apiData.filter(r => r['סוג_רשומה'] === 'היסטוריה');
+        if (histEntries.length) {
+          this._waHistory = histEntries.map((row, i) => ({
+            id: row._id || 'h' + (i + 1),
+            date: row['תאריך'] || row.date || '',
+            template: row['תבנית'] || row.template || '',
+            recipients: parseInt(row['נמענים'] || row.recipients) || 0,
+            group: row['קבוצה'] || row.group || null,
+            names: row.names ? (typeof row.names === 'string' ? JSON.parse(row.names) : row.names) : [],
+            preview: row['תקציר'] || row.preview || ''
+          }));
+        }
+      }
+    } catch(e) { /* keep demo data */ }
+
     this.renderWa();
   },
 
@@ -371,10 +402,10 @@ Object.assign(Pages, {
       if (c) names.push(c.name);
       sent++;
     });
-    // Log to history
+    // Log to history and API
     const tplSelect = document.getElementById('wa-template-select');
     const tplName = tplSelect?.selectedOptions[0]?.text || '\u05D7\u05D5\u05E4\u05E9\u05D9';
-    this._waHistory.unshift({
+    const histEntry = {
       id: 'h' + (this._waHistory.length + 1),
       date: new Date().toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       template: tplName === '\u2014 \u05DB\u05EA\u05D9\u05D1\u05D4 \u05D7\u05D5\u05E4\u05E9\u05D9\u05EA \u2014' ? '\u05D7\u05D5\u05E4\u05E9\u05D9' : tplName,
@@ -382,7 +413,18 @@ Object.assign(Pages, {
       group: this._waSelectedGroup,
       names: this._waSelectedGroup ? [] : names,
       preview: msg.substring(0, 40) + '...'
-    });
+    };
+    this._waHistory.unshift(histEntry);
+
+    // Save to API
+    try {
+      App.apiCall('add', 'תקשורת_הורים', { row: {
+        'סוג_רשומה': 'היסטוריה', 'תאריך': histEntry.date, 'תבנית': histEntry.template,
+        'נמענים': String(sent), 'קבוצה': this._waSelectedGroup || '',
+        'תקציר': histEntry.preview
+      }});
+    } catch(e) { /* ok */ }
+
     document.getElementById('wa-send-status').innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>\u05E0\u05E4\u05EA\u05D7\u05D5 ${sent} \u05D7\u05DC\u05D5\u05E0\u05D5\u05EA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4 \u05DC\u05E9\u05DC\u05D9\u05D7\u05D4</div>`;
     if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`, 'success');
     this._waRenderStats();

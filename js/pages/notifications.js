@@ -136,6 +136,25 @@ Object.assign(Pages, {
   async notificationsInit() {
     this._notifFilter = 'all';
     this._notifDetailId = null;
+
+    // Try syncing from API
+    try {
+      const apiData = await App.getData('התראות');
+      if (apiData && apiData.length) {
+        const mapped = apiData.map(row => ({
+          id: row._id || row.id || Date.now(),
+          type: row['סוג'] || row.type || 'system',
+          title: row['כותרת'] || row.title || '',
+          desc: row['תיאור'] || row.desc || '',
+          ts: row['זמן'] ? new Date(row['זמן']).getTime() : (row.ts || Date.now()),
+          read: row['נקרא'] === 'כן' || row.read === true,
+          important: row['חשוב'] === 'כן' || row.important === true,
+          archived: row['ארכיון'] === 'כן' || row.archived === true
+        }));
+        this._saveNotifications(mapped);
+      }
+    } catch(e) { /* keep localStorage data */ }
+
     this._renderNotifList();
   },
 

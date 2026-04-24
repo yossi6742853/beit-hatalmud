@@ -163,7 +163,30 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  rewardsInit() {},
+  async rewardsInit() {
+    // Try loading from API, fall back to demo data
+    try {
+      const apiData = await App.getData('פרסים');
+      if (apiData && apiData.length) {
+        this._rewardStudents = apiData.filter(r => r['סוג'] === 'תלמיד' || !r['סוג']).map((row, i) => ({
+          name: row['שם'] || row.name || '',
+          points: parseInt(row['נקודות'] || row.points) || 0,
+          redeemed: parseInt(row['מימושים'] || row.redeemed) || 0
+        }));
+        const prizes = apiData.filter(r => r['סוג'] === 'פרס');
+        if (prizes.length) {
+          this._prizes = prizes.map((row, i) => ({
+            id: row._id || row.id || i + 1,
+            name: row['שם'] || row.name || '',
+            cost: parseInt(row['עלות'] || row.cost) || 0,
+            icon: row['אייקון'] || row.icon || 'bi-gift',
+            category: row['קטגוריה'] || row.category || '',
+            stock: parseInt(row['מלאי'] || row.stock) || 0
+          }));
+        }
+      }
+    } catch(e) { /* keep demo data */ }
+  },
 
   _rewardTab(tab, e) {
     e.preventDefault();
@@ -179,12 +202,18 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('reward-modal')).show();
   },
 
-  _rewardSaveGrant() {
+  async _rewardSaveGrant() {
     const name = document.getElementById('rf-student')?.value;
     const pts = parseInt(document.getElementById('rf-points')?.value) || 0;
     if (pts <= 0) { Utils.toast('יש להזין מספר נקודות חיובי', 'warning'); return; }
     const student = this._rewardStudents.find(s => s.name === name);
     if (student) student.points += pts;
+
+    // Save to API
+    try {
+      await App.apiCall('add', 'פרסים', { row: { 'שם': name, 'נקודות': pts, 'סיבה': document.getElementById('rf-reason')?.value || '', 'תאריך': new Date().toISOString().slice(0, 10) } });
+    } catch(e) { /* localStorage fallback */ }
+
     bootstrap.Modal.getInstance(document.getElementById('reward-modal'))?.hide();
     Utils.toast(`${pts} נקודות הוענקו ל${name}!`);
     App.navigate('rewards');

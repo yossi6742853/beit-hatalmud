@@ -289,7 +289,24 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  formsInit() {},
+  async formsInit() {
+    // Try loading from API, fall back to demo data
+    try {
+      const apiData = await App.getData('טפסים');
+      if (apiData && apiData.length) {
+        this._formsData = apiData.map(row => ({
+          _id: row._id || row.id || 'f_' + Date.now(),
+          name: row['שם'] || row.name || '',
+          desc: row['תיאור'] || row.desc || '',
+          status: row['סטטוס'] || row.status || 'פעיל',
+          color: row['צבע'] || row.color || '#2563eb',
+          date: row['תאריך'] || row.date || '',
+          fields: row.fields ? (typeof row.fields === 'string' ? JSON.parse(row.fields) : row.fields) : [],
+          responses: row.responses ? (typeof row.responses === 'string' ? JSON.parse(row.responses) : row.responses) : []
+        }));
+      }
+    } catch(e) { /* keep demo data */ }
+  },
 
   _formCreate() {
     this._formsEditId = null;
@@ -379,7 +396,7 @@ Object.assign(Pages, {
     this._formRenderFields();
   },
 
-  _formSave() {
+  async _formSave() {
     const title = document.getElementById('ff-title').value.trim();
     if (!title) { Utils.toast('נא להזין שם לטופס', 'warning'); return; }
     if (!this._formFields.length) { Utils.toast('נא להוסיף שדות לטופס', 'warning'); return; }
@@ -395,6 +412,16 @@ Object.assign(Pages, {
       responses: []
     };
     this._formsData.push(form);
+
+    // Save to API
+    try {
+      await App.apiCall('add', 'טפסים', { row: {
+        'שם': form.name, 'תיאור': form.desc, 'סטטוס': form.status,
+        'צבע': form.color, 'תאריך': form.date,
+        'fields': JSON.stringify(form.fields)
+      }});
+    } catch(e) { /* localStorage fallback */ }
+
     bootstrap.Modal.getInstance(document.getElementById('frm-modal'))?.hide();
     Utils.toast('הטופס נוצר בהצלחה', 'success');
     App.loadPage('forms');
@@ -579,9 +606,13 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('frm-qr-modal')).show();
   },
 
-  _formDelete(id) {
+  async _formDelete(id) {
     if (!confirm('למחוק טופס זה?')) return;
     this._formsData = this._formsData.filter(f => f._id !== id);
+
+    // Delete from API
+    try { await App.apiCall('delete', 'טפסים', { id }); } catch(e) { /* ok */ }
+
     Utils.toast('הטופס נמחק', 'success');
     App.loadPage('forms');
   }

@@ -280,7 +280,44 @@ Object.assign(Pages, {
 
   /* ---------- Init — build all charts ---------- */
   async analyticsInit() {
-    const kpi = this._anDemoKPI();
+    // Try loading real data from API, fall back to demo
+    let apiStudents, apiAttendance, apiGrades, apiFinance;
+    try {
+      [apiStudents, apiAttendance, apiGrades, apiFinance] = await Promise.all([
+        App.getData('תלמידים').catch(() => []),
+        App.getData('נוכחות').catch(() => []),
+        App.getData('ציונים').catch(() => []),
+        App.getData('שכר_לימוד').catch(() => [])
+      ]);
+    } catch(e) {
+      apiStudents = []; apiAttendance = []; apiGrades = []; apiFinance = [];
+    }
+
+    // If we have real data, compute KPIs from it; otherwise use demo
+    let kpi;
+    if (apiStudents.length || apiAttendance.length || apiGrades.length) {
+      const totalStudents = apiStudents.length || 24;
+      const attRecords = apiAttendance || [];
+      const gradeRecords = apiGrades || [];
+      const finRecords = apiFinance || [];
+      const attRate = attRecords.length > 0
+        ? Math.round(attRecords.filter(r => r['סטטוס'] === 'נוכח' || r['status'] === 'נוכח').length / attRecords.length * 100)
+        : 87;
+      const gradeAvg = gradeRecords.length > 0
+        ? Math.round(gradeRecords.reduce((s, r) => s + (parseFloat(r['ציון'] || r['grade']) || 0), 0) / gradeRecords.length * 10) / 10
+        : 76.4;
+      const collectionRate = finRecords.length > 0
+        ? Math.round(finRecords.filter(r => r['סטטוס'] === 'שולם' || r['status'] === 'שולם').length / finRecords.length * 100)
+        : 91;
+      kpi = this._anDemoKPI();
+      kpi.attendanceRate = attRate;
+      kpi.gradeAvg = gradeAvg;
+      kpi.collectionRate = collectionRate;
+      kpi.activeStudents = totalStudents;
+    } else {
+      kpi = this._anDemoKPI();
+    }
+
     const months = this._analyticsMonthNames;
     const subjects = this._analyticsSubjects;
     const classes = this._analyticsClasses;

@@ -173,9 +173,14 @@ Object.assign(Pages, {
 
   /* ---------- init ---------- */
   async videosInit() {
+    // Videos use localStorage as primary storage (no matching sheet)
     // Load watched state from store
-    const saved = App.store?.get?.('vid_watched');
-    this._vidWatched = saved ? JSON.parse(saved) : {};
+    try {
+      const saved = localStorage.getItem('bht_vid_watched') || (App.store?.get?.('vid_watched'));
+      this._vidWatched = saved ? JSON.parse(saved) : {};
+    } catch(e) {
+      this._vidWatched = {};
+    }
     this._vidSearchTerm = '';
     this._vidActiveCategory = '';
     this._vidRender();
@@ -401,7 +406,8 @@ Object.assign(Pages, {
       this._vidWatched[id] = true;
       App.showToast?.('\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05E0\u05E6\u05E4\u05D4!', 'success');
     }
-    // persist
+    // persist to localStorage
+    try { localStorage.setItem('bht_vid_watched', JSON.stringify(this._vidWatched)); } catch(e) {}
     App.store?.set?.('vid_watched', JSON.stringify(this._vidWatched));
     this._vidRender();
   },

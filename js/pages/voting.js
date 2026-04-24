@@ -525,7 +525,27 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init: animate progress bars ---------- */
-  votingInit() {
+  async votingInit() {
+    // Try loading from API, fall back to demo data
+    try {
+      const apiData = await App.getData('הצבעות');
+      if (apiData && apiData.length) {
+        this._pollState.polls = apiData.map(row => ({
+          id: row._id || row.id || 'p_' + Date.now(),
+          question: row['שאלה'] || row.question || '',
+          options: row.options ? (typeof row.options === 'string' ? JSON.parse(row.options) : row.options) : [],
+          votes: row.votes ? (typeof row.votes === 'string' ? JSON.parse(row.votes) : row.votes) : [],
+          anonymous: row['אנונימי'] === 'כן' || row.anonymous === true,
+          closed: row['סגור'] === 'כן' || row.closed === true,
+          endDate: row['תאריך_סיום'] || row.endDate || '',
+          created: row['תאריך_יצירה'] || row.created || '',
+          author: row['יוצר'] || row.author || 'מזכירות',
+          category: row['קטגוריה'] || row.category || 'כללי',
+          voters: row.voters ? (typeof row.voters === 'string' ? JSON.parse(row.voters) : row.voters) : {}
+        }));
+      }
+    } catch(e) { /* keep demo data */ }
+
     // Animate progress bars after render
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -626,7 +646,7 @@ Object.assign(Pages, {
   },
 
   /* ---------- Confirm vote ---------- */
-  _pollConfirmVote() {
+  async _pollConfirmVote() {
     const pending = this._pollPendingVote;
     if (!pending) return;
 
@@ -638,6 +658,11 @@ Object.assign(Pages, {
     poll.votes[pending.optIdx]++;
     this._pollState.voted[pending.pid] = pending.optIdx;
     this._pollPendingVote = null;
+
+    // Save updated votes to API
+    try {
+      await App.apiCall('update', 'הצבעות', { id: pending.pid, row: { 'votes': JSON.stringify(poll.votes) } });
+    } catch(e) { /* ok */ }
 
     // Close modal and refresh
     bootstrap.Modal.getInstance(document.getElementById('poll-vote-modal'))?.hide();
@@ -837,7 +862,7 @@ Object.assign(Pages, {
   },
 
   /* ---------- Create poll ---------- */
-  _pollCreate() {
+  async _pollCreate() {
     const q = document.getElementById('pf-question')?.value?.trim();
     const cat = document.getElementById('pf-category')?.value || 'כללי';
     const endDate = document.getElementById('pf-enddate')?.value || '';
@@ -887,6 +912,16 @@ Object.assign(Pages, {
       voters: {}
     });
 
+    // Save to API
+    try {
+      await App.apiCall('add', 'הצבעות', { row: {
+        'שאלה': q, 'קטגוריה': cat, 'תאריך_סיום': endDate,
+        'אנונימי': anonymous ? 'כן' : 'לא', 'יוצר': 'מזכירות',
+        'תאריך_יצירה': new Date().toISOString().slice(0, 10),
+        'options': JSON.stringify(opts), 'votes': JSON.stringify(opts.map(() => 0))
+      }});
+    } catch(e) { /* localStorage fallback */ }
+
     bootstrap.Modal.getInstance(document.getElementById('poll-create-modal'))?.hide();
     Utils.toast('הסקר נוצר בהצלחה!', 'success');
     this._pollState.tab = 'active';
@@ -916,7 +951,7 @@ Object.assign(Pages, {
   },
 
   /* ---------- Delete poll ---------- */
-  _pollDelete(pid) {
+  async _pollDelete(pid) {
     const polls = this._pollEnsureData();
     const idx = polls.findIndex(x => x.id === pid);
     if (idx === -1) return;
@@ -924,6 +959,10 @@ Object.assign(Pages, {
     polls.splice(idx, 1);
     // Clean voted state
     delete this._pollState.voted[pid];
+
+    // Delete from API
+    try { await App.apiCall('delete', 'הצבעות', { id: pid }); } catch(e) { /* ok */ }
+
     Utils.toast('הסקר נמחק', 'info');
     App.navigate('voting');
   }

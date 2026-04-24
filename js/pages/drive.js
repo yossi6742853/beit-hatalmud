@@ -260,6 +260,26 @@ Object.assign(Pages, {
     if (list) list.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
 
     try {
+      const apiData = await App.getData('קבצים_מצורפים');
+      if (apiData && apiData.length) {
+        this._loadedFiles = apiData.map((row, i) => ({
+          id: row._id || row.id || String(i + 1),
+          name: row['שם'] || row.name || '',
+          mimeType: row['סוג'] || row.mimeType || 'application/octet-stream',
+          modifiedTime: row['תאריך'] || row.modifiedTime || '',
+          size: parseInt(row['גודל'] || row.size) || 0,
+          folder: row['תיקיה'] || row.folder || null,
+          url: row['קישור'] || row.url || '#'
+        }));
+        this._driveStorageUsed = this._loadedFiles.reduce((s, f) => s + (f.size || 0), 0);
+        this._updateStats();
+        this._updateRecent();
+        this.renderDriveContent();
+        return;
+      }
+    } catch (e) { /* fallback to demo */ }
+
+    try {
       const url = App.API_URL + '?mode=api&action=drive_list&token=' + App.API_TOKEN;
       const resp = await fetch(url);
       const json = await resp.json();
@@ -705,7 +725,7 @@ Object.assign(Pages, {
   },
 
   /* ---- Delete File ---- */
-  deleteFile(fileId) {
+  async deleteFile(fileId) {
     const file = (this._loadedFiles || []).find(f => f.id === fileId);
     if (!file) return;
     if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "' + (file.name || '') + '"?')) return;
@@ -713,6 +733,9 @@ Object.assign(Pages, {
     this._loadedFiles = (this._loadedFiles || []).filter(f => f.id !== fileId);
     this._driveStorageUsed -= (file.size || 0);
     if (this._driveStorageUsed < 0) this._driveStorageUsed = 0;
+
+    // Delete from API
+    try { await App.apiCall('delete', 'קבצים_מצורפים', { id: fileId }); } catch(e) { /* ok */ }
 
     App.showToast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05E0\u05DE\u05D7\u05E7', 'success');
     this._updateStats();

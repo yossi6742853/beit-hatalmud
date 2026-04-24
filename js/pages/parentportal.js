@@ -323,7 +323,27 @@ Object.assign(Pages, {
     </div></div></div>`;
   },
 
-  parentportalInit() {
+  async parentportalInit() {
+    // Try loading parents from API
+    try {
+      const apiData = await App.getData('הורים');
+      if (apiData && apiData.length) {
+        this._portalParents = apiData.map((row, i) => ({
+          id: row._id || row.id || i + 1,
+          name: row['שם'] || row.name || '',
+          student: row['תלמיד'] || row.student || '',
+          phone: row['טלפון'] || row.phone || '',
+          email: row['אימייל'] || row.email || '',
+          registered: row['תאריך_רישום'] || row.registered || '',
+          lastLogin: row['כניסה_אחרונה'] || row.lastLogin || '',
+          device: row['מכשיר'] || row.device || '',
+          logins: parseInt(row['כניסות'] || row.logins) || 0,
+          active: row['פעיל'] === 'כן' || row.active === true,
+          satisfaction: parseInt(row['שביעות_רצון'] || row.satisfaction) || 4
+        }));
+      }
+    } catch(e) { /* keep demo data */ }
+
     // Auto-refresh active count
     this._portalRefreshTimer = setInterval(() => {
       const badge = document.querySelector('#portal-tabs .nav-link.active .badge');

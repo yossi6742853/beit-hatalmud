@@ -384,8 +384,25 @@ Object.assign(Pages, {
     `;
   },
 
-  certificatesInit() {
-    // nothing extra needed — static demo
+  async certificatesInit() {
+    // Try loading from API, fall back to demo data
+    try {
+      const apiData = await App.getData('תעודות');
+      if (apiData && apiData.length) {
+        this._certHistory = apiData.map((row, i) => ({
+          id: row._id || row.id || i + 1,
+          student: row['תלמיד'] || row.student || '',
+          type: row['סוג'] || row.type || 'report',
+          date: row['תאריך'] || row.date || '',
+          text: row['תוכן'] || row.text || ''
+        }));
+        this._certNextId = Math.max(...this._certHistory.map(h => h.id || 0)) + 1;
+        // Refresh the history table
+        const body = document.getElementById('cert-history-body');
+        if (body) body.innerHTML = this._certRenderHistoryRows(this._certHistory);
+        this._certUpdateStats();
+      }
+    } catch(e) { /* keep demo data */ }
   },
 
   /* ---------- helpers ---------- */
@@ -510,7 +527,7 @@ Object.assign(Pages, {
   },
 
   /* ---------- generate (save) ---------- */
-  _certGenerate() {
+  async _certGenerate() {
     const type = document.getElementById('cert-type')?.value;
     const student = document.getElementById('cert-student')?.value;
     const date = document.getElementById('cert-date')?.value;
@@ -524,6 +541,11 @@ Object.assign(Pages, {
       text: text || this._certTemplateName(type),
     };
     this._certHistory.unshift(entry);
+
+    // Save to API
+    try {
+      await App.apiCall('add', 'תעודות', { row: { 'תלמיד': student, 'סוג': type, 'תאריך': entry.date, 'תוכן': entry.text } });
+    } catch(e) { /* localStorage fallback — data already in memory */ }
 
     bootstrap.Modal.getInstance(document.getElementById('certGeneratorModal'))?.hide();
 
