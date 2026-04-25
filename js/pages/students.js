@@ -823,6 +823,7 @@ Object.assign(Pages, {
   async student_cardInit(id) { return this.studentInit(id); },
 
   async studentInit(id) {
+    try {
     const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     const s = students.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {
@@ -1338,6 +1339,11 @@ Object.assign(Pages, {
 
       </div>
     `;
+    } catch(err) {
+      console.error('studentInit error:', err);
+      const el = document.getElementById('student-card-content');
+      if (el) el.innerHTML = `<div class="alert alert-danger m-4"><i class="bi bi-exclamation-triangle me-2"></i>\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D8\u05E2\u05D9\u05E0\u05EA \u05DB\u05E8\u05D8\u05D9\u05E1 \u05EA\u05DC\u05DE\u05D9\u05D3: ${err.message}<br><a href="#students" class="btn btn-primary btn-sm mt-2">\u05D7\u05D6\u05E8\u05D4</a></div>`;
+    }
   },
 
   /* ======================================================================
