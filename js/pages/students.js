@@ -845,8 +845,10 @@ Object.assign(Pages, {
     const matchName = r => (r['\u05E9\u05DD']||r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name;
     const match = r => matchId(r) || matchName(r);
 
-    // Load ALL data in parallel for speed
-    const [attendance, finance, behavior, parents, medical, homework, grades, exams, documents, activityLog, paymentPlans] = await Promise.all([
+    // Load ALL data in parallel for speed (with individual catch to prevent total failure)
+    let attendance=[], finance=[], behavior=[], parents=[], medical=[], homework=[], grades=[], exams=[], documents=[], activityLog=[], paymentPlans=[];
+    try {
+    [attendance, finance, behavior, parents, medical, homework, grades, exams, documents, activityLog, paymentPlans] = await Promise.all([
       App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
       App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
       App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]),
@@ -859,6 +861,7 @@ Object.assign(Pages, {
       App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA').catch(()=>[]),
       App.getData('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD').catch(()=>[])
     ]);
+    } catch(e) { console.error('Student card data load error:', e); }
 
     // ---- Attendance ----
     const studentAtt = (attendance||[]).filter(match);
