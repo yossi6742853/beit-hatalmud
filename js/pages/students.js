@@ -824,7 +824,13 @@ Object.assign(Pages, {
 
   async studentInit(id) {
     try {
-    const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    // Use DATA_CACHE directly if available (avoids async issues)
+    let students = [];
+    if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'] && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'].length) {
+      students = DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'];
+    } else {
+      students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    }
     const s = students.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {
       document.getElementById('student-card-content').innerHTML = `<div class="empty-state"><i class="bi bi-person-x"></i><h5>\u05EA\u05DC\u05DE\u05D9\u05D3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h5><a href="#students" class="btn btn-primary mt-2">\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a></div>`;
@@ -846,27 +852,12 @@ Object.assign(Pages, {
     const matchName = r => (r['\u05E9\u05DD']||r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||r['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name;
     const match = r => matchId(r) || matchName(r);
 
-    // Load data in 2 batches to avoid API throttling
-    let attendance=[], finance=[], behavior=[], parents=[], medical=[], homework=[], grades=[], exams=[], documents=[], activityLog=[], paymentPlans=[];
-    try {
-      // Batch 1: core data
-      [attendance, finance, behavior, parents] = await Promise.all([
-        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]),
-        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[]),
-        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]),
-        App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(()=>[])
-      ]);
-      // Batch 2: secondary data
-      [medical, homework, grades, exams, documents, activityLog, paymentPlans] = await Promise.all([
-        App.getData('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9').catch(()=>[]),
-        App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA').catch(()=>[]),
-        App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(()=>[]),
-        App.getData('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD').catch(()=>[]),
-        App.getData('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD').catch(()=>[]),
-        App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA').catch(()=>[]),
-        App.getData('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD').catch(()=>[])
-      ]);
-    } catch(e) { console.error('Student card data load error:', e); }
+    // Load data from DATA_CACHE (sync) or API (async)
+    const _gc = (sheet) => {
+      if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[sheet]) return DATA_CACHE[sheet];
+      return [];
+    };
+    let attendance=_gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'), finance=_gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'), behavior=_gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'), parents=_gc('\u05D4\u05D5\u05E8\u05D9\u05DD'), medical=_gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9'), homework=_gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA'), grades=_gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD'), exams=_gc('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD'), documents=_gc('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD'), activityLog=_gc('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA'), paymentPlans=_gc('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD');
 
     // ---- Attendance ----
     const studentAtt = (attendance||[]).filter(match);
