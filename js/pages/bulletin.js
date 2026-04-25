@@ -1,21 +1,10 @@
 /* ===== BHT v5.3 — Bulletin Board (לוח מודעות) ===== */
 Object.assign(Pages, {
 
-  /* ---------- demo data (10 announcements) ---------- */
-  _bulletinData: [
-    {id:1, title:'שבת גיבוש - פרשת אמור', content:'שבת גיבוש לכל התלמידים בשבת הקרובה. איסוף ביום שישי בשעה 14:00. נא להביא ציוד שינה ואוכל לשבת. ההסעות יוצאות מהמוסד.', category:'events', date:'2026-04-24', priority:'urgent', author:'ההנהלה', pinned:true, expiry:'2026-04-25'},
-    {id:2, title:'תשלום שכר לימוד - תזכורת אחרונה', content:'נא להסדיר תשלומי שכר לימוד עד סוף החודש. ניתן לשלם בהעברה בנקאית או במזומן במזכירות. לאחר התאריך ייגבו דמי פיגור.', category:'administrative', date:'2026-04-21', priority:'important', author:'גזברות', pinned:true, expiry:'2026-04-30'},
-    {id:3, title:'מבחן בגמרא - כיתה א\'', content:'מבחן בגמרא מסכת ברכות דף ב-י ביום רביעי הקרוב. החומר כולל תוספות ורש"י. נא להתכונן בהתאם.', category:'academic', date:'2026-04-23', priority:'important', author:'הרב סורוצקין', pinned:false, expiry:'2026-04-24'},
-    {id:4, title:'מבצע לימוד מיוחד לחודש ניסן', content:'מבצע לימוד מיוחד לחודש ניסן - פרסים מיוחדים למצטיינים! הרשמה במזכירות עד יום שלישי.', category:'academic', date:'2026-04-20', priority:'urgent', author:'ההנהלה', pinned:true, expiry:'2026-05-01'},
-    {id:5, title:'תיקון מזגנים - הודעה חשובה', content:'ביום ראשון הקרוב יתבצע תיקון מזגנים בקומה ב\'. נא לא להפעיל מזגנים באותו יום. מתנצלים על אי הנוחות.', category:'administrative', date:'2026-04-22', priority:'normal', author:'אחזקה', pinned:false, expiry:'2026-04-27'},
-    {id:6, title:'הרשמה לקייטנת קיץ', content:'ההרשמה לקייטנת הקיץ תשפ"ו נפתחה! מקומות מוגבלים. מחיר מוזל לנרשמים עד סוף אפריל.', category:'events', date:'2026-04-19', priority:'normal', author:'מזכירות', pinned:false, expiry:'2026-05-15'},
-    {id:7, title:'שיעור כללי - הרב יעקובוביץ', content:'שיעור כללי מיוחד של הרב יעקובוביץ ביום חמישי בשעה 20:00 בהיכל הגדול. הנושא: סוגיות בדיני ממונות.', category:'academic', date:'2026-04-22', priority:'normal', author:'ההנהלה', pinned:false, expiry:'2026-04-24'},
-    {id:8, title:'עדכון שעות פתיחת המזכירות', content:'החל מהשבוע הבא שעות המזכירות יהיו: א-ה 08:00-16:00, יום ו\' 08:00-12:00. בשעות הצהריים (13:00-14:00) המזכירות סגורה.', category:'general', date:'2026-04-18', priority:'normal', author:'מזכירות', pinned:false, expiry:null},
-    {id:9, title:'אסיפת הורים - כיתה ב\'', content:'אסיפת הורים לכיתה ב\' תתקיים ביום שני ה-28/4 בשעה 19:30. נוכחות חובה. יוגשו כיבוד קל ומשקאות.', category:'events', date:'2026-04-22', priority:'important', author:'הרב כהן', pinned:false, expiry:'2026-04-28'},
-    {id:10, title:'איסוף ספרים ישנים', content:'אנו אוספים ספרי לימוד ישנים לתרומה. ניתן להניח בקופסה ליד המזכירות. תודה על שיתוף הפעולה!', category:'general', date:'2026-04-15', priority:'normal', author:'ועד המוסד', pinned:false, expiry:'2026-04-10'},
-  ],
+  /* ---------- data ---------- */
+  _bulletinData: [],
 
-  _bulletinNextId: 11,
+  _bulletinNextId: 1,
   _bulletinUseDemo: false,
   _bulletinFilter: { search:'', category:'all', showArchive:false },
 
@@ -194,7 +183,7 @@ Object.assign(Pages, {
     }
 
     // If no real data loaded and demo not requested, start empty
-    if (!this._bulletinUseDemo && this._bulletinData.length && this._bulletinData[0]?.id === 1 && this._bulletinData[0]?.title?.includes('שבת גיבוש')) {
+    if (!this._bulletinUseDemo && !this._bulletinData.length) {
       this._bulletinData = [];
     }
 
@@ -216,7 +205,13 @@ Object.assign(Pages, {
 
   bulletinLoadDemo() {
     this._bulletinUseDemo = true;
-    this._bulletinNextId = 11;
+    const today = new Date().toISOString().slice(0,10);
+    this._bulletinData = [
+      {id:1, title:'הודעה לדוגמה', content:'זוהי מודעה לדוגמה במערכת.', category:'general', date:today, priority:'normal', author:'מזכירות', pinned:false, expiry:null},
+      {id:2, title:'אירוע קרוב', content:'אירוע לדוגמה.', category:'events', date:today, priority:'important', author:'ההנהלה', pinned:true, expiry:null},
+      {id:3, title:'עדכון מנהלי', content:'עדכון לדוגמה.', category:'administrative', date:today, priority:'normal', author:'גזברות', pinned:false, expiry:null},
+    ];
+    this._bulletinNextId = 4;
     this._bulletinRender();
   },
 

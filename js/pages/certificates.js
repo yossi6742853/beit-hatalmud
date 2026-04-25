@@ -9,30 +9,15 @@ Object.assign(Pages, {
     { id: 'appreciation', name: 'תעודת הוקרה',       icon: 'bi-heart-fill',            color: 'danger',   desc: 'הכרת תודה על תרומה מיוחדת למוסד או לקהילה' },
   ],
 
-  /* ---------- demo students ---------- */
-  _certStudents: [
-    'יוסף כהן', 'משה לוי', 'אברהם גולדברג', 'דוד פרידמן', 'אליהו שפירא',
-    'יעקב רוזנברג', 'חיים ברקוביץ', 'נתנאל וייס', 'שמואל הורביץ', 'רפאל מזרחי',
-    'עמנואל שטרן', 'בנימין אדלר', 'מנחם פלדמן', 'אהרן קליין', 'ישראל גרוס',
-  ],
+  /* ---------- students ---------- */
+  _certStudents: [],
 
   _certClasses: ["כיתה א'", "כיתה ב'", "כיתה ג'", "כיתה ד'"],
 
-  /* ---------- demo generated history ---------- */
-  _certHistory: [
-    { id: 1,  student: 'יוסף כהן',       type: 'report',       date: '2026-04-20', text: 'תעודת סוף שנה תשפ"ו — הצטיין בלימודיו' },
-    { id: 2,  student: 'משה לוי',         type: 'achievement',  date: '2026-04-18', text: 'הצטיינות יתרה במסכת ברכות' },
-    { id: 3,  student: 'אברהם גולדברג',  type: 'completion',   date: '2026-04-15', text: 'סיים בהצלחה מסלול "שס בעל פה"' },
-    { id: 4,  student: 'דוד פרידמן',      type: 'appreciation', date: '2026-04-14', text: 'תודה על ארגון שבת גיבוש' },
-    { id: 5,  student: 'אליהו שפירא',    type: 'report',       date: '2026-04-12', text: 'תעודת סוף שנה תשפ"ו — מעורבות חברתית' },
-    { id: 6,  student: 'יעקב רוזנברג',   type: 'achievement',  date: '2026-04-10', text: 'תלמיד השבוע — שבוע פרשת שמיני' },
-    { id: 7,  student: 'חיים ברקוביץ',   type: 'completion',   date: '2026-04-08', text: 'סיים קורס חזנות למתחילים' },
-    { id: 8,  student: 'נתנאל וייס',     type: 'appreciation', date: '2026-04-05', text: 'הוקרה על סיוע בספרייה' },
-    { id: 9,  student: 'שמואל הורביץ',   type: 'report',       date: '2026-03-28', text: 'תעודת סוף סמסטר א\' — ציונים מעולים' },
-    { id: 10, student: 'רפאל מזרחי',     type: 'achievement',  date: '2026-03-20', text: 'מקום ראשון בחידון תנ"ך' },
-  ],
+  /* ---------- history ---------- */
+  _certHistory: [],
 
-  _certNextId: 11,
+  _certNextId: 1,
   _certUseDemo: false,
   _certFilter: '',
 
@@ -387,7 +372,13 @@ Object.assign(Pages, {
 
   certificatesLoadDemo() {
     this._certUseDemo = true;
-    // Use the hardcoded _certHistory and _certStudents
+    this._certStudents = ['\u05d9\u05d5\u05e1\u05e3 \u05db\u05d4\u05df', '\u05de\u05e9\u05d4 \u05dc\u05d5\u05d9', '\u05d3\u05d5\u05d3 \u05e4\u05e8\u05d9\u05d3\u05de\u05df'];
+    this._certHistory = [
+      { id: 1, student: '\u05d9\u05d5\u05e1\u05e3 \u05db\u05d4\u05df', type: 'report', date: '2026-04-20', text: '\u05ea\u05e2\u05d5\u05d3\u05ea \u05e1\u05d5\u05e3 \u05e9\u05e0\u05d4' },
+      { id: 2, student: '\u05de\u05e9\u05d4 \u05dc\u05d5\u05d9', type: 'achievement', date: '2026-04-18', text: '\u05d4\u05e6\u05d8\u05d9\u05d9\u05e0\u05d5\u05ea' },
+      { id: 3, student: '\u05d3\u05d5\u05d3 \u05e4\u05e8\u05d9\u05d3\u05de\u05df', type: 'completion', date: '2026-04-15', text: '\u05e1\u05d9\u05d5\u05dd \u05de\u05e1\u05dc\u05d5\u05dc' },
+    ];
+    this._certNextId = 4;
     const body = document.getElementById('cert-history-body');
     if (body) body.innerHTML = this._certRenderHistoryRows(this._certHistory);
     this._certUpdateStats();
