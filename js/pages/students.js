@@ -1230,8 +1230,17 @@ Object.assign(Pages, {
                 const docType = d['\u05E1\u05D5\u05D2']||d['type']||'';
                 const docDate = d['\u05EA\u05D0\u05E8\u05D9\u05DA']||d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4']||'';
                 const docUrl = d['\u05E7\u05D9\u05E9\u05D5\u05E8']||d['url']||d['link']||'';
+                const docName = (d['\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA']||d['\u05E9\u05DD']||d['name']||'\u05DE\u05E1\u05DE\u05DA').toLowerCase();
+                const driveId = d['driveId']||d['fileId']||d['drive_id']||d['file_id']||(docUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)||[])[1]||'';
+                // Document icon based on type/extension
+                const ext = (docName.match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png|gif)$/i)||[])[1]||docType.toLowerCase();
+                const docIcon = (ext === 'pdf') ? 'bi-file-earmark-pdf-fill text-danger'
+                  : (['doc','docx'].includes(ext)) ? 'bi-file-earmark-word-fill text-primary'
+                  : (['xls','xlsx'].includes(ext)) ? 'bi-file-earmark-excel-fill text-success'
+                  : (['jpg','jpeg','png','gif'].includes(ext) || ext === '\u05EA\u05DE\u05D5\u05E0\u05D4') ? 'bi-file-earmark-image-fill text-success'
+                  : 'bi-file-earmark-fill text-secondary';
                 return `<div class="list-group-item d-flex align-items-center gap-3">
-                  <i class="bi bi-${isOk ? 'check-circle-fill text-success' : 'circle text-muted'} fs-5"></i>
+                  <i class="bi ${docIcon} fs-4"></i>
                   <div class="flex-grow-1">
                     <div class="fw-bold">${d['\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA']||d['\u05E9\u05DD']||d['name']||'\u05DE\u05E1\u05DE\u05DA'}</div>
                     <div class="d-flex gap-2">
@@ -1240,9 +1249,11 @@ Object.assign(Pages, {
                     </div>
                     ${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']||'' ? `<small class="text-muted">${d['\u05D4\u05E2\u05E8\u05D5\u05EA']||d['notes']}</small>` : ''}
                   </div>
-                  <div class="d-flex gap-2 align-items-center">
-                    <span class="badge bg-${isOk ? 'success' : 'warning'}">${docStatus||'\u05D7\u05E1\u05E8'}</span>
-                    ${docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>` : ''}
+                  <div class="d-flex gap-1 align-items-center">
+                    <span class="badge bg-${isOk ? 'success' : 'warning'} me-1">${docStatus||'\u05D7\u05E1\u05E8'}</span>
+                    ${driveId ? `<a href="https://drive.google.com/file/d/${driveId}/preview" target="_blank" class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4"><i class="bi bi-eye"></i></a>` : ''}
+                    ${driveId ? `<a href="https://drive.google.com/uc?export=download&id=${driveId}" target="_blank" class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>`
+                      : (docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary" title="\u05E4\u05EA\u05D7"><i class="bi bi-box-arrow-up-right"></i></a>` : '')}
                   </div>
                 </div>`;
               }).join('')}</div>`

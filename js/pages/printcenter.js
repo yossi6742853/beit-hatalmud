@@ -6,7 +6,11 @@ Object.assign(Pages, {
 
     { id: 'student_card',   name: 'כרטיס תלמיד',      icon: 'bi-person-badge-fill', color: 'primary',  desc: 'כרטיס זיהוי תלמיד עם פרטים אישיים ותמונה' },
     { id: 'attendance',     name: 'דוח נוכחות',        icon: 'bi-calendar-check-fill', color: 'success', desc: 'דוח נוכחות לפי תלמיד או כיתה ותקופה' },
-    { id: 'certificate',    name: 'תעודה/דיפלומה',     icon: 'bi-award-fill',        color: 'warning',  desc: 'תעודת הצטיינות, סיום או הוקרה' }
+    { id: 'certificate',    name: 'תעודה/דיפלומה',     icon: 'bi-award-fill',        color: 'warning',  desc: 'תעודת הצטיינות, סיום או הוקרה' },
+    { id: 'trip_list',      name: 'רשימת תלמידים לטיול', icon: 'bi-geo-alt-fill',     color: 'info',     desc: 'רשימה שמית לטיול עם פרטי זיהוי, טלפון והערות רפואיות' },
+    { id: 'class_roster',   name: 'רשימה שמית לפי כיתה', icon: 'bi-list-ul',          color: 'secondary',desc: 'רשימת תלמידים מלאה עם כל הפרטים הטכניים' },
+    { id: 'empty_attendance',name: 'טופס נוכחות ריק',    icon: 'bi-check2-square',    color: 'success',  desc: 'טופס נוכחות ריק להדפסה עם שמות תלמידים ותיבות סימון' },
+    { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' }
   ],
 
   /* ---------- demo data ---------- */
@@ -306,8 +310,66 @@ Object.assign(Pages, {
   async printcenterInit() {
     this._pcSelectedTemplate = null;
 
-    // Load print history from localStorage (primary storage for print center)
-    // No sheet needed - localStorage is the source of truth for print history
+    // Load REAL student data from API
+    try {
+      const raw = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      if (raw && raw.length) {
+        this._pcStudents = raw.map(s => ({
+          name: Utils.fullName(s),
+          id: Utils.rowId(s) || s['\u05DE\u05D6\u05D4\u05D4'] || '',
+          cls: s['\u05DB\u05D9\u05EA\u05D4'] || '',
+          phone: s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '',
+          parent: ((s['\u05E9\u05DD_\u05D0\u05D1'] || '') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim() || '',
+          birthDate: s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4'] || '',
+          address: s['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '',
+          city: s['\u05E2\u05D9\u05E8'] || '',
+          idNumber: s['\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA'] || s['\u05EA_\u05D6'] || s['\u05DE\u05D6\u05D4\u05D4'] || '',
+          parentPhone: s['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D4\u05D5\u05E8\u05D9\u05DD'] || s['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D0\u05D1'] || '',
+          medicalNotes: s['\u05D4\u05E2\u05E8\u05D5\u05EA_\u05E8\u05E4\u05D5\u05D0\u05D9\u05D5\u05EA'] || s['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '',
+          _raw: s
+        }));
+        this._pcClasses = [...new Set(this._pcStudents.map(s => s.cls).filter(Boolean))].sort();
+
+        // Update class dropdowns
+        const classSelects = document.querySelectorAll('#pc-class, #pc-batch-class');
+        classSelects.forEach(sel => {
+          const val = sel.value;
+          const isMain = sel.id === 'pc-class';
+          sel.innerHTML = (isMain ? '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>' : '') +
+            this._pcClasses.map(c => `<option value="${c}">${c}</option>`).join('');
+          if (val) sel.value = val;
+        });
+
+        // Update student dropdown
+        const studentSel = document.getElementById('pc-student');
+        if (studentSel) {
+          studentSel.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</option>' +
+            this._pcStudents.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        }
+
+        // Update student count stat
+        const statEl = document.querySelector('#students-count-stat');
+        if (statEl) statEl.textContent = this._pcStudents.length;
+      }
+    } catch (e) {
+      console.warn('Print Center: could not load student data from API, using defaults', e);
+    }
+
+    // Also try to load medical data for trip list
+    try {
+      const medRaw = await App.getData('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+      if (medRaw && medRaw.length) {
+        this._pcMedicalData = medRaw;
+      }
+    } catch (e) { /* optional */ }
+
+    // Also try to load parent data
+    try {
+      const parentsRaw = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
+      if (parentsRaw && parentsRaw.length) {
+        this._pcParentsData = parentsRaw;
+      }
+    } catch (e) { /* optional */ }
 
     // Pre-populate batch student list
     this._pcBatchFilterStudents();
@@ -340,6 +402,11 @@ Object.assign(Pages, {
     document.getElementById('pc-date-range-to-wrap').style.display = dateRange ? '' : 'none';
     document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
+
+    // For registration form (blank), hide student/class selectors since not needed
+    const hideStudentSel = tplId === 'registration';
+    const studentSel = document.getElementById('pc-student');
+    if (studentSel) studentSel.closest('.col-md-4').style.display = hideStudentSel ? 'none' : '';
 
     // Hide preview
     document.getElementById('pc-preview-area').style.display = 'none';
@@ -684,15 +751,18 @@ Object.assign(Pages, {
      ================================================================= */
   _pcBuildDocument(opts) {
     switch (opts.templateId) {
-      case 'student_card':  return this._pcBuildStudentCard(opts);
-      case 'attendance':    return this._pcBuildAttendance(opts);
-      case 'certificate':   return this._pcBuildCertificate(opts);
-      case 'invoice':       return this._pcBuildInvoice(opts);
-      case 'grades':        return this._pcBuildGrades(opts);
-      case 'class_list':    return this._pcBuildClassList(opts);
-      case 'parent_letter': return this._pcBuildParentLetter(opts);
-      case 'registration':  return this._pcBuildRegistration(opts);
-      default: return '<p>תבנית לא נמצאה</p>';
+      case 'student_card':     return this._pcBuildStudentCard(opts);
+      case 'attendance':       return this._pcBuildAttendance(opts);
+      case 'certificate':      return this._pcBuildCertificate(opts);
+      case 'invoice':          return this._pcBuildInvoice(opts);
+      case 'grades':           return this._pcBuildGrades(opts);
+      case 'class_list':       return this._pcBuildClassList(opts);
+      case 'parent_letter':    return this._pcBuildParentLetter(opts);
+      case 'registration':     return this._pcBuildRegistration(opts);
+      case 'trip_list':        return this._pcBuildTripList(opts);
+      case 'class_roster':     return this._pcBuildClassRoster(opts);
+      case 'empty_attendance': return this._pcBuildEmptyAttendance(opts);
+      default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
 
@@ -1049,6 +1119,178 @@ Object.assign(Pages, {
             </div>
             <div style="text-align:center">
               <div style="border-top:1px solid #333;padding-top:4px;min-width:150px;font-size:.85rem">חתימת המזכירות</div>
+            </div>
+          </div>
+        </div>
+        ${this._pcDocFooter(opts)}
+      </div>
+    `;
+  },
+
+  /* --- Trip Student List (רשימת תלמידים לטיול) --- */
+  _pcBuildTripList(opts) {
+    const cls = opts.cls || '';
+    const students = cls ? this._pcStudents.filter(s => s.cls === cls) : this._pcStudents;
+
+    // Enrich with medical data if available
+    const medMap = {};
+    if (this._pcMedicalData) {
+      this._pcMedicalData.forEach(m => {
+        const key = m['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || m['\u05EA\u05DC\u05DE\u05D9\u05D3'] || m['\u05DE\u05D6\u05D4\u05D4'] || m['\u05E9\u05DD'] || '';
+        if (key) medMap[key] = (m['\u05D4\u05E2\u05E8\u05D5\u05EA'] || m['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA'] || m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA'] || m['\u05DE\u05D2\u05D1\u05DC\u05D5\u05EA'] || '').trim();
+      });
+    }
+
+    return `
+      <div class="pc-doc">
+        ${this._pcDocHeader(opts, '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05D8\u05D9\u05D5\u05DC' + (cls ? ' \u2014 ' + cls : ''))}
+        <div class="pc-body">
+          <div class="pc-field"><span class="pc-field-label">\u05EA\u05D0\u05E8\u05D9\u05DA:</span> ${opts.date}</div>
+          <div class="pc-field"><span class="pc-field-label">\u05DE\u05E1\u05E4\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ${students.length}</div>
+          ${opts.customHeader ? `<div class="pc-field"><span class="pc-field-label">\u05D9\u05E2\u05D3 \u05D4\u05D8\u05D9\u05D5\u05DC:</span> ${opts.customHeader}</div>` : ''}
+          <table class="pc-table">
+            <thead>
+              <tr>
+                <th style="width:30px">#</th>
+                <th>\u05E9\u05DD \u05DE\u05DC\u05D0</th>
+                <th>\u05EA.\u05D6.</th>
+                <th>\u05EA\u05D0\u05E8\u05D9\u05DA \u05DC\u05D9\u05D3\u05D4</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF</th>
+                <th>\u05DB\u05EA\u05D5\u05D1\u05EA</th>
+                <th>\u05D4\u05E2\u05E8\u05D5\u05EA \u05E8\u05E4\u05D5\u05D0\u05D9\u05D5\u05EA</th>
+                <th style="width:100px">\u05D7\u05EA\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D4</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((s, i) => {
+                const medNote = medMap[s.id] || medMap[s.name] || s.medicalNotes || '';
+                return `<tr>
+                  <td>${i + 1}</td>
+                  <td style="font-weight:600">${s.name}</td>
+                  <td>${s.idNumber}</td>
+                  <td>${s.birthDate}</td>
+                  <td dir="ltr" style="text-align:right">${s.phone}</td>
+                  <td>${s.address}${s.city ? ', ' + s.city : ''}</td>
+                  <td style="color:${medNote ? '#dc3545' : '#6c757d'};font-size:.85rem">${medNote || '\u05D0\u05D9\u05DF'}</td>
+                  <td style="border-bottom:1px solid #999"></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+          <div style="margin-top:20px;padding:12px;background:#f8f9fa;border-radius:6px;font-size:.85rem">
+            <strong>\u05D4\u05E6\u05D4\u05E8\u05D4:</strong> \u05D0\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05D0\u05EA \u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05E0\u05D9/\u05D1\u05EA\u05D9 \u05D1\u05D8\u05D9\u05D5\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3\u05D9 \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05E0\u05E7\u05D5\u05D1.
+          </div>
+        </div>
+        ${this._pcDocSignature()}
+        ${this._pcDocFooter(opts)}
+      </div>
+    `;
+  },
+
+  /* --- Class Roster (רשימה שמית לפי כיתה) --- */
+  _pcBuildClassRoster(opts) {
+    const cls = opts.cls || this._pcClasses[0] || '';
+    const students = cls ? this._pcStudents.filter(s => s.cls === cls) : this._pcStudents;
+
+    // Enrich with parent data if available
+    const parentMap = {};
+    if (this._pcParentsData) {
+      this._pcParentsData.forEach(p => {
+        const key = p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4'] || '';
+        if (key && !parentMap[key]) parentMap[key] = p;
+      });
+    }
+
+    return `
+      <div class="pc-doc">
+        ${this._pcDocHeader(opts, '\u05E8\u05E9\u05D9\u05DE\u05D4 \u05E9\u05DE\u05D9\u05EA \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4' + (cls ? ' \u2014 ' + cls : ''))}
+        <div class="pc-body">
+          <div class="pc-field"><span class="pc-field-label">\u05E9\u05E0\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD:</span> \u05EA\u05E9\u05E4"\u05D5</div>
+          <div class="pc-field"><span class="pc-field-label">\u05DE\u05E1\u05E4\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ${students.length}</div>
+          <table class="pc-table" style="font-size:.85rem">
+            <thead>
+              <tr>
+                <th style="width:28px">#</th>
+                <th>\u05E9\u05DD</th>
+                <th>\u05EA.\u05D6.</th>
+                <th>\u05EA.\u05DC\u05D9\u05D3\u05D4</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF</th>
+                <th>\u05DB\u05EA\u05D5\u05D1\u05EA</th>
+                <th>\u05E2\u05D9\u05E8</th>
+                <th>\u05D4\u05D5\u05E8\u05D9\u05DD</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D5\u05E8\u05D9\u05DD</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((s, i) => {
+                const pData = parentMap[s.id] || {};
+                const parentName = s.parent || ((pData['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (pData['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
+                const parentPh = s.parentPhone || pData['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+                return `<tr>
+                  <td>${i + 1}</td>
+                  <td style="font-weight:600">${s.name}</td>
+                  <td>${s.idNumber}</td>
+                  <td>${s.birthDate}</td>
+                  <td dir="ltr" style="text-align:right">${s.phone}</td>
+                  <td>${s.address}</td>
+                  <td>${s.city}</td>
+                  <td>${parentName}</td>
+                  <td dir="ltr" style="text-align:right">${parentPh}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${this._pcDocSignature()}
+        ${this._pcDocFooter(opts)}
+      </div>
+    `;
+  },
+
+  /* --- Empty Attendance Form (טופס נוכחות ריק) --- */
+  _pcBuildEmptyAttendance(opts) {
+    const cls = opts.cls || this._pcClasses[0] || '';
+    const students = cls ? this._pcStudents.filter(s => s.cls === cls) : this._pcStudents;
+
+    return `
+      <div class="pc-doc">
+        ${this._pcDocHeader(opts, '\u05D8\u05D5\u05E4\u05E1 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA' + (cls ? ' \u2014 ' + cls : ''))}
+        <div class="pc-body">
+          <div class="pc-field"><span class="pc-field-label">\u05EA\u05D0\u05E8\u05D9\u05DA:</span> ${opts.date}</div>
+          <div class="pc-field"><span class="pc-field-label">\u05DB\u05D9\u05EA\u05D4:</span> ${cls || '\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA'}</div>
+          <div class="pc-field"><span class="pc-field-label">\u05DE\u05E1\u05E4\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ${students.length}</div>
+          <table class="pc-table">
+            <thead>
+              <tr>
+                <th style="width:30px">#</th>
+                <th>\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+                <th style="width:70px;text-align:center">\u05E0\u05D5\u05DB\u05D7</th>
+                <th style="width:70px;text-align:center">\u05D7\u05D9\u05E1\u05D5\u05E8</th>
+                <th style="width:70px;text-align:center">\u05D0\u05D9\u05D7\u05D5\u05E8</th>
+                <th>\u05D4\u05E2\u05E8\u05D5\u05EA</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((s, i) => `
+                <tr>
+                  <td>${i + 1}</td>
+                  <td style="font-weight:600">${s.name}</td>
+                  <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border:2px solid #333;border-radius:3px"></span></td>
+                  <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border:2px solid #333;border-radius:3px"></span></td>
+                  <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border:2px solid #333;border-radius:3px"></span></td>
+                  <td style="border-bottom:1px dotted #999;min-width:120px"></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="margin-top:24px;display:flex;justify-content:space-between">
+            <div>
+              <div class="pc-field"><span class="pc-field-label">\u05E1\u05D4"\u05DB \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD:</span> _____</div>
+              <div class="pc-field"><span class="pc-field-label">\u05E1\u05D4"\u05DB \u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD:</span> _____</div>
+              <div class="pc-field"><span class="pc-field-label">\u05E1\u05D4"\u05DB \u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD:</span> _____</div>
+            </div>
+            <div style="text-align:center;min-width:150px">
+              <div style="border-top:1px solid #333;padding-top:4px;margin-top:60px;font-size:.85rem">\u05D7\u05EA\u05D9\u05DE\u05EA \u05D4\u05DE\u05D7\u05E0\u05DA</div>
             </div>
           </div>
         </div>
