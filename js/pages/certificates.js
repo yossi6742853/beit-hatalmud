@@ -479,6 +479,7 @@ Object.assign(Pages, {
         <div class="cert-corner cert-corner-br">${corner}</div>
 
         <div class="cert-header-ornament">\u2726 \u2726 \u2726</div>
+        <img src="img/logo-bht.png" style="height:70px;margin-bottom:8px" alt="\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3">
         <div class="cert-institution">בית התלמוד</div>
         <div class="cert-subtitle">מוסד חינוכי תורני</div>
 
@@ -491,11 +492,12 @@ Object.assign(Pages, {
 
         <div class="cert-footer">
           <div class="cert-sig">
-            <div class="cert-sig-name">${principal || 'הרב יעקב ירושלמי'}</div>
+            <img src="img/signature.png" style="height:35px;opacity:.85;margin-bottom:4px" alt="\u05D7\u05EA\u05D9\u05DE\u05D4">
+            <div class="cert-sig-name">${principal || '\u05D4\u05E8\u05D1 \u05D9\u05E2\u05E7\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9'}</div>
             <div class="cert-sig-line"></div>
-            <div class="cert-sig-label">חתימת המנהל</div>
+            <div class="cert-sig-label">\u05D7\u05EA\u05D9\u05DE\u05EA \u05D4\u05DE\u05E0\u05D4\u05DC</div>
           </div>
-          <div class="cert-seal">חותמת<br>המוסד</div>
+          <div class="cert-seal"><img src="img/stamp-bht.png" style="height:60px;opacity:.85" alt="\u05D7\u05D5\u05EA\u05DE\u05EA"></div>
           <div class="cert-date">
             <div>${hebrewDate}</div>
             <div style="font-size:.75rem;color:#999">תאריך הנפקה</div>
