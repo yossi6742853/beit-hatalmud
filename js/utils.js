@@ -209,18 +209,41 @@ const Utils = {
       '\u05E4\u05E2\u05D9\u05DC': 'active',
       '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC': 'inactive',
       '\u05DE\u05DE\u05EA\u05D9\u05DF': 'pending',
+      '\u05E2\u05D6\u05D1': 'left',
+      '\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3': 'registered',
+      '\u05E0\u05E8\u05E9\u05DD_\u05D1\u05DC\u05D1\u05D3': 'registered',
+      '\u05D4\u05D5\u05E7\u05E4\u05D0': 'frozen',
+      '\u05E1\u05D9\u05D9\u05DD': 'graduated',
       'active': 'active',
       'inactive': 'inactive',
-      'pending': 'pending'
+      'pending': 'pending',
+      'left': 'left',
+      'registered': 'registered',
+      'frozen': 'frozen',
+      'graduated': 'graduated'
     };
     const labels = {
       'active': '\u05E4\u05E2\u05D9\u05DC',
       'inactive': '\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC',
-      'pending': '\u05DE\u05DE\u05EA\u05D9\u05DF'
+      'pending': '\u05DE\u05DE\u05EA\u05D9\u05DF',
+      'left': '\u05E2\u05D6\u05D1',
+      'registered': '\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3',
+      'frozen': '\u05D4\u05D5\u05E7\u05E4\u05D0',
+      'graduated': '\u05E1\u05D9\u05D9\u05DD'
+    };
+    const colors = {
+      'active': 'success',
+      'inactive': 'secondary',
+      'pending': 'warning',
+      'left': 'danger',
+      'registered': 'info',
+      'frozen': 'dark',
+      'graduated': 'primary'
     };
     const cls = map[status] || 'pending';
-    const label = labels[cls] || status;
-    return `<span class="badge-status badge-${cls}">${label}</span>`;
+    const label = labels[cls] || status || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+    const color = colors[cls] || 'secondary';
+    return `<span class="badge bg-${color}">${label}</span>`;
   },
 
   /* ---- Data export: JSON ---- */

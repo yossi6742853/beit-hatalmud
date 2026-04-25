@@ -1609,6 +1609,10 @@ Object.assign(Pages, {
   _requiredStudentDocs: ['\u05EA\u05E2\u05D5\u05D3\u05EA \u05D6\u05D4\u05D5\u05EA','\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E8\u05E4\u05D5\u05D0\u05D9','\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4','\u05E6\u05D9\u05DC\u05D5\u05DD \u05EA\u05DE\u05D5\u05E0\u05D4'],
   _requiredStaffDocs: ['\u05D7\u05D5\u05D6\u05D4','\u05EA\u05E2\u05D5\u05D3\u05D5\u05EA','\u05E8\u05D9\u05E9\u05D9\u05D5\u05DF','\u05E7\u05D5\u05E8\u05D5\u05EA \u05D7\u05D9\u05D9\u05DD'],
 
+  // ── Drive catalog data ──
+  _driveFolders: null,
+  _driveCatalog: null,
+
   // ── Init ──
   async documentsInit() {
     const [docs, students, staff, parents] = await Promise.all([
@@ -1622,6 +1626,17 @@ Object.assign(Pages, {
     this._studentsForDocs = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     this._staffForDocs = staff.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     this._parentsForDocs = parents;
+
+    // Load Drive catalog
+    try {
+      const resp = await fetch('student_folder_search_results.json');
+      this._driveFolders = await resp.json();
+    } catch(e) { this._driveFolders = null; }
+
+    try {
+      const resp2 = await fetch('student_docs_catalog.json');
+      this._driveCatalog = await resp2.json();
+    } catch(e) { this._driveCatalog = null; }
 
     // Populate entity filter dropdown based on active tab
     this._populateFilters();
@@ -1813,6 +1828,31 @@ Object.assign(Pages, {
     else if (this._docActiveTab === 'general') this._renderGeneralDocs(allDocs);
   },
 
+  // ── Helper: find Drive folder info for a student ──
+  _findDriveFolder(studentName, studentId) {
+    if (!this._driveFolders) return null;
+    // Check matched_in_parents
+    const matched = (this._driveFolders.matched_in_parents || []);
+    let found = matched.find(m => m.student === studentName || m.student_id === studentId);
+    if (found) return { folder_id: found.folder_id, folder_name: found.folder_name, parent_folder: found.parent_folder, source: 'matched' };
+    // Check found_via_search
+    const searched = (this._driveFolders.found_via_search || []);
+    found = searched.find(m => m.student === studentName || m.student_id === studentId);
+    if (found) return { folder_id: found.folder_id, folder_name: found.folder_name, parent_folder: '', source: 'search' };
+    // Check missing list
+    const missing = (this._driveFolders.missing || []);
+    const isMissing = missing.find(m => m.name === studentName || m.id === studentId);
+    if (isMissing) return { missing: true };
+    return null;
+  },
+
+  // ── Helper: get catalog doc count for a folder_id ──
+  _getDriveCatalogInfo(folderId) {
+    if (!this._driveCatalog || !folderId) return null;
+    const entry = this._driveCatalog.find(c => c.folderId === folderId);
+    return entry || null;
+  },
+
   // ═══════════════════════════════════════════════════════
   // TAB 1: Student Folders - each student as a folder card
   // ═══════════════════════════════════════════════════════
@@ -1850,12 +1890,25 @@ Object.assign(Pages, {
       const pctClass = completePct === 100 ? 'success' : completePct >= 50 ? 'warning' : 'danger';
       const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2);
 
+      // Drive folder lookup
+      const driveInfo = this._findDriveFolder(s.name, s.id);
+      const catalogInfo = driveInfo && !driveInfo.missing ? this._getDriveCatalogInfo(driveInfo.folder_id) : null;
+      const driveDocCount = catalogInfo ? catalogInfo.documents.length : 0;
+
       // Required doc checklist icons
       const checklistIcons = reqKeys.map(k => {
         const info = this._docCategories[k];
         const has = hasCats.has(k);
         return `<span class="me-1" title="${info?.label||k}: ${has?'\u05E7\u05D9\u05D9\u05DD':'\u05D7\u05E1\u05E8'}" style="opacity:${has?1:0.3}"><i class="bi ${has?'bi-check-circle-fill':'bi-x-circle'} text-${has?'success':'danger'}"></i></span>`;
       }).join('');
+
+      // Drive link button
+      let driveBtn = '';
+      if (driveInfo && !driveInfo.missing && driveInfo.folder_id) {
+        driveBtn = `<a href="https://drive.google.com/drive/folders/${driveInfo.folder_id}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation()" title="\u05E4\u05EA\u05D7 \u05D1-Drive${driveInfo.parent_folder ? ' (' + driveInfo.parent_folder + ')' : ''}"><i class="bi bi-google me-1"></i>\u05E4\u05EA\u05D7 \u05D1-Drive${driveDocCount ? ' (' + driveDocCount + ')' : ''}</a>`;
+      } else if (driveInfo && driveInfo.missing) {
+        driveBtn = `<span class="badge bg-warning bg-opacity-10 text-warning" title="\u05D0\u05D9\u05DF \u05EA\u05D9\u05E7\u05D9\u05D9\u05D4 \u05D1-Drive"><i class="bi bi-exclamation-triangle me-1"></i>\u05D0\u05D9\u05DF \u05EA\u05D9\u05E7\u05D9\u05D9\u05D4</span>`;
+      }
 
       return `<div class="col-md-6 col-lg-4">
         <div class="card h-100 ${missingReq.length?'border-danger border-opacity-50':''}" style="cursor:pointer" onclick="Pages.openEntityFolder('student','${s.name.replace(/'/g,"\\'")}')">
@@ -1872,8 +1925,12 @@ Object.assign(Pages, {
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <div>${checklistIcons}</div>
-              <span class="badge bg-${pctClass === 'success' ? 'success' : 'secondary'} bg-opacity-10 text-${pctClass === 'success' ? 'success' : 'dark'}">${docCount} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</span>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-${pctClass === 'success' ? 'success' : 'secondary'} bg-opacity-10 text-${pctClass === 'success' ? 'success' : 'dark'}">${docCount} \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</span>
+                ${driveDocCount ? `<span class="badge bg-primary bg-opacity-10 text-primary" title="\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D1-Drive">${driveDocCount} \u05D1-Drive</span>` : ''}
+              </div>
             </div>
+            ${driveBtn ? `<div class="mt-2 d-flex gap-2 align-items-center">${driveBtn}</div>` : ''}
             ${missingReq.length ? `<div class="mt-2">${missingReq.map(k => `<span class="badge bg-danger bg-opacity-10 text-danger me-1 small"><i class="bi bi-exclamation-circle me-1"></i>${this._catKeyToLabel(k)}</span>`).join('')}</div>` : ''}
           </div>
         </div>

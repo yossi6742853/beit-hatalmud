@@ -21,7 +21,7 @@ Object.assign(Pages, {
     return names.map(([fn,ln], i) => ({
       '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': fn, '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': ln,
       '\u05DB\u05D9\u05EA\u05D4': classes[i < 8 ? 0 : 1],
-      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC',
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': i < 12 ? '\u05E4\u05E2\u05D9\u05DC' : (i === 12 ? '\u05E2\u05D6\u05D1' : (i === 13 ? '\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3' : '\u05E1\u05D9\u05D9\u05DD')),
       '\u05D8\u05DC\u05E4\u05D5\u05DF': '050' + String(1234567 + i),
       '\u05DE\u05D2\u05D3\u05E8': '\u05D6\u05DB\u05E8',
       '\u05DE\u05D6\u05D4\u05D4': 'S' + (i + 1),
@@ -99,6 +99,10 @@ Object.assign(Pages, {
             <select class="form-select" id="students-status-filter">
               <option value="">\u05DB\u05DC \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1\u05D9\u05DD</option>
               <option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option>
+              <option value="\u05E2\u05D6\u05D1">\u05E2\u05D6\u05D1</option>
+              <option value="\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3">\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3</option>
+              <option value="\u05D4\u05D5\u05E7\u05E4\u05D0">\u05D4\u05D5\u05E7\u05E4\u05D0</option>
+              <option value="\u05E1\u05D9\u05D9\u05DD">\u05E1\u05D9\u05D9\u05DD</option>
               <option value="\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option>
             </select>
           </div>
@@ -147,6 +151,10 @@ Object.assign(Pages, {
             <div class="col-md-4"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
               <select class="form-select" id="sf-status">
                 <option value="\u05E4\u05E2\u05D9\u05DC">\u05E4\u05E2\u05D9\u05DC</option>
+                <option value="\u05E2\u05D6\u05D1">\u05E2\u05D6\u05D1</option>
+                <option value="\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3">\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3</option>
+                <option value="\u05D4\u05D5\u05E7\u05E4\u05D0">\u05D4\u05D5\u05E7\u05E4\u05D0</option>
+                <option value="\u05E1\u05D9\u05D9\u05DD">\u05E1\u05D9\u05D9\u05DD</option>
                 <option value="\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</option>
               </select>
             </div>
@@ -222,7 +230,12 @@ Object.assign(Pages, {
     const container = document.getElementById('students-stats');
     if (!container) return;
     const total = data.length;
-    const active = data.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC').length;
+    const activeStatuses = ['\u05E4\u05E2\u05D9\u05DC', ''];
+    const active = data.filter(s => activeStatuses.includes(s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')).length;
+    const left = data.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E2\u05D6\u05D1').length;
+    const registered = data.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05E8\u05E9\u05DD \u05D1\u05DC\u05D1\u05D3').length;
+    const frozen = data.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05D5\u05E7\u05E4\u05D0').length;
+    const graduated = data.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E1\u05D9\u05D9\u05DD').length;
     const male = data.filter(s => (s['\u05DE\u05D2\u05D3\u05E8']||'') === '\u05D6\u05DB\u05E8').length;
     const female = data.filter(s => (s['\u05DE\u05D2\u05D3\u05E8']||'') === '\u05E0\u05E7\u05D1\u05D4').length;
     const unknown = total - male - female;
@@ -246,8 +259,12 @@ Object.assign(Pages, {
         <div class="card p-3 text-center">
           <div class="fs-2 fw-bold text-primary">${total}</div>
           <small class="text-muted">\u05E1\u05D4"\u05DB \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small>
-          <div class="mt-1"><span class="badge bg-success">${active} \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</span>
-          ${total - active > 0 ? `<span class="badge bg-secondary ms-1">${total - active} \u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</span>` : ''}</div>
+          <div class="mt-1 d-flex flex-wrap gap-1 justify-content-center"><span class="badge bg-success">${active} \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</span>
+          ${left > 0 ? `<span class="badge bg-danger">${left} \u05E2\u05D6\u05D1\u05D5</span>` : ''}
+          ${registered > 0 ? `<span class="badge bg-info">${registered} \u05E0\u05E8\u05E9\u05DE\u05D5</span>` : ''}
+          ${frozen > 0 ? `<span class="badge bg-dark">${frozen} \u05D4\u05D5\u05E7\u05E4\u05D0\u05D5</span>` : ''}
+          ${graduated > 0 ? `<span class="badge bg-primary">${graduated} \u05E1\u05D9\u05D9\u05DE\u05D5</span>` : ''}
+          ${total - active - left - registered - frozen - graduated > 0 ? `<span class="badge bg-secondary">${total - active - left - registered - frozen - graduated} \u05D0\u05D7\u05E8</span>` : ''}</div>
         </div>
       </div>
       <div class="col-md-5">
