@@ -289,6 +289,15 @@ const App = {
     const resolvedSheet = this._resolveSheet(sheet);
     const cacheKey = this.CACHE_PREFIX + resolvedSheet;
 
+    // Check static DATA_CACHE first (generated offline from API)
+    if (!forceRefresh && typeof DATA_CACHE !== 'undefined' && DATA_CACHE[resolvedSheet]) {
+      const staticData = DATA_CACHE[resolvedSheet];
+      if (Array.isArray(staticData) && staticData.length > 0) {
+        this.setCache(cacheKey, staticData);
+        return staticData;
+      }
+    }
+
     // Check cache
     if (!forceRefresh) {
       const cached = this.getCache(cacheKey);
