@@ -16,92 +16,8 @@ Object.assign(Pages, {
   _formsUseDemo: false,
 
   _formsDemoData: [
-    { _id: 'f1', name: 'טופס הרשמה - תשפ"ז', desc: 'טופס הרשמה לשנת הלימודים תשפ"ז', status: 'פעיל', color: '#2563eb', date: '2026-04-01',
-      fields: [
-        { name: 'שם הורה', type: 'text', required: true, options: [] },
-        { name: 'שם התלמיד', type: 'text', required: true, options: [] },
-        { name: 'כיתה', type: 'select', required: true, options: ['כיתה א', 'כיתה ב', 'כיתה ג'] },
-        { name: 'טלפון', type: 'phone', required: true, options: [] },
-        { name: 'כתובת מייל', type: 'email', required: false, options: [] },
-        { name: 'הערות', type: 'textarea', required: false, options: [] }
-      ],
-      responses: [
-        { date: '2026-04-02', student: 'יוסף כהן', data: { 'שם הורה': 'אברהם כהן', 'שם התלמיד': 'יוסף כהן', 'כיתה': 'כיתה א', 'טלפון': '050-1234567', 'כתובת מייל': 'cohen@mail.com', 'הערות': '' } },
-        { date: '2026-04-02', student: 'משה לוי', data: { 'שם הורה': 'דוד לוי', 'שם התלמיד': 'משה לוי', 'כיתה': 'כיתה א', 'טלפון': '050-2345678', 'כתובת מייל': '', 'הערות': 'צריך הסעה' } },
-        { date: '2026-04-03', student: 'אברהם גולדברג', data: { 'שם הורה': 'שמעון גולדברג', 'שם התלמיד': 'אברהם גולדברג', 'כיתה': 'כיתה ב', 'טלפון': '050-3456789', 'כתובת מייל': 'gold@mail.com', 'הערות': '' } },
-        { date: '2026-04-03', student: 'דוד פרידמן', data: { 'שם הורה': 'יצחק פרידמן', 'שם התלמיד': 'דוד פרידמן', 'כיתה': 'כיתה ב', 'טלפון': '050-4567890', 'כתובת מייל': '', 'הערות': 'אלרגיה לגלוטן' } },
-        { date: '2026-04-04', student: 'אליהו שפירא', data: { 'שם הורה': 'נחום שפירא', 'שם התלמיד': 'אליהו שפירא', 'כיתה': 'כיתה א', 'טלפון': '050-5678901', 'כתובת מייל': 'shap@mail.com', 'הערות': '' } },
-        { date: '2026-04-05', student: 'יעקב רוזנברג', data: { 'שם הורה': 'מאיר רוזנברג', 'שם התלמיד': 'יעקב רוזנברג', 'כיתה': 'כיתה א', 'טלפון': '050-6789012', 'כתובת מייל': '', 'הערות': '' } },
-        { date: '2026-04-06', student: 'נתנאל וייס', data: { 'שם הורה': 'חיים וייס', 'שם התלמיד': 'נתנאל וייס', 'כיתה': 'כיתה ב', 'טלפון': '050-7890123', 'כתובת מייל': 'weiss@mail.com', 'הערות': '' } },
-        { date: '2026-04-07', student: 'שמואל הורביץ', data: { 'שם הורה': 'אליעזר הורביץ', 'שם התלמיד': 'שמואל הורביץ', 'כיתה': 'כיתה ג', 'טלפון': '050-8901234', 'כתובת מייל': '', 'הערות': 'עבר ממוסד אחר' } }
-      ]
-    },
-    { _id: 'f2', name: 'אישור טיול שנתי', desc: 'אישור השתתפות בטיול השנתי', status: 'פעיל', color: '#16a34a', date: '2026-04-10',
-      fields: [
-        { name: 'שם הורה', type: 'text', required: true, options: [] },
-        { name: 'שם התלמיד', type: 'text', required: true, options: [] },
-        { name: 'אלרגיות', type: 'textarea', required: false, options: [] },
-        { name: 'אישור רפואי', type: 'checkbox', required: true, options: [] },
-        { name: 'הערות', type: 'textarea', required: false, options: [] }
-      ],
-      responses: [
-        { date: '2026-04-11', student: 'חיים ברקוביץ', data: { 'שם הורה': 'שלמה ברקוביץ', 'שם התלמיד': 'חיים ברקוביץ', 'אלרגיות': 'אין', 'אישור רפואי': 'כן', 'הערות': '' } },
-        { date: '2026-04-11', student: 'שמואל הורביץ', data: { 'שם הורה': 'אליעזר הורביץ', 'שם התלמיד': 'שמואל הורביץ', 'אלרגיות': 'אלרגיה לבוטנים', 'אישור רפואי': 'כן', 'הערות': 'צריך אפיפן' } },
-        { date: '2026-04-12', student: 'רפאל מזרחי', data: { 'שם הורה': 'עמוס מזרחי', 'שם התלמיד': 'רפאל מזרחי', 'אלרגיות': 'אין', 'אישור רפואי': 'כן', 'הערות': '' } },
-        { date: '2026-04-12', student: 'יוסף כהן', data: { 'שם הורה': 'אברהם כהן', 'שם התלמיד': 'יוסף כהן', 'אלרגיות': 'אין', 'אישור רפואי': 'כן', 'הערות': '' } },
-        { date: '2026-04-13', student: 'משה לוי', data: { 'שם הורה': 'דוד לוי', 'שם התלמיד': 'משה לוי', 'אלרגיות': 'אין', 'אישור רפואי': 'כן', 'הערות': '' } }
-      ]
-    },
-    { _id: 'f3', name: 'הצהרת בריאות', desc: 'הצהרת בריאות שנתית', status: 'סגור', color: '#9333ea', date: '2025-09-01',
-      fields: [
-        { name: 'שם הורה', type: 'text', required: true, options: [] },
-        { name: 'שם התלמיד', type: 'text', required: true, options: [] },
-        { name: 'בעיות רפואיות', type: 'textarea', required: false, options: [] },
-        { name: 'אלרגיות', type: 'textarea', required: false, options: [] },
-        { name: 'תרופות', type: 'textarea', required: false, options: [] },
-        { name: 'קופת חולים', type: 'select', required: true, options: ['כללית', 'מכבי', 'מאוחדת', 'לאומית'] },
-        { name: 'חתימה', type: 'checkbox', required: true, options: [] }
-      ],
-      responses: [
-        { date: '2025-09-02', student: 'אברהם גולדברג', data: { 'שם הורה': 'שמעון גולדברג', 'שם התלמיד': 'אברהם גולדברג', 'בעיות רפואיות': 'בריא', 'אלרגיות': 'אלרגיה לאגוזים', 'תרופות': 'אפיפן', 'קופת חולים': 'מכבי', 'חתימה': 'כן' } },
-        { date: '2025-09-03', student: 'דוד פרידמן', data: { 'שם הורה': 'יצחק פרידמן', 'שם התלמיד': 'דוד פרידמן', 'בעיות רפואיות': 'בריא', 'אלרגיות': 'אין', 'תרופות': '', 'קופת חולים': 'כללית', 'חתימה': 'כן' } },
-        { date: '2025-09-04', student: 'יעקב רוזנברג', data: { 'שם הורה': 'מאיר רוזנברג', 'שם התלמיד': 'יעקב רוזנברג', 'בעיות רפואיות': 'בריא', 'אלרגיות': 'אין', 'תרופות': '', 'קופת חולים': 'מאוחדת', 'חתימה': 'כן' } },
-        { date: '2025-09-05', student: 'נתנאל וייס', data: { 'שם הורה': 'חיים וייס', 'שם התלמיד': 'נתנאל וייס', 'בעיות רפואיות': 'בריא', 'אלרגיות': '', 'תרופות': 'אופטלגין', 'קופת חולים': 'לאומית', 'חתימה': 'כן' } }
-      ]
-    },
-    { _id: 'f4', name: 'סקר שביעות הורים', desc: 'סקר שביעות הורים לשנת הלימודים', status: 'טיוטה', color: '#f59e0b', date: '2026-03-15',
-      fields: [
-        { name: 'שם הורה (אנונימי)', type: 'text', required: false, options: [] },
-        { name: 'דירוג כללי', type: 'radio', required: true, options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
-        { name: 'שביעות מהצוות', type: 'radio', required: true, options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
-        { name: 'שביעות מהתוכנית', type: 'radio', required: true, options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] },
-        { name: 'הערות חופשיות', type: 'textarea', required: false, options: [] }
-      ],
-      responses: [
-        { date: '2026-03-16', student: 'הורה אנונימי 1', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '9', 'שביעות מהצוות': '10', 'שביעות מהתוכנית': '8', 'הערות חופשיות': 'מעולה' } },
-        { date: '2026-03-16', student: 'הורה אנונימי 2', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '8', 'שביעות מהצוות': '9', 'שביעות מהתוכנית': '7', 'הערות חופשיות': '' } },
-        { date: '2026-03-17', student: 'הורה אנונימי 3', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '7', 'שביעות מהצוות': '8', 'שביעות מהתוכנית': '9', 'הערות חופשיות': 'יש לשפר את התקשורת' } },
-        { date: '2026-03-18', student: 'הורה אנונימי 4', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '10', 'שביעות מהצוות': '10', 'שביעות מהתוכנית': '10', 'הערות חופשיות': '' } },
-        { date: '2026-03-19', student: 'הורה אנונימי 5', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '6', 'שביעות מהצוות': '7', 'שביעות מהתוכנית': '5', 'הערות חופשיות': 'צריך יותר שיעורי עזר' } },
-        { date: '2026-03-20', student: 'הורה אנונימי 6', data: { 'שם הורה (אנונימי)': '', 'דירוג כללי': '9', 'שביעות מהצוות': '9', 'שביעות מהתוכנית': '8', 'הערות חופשיות': '' } }
-      ]
-    },
-    { _id: 'f5', name: 'בקשת תשלום חריג', desc: 'טופס בקשה לתשלום חריג או פריסה', status: 'פעיל', color: '#ef4444', date: '2026-04-15',
-      fields: [
-        { name: 'שם ההורה', type: 'text', required: true, options: [] },
-        { name: 'טלפון', type: 'phone', required: true, options: [] },
-        { name: 'אימייל', type: 'email', required: false, options: [] },
-        { name: 'שם התלמיד', type: 'text', required: true, options: [] },
-        { name: 'סכום מבוקש', type: 'number', required: true, options: [] },
-        { name: 'מספר תשלומים', type: 'select', required: true, options: ['1', '2', '3', '4', '6', '10', '12'] },
-        { name: 'סיבה', type: 'textarea', required: true, options: [] },
-        { name: 'מסמך מצורף', type: 'file', required: false, options: [] }
-      ],
-      responses: [
-        { date: '2026-04-16', student: 'משפחת כהן', data: { 'שם ההורה': 'אברהם כהן', 'טלפון': '050-1234567', 'אימייל': 'cohen@mail.com', 'שם התלמיד': 'יוסף כהן', 'סכום מבוקש': '5000', 'מספר תשלומים': '10', 'סיבה': 'קושי כלכלי זמני', 'מסמך מצורף': '' } },
-        { date: '2026-04-17', student: 'משפחת לוי', data: { 'שם ההורה': 'דוד לוי', 'טלפון': '050-2345678', 'אימייל': '', 'שם התלמיד': 'משה לוי', 'סכום מבוקש': '3000', 'מספר תשלומים': '6', 'סיבה': 'שינוי מצב תעסוקתי', 'מסמך מצורף': '' } }
-      ]
-    }
+    { _id: 'f0', name: '', desc: '', status: '\u05D8\u05D9\u05D5\u05D8\u05D4', color: '#2563eb', date: '',
+      fields: [], responses: [] }
   ],
 
   _formsEditId: null,
@@ -247,7 +163,7 @@ Object.assign(Pages, {
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="#" onclick="Pages._formCopyLink('${f._id}');return false"><i class="bi bi-link-45deg me-2"></i>העתק קישור</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="Pages._formShareWhatsApp('${f._id}');return false"><i class="bi bi-whatsapp me-2"></i>שיתוף WhatsApp</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="Pages._formSharePhone('${f._id}');return false"><i class="bi bi-telephone me-2"></i>\u05E9\u05D9\u05EA\u05D5\u05E3 \u05D1\u05D8\u05DC\u05E4\u05D5\u05DF</a></li>
                     <li><a class="dropdown-item" href="#" onclick="Pages._formShowQR('${f._id}');return false"><i class="bi bi-qr-code me-2"></i>QR Code</a></li>
                     <li><a class="dropdown-item" href="#" onclick="Pages._formShareEmail('${f._id}');return false"><i class="bi bi-envelope me-2"></i>שליחה במייל</a></li>
                     <li><hr class="dropdown-divider"></li>
@@ -1102,12 +1018,16 @@ Object.assign(Pages, {
     });
   },
 
-  _formShareWhatsApp(id) {
+  _formSharePhone(id) {
     const form = this._formsData.find(f => f._id === id);
     if (!form) return;
     const url = this._formGetLink(id);
-    const text = encodeURIComponent(`שלום,\nנא למלא את הטופס: ${form.name}\n${url}`);
-    window.open('https://wa.me/?text=' + text, '_blank');
+    const text = `\u05E9\u05DC\u05D5\u05DD,\n\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05D0\u05EA \u05D4\u05D8\u05D5\u05E4\u05E1: ${form.name}\n${url}`;
+    navigator.clipboard.writeText(text).then(() => {
+      Utils.toast('\u05D4\u05D8\u05E7\u05E1\u05D8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7 - \u05E0\u05D9\u05EA\u05DF \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D1SMS', 'success');
+    }).catch(() => {
+      prompt('\u05D4\u05E2\u05EA\u05E7 \u05D0\u05EA \u05D4\u05D8\u05E7\u05E1\u05D8:', text);
+    });
   },
 
   _formShareEmail(id) {
@@ -1140,8 +1060,8 @@ Object.assign(Pages, {
         <button class="btn btn-outline-primary" onclick="navigator.clipboard.writeText(document.getElementById('frm-qr-url').value);Utils.toast('הועתק','success')"><i class="bi bi-clipboard"></i></button>
       </div>
       <div class="d-flex gap-2 justify-content-center">
-        <button class="btn btn-sm btn-outline-success" onclick="Pages._formShareWhatsApp('${id}')"><i class="bi bi-whatsapp me-1"></i>WhatsApp</button>
-        <button class="btn btn-sm btn-outline-info" onclick="Pages._formShareEmail('${id}')"><i class="bi bi-envelope me-1"></i>מייל</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="Pages._formSharePhone('${id}')"><i class="bi bi-telephone me-1"></i>\u05D8\u05DC\u05E4\u05D5\u05DF</button>
+        <button class="btn btn-sm btn-outline-info" onclick="Pages._formShareEmail('${id}')"><i class="bi bi-envelope me-1"></i>\u05D3\u05D5\u05D0\u05E8</button>
       </div>`;
     new bootstrap.Modal(document.getElementById('frm-qr-modal')).show();
   },

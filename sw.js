@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v6.4-0422';
+const CACHE_VERSION = 'bht-v6.5-0426';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -12,6 +12,7 @@ const ASSETS = [
   './css/style.css',
   // Core JS
   './js/app.js',
+  './js/drive-catalog.js',
   './js/pages.js',
   './js/utils.js',
   // Page modules (js/pages/*.js)
