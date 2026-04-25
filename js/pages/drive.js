@@ -43,6 +43,14 @@ Object.assign(Pages, {
         </div>
       </div>
 
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" role="tablist">
+        <li class="nav-item"><a class="nav-link active" id="drive-tab-files" data-bs-toggle="tab" href="#drive-pane-files" role="tab" onclick="Pages._driveActiveTab='files'"><i class="bi bi-folder2-open me-1"></i>\u05DE\u05E0\u05D4\u05DC \u05E7\u05D1\u05E6\u05D9\u05DD</a></li>
+        <li class="nav-item"><a class="nav-link" id="drive-tab-zdrive" data-bs-toggle="tab" href="#drive-pane-zdrive" role="tab" onclick="Pages._driveActiveTab='zdrive';Pages._zDriveRender()"><i class="bi bi-hdd-network me-1"></i>\u05DB\u05D5\u05E0\u05DF Z</a></li>
+      </ul>
+      <div class="tab-content">
+      <div class="tab-pane fade show active" id="drive-pane-files" role="tabpanel">
+
       <!-- Stats Row -->
       <div class="row g-3 mb-3">
         <div class="col-6 col-md-3">
@@ -145,6 +153,36 @@ Object.assign(Pages, {
 
       <!-- Content Area -->
       <div id="drive-list">${Utils.skeleton(4)}</div>
+
+      </div><!-- /tab-pane files -->
+
+      <!-- Z Drive Tab -->
+      <div class="tab-pane fade" id="drive-pane-zdrive" role="tabpanel">
+        <div class="card p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <h5 class="mb-1"><i class="bi bi-hdd-network me-1 text-info"></i>\u05DB\u05D5\u05E0\u05DF \u05E9\u05D9\u05EA\u05D5\u05E3 (Z:)</h5>
+              <small class="text-muted">\\\\192.168.1.155 \u2014 \u05DC\u05D7\u05D9\u05E6\u05D4 \u05E2\u05DC \u05E7\u05D5\u05D1\u05E5 \u05E4\u05D5\u05EA\u05D7\u05EA \u05D0\u05D5\u05EA\u05D5 \u05D1\u05D7\u05DC\u05D5\u05DF</small>
+            </div>
+            <div class="d-flex gap-2">
+              <div class="search-box" style="max-width:250px">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control form-control-sm" id="zdrive-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05E7\u05D1\u05E6\u05D9\u05DD..." oninput="Pages._zDriveFilter()">
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" onclick="Pages._zDriveLoadCatalog()" title="\u05E8\u05E2\u05E0\u05D5\u05DF \u05E7\u05D8\u05DC\u05D5\u05D2"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Z Drive breadcrumb -->
+        <nav id="zdrive-breadcrumb" class="mb-3" style="display:none">
+          <ol class="breadcrumb mb-0 bg-light rounded p-2 px-3"></ol>
+        </nav>
+
+        <div id="zdrive-content">${Utils.skeleton(3)}</div>
+      </div><!-- /tab-pane zdrive -->
+
+      </div><!-- /tab-content -->
 
       <!-- New Folder Modal -->
       <div class="modal fade" id="drive-folder-modal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content">
@@ -813,5 +851,321 @@ Object.assign(Pages, {
   async searchDrive() {
     this._driveSearch = document.getElementById('drive-search')?.value?.trim() || '';
     this.renderDriveContent();
+  },
+
+  /* ==============================================================
+     Z: DRIVE FILE BROWSER (\u05DB\u05D5\u05E0\u05DF \u05E9\u05D9\u05EA\u05D5\u05E3)
+     ============================================================== */
+
+  _driveActiveTab: 'files',
+  _zDrivePath: [],        // breadcrumb path of folder names
+  _zDriveSearch: '',
+  _ZDRIVE_LS_KEY: 'bht_zdrive_catalog',
+
+  /* ---- Default catalog (key folders on Z:) ---- */
+  _zDriveDefaultCatalog() {
+    return {
+      '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD': {
+        _type: 'folder',
+        '\u05DB\u05D9\u05EA\u05D4 \u05D0': {
+          _type: 'folder',
+          '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.xlsx': { _type: 'file', size: '245 KB' },
+          '\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD': { _type: 'folder' },
+          '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D4\u05E8\u05E9\u05DE\u05D4': { _type: 'folder' }
+        },
+        '\u05DB\u05D9\u05EA\u05D4 \u05D1': {
+          _type: 'folder',
+          '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.xlsx': { _type: 'file', size: '198 KB' },
+          '\u05EA\u05DE\u05D5\u05E0\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD': { _type: 'folder' }
+        },
+        '\u05D3\u05D5\u05D7\u05D5\u05EA \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA': {
+          _type: 'folder',
+          '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05E4\u05E8\u05D9\u05DC 2026.pdf': { _type: 'file', size: '524 KB' },
+          '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05DE\u05E8\u05E5 2026.pdf': { _type: 'file', size: '489 KB' }
+        }
+      },
+      '\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD': {
+        _type: 'folder',
+        '\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA': {
+          _type: 'folder',
+          '\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D1.xlsx': { _type: 'file', size: '102 KB' },
+          '\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D0.xlsx': { _type: 'file', size: '98 KB' }
+        },
+        '\u05D7\u05D5\u05DE\u05E8\u05D9 \u05DC\u05D9\u05DE\u05D5\u05D3': {
+          _type: 'folder',
+          '\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD': { _type: 'folder' },
+          '\u05E2\u05D1\u05D5\u05D3\u05D5\u05EA': { _type: 'folder' },
+          '\u05D3\u05E4\u05D9 \u05E2\u05D1\u05D5\u05D3\u05D4': { _type: 'folder' }
+        },
+        '\u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3': {
+          _type: 'folder',
+          '\u05E7\u05D8\u05DC\u05D5\u05D2 \u05E1\u05E4\u05E8\u05D9\u05DD.xlsx': { _type: 'file', size: '156 KB' }
+        }
+      },
+      '\u05D4\u05D5\u05E8\u05D9\u05DD': {
+        _type: 'folder',
+        '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD': {
+          _type: 'folder',
+          '\u05DE\u05DB\u05EA\u05D1\u05D9\u05DD': { _type: 'folder' },
+          '\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05DE\u05D9\u05D9\u05DC': { _type: 'folder' }
+        },
+        '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD': {
+          _type: 'folder',
+          '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC\u05D9\u05DD.pdf': { _type: 'file', size: '312 KB' }
+        }
+      },
+      '\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD': {
+        _type: 'folder',
+        '\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD': {
+          _type: 'folder',
+          '\u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9 2026': {
+            _type: 'folder',
+            '\u05EA\u05DB\u05E0\u05D9\u05EA \u05D8\u05D9\u05D5\u05DC.docx': { _type: 'file', size: '89 KB' },
+            '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD.xlsx': { _type: 'file', size: '45 KB' }
+          }
+        },
+        '\u05D0\u05D9\u05E8\u05D5\u05E2\u05D9 \u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05D4': { _type: 'folder' },
+        '\u05E6\u05D9\u05DC\u05D5\u05DE\u05D9\u05DD': {
+          _type: 'folder',
+          '\u05E6\u05D9\u05DC\u05D5\u05DE\u05D9 \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E1\u05D9\u05D5\u05DD.jpg': { _type: 'file', size: '2.1 MB' }
+        }
+      },
+      '\u05DE\u05E0\u05D4\u05DC\u05D4': {
+        _type: 'folder',
+        '\u05EA\u05E7\u05E6\u05D9\u05D1': {
+          _type: 'folder',
+          '\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9 2026.xlsx': { _type: 'file', size: '389 KB' },
+          '\u05D3\u05D5\u05D7\u05D5\u05EA \u05DB\u05E1\u05E4\u05D9\u05D9\u05DD': { _type: 'folder' }
+        },
+        '\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05DE\u05E0\u05D4\u05DC\u05D9\u05D9\u05DD': {
+          _type: 'folder',
+          '\u05E0\u05D4\u05DC\u05D9 \u05DE\u05D5\u05E1\u05D3 2026.pdf': { _type: 'file', size: '921 KB' },
+          '\u05EA\u05E7\u05E0\u05D5\u05DF \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA.pdf': { _type: 'file', size: '716 KB' }
+        },
+        '\u05D8\u05E4\u05E1\u05D9\u05DD': { _type: 'folder' },
+        '\u05D7\u05D5\u05D6\u05E8\u05D9 \u05D4\u05EA\u05E7\u05E9\u05E8\u05D5\u05EA': { _type: 'folder' }
+      }
+    };
+  },
+
+  /* ---- Load catalog from localStorage or use default ---- */
+  _zDriveLoadCatalog() {
+    try {
+      const stored = localStorage.getItem(this._ZDRIVE_LS_KEY);
+      if (stored) {
+        this._zDriveCatalog = JSON.parse(stored);
+      }
+    } catch(e) { /* ignore */ }
+    if (!this._zDriveCatalog) {
+      this._zDriveCatalog = this._zDriveDefaultCatalog();
+      localStorage.setItem(this._ZDRIVE_LS_KEY, JSON.stringify(this._zDriveCatalog));
+    }
+    this._zDrivePath = [];
+    this._zDriveSearch = '';
+    const searchEl = document.getElementById('zdrive-search');
+    if (searchEl) searchEl.value = '';
+    this._zDriveRender();
+  },
+
+  /* ---- Navigate to a folder path ---- */
+  _zDriveGetNode(path) {
+    let node = this._zDriveCatalog;
+    for (const segment of path) {
+      if (!node || !node[segment]) return null;
+      node = node[segment];
+    }
+    return node;
+  },
+
+  _zDriveNavigate(folderName) {
+    this._zDrivePath.push(folderName);
+    this._zDriveRender();
+  },
+
+  _zDriveNavigateTo(depth) {
+    this._zDrivePath = this._zDrivePath.slice(0, depth);
+    this._zDriveRender();
+  },
+
+  /* ---- Build file:///Z: path ---- */
+  _zDriveBuildPath(extraSegments) {
+    const allSegments = [...this._zDrivePath, ...(extraSegments || [])];
+    return 'file:///Z:/' + allSegments.join('/');
+  },
+
+  /* ---- File type detection ---- */
+  _zDriveFileIcon(name) {
+    const ext = (name || '').split('.').pop().toLowerCase();
+    const map = {
+      xlsx: 'bi-file-earmark-spreadsheet text-success',
+      xls: 'bi-file-earmark-spreadsheet text-success',
+      pdf: 'bi-file-earmark-pdf text-danger',
+      docx: 'bi-file-earmark-word text-primary',
+      doc: 'bi-file-earmark-word text-primary',
+      jpg: 'bi-file-earmark-image text-info',
+      jpeg: 'bi-file-earmark-image text-info',
+      png: 'bi-file-earmark-image text-info',
+      pptx: 'bi-file-earmark-slides text-warning',
+      txt: 'bi-file-earmark-text text-secondary'
+    };
+    return map[ext] || 'bi-file-earmark text-secondary';
+  },
+
+  /* ---- Search / Filter ---- */
+  _zDriveFilter() {
+    this._zDriveSearch = (document.getElementById('zdrive-search')?.value || '').trim().toLowerCase();
+    this._zDriveRender();
+  },
+
+  /* ---- Recursive search ---- */
+  _zDriveSearchAll(node, path, query) {
+    const results = [];
+    for (const [name, child] of Object.entries(node)) {
+      if (name === '_type') continue;
+      const fullPath = [...path, name];
+      if (child._type === 'file') {
+        if (name.toLowerCase().includes(query)) {
+          results.push({ name, path: fullPath, size: child.size || '' });
+        }
+      } else if (child._type === 'folder') {
+        if (name.toLowerCase().includes(query)) {
+          results.push({ name, path: fullPath, isFolder: true });
+        }
+        results.push(...this._zDriveSearchAll(child, fullPath, query));
+      }
+    }
+    return results;
+  },
+
+  /* ---- Render Z Drive content ---- */
+  _zDriveRender() {
+    if (!this._zDriveCatalog) {
+      this._zDriveLoadCatalog();
+      return;
+    }
+
+    const container = document.getElementById('zdrive-content');
+    if (!container) return;
+
+    // Breadcrumb
+    const breadNav = document.getElementById('zdrive-breadcrumb');
+    if (breadNav) {
+      if (this._zDrivePath.length === 0 && !this._zDriveSearch) {
+        breadNav.style.display = 'none';
+      } else {
+        breadNav.style.display = 'block';
+        const ol = breadNav.querySelector('ol');
+        ol.innerHTML = `<li class="breadcrumb-item"><a href="#" onclick="Pages._zDriveNavigateTo(0);return false"><i class="bi bi-hdd-network me-1"></i>Z:</a></li>` +
+          this._zDrivePath.map((seg, i) => {
+            const isLast = i === this._zDrivePath.length - 1;
+            return isLast
+              ? `<li class="breadcrumb-item active">${seg}</li>`
+              : `<li class="breadcrumb-item"><a href="#" onclick="Pages._zDriveNavigateTo(${i + 1});return false">${seg}</a></li>`;
+          }).join('');
+      }
+    }
+
+    // Search mode
+    if (this._zDriveSearch) {
+      const results = this._zDriveSearchAll(this._zDriveCatalog, [], this._zDriveSearch);
+      if (!results.length) {
+        container.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-search fs-1 d-block mb-2"></i>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05E7\u05D1\u05E6\u05D9\u05DD \u05EA\u05D5\u05D0\u05DE\u05D9\u05DD</div>';
+        return;
+      }
+      container.innerHTML = this._zDriveRenderSearchResults(results);
+      return;
+    }
+
+    // Normal folder view
+    const node = this._zDrivePath.length === 0 ? this._zDriveCatalog : this._zDriveGetNode(this._zDrivePath);
+    if (!node) {
+      container.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>\u05EA\u05D9\u05E7\u05D9\u05D4 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</div>';
+      return;
+    }
+
+    const entries = Object.entries(node).filter(([k]) => k !== '_type');
+    const folders = entries.filter(([, v]) => v._type === 'folder');
+    const files = entries.filter(([, v]) => v._type === 'file');
+
+    if (!folders.length && !files.length) {
+      container.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-folder2-open fs-1 d-block mb-2"></i>\u05EA\u05D9\u05E7\u05D9\u05D4 \u05E8\u05D9\u05E7\u05D4</div>';
+      return;
+    }
+
+    const folderColors = ['primary', 'success', 'warning', 'info', 'danger'];
+    let html = '<div class="row g-3">';
+
+    // Folders
+    folders.forEach(([name], i) => {
+      const color = folderColors[i % folderColors.length];
+      const subCount = Object.keys(folders[i][1]).filter(k => k !== '_type').length;
+      const escapedName = name.replace(/'/g, "\\'");
+      html += `<div class="col-6 col-md-4 col-lg-3">
+        <div class="card p-3 card-clickable h-100" ondblclick="Pages._zDriveNavigate('${escapedName}')" onclick="Pages._zDriveNavigate('${escapedName}')">
+          <div class="text-center mb-2"><i class="bi bi-folder-fill fs-1 text-${color}"></i></div>
+          <div class="fw-bold small text-center text-truncate">${name}</div>
+          <small class="text-muted text-center d-block">${subCount} \u05E4\u05E8\u05D9\u05D8\u05D9\u05DD</small>
+        </div>
+      </div>`;
+    });
+
+    // Files
+    files.forEach(([name, meta]) => {
+      const icon = this._zDriveFileIcon(name);
+      const filePath = this._zDriveBuildPath([name]);
+      const escapedPath = filePath.replace(/'/g, "\\'");
+      html += `<div class="col-6 col-md-4 col-lg-3">
+        <div class="card p-3 card-clickable h-100" onclick="Pages._zDriveOpenFile('${escapedPath}','${name.replace(/'/g, "\\'")}')">
+          <div class="text-center mb-2"><i class="bi ${icon} fs-1"></i></div>
+          <div class="fw-bold small text-center text-truncate" title="${name}">${name}</div>
+          ${meta.size ? '<small class="text-muted text-center d-block">' + meta.size + '</small>' : ''}
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+  },
+
+  /* ---- Render search results ---- */
+  _zDriveRenderSearchResults(results) {
+    let html = `<div class="card"><table class="table table-hover mb-0 align-middle">
+      <thead><tr><th style="width:40px"></th><th>\u05E9\u05DD</th><th>\u05DE\u05D9\u05E7\u05D5\u05DD</th><th class="d-none d-md-table-cell">\u05D2\u05D5\u05D3\u05DC</th></tr></thead><tbody>`;
+
+    results.forEach(r => {
+      const icon = r.isFolder ? 'bi-folder-fill text-warning' : this._zDriveFileIcon(r.name);
+      const location = r.path.slice(0, -1).join(' / ') || 'Z:';
+      const filePath = 'file:///Z:/' + r.path.join('/');
+      const escapedPath = filePath.replace(/'/g, "\\'");
+      const escapedName = r.name.replace(/'/g, "\\'");
+
+      if (r.isFolder) {
+        const pathArray = JSON.stringify(r.path).replace(/"/g, "'");
+        html += `<tr class="cursor-pointer" onclick="Pages._zDrivePath=${JSON.stringify(r.path)};Pages._zDriveSearch='';document.getElementById('zdrive-search').value='';Pages._zDriveRender()">
+          <td><i class="bi ${icon} fs-5"></i></td>
+          <td class="fw-bold">${r.name}</td>
+          <td class="text-muted small">${location}</td>
+          <td class="d-none d-md-table-cell text-muted small">---</td>
+        </tr>`;
+      } else {
+        html += `<tr class="cursor-pointer" onclick="Pages._zDriveOpenFile('${escapedPath}','${escapedName}')">
+          <td><i class="bi ${icon} fs-5"></i></td>
+          <td class="fw-bold">${r.name}</td>
+          <td class="text-muted small">${location}</td>
+          <td class="d-none d-md-table-cell text-muted small">${r.size || '---'}</td>
+        </tr>`;
+      }
+    });
+
+    html += '</tbody></table></div>';
+    return html;
+  },
+
+  /* ---- Open file from Z drive ---- */
+  _zDriveOpenFile(filePath, fileName) {
+    try {
+      window.open(filePath, '_blank');
+    } catch(e) { /* blocked by browser */ }
+    App.showToast('\u05E4\u05D5\u05EA\u05D7: ' + (fileName || filePath), 'info');
   }
 });

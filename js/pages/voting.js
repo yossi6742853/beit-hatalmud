@@ -39,22 +39,6 @@ Object.assign(Pages, {
         closed: true, endDate: '2026-04-01', created: '2026-03-15',
         author: 'הנהלה', category: 'משוב',
         voters: {}
-      },
-      {
-        id: 'p05', question: 'איזה ספר ללמוד בשיעור הכללי של אחר הצהריים?',
-        options: ['מסילת ישרים', 'חובות הלבבות', 'שמירת הלשון'],
-        votes: [17, 24, 11], anonymous: false,
-        closed: true, endDate: '2026-03-20', created: '2026-03-10',
-        author: 'ר"מ כיתה א\'', category: 'לימודים',
-        voters: {}
-      },
-      {
-        id: 'p06', question: 'מועד מועדף לאסיפת הורים',
-        options: ['יום שני בערב', 'יום שלישי בערב', 'יום חמישי אחה"צ', 'שבוע הבא כלל לא מתאים'],
-        votes: [14, 9, 21, 6], anonymous: false,
-        closed: true, endDate: '2026-03-25', created: '2026-03-18',
-        author: 'מזכירות', category: 'אירועים',
-        voters: {}
       }
     ];
   },

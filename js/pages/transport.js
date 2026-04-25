@@ -7,8 +7,7 @@ Object.assign(Pages, {
   _transportDrivers: [
     { id:'d1', name:'משה כהן',     phone:'0521234567', license:'7654321', licenseExpiry:'2027-08-15', vehicle:'מיניבוס מרצדס', vehicleNum:'12-345-67', seats:16, notes:'ותיק, 10 שנות ניסיון' },
     { id:'d2', name:'אברהם לוי',   phone:'0539876543', license:'1234567', licenseExpiry:'2026-12-01', vehicle:'מיניבוס פולקסווגן', vehicleNum:'23-456-78', seats:20, notes:'רישיון D' },
-    { id:'d3', name:'דוד פרידמן',   phone:'0547654321', license:'9876543', licenseExpiry:'2027-03-20', vehicle:'אוטובוס זעיר', vehicleNum:'34-567-89', seats:24, notes:'גם מכונאי מוסמך' },
-    { id:'d4', name:'יעקב שוורץ',   phone:'0501112233', license:'5678901', licenseExpiry:'2028-01-10', vehicle:'מיניבוס איווקו', vehicleNum:'45-678-90', seats:18, notes:'חדש בצוות' }
+    { id:'d3', name:'דוד פרידמן',   phone:'0547654321', license:'9876543', licenseExpiry:'2027-03-20', vehicle:'אוטובוס זעיר', vehicleNum:'34-567-89', seats:24, notes:'גם מכונאי מוסמך' }
   ],
 
   _transportRoutes: [

@@ -127,10 +127,7 @@ Object.assign(Pages, {
           items: [
             { id: 'i15', title: 'בדיקת מטפי כיבוי', done: true, priority: 'high', dueDate: d(-3), assignee: 'שמעון', notes: 'כל הקומות', createdAt: d(-10) },
             { id: 'i16', title: 'בדיקת יציאות חירום', done: true, priority: 'high', dueDate: d(-3), assignee: 'שמעון', notes: 'לוודא שלטי חירום דולקים', createdAt: d(-10) },
-            { id: 'i17', title: 'בדיקת ערכת עזרה ראשונה', done: false, priority: 'medium', dueDate: d(-1), assignee: 'אהרן', notes: 'להשלים חומרים חסרים', createdAt: d(-10) },
-            { id: 'i18', title: 'תרגיל פינוי', done: false, priority: 'high', dueDate: d(5), assignee: 'משה', notes: 'לתאם עם מנהל', createdAt: d(-8) },
-            { id: 'i19', title: 'בדיקת חשמל', done: false, priority: 'medium', dueDate: d(-2), assignee: 'שמעון', notes: 'לוח חשמל ראשי + כיתות', createdAt: d(-8) },
-            { id: 'i20', title: 'בדיקת גדרות ושערים', done: true, priority: 'low', dueDate: d(-5), assignee: 'שמעון', notes: '', createdAt: d(-10) },
+            { id: 'i17', title: 'בדיקת ערכת עזרה ראשונה', done: false, priority: 'medium', dueDate: d(-1), assignee: 'אהרן', notes: 'להשלים חומרים חסרים', createdAt: d(-10) }
           ]
         }
       ],

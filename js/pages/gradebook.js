@@ -116,17 +116,14 @@ Object.assign(Pages, {
     const exams = [
       { id: 'e1', name: '\u05DE\u05D1\u05D7\u05DF \u05D2\u05DE\u05E8\u05D0 1', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-01-15', maxScore: 100, weight: 100 },
       { id: 'e2', name: '\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 1', subject: '\u05D7\u05D5\u05DE\u05E9', date: '2026-01-22', maxScore: 100, weight: 100 },
-      { id: 'e3', name: '\u05E2\u05D1\u05D5\u05D3\u05D4 \u05D4\u05DC\u05DB\u05D4', subject: '\u05D4\u05DC\u05DB\u05D4', date: '2026-02-05', maxScore: 100, weight: 80 },
-      { id: 'e4', name: '\u05DE\u05D1\u05D7\u05DF \u05D2\u05DE\u05E8\u05D0 2', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-02-20', maxScore: 100, weight: 100 },
-      { id: 'e5', name: '\u05DE\u05D1\u05D7\u05DF \u05D7\u05D5\u05DE\u05E9 2', subject: '\u05D7\u05D5\u05DE\u05E9', date: '2026-03-10', maxScore: 100, weight: 100 },
-      { id: 'e6', name: '\u05E2\u05D1\u05D5\u05D3\u05D4 \u05DE\u05E9\u05E0\u05D4', subject: '\u05DE\u05E9\u05E0\u05D4', date: '2026-03-25', maxScore: 100, weight: 60 }
+      { id: 'e3', name: '\u05E2\u05D1\u05D5\u05D3\u05D4 \u05D4\u05DC\u05DB\u05D4', subject: '\u05D4\u05DC\u05DB\u05D4', date: '2026-02-05', maxScore: 100, weight: 80 }
     ];
 
     // Realistic grades
     const gradeSeeds = {
-      s1:  [92, 88, 95, 90, 85, 91],
-      s2:  [78, 82, 70, 75, 80, 73],
-      s3:  [95, 90, 88, 97, 92, 94]
+      s1:  [92, 88, 95],
+      s2:  [78, 82, 70],
+      s3:  [95, 90, 88]
     };
 
     const grades = {};
