@@ -10,7 +10,8 @@ Object.assign(Pages, {
     { id: 'trip_list',      name: 'רשימת תלמידים לטיול', icon: 'bi-geo-alt-fill',     color: 'info',     desc: 'רשימה שמית לטיול עם פרטי זיהוי, טלפון והערות רפואיות' },
     { id: 'class_roster',   name: 'רשימה שמית לפי כיתה', icon: 'bi-list-ul',          color: 'secondary',desc: 'רשימת תלמידים מלאה עם כל הפרטים הטכניים' },
     { id: 'empty_attendance',name: 'טופס נוכחות ריק',    icon: 'bi-check2-square',    color: 'success',  desc: 'טופס נוכחות ריק להדפסה עם שמות תלמידים ותיבות סימון' },
-    { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' }
+    { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' },
+    { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' }
   ],
 
   /* ---------- demo data ---------- */
@@ -403,8 +404,8 @@ Object.assign(Pages, {
     document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
 
-    // For registration form (blank), hide student/class selectors since not needed
-    const hideStudentSel = tplId === 'registration';
+    // For registration/phone_list, hide student selector since not needed
+    const hideStudentSel = tplId === 'registration' || tplId === 'phone_list';
     const studentSel = document.getElementById('pc-student');
     if (studentSel) studentSel.closest('.col-md-4').style.display = hideStudentSel ? 'none' : '';
 
@@ -762,6 +763,7 @@ Object.assign(Pages, {
       case 'trip_list':        return this._pcBuildTripList(opts);
       case 'class_roster':     return this._pcBuildClassRoster(opts);
       case 'empty_attendance': return this._pcBuildEmptyAttendance(opts);
+      case 'phone_list':      return this._pcBuildPhoneList(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -769,9 +771,11 @@ Object.assign(Pages, {
   _pcDocHeader(opts, title) {
     return `
       <div class="pc-header">
-        ${opts.showLogo ? '<div class="pc-logo-placeholder">לוגו</div>' : ''}
-        <div class="pc-inst-name">בית התלמוד</div>
-        <div class="pc-inst-sub">מוסד חינוכי תורני</div>
+        ${opts.showLogo ? `<div style="text-align:center;margin-bottom:20px">
+          <img src="img/logo-bht.png" style="height:60px;margin-bottom:8px" alt="בית התלמוד">
+          <h2 style="margin:0;font-family:Heebo">בית התלמוד</h2>
+          <p style="margin:0;font-size:12px;color:#666">רח' נחל שורק, בית שמש | טל: 02-1234567</p>
+        </div>` : `<div class="pc-inst-name">בית התלמוד</div><div class="pc-inst-sub">מוסד חינוכי תורני</div>`}
         ${opts.customHeader ? `<div style="margin-top:8px;font-weight:600;color:#333">${opts.customHeader}</div>` : ''}
       </div>
       <div class="pc-title">${title}</div>
@@ -791,9 +795,11 @@ Object.assign(Pages, {
     return `
       <div class="pc-signature">
         <div class="pc-sig-box">
+          <img src="img/signature.png" style="height:40px;margin-bottom:4px;opacity:.85" alt="חתימה">
           <div class="pc-sig-line">חתימת המנהל</div>
         </div>
         <div class="pc-sig-box">
+          <img src="img/stamp-bht.png" style="height:50px;margin-bottom:4px;opacity:.85" alt="חותמת">
           <div class="pc-sig-line">חותמת המוסד</div>
         </div>
       </div>
@@ -869,7 +875,7 @@ Object.assign(Pages, {
     const s = opts.student || this._pcStudents[0];
     return `
       <div class="pc-cert-frame">
-        ${opts.showLogo ? '<div class="pc-logo-placeholder" style="border-color:#b8860b;color:#b8860b">לוגו</div>' : ''}
+        ${opts.showLogo ? '<img src="img/logo-bht.png" style="height:60px;margin-bottom:8px" alt="בית התלמוד">' : ''}
         <div style="font-size:1rem;letter-spacing:6px;color:#b8860b;margin-bottom:4px">✦ ✦ ✦</div>
         <div class="pc-inst-name" style="color:#1a3e5c">בית התלמוד</div>
         <div class="pc-inst-sub">מוסד חינוכי תורני</div>
@@ -1242,6 +1248,82 @@ Object.assign(Pages, {
           </table>
         </div>
         ${this._pcDocSignature()}
+        ${this._pcDocFooter(opts)}
+      </div>
+    `;
+  },
+
+  /* --- Phone List (מספרי טלפון לפי כיתה) --- */
+  _pcBuildPhoneList(opts) {
+    const cls = opts.cls || '';
+    const students = (cls ? this._pcStudents.filter(s => s.cls === cls) : this._pcStudents)
+      .slice().sort((a, b) => a.name.localeCompare(b.name, 'he'));
+
+    // Build parent lookup from parents data
+    const parentMap = {};
+    if (this._pcParentsData) {
+      this._pcParentsData.forEach(p => {
+        const key = p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4'] || '';
+        if (key) {
+          if (!parentMap[key]) parentMap[key] = {};
+          const rel = (p['\u05E7\u05E8\u05D1\u05D4'] || p['\u05E7\u05E8\u05D1\u05EA_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '').trim();
+          const name = ((p['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (p['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim();
+          const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || p['\u05E0\u05D9\u05D9\u05D3'] || '';
+          if (rel === '\u05D0\u05DD' || rel === '\u05D0\u05DE\u05D0') {
+            parentMap[key].motherName = name;
+            parentMap[key].motherPhone = phone;
+          } else {
+            // Default to father
+            if (!parentMap[key].fatherName) {
+              parentMap[key].fatherName = name;
+              parentMap[key].fatherPhone = phone;
+            }
+          }
+        }
+      });
+    }
+
+    return `
+      <div class="pc-doc">
+        ${this._pcDocHeader(opts, '\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD' + (cls ? ' \u2014 ' + cls : ''))}
+        <div class="pc-body">
+          <div class="pc-field"><span class="pc-field-label">\u05DB\u05D9\u05EA\u05D4:</span> ${cls || '\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA'}</div>
+          <div class="pc-field"><span class="pc-field-label">\u05DE\u05E1\u05E4\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ${students.length}</div>
+          <table class="pc-table" style="font-size:.85rem">
+            <thead>
+              <tr>
+                <th style="width:28px">#</th>
+                <th>\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3</th>
+                <th>\u05E9\u05DD \u05D0\u05D1</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05D0\u05D1</th>
+                <th>\u05E9\u05DD \u05D0\u05DD</th>
+                <th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05D0\u05DD</th>
+                <th>\u05DB\u05EA\u05D5\u05D1\u05EA</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${students.map((s, i) => {
+                const pd = parentMap[s.id] || {};
+                const fatherName = pd.fatherName || s.parent || '';
+                const fatherPhone = pd.fatherPhone || s.parentPhone || '';
+                const motherName = pd.motherName || '';
+                const motherPhone = pd.motherPhone || '';
+                const addr = (s.address || '') + (s.city ? ', ' + s.city : '');
+                return `<tr>
+                  <td>${i + 1}</td>
+                  <td style="font-weight:600">${s.name}</td>
+                  <td dir="ltr" style="text-align:right">${s.phone}</td>
+                  <td>${fatherName}</td>
+                  <td dir="ltr" style="text-align:right">${fatherPhone}</td>
+                  <td>${motherName}</td>
+                  <td dir="ltr" style="text-align:right">${motherPhone}</td>
+                  <td>${addr}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
         ${this._pcDocFooter(opts)}
       </div>
     `;
