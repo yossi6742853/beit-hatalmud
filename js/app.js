@@ -307,9 +307,25 @@ const App = {
     this._showLoadingBar();
     try {
       const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(resolvedSheet)}&token=${this.API_TOKEN}`;
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const json = await resp.json();
+      let json;
+      try {
+        // Try fetch first (works on same-origin / non-NetFree)
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        json = await resp.json();
+      } catch(fetchErr) {
+        // Fetch failed (CORS/NetFree) — try JSONP via script tag
+        json = await new Promise((resolve, reject) => {
+          const cbName = '_bht_cb_' + Date.now();
+          const timeout = setTimeout(() => { delete window[cbName]; reject(new Error('JSONP timeout')); }, 15000);
+          window[cbName] = (data) => { clearTimeout(timeout); delete window[cbName]; resolve(data); };
+          const s = document.createElement('script');
+          s.src = url + '&callback=' + cbName;
+          s.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('JSONP error')); };
+          document.head.appendChild(s);
+          s.onload = () => s.remove();
+        }).catch(() => ({ data: [] }));
+      }
 
       if (json.error) {
         // Auto-create sheet if not found
