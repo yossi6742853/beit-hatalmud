@@ -930,7 +930,23 @@ Object.assign(Pages, {
     const studentParents = (parents||[]).filter(match);
     const studentMed = (medical||[]).filter(match);
     const studentHW = (homework||[]).filter(match);
-    const studentDocs = (documents||[]).filter(match);
+    let studentDocs = (documents||[]).filter(match);
+    // Enrich with Drive catalog if available
+    if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.byName) {
+      const famName = student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'';
+      const firstName = student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'';
+      const fullName = firstName + ' ' + famName;
+      const entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byId[studentId] || null;
+      if (entry && entry.documents) {
+        const driveDocs = entry.documents.map(d => ({
+          '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': d.name, name: d.name,
+          '\u05E1\u05D5\u05D2': d.type || 'drive', type: d.type,
+          driveId: d.id, '\u05E7\u05D9\u05E9\u05D5\u05E8': d.link,
+          '\u05EA\u05D0\u05E8\u05D9\u05DA': '', '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D3\u05E8\u05D9\u05D9\u05D1'
+        }));
+        studentDocs = [...studentDocs, ...driveDocs];
+      }
+    }
     const studentActivity = (activityLog||[]).filter(match);
 
     // WhatsApp helper
