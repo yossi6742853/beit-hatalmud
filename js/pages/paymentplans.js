@@ -23,17 +23,11 @@ Object.assign(Pages, {
   /* ---------- Demo data: 10 students with varied plans ---------- */
   _ppDemoData() {
     const students = [
+
       { name: '\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF',       total: 12000, template: 'monthly',    start: '2025-09-01' },
       { name: '\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9',        total: 12000, template: 'monthly',    start: '2025-09-01' },
-      { name: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',  total: 10000, template: 'quarterly',  start: '2025-09-01' },
-      { name: '\u05D3\u05D5\u05D3 \u05E9\u05DE\u05E2\u05D5\u05E0\u05D9',    total: 8000,  template: 'semiannual', start: '2025-10-01' },
-      { name: '\u05D9\u05E2\u05E7\u05D1 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',  total: 15000, template: 'monthly',    start: '2025-09-01' },
-      { name: '\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05D2\u05E8',    total: 6000,  template: 'quarterly',  start: '2025-10-01' },
-      { name: '\u05D0\u05DC\u05D9\u05D4\u05D5 \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', total: 9000, template: 'monthly', start: '2025-09-01' },
-      { name: '\u05D7\u05D9\u05D9\u05DD \u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2',  total: 11000, template: 'monthly',  start: '2025-09-01' },
-      { name: '\u05E0\u05EA\u05E0\u05D0\u05DC \u05D5\u05D9\u05E0\u05E8',     total: 7500,  template: 'custom',     start: '2025-09-01', customCount: 5 },
-      { name: '\u05E8\u05E4\u05D0\u05DC \u05DE\u05D6\u05E8\u05D7\u05D9',    total: 13000, template: 'semiannual', start: '2025-09-01' }
-    ];
+      { name: '\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',  total: 10000, template: 'quarterly',  start: '2025-09-01' }
+  ];
 
     const now = new Date();
     const plans = students.map((s, idx) => {
@@ -579,20 +573,10 @@ Object.assign(Pages, {
 
     const totalOverdue = overdueInst.reduce((sum, i) => sum + i.amount, 0);
     const msg = [
+
       `\u05E9\u05DC\u05D5\u05DD \u05E8\u05D1,`,
-      ``,
-      `\u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD`,
-      ``,
-      `\u05E2\u05D1\u05D5\u05E8 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 ${plan.studentName},`,
-      `\u05E7\u05D9\u05D9\u05DE\u05D9\u05DD ${overdueInst.length} \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E9\u05D8\u05E8\u05DD \u05D4\u05D5\u05E1\u05D3\u05E8\u05D5:`,
-      ...overdueInst.map(i => `  \u2022 \u05EA\u05E9\u05DC\u05D5\u05DD #${i.num} \u2014 ${Utils.formatCurrency(i.amount)} (\u05D9\u05E2\u05D3: ${Utils.formatDateShort(i.dueDate)})`),
-      ``,
-      `\u05E1\u05D4"\u05DB: ${Utils.formatCurrency(totalOverdue)}`,
-      ``,
-      `\u05E0\u05D5\u05D3\u05D4 \u05DC\u05D4\u05E1\u05D3\u05E8\u05EA \u05D4\u05EA\u05E9\u05DC\u05D5\u05DD \u05D1\u05D4\u05E7\u05D3\u05DD.`,
-      `\u05D1\u05D1\u05E8\u05DB\u05D4,`,
-      `\u05D4\u05E0\u05D4\u05DC\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3`
-    ].join('\n');
+      ``
+  ].join('\n');
 
     const phone = plan.phone.replace(/-/g, '').replace(/^0/, '972');
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;

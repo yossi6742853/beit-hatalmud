@@ -199,26 +199,10 @@ Object.assign(Pages, {
 
   /* ---- Demo Data: 20 items across 6 categories ---- */
   _invData: [
+
     { id:1,  name:'מחשב נייד Dell Latitude',     category:'אלקטרוניקה', location:'מזכירות',     quantity:3,  minQty:1, cost:4500, condition:'תקין',   serial:'DL-2025-001',  purchaseDate:'2025-09-01', notes:'', checkouts:[] },
     { id:2,  name:'מדפסת HP LaserJet Pro',        category:'אלקטרוניקה', location:'מזכירות',     quantity:1,  minQty:1, cost:1200, condition:'תקין',   serial:'HP-LJ-042',    purchaseDate:'2025-06-15', notes:'', checkouts:[] },
-    { id:3,  name:'מקרן Epson EB-X51',            category:'אלקטרוניקה', location:'חדר הרצאות',  quantity:2,  minQty:1, cost:2500, condition:'תקין',   serial:'EP-X51-007',   purchaseDate:'2025-08-01', notes:'', checkouts:[] },
-    { id:4,  name:'טאבלט Samsung Galaxy Tab',     category:'אלקטרוניקה', location:'מחסן ציוד',   quantity:5,  minQty:2, cost:1800, condition:'חדש',    serial:'SG-TAB-2026',  purchaseDate:'2026-01-10', notes:'', checkouts:[] },
-    { id:5,  name:'שולחן תלמיד',                  category:'ריהוט',      location:'כיתה א׳',     quantity:15, minQty:10,cost:300,  condition:'תקין',   serial:'',             purchaseDate:'2024-09-01', notes:'', checkouts:[] },
-    { id:6,  name:'כיסא תלמיד',                   category:'ריהוט',      location:'כיתה א׳',     quantity:15, minQty:10,cost:150,  condition:'בלאי',   serial:'',             purchaseDate:'2024-09-01', notes:'2 כיסאות רופפים', checkouts:[] },
-    { id:7,  name:'ארון ספרים גדול',               category:'ריהוט',      location:'ספרייה',       quantity:4,  minQty:2, cost:1500, condition:'תקין',   serial:'',             purchaseDate:'2024-09-01', notes:'', checkouts:[] },
-    { id:8,  name:'לוח מחיק מגנטי',               category:'ריהוט',      location:'כיתה ב׳',     quantity:3,  minQty:2, cost:400,  condition:'תקין',   serial:'',             purchaseDate:'2025-01-10', notes:'', checkouts:[] },
-    { id:9,  name:'שולחן מורה + מגירות',           category:'ריהוט',      location:'חדר מורים',   quantity:2,  minQty:1, cost:900,  condition:'תקין',   serial:'',             purchaseDate:'2025-03-20', notes:'', checkouts:[] },
-    { id:10, name:'כדורגל מקצועי',                 category:'ספורט',      location:'מחסן ספורט',  quantity:5,  minQty:3, cost:120,  condition:'תקין',   serial:'',             purchaseDate:'2025-10-01', notes:'', checkouts:[] },
-    { id:11, name:'רשת כדורעף + עמודים',           category:'ספורט',      location:'מגרש',        quantity:1,  minQty:1, cost:650,  condition:'תקין',   serial:'',             purchaseDate:'2025-04-15', notes:'', checkouts:[] },
-    { id:12, name:'סט פינג פונג',                  category:'ספורט',      location:'מחסן ספורט',  quantity:2,  minQty:1, cost:180,  condition:'בלאי',   serial:'',             purchaseDate:'2024-11-01', notes:'מחבט אחד סדוק', checkouts:[] },
-    { id:13, name:'נייר A4 (חבילות)',              category:'ציוד משרדי', location:'מזכירות',     quantity:8,  minQty:5, cost:25,   condition:'חדש',    serial:'',             purchaseDate:'2026-03-01', notes:'', checkouts:[] },
-    { id:14, name:'טונר למדפסת HP',                category:'ציוד משרדי', location:'מזכירות',     quantity:2,  minQty:3, cost:350,  condition:'חדש',    serial:'HP-TN-BK',     purchaseDate:'2026-02-15', notes:'', checkouts:[] },
-    { id:15, name:'מהדק סיכות חשמלי',             category:'ציוד משרדי', location:'מזכירות',     quantity:1,  minQty:1, cost:280,  condition:'תקין',   serial:'',             purchaseDate:'2025-07-01', notes:'', checkouts:[] },
-    { id:16, name:'מזגן תעשייתי Electra',          category:'אלקטרוניקה', location:'אולם',        quantity:2,  minQty:1, cost:8000, condition:'תקין',   serial:'EL-AC-2024',   purchaseDate:'2024-06-01', notes:'', checkouts:[] },
-    { id:17, name:'מקרר גדול דו-דלתי',            category:'מטבח',       location:'מטבח',        quantity:1,  minQty:1, cost:3500, condition:'לתיקון', serial:'FR-220',       purchaseDate:'2023-03-15', notes:'דליפת מים', checkouts:[] },
-    { id:18, name:'תנור תעשייתי',                  category:'מטבח',       location:'מטבח',        quantity:1,  minQty:1, cost:5000, condition:'תקין',   serial:'OV-IND-01',    purchaseDate:'2024-01-20', notes:'', checkouts:[] },
-    { id:19, name:'סט גמרא (ש"ס)',                category:'חינוכי',     location:'ספרייה',       quantity:20, minQty:15,cost:200,  condition:'תקין',   serial:'',             purchaseDate:'2024-09-01', notes:'', checkouts:[] },
-    { id:20, name:'סט חומשים עם פירושים',          category:'חינוכי',     location:'כיתה ג׳',     quantity:12, minQty:10,cost:85,   condition:'תקין',   serial:'',             purchaseDate:'2025-09-01', notes:'', checkouts:[{who:'ר׳ כהן', qty:2, date:'2026-04-20', notes:'לשיעור ערב'}] }
+    { id:3,  name:'מקרן Epson EB-X51',            category:'אלקטרוניקה', location:'חדר הרצאות',  quantity:2,  minQty:1, cost:2500, condition:'תקין',   serial:'EP-X51-007',   purchaseDate:'2025-08-01', notes:'', checkouts:[] }
   ],
 
   /* ---- Init ---- */

@@ -22,14 +22,11 @@ Object.assign(Pages, {
       icon: 'bi-calendar-event',
       category: 'שנתי',
       items: [
+
         { title: 'עדכון רשימת תלמידים', priority: 'high', assignee: 'יוסף', notes: 'לוודא שכל התלמידים החדשים נרשמו' },
         { title: 'הכנת מערכת שעות', priority: 'high', assignee: 'משה', notes: '' },
-        { title: 'בדיקת ציוד כיתות', priority: 'medium', assignee: 'אהרן', notes: 'לוחות, מקרנים, מזגנים' },
-        { title: 'שליחת מכתב פתיחה להורים', priority: 'medium', assignee: 'יוסף', notes: '' },
-        { title: 'הזמנת ספרי לימוד', priority: 'high', assignee: 'דוד', notes: 'לפי רשימה מעודכנת' },
-        { title: 'עדכון פרטי חירום', priority: 'high', assignee: 'יוסף', notes: 'טלפונים, כתובות, אלרגיות' },
-        { title: 'תיאום הסעות', priority: 'medium', assignee: 'שמעון', notes: '' },
-      ]
+        { title: 'בדיקת ציוד כיתות', priority: 'medium', assignee: 'אהרן', notes: 'לוחות, מקרנים, מזגנים' }
+  ]
     },
     year_end: {
       name: 'סוף שנה',
@@ -110,26 +107,20 @@ Object.assign(Pages, {
         {
           id: 'cl_1', name: 'משימות יומיות', category: 'יומי', color: 'primary', createdAt: d(0),
           items: [
+
             { id: 'i1', title: 'סימון נוכחות בוקר', done: true, priority: 'high', dueDate: d(0), assignee: 'יוסף', notes: 'עד 09:00', createdAt: d(-1) },
             { id: 'i2', title: 'בדיקת נוכחות תפילות', done: false, priority: 'high', dueDate: d(0), assignee: 'משה', notes: '', createdAt: d(-1) },
-            { id: 'i3', title: 'בדיקת דואר נכנס', done: true, priority: 'medium', dueDate: d(0), assignee: 'יוסף', notes: 'כולל דוא"ל והודעות', createdAt: d(-1) },
-            { id: 'i4', title: 'בדיקת שיעורי בית שהוגשו', done: false, priority: 'medium', dueDate: d(0), assignee: 'אהרן', notes: '', createdAt: d(-2) },
-            { id: 'i5', title: 'בדיקת תשלומים שהתקבלו', done: false, priority: 'low', dueDate: d(1), assignee: 'דוד', notes: '', createdAt: d(-2) },
-            { id: 'i6', title: 'דיווח התנהגות לצוות', done: false, priority: 'medium', dueDate: d(0), assignee: 'שמעון', notes: '', createdAt: d(-1) },
-            { id: 'i7', title: 'תכנון יום מחר', done: false, priority: 'low', dueDate: d(0), assignee: 'יוסף', notes: 'לוודא מערכת שעות', createdAt: d(-1) },
-          ]
+            { id: 'i3', title: 'בדיקת דואר נכנס', done: true, priority: 'medium', dueDate: d(0), assignee: 'יוסף', notes: 'כולל דוא"ל והודעות', createdAt: d(-1) }
+  ]
         },
         {
           id: 'cl_2', name: 'הכנות לטיול שנתי', category: 'אירועים', color: 'success', createdAt: d(-5),
           items: [
+
             { id: 'i8', title: 'הזמנת אוטובוס', done: true, priority: 'high', dueDate: d(-2), assignee: 'משה', notes: 'חברת נסיעות אגד', createdAt: d(-5) },
             { id: 'i9', title: 'אישורי הורים', done: false, priority: 'high', dueDate: d(2), assignee: 'יוסף', notes: 'חסרים 5 אישורים', createdAt: d(-5) },
-            { id: 'i10', title: 'הזמנת כיבוד לדרך', done: true, priority: 'medium', dueDate: d(-1), assignee: 'אהרן', notes: 'סנדוויצ\'ים + שתייה', createdAt: d(-4) },
-            { id: 'i11', title: 'בדיקת ערכת עזרה ראשונה', done: false, priority: 'high', dueDate: d(1), assignee: 'שמעון', notes: '', createdAt: d(-4) },
-            { id: 'i12', title: 'הכנת רשימת משתתפים', done: true, priority: 'medium', dueDate: d(-3), assignee: 'יוסף', notes: 'כולל מספרי חירום', createdAt: d(-5) },
-            { id: 'i13', title: 'תיאום מדריך', done: false, priority: 'medium', dueDate: d(3), assignee: 'משה', notes: 'מדריך מוסמך', createdAt: d(-3) },
-            { id: 'i14', title: 'ביטוח נוסעים', done: false, priority: 'high', dueDate: d(1), assignee: 'דוד', notes: '', createdAt: d(-4) },
-          ]
+            { id: 'i10', title: 'הזמנת כיבוד לדרך', done: true, priority: 'medium', dueDate: d(-1), assignee: 'אהרן', notes: 'סנדוויצ\'ים + שתייה', createdAt: d(-4) }
+  ]
         },
         {
           id: 'cl_3', name: 'בדיקת בטיחות חודשית', category: 'בטיחות', color: 'danger', createdAt: d(-10),

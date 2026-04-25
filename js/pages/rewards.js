@@ -5,98 +5,42 @@ Object.assign(Pages, {
      DEMO DATA — 15 students, 10 prizes, 20 redemptions
      ====================================================================== */
   _rewardStudents: [
+
     { id: 'S1',  name: 'יוסף כהן',       class: 'כיתה א', points: 520,  totalEarned: 650,  redeemed: 3 },
     { id: 'S2',  name: 'משה לוי',         class: 'כיתה א', points: 410,  totalEarned: 510,  redeemed: 2 },
-    { id: 'S3',  name: 'אברהם גולדברג',   class: 'כיתה א', points: 380,  totalEarned: 750,  redeemed: 5 },
-    { id: 'S4',  name: 'דוד פרידמן',      class: 'כיתה א', points: 295,  totalEarned: 375,  redeemed: 2 },
-    { id: 'S5',  name: 'אליהו שפירא',     class: 'כיתה א', points: 270,  totalEarned: 270,  redeemed: 0 },
-    { id: 'S6',  name: 'יעקב רוזנברג',    class: 'כיתה ב', points: 225,  totalEarned: 275,  redeemed: 1 },
-    { id: 'S7',  name: 'חיים ברקוביץ',    class: 'כיתה ב', points: 190,  totalEarned: 190,  redeemed: 0 },
-    { id: 'S8',  name: 'נתנאל וייס',      class: 'כיתה ב', points: 165,  totalEarned: 295,  redeemed: 3 },
-    { id: 'S9',  name: 'שמואל הורביץ',    class: 'כיתה ב', points: 140,  totalEarned: 140,  redeemed: 0 },
-    { id: 'S10', name: 'רפאל מזרחי',      class: 'כיתה ב', points: 120,  totalEarned: 170,  redeemed: 1 },
-    { id: 'S11', name: 'ראובן דהן',       class: 'כיתה ג', points: 310,  totalEarned: 460,  redeemed: 3 },
-    { id: 'S12', name: 'שמעון אלבז',      class: 'כיתה ג', points: 245,  totalEarned: 345,  redeemed: 2 },
-    { id: 'S13', name: 'גד קפלן',         class: 'כיתה ג', points: 180,  totalEarned: 230,  redeemed: 1 },
-    { id: 'S14', name: 'אשר הלל',         class: 'כיתה ג', points: 95,   totalEarned: 145,  redeemed: 1 },
-    { id: 'S15', name: 'מנחם בן דוד',     class: 'כיתה ד', points: 340,  totalEarned: 540,  redeemed: 4 }
+    { id: 'S3',  name: 'אברהם גולדברג',   class: 'כיתה א', points: 380,  totalEarned: 750,  redeemed: 5 }
   ],
 
   _prizes: [
+
     { id: 1,  name: 'ספר לבחירה',       cost: 50,  icon: 'bi-book',           category: 'לימודי', stock: 15 },
     { id: 2,  name: 'פיצה אישית',       cost: 80,  icon: 'bi-emoji-smile',    category: 'אוכל',   stock: 10 },
-    { id: 3,  name: 'יום חופשי',         cost: 150, icon: 'bi-calendar-heart', category: 'חוויה',  stock: 5 },
-    { id: 4,  name: 'שובר מתנה 50 ש"ח', cost: 200, icon: 'bi-gift',           category: 'שוברים', stock: 8 },
-    { id: 5,  name: 'טיול מיוחד',       cost: 500, icon: 'bi-geo-alt',        category: 'חוויה',  stock: 3 },
-    { id: 6,  name: 'כדורגל חדש',       cost: 120, icon: 'bi-dribbble',       category: 'ספורט',  stock: 4 },
-    { id: 7,  name: 'ארוחה עם הרב',     cost: 250, icon: 'bi-cup-hot',        category: 'חוויה',  stock: 2 },
-    { id: 8,  name: 'כרטיס סרט',        cost: 100, icon: 'bi-film',           category: 'בידור',  stock: 6 },
-    { id: 9,  name: 'עט מהודר',          cost: 60,  icon: 'bi-pen',            category: 'לימודי', stock: 12 },
-    { id: 10, name: 'משחק קופסא',       cost: 180, icon: 'bi-puzzle',         category: 'בידור',  stock: 5 }
+    { id: 3,  name: 'יום חופשי',         cost: 150, icon: 'bi-calendar-heart', category: 'חוויה',  stock: 5 }
   ],
 
   _redeemHist: [
+
     { id: 1,  student: 'יוסף כהן',       prize: 'פיצה אישית',       date: '2026-04-18', cost: 80,  category: 'אוכל' },
     { id: 2,  student: 'יוסף כהן',       prize: 'ספר לבחירה',       date: '2026-04-12', cost: 50,  category: 'לימודי' },
-    { id: 3,  student: 'אברהם גולדברג',  prize: 'ספר לבחירה',       date: '2026-04-15', cost: 50,  category: 'לימודי' },
-    { id: 4,  student: 'אברהם גולדברג',  prize: 'שובר מתנה 50 ש"ח', date: '2026-04-10', cost: 200, category: 'שוברים' },
-    { id: 5,  student: 'אברהם גולדברג',  prize: 'כדורגל חדש',       date: '2026-04-02', cost: 120, category: 'ספורט' },
-    { id: 6,  student: 'דוד פרידמן',     prize: 'פיצה אישית',       date: '2026-04-08', cost: 80,  category: 'אוכל' },
-    { id: 7,  student: 'משה לוי',        prize: 'כרטיס סרט',        date: '2026-04-20', cost: 100, category: 'בידור' },
-    { id: 8,  student: 'נתנאל וייס',     prize: 'ספר לבחירה',       date: '2026-04-05', cost: 50,  category: 'לימודי' },
-    { id: 9,  student: 'נתנאל וייס',     prize: 'פיצה אישית',       date: '2026-03-28', cost: 80,  category: 'אוכל' },
-    { id: 10, student: 'יעקב רוזנברג',   prize: 'ספר לבחירה',       date: '2026-04-14', cost: 50,  category: 'לימודי' },
-    { id: 11, student: 'רפאל מזרחי',     prize: 'ספר לבחירה',       date: '2026-04-01', cost: 50,  category: 'לימודי' },
-    { id: 12, student: 'ראובן דהן',      prize: 'משחק קופסא',       date: '2026-04-16', cost: 180, category: 'בידור' },
-    { id: 13, student: 'ראובן דהן',      prize: 'כרטיס סרט',        date: '2026-04-09', cost: 100, category: 'בידור' },
-    { id: 14, student: 'מנחם בן דוד',    prize: 'שובר מתנה 50 ש"ח', date: '2026-04-17', cost: 200, category: 'שוברים' },
-    { id: 15, student: 'מנחם בן דוד',    prize: 'פיצה אישית',       date: '2026-04-03', cost: 80,  category: 'אוכל' },
-    { id: 16, student: 'שמעון אלבז',     prize: 'עט מהודר',          date: '2026-04-11', cost: 60,  category: 'לימודי' },
-    { id: 17, student: 'שמעון אלבז',     prize: 'ספר לבחירה',       date: '2026-03-30', cost: 50,  category: 'לימודי' },
-    { id: 18, student: 'גד קפלן',        prize: 'כדורגל חדש',       date: '2026-04-06', cost: 120, category: 'ספורט' },
-    { id: 19, student: 'אשר הלל',        prize: 'ספר לבחירה',       date: '2026-04-04', cost: 50,  category: 'לימודי' },
-    { id: 20, student: 'יוסף כהן',       prize: 'עט מהודר',          date: '2026-03-25', cost: 60,  category: 'לימודי' }
+    { id: 3,  student: 'אברהם גולדברג',  prize: 'ספר לבחירה',       date: '2026-04-15', cost: 50,  category: 'לימודי' }
   ],
 
   /* Point grant history for weekly/monthly champion tracking */
   _rewardGrants: [
+
     { student: 'יוסף כהן',       amount: 50,  category: 'grades',     date: '2026-04-20', reason: 'מבחן מצוין' },
     { student: 'יוסף כהן',       amount: 30,  category: 'attendance', date: '2026-04-18', reason: 'נוכחות מלאה' },
-    { student: 'יוסף כהן',       amount: 20,  category: 'behavior',   date: '2026-04-15', reason: 'התנהגות מצוינת' },
-    { student: 'משה לוי',        amount: 40,  category: 'grades',     date: '2026-04-21', reason: 'הישג לימודי' },
-    { student: 'משה לוי',        amount: 25,  category: 'behavior',   date: '2026-04-19', reason: 'עזרה לחבר' },
-    { student: 'אברהם גולדברג',  amount: 60,  category: 'special',    date: '2026-04-20', reason: 'פרויקט מיוחד' },
-    { student: 'אברהם גולדברג',  amount: 35,  category: 'attendance', date: '2026-04-17', reason: 'נוכחות מלאה' },
-    { student: 'דוד פרידמן',     amount: 30,  category: 'grades',     date: '2026-04-19', reason: 'מבחן מצוין' },
-    { student: 'ראובן דהן',      amount: 45,  category: 'grades',     date: '2026-04-21', reason: 'הישג לימודי' },
-    { student: 'ראובן דהן',      amount: 20,  category: 'behavior',   date: '2026-04-16', reason: 'כבוד הזולת' },
-    { student: 'מנחם בן דוד',    amount: 55,  category: 'special',    date: '2026-04-22', reason: 'תרומה למוסד' },
-    { student: 'מנחם בן דוד',    amount: 30,  category: 'attendance', date: '2026-04-18', reason: 'נוכחות מלאה' },
-    { student: 'שמעון אלבז',     amount: 25,  category: 'grades',     date: '2026-04-20', reason: 'מבחן מצוין' },
-    { student: 'אליהו שפירא',    amount: 40,  category: 'behavior',   date: '2026-04-21', reason: 'מנהיגות' },
-    { student: 'חיים ברקוביץ',   amount: 20,  category: 'attendance', date: '2026-04-19', reason: 'נוכחות מלאה' },
-    { student: 'נתנאל וייס',     amount: 15,  category: 'behavior',   date: '2026-04-17', reason: 'עזרה לחבר' },
-    { student: 'שמואל הורביץ',   amount: 30,  category: 'grades',     date: '2026-04-16', reason: 'הישג לימודי' },
-    { student: 'רפאל מזרחי',     amount: 20,  category: 'attendance', date: '2026-04-15', reason: 'נוכחות מלאה' },
-    { student: 'גד קפלן',        amount: 35,  category: 'special',    date: '2026-04-14', reason: 'עזרה בהכנת אירוע' },
-    { student: 'אשר הלל',        amount: 15,  category: 'behavior',   date: '2026-04-13', reason: 'התנהגות מצוינת' },
-    { student: 'יעקב רוזנברג',   amount: 25,  category: 'grades',     date: '2026-04-12', reason: 'מבחן מצוין' }
+    { student: 'יוסף כהן',       amount: 20,  category: 'behavior',   date: '2026-04-15', reason: 'התנהגות מצוינת' }
   ],
 
   /* ======================================================================
      LEVEL SYSTEM — every 100 totalEarned points = 1 level (max 10)
      ====================================================================== */
   _rewardLevels: [
+
     { min: 0,   max: 99,   level: 1,  name: 'ברונזה',  badge: 'bg-secondary',  icon: 'bi-shield' },
     { min: 100, max: 199,  level: 2,  name: 'ברונזה+', badge: 'bg-secondary',  icon: 'bi-shield-fill' },
-    { min: 200, max: 299,  level: 3,  name: 'כסף',     badge: 'bg-info',       icon: 'bi-shield' },
-    { min: 300, max: 399,  level: 4,  name: 'כסף+',    badge: 'bg-info',       icon: 'bi-shield-fill' },
-    { min: 400, max: 499,  level: 5,  name: 'זהב',     badge: 'bg-warning',    icon: 'bi-shield-fill' },
-    { min: 500, max: 599,  level: 6,  name: 'זהב+',    badge: 'bg-warning',    icon: 'bi-trophy' },
-    { min: 600, max: 699,  level: 7,  name: 'יהלום',   badge: 'bg-primary',    icon: 'bi-trophy' },
-    { min: 700, max: 799,  level: 8,  name: 'יהלום+',  badge: 'bg-primary',    icon: 'bi-trophy-fill' },
-    { min: 800, max: 899,  level: 9,  name: 'אלוף',    badge: 'bg-danger',     icon: 'bi-trophy-fill' },
-    { min: 900, max: 99999, level: 10, name: 'אגדה',   badge: 'bg-dark',       icon: 'bi-star-fill' }
+    { min: 200, max: 299,  level: 3,  name: 'כסף',     badge: 'bg-info',       icon: 'bi-shield' }
   ],
 
   _rwdGetLevel(totalEarned) {

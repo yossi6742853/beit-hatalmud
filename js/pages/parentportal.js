@@ -1,21 +1,10 @@
 /* ===== BHT v5.3 — Parent Portal (פורטל הורים) ===== */
 Object.assign(Pages, {
   _portalParents: [
+
     { id: 1, name: 'רחל כהן', student: 'יוסף כהן', phone: '050-1234567', email: 'rachel@email.com', registered: '2026-03-10', lastLogin: '2026-04-22 08:30', device: 'iPhone 15', logins: 47, active: true, satisfaction: 5 },
     { id: 2, name: 'שרה לוי', student: 'משה לוי', phone: '052-2345678', email: 'sara@email.com', registered: '2026-03-12', lastLogin: '2026-04-21 14:15', device: 'Android', logins: 32, active: true, satisfaction: 4 },
-    { id: 3, name: 'דבורה גולדברג', student: 'אברהם גולדברג', phone: '054-3456789', email: 'dvora@email.com', registered: '2026-03-15', lastLogin: '2026-04-22 09:00', device: 'Chrome Desktop', logins: 55, active: true, satisfaction: 5 },
-    { id: 4, name: 'יעל פרידמן', student: 'דוד פרידמן', phone: '050-4567890', email: 'yael@email.com', registered: '2026-03-18', lastLogin: '2026-04-20 16:45', device: 'Samsung Galaxy', logins: 28, active: true, satisfaction: 4 },
-    { id: 5, name: 'מירי שפירא', student: 'אליהו שפירא', phone: '053-5678901', email: 'miri@email.com', registered: '2026-03-20', lastLogin: '2026-04-19 10:00', device: 'iPad', logins: 19, active: true, satisfaction: 3 },
-    { id: 6, name: 'חנה רוזנברג', student: 'יעקב רוזנברג', phone: '052-6789012', email: 'chana@email.com', registered: '2026-04-01', lastLogin: '2026-04-18 11:30', device: 'iPhone 14', logins: 11, active: false, satisfaction: 4 },
-    { id: 7, name: 'לאה ברקוביץ', student: 'חיים ברקוביץ', phone: '050-7890123', email: 'leah@email.com', registered: '2026-04-05', lastLogin: '2026-04-22 07:45', device: 'Android', logins: 61, active: true, satisfaction: 5 },
-    { id: 8, name: 'רבקה וייס', student: 'נתנאל וייס', phone: '054-8901234', email: 'rivka@email.com', registered: '2026-04-08', lastLogin: '2026-04-17 09:20', device: 'Chrome Desktop', logins: 8, active: false, satisfaction: 3 },
-    { id: 9, name: 'אסתר הורביץ', student: 'שמואל הורביץ', phone: '053-9012345', email: 'esther@email.com', registered: '2026-04-10', lastLogin: '2026-04-21 13:00', device: 'Samsung Galaxy', logins: 22, active: true, satisfaction: 4 },
-    { id: 10, name: 'שושנה מזרחי', student: 'רפאל מזרחי', phone: '050-0123456', email: 'shoshana@email.com', registered: '2026-04-12', lastLogin: '2026-04-16 15:30', device: 'Android', logins: 6, active: false, satisfaction: 2 },
-    { id: 11, name: 'מלכה אברמוביץ', student: 'עקיבא אברמוביץ', phone: '052-1112233', email: 'malka@email.com', registered: '2026-03-25', lastLogin: '2026-04-22 10:15', device: 'iPhone 15', logins: 38, active: true, satisfaction: 5 },
-    { id: 12, name: 'ציפורה גרינבוים', student: 'אלחנן גרינבוים', phone: '054-4445566', email: 'tzipora@email.com', registered: '2026-03-28', lastLogin: '2026-04-21 08:00', device: 'iPad', logins: 44, active: true, satisfaction: 4 },
-    { id: 13, name: 'בתיה קרליבך', student: 'מאיר קרליבך', phone: '050-7778899', email: 'batya@email.com', registered: '2026-04-02', lastLogin: '2026-04-22 11:30', device: 'Chrome Desktop', logins: 15, active: true, satisfaction: 5 },
-    { id: 14, name: 'פנינה שטיינר', student: 'ברוך שטיינר', phone: '053-0001122', email: 'pnina@email.com', registered: '2026-04-06', lastLogin: '2026-04-15 14:00', device: 'Android', logins: 4, active: false, satisfaction: 3 },
-    { id: 15, name: 'גיטל פלדמן', student: 'זלמן פלדמן', phone: '052-3334455', email: 'gitel@email.com', registered: '2026-04-14', lastLogin: '2026-04-22 06:50', device: 'iPhone 14', logins: 9, active: true, satisfaction: 4 }
+    { id: 3, name: 'דבורה גולדברג', student: 'אברהם גולדברג', phone: '054-3456789', email: 'dvora@email.com', registered: '2026-03-15', lastLogin: '2026-04-22 09:00', device: 'Chrome Desktop', logins: 55, active: true, satisfaction: 5 }
   ],
 
   _portalInvites: [
@@ -49,15 +38,11 @@ Object.assign(Pages, {
     const avgSat = (parents.reduce((s, p) => s + p.satisfaction, 0) / parents.length).toFixed(1);
 
     const accessFeatures = [
+
       { icon: 'bi-calendar-check', title: '\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA', desc: '\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05DC\u05D3', color: 'primary' },
       { icon: 'bi-journal-bookmark', title: '\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD', desc: '\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05D5\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05EA', color: 'success' },
-      { icon: 'bi-emoji-smile', title: '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', desc: '\u05D3\u05D5\u05D7\u05D5\u05EA \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D5\u05DE\u05E9\u05D5\u05D1', color: 'warning' },
-      { icon: 'bi-chat-dots', title: '\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA', desc: '\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05DE\u05D4\u05E6\u05D5\u05D5\u05EA', color: 'info' },
-      { icon: 'bi-file-earmark-text', title: '\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD', desc: '\u05D8\u05E4\u05E1\u05D9\u05DD \u05D5\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD', color: 'secondary' },
-      { icon: 'bi-credit-card', title: '\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD', desc: '\u05DE\u05E6\u05D1 \u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3', color: 'danger' },
-      { icon: 'bi-book', title: '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA', desc: '\u05DC\u05D5\u05D7 \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD \u05D5\u05E9\u05E2\u05D5\u05EA', color: 'primary' },
-      { icon: 'bi-trophy', title: '\u05D4\u05D9\u05E9\u05D2\u05D9\u05DD', desc: '\u05D3\u05D9\u05E8\u05D5\u05D2 \u05D5\u05E4\u05E8\u05E1\u05D9\u05DD', color: 'success' }
-    ];
+      { icon: 'bi-emoji-smile', title: '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA', desc: '\u05D3\u05D5\u05D7\u05D5\u05EA \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D5\u05DE\u05E9\u05D5\u05D1', color: 'warning' }
+  ];
 
     const deviceIcon = (d) => {
       if (d.includes('iPhone') || d.includes('iPad')) return 'bi-apple';

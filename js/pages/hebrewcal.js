@@ -3,52 +3,18 @@ Object.assign(Pages, {
   _hcViewDate: null,
   _hcUseDemo: false,
   _hcDemoEvents: [
+
     { date: '2026-04-26', title: 'מסיבת הורים', type: 'event', color: '#2563eb' },
     { date: '2026-04-30', title: 'מבחן חודשי', type: 'event', color: '#ef4444' },
-    { date: '2026-05-05', title: 'טיול שנתי', type: 'event', color: '#16a34a' },
-    { date: '2026-05-10', title: 'אסיפת ציונים', type: 'event', color: '#f59e0b' },
-    { date: '2026-05-14', title: 'יום ספורט', type: 'event', color: '#06b6d4' },
-    { date: '2026-05-20', title: 'יום פתוח', type: 'event', color: '#9333ea' },
-    { date: '2026-06-01', title: 'סיום זמן', type: 'event', color: '#ec4899' },
-    { date: '2026-04-23', title: 'ישיבת צוות', type: 'event', color: '#8b5cf6' },
-    { date: '2026-04-28', title: 'הרצאת הורים', type: 'event', color: '#14b8a6' }
+    { date: '2026-05-05', title: 'טיול שנתי', type: 'event', color: '#16a34a' }
   ],
 
   // Complete 5786 holiday database
   _hcHolidays: [
+
     { name: 'ראש השנה א׳', type: 'chag', gDates: ['2025-09-23'], emoji: '' },
     { name: 'ראש השנה ב׳', type: 'chag', gDates: ['2025-09-24'], emoji: '' },
-    { name: 'צום גדליה', type: 'fast', gDates: ['2025-09-25'], emoji: '' },
-    { name: 'יום כיפור', type: 'chag', gDates: ['2025-10-02'], emoji: '' },
-    { name: 'סוכות א׳', type: 'chag', gDates: ['2025-10-07'], emoji: '' },
-    { name: 'סוכות ב׳', type: 'chag', gDates: ['2025-10-08'], emoji: '' },
-    { name: 'חול המועד סוכות', type: 'chol_hamoed', gDates: ['2025-10-09', '2025-10-10', '2025-10-11', '2025-10-12', '2025-10-13'], emoji: '' },
-    { name: 'הושענא רבה', type: 'chag', gDates: ['2025-10-13'], emoji: '' },
-    { name: 'שמיני עצרת', type: 'chag', gDates: ['2025-10-14'], emoji: '' },
-    { name: 'שמחת תורה', type: 'chag', gDates: ['2025-10-15'], emoji: '' },
-    { name: 'חנוכה א׳', type: 'chag', gDates: ['2025-12-15'], emoji: '' },
-    { name: 'חנוכה', type: 'chag', gDates: ['2025-12-16', '2025-12-17', '2025-12-18', '2025-12-19', '2025-12-20', '2025-12-21', '2025-12-22'], emoji: '' },
-    { name: 'צום טבת', type: 'fast', gDates: ['2026-01-04'], emoji: '' },
-    { name: 'ט"ו בשבט', type: 'chag', gDates: ['2026-02-09'], emoji: '' },
-    { name: 'תענית אסתר', type: 'fast', gDates: ['2026-03-02'], emoji: '' },
-    { name: 'פורים', type: 'chag', gDates: ['2026-03-03'], emoji: '' },
-    { name: 'שושן פורים', type: 'chag', gDates: ['2026-03-04'], emoji: '' },
-    { name: 'פסח א׳', type: 'chag', gDates: ['2026-04-02'], emoji: '' },
-    { name: 'פסח ב׳', type: 'chag', gDates: ['2026-04-03'], emoji: '' },
-    { name: 'חול המועד פסח', type: 'chol_hamoed', gDates: ['2026-04-04', '2026-04-05', '2026-04-06', '2026-04-07'], emoji: '' },
-    { name: 'שביעי של פסח', type: 'chag', gDates: ['2026-04-08'], emoji: '' },
-    { name: 'אחרון של פסח', type: 'chag', gDates: ['2026-04-09'], emoji: '' },
-    { name: 'יום השואה', type: 'memorial', gDates: ['2026-04-22'], emoji: '' },
-    { name: 'יום הזיכרון', type: 'memorial', gDates: ['2026-04-29'], emoji: '' },
-    { name: 'יום העצמאות', type: 'chag', gDates: ['2026-04-30'], emoji: '' },
-    { name: 'פסח שני', type: 'minor', gDates: ['2026-05-02'], emoji: '' },
-    { name: 'ל"ג בעומר', type: 'chag', gDates: ['2026-05-12'], emoji: '' },
-    { name: 'יום ירושלים', type: 'chag', gDates: ['2026-05-22'], emoji: '' },
-    { name: 'שבועות א׳', type: 'chag', gDates: ['2026-05-22'], emoji: '' },
-    { name: 'שבועות ב׳', type: 'chag', gDates: ['2026-05-23'], emoji: '' },
-    { name: 'צום י"ז בתמוז', type: 'fast', gDates: ['2026-07-07'], emoji: '' },
-    { name: 'תשעה באב', type: 'fast', gDates: ['2026-07-28'], emoji: '' },
-    { name: 'ט"ו באב', type: 'minor', gDates: ['2026-08-04'], emoji: '' }
+    { name: 'צום גדליה', type: 'fast', gDates: ['2025-09-25'], emoji: '' }
   ],
 
   // Weekly parsha list for 5786

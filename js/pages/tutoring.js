@@ -10,26 +10,10 @@ Object.assign(Pages, {
   ],
 
   _tutorSessions: [
+
     { id: 1, tutorId: 1, student: 'יוסף כהן', subject: 'גמרא', date: '2026-04-22', time: '09:00', duration: 1.5, rate: 80, status: 'completed', notes: 'סוגיא דאין מעמידין', feedback: 5 },
     { id: 2, tutorId: 3, student: 'משה לוי', subject: 'מתמטיקה', date: '2026-04-22', time: '10:00', duration: 1, rate: 90, status: 'completed', notes: 'משוואות ריבועיות', feedback: 4 },
-    { id: 3, tutorId: 2, student: 'אברהם גולדברג', subject: 'חומש', date: '2026-04-21', time: '11:00', duration: 1, rate: 70, status: 'completed', notes: 'פרשת שמיני', feedback: 5 },
-    { id: 4, tutorId: 4, student: 'דוד פרידמן', subject: 'גמרא', date: '2026-04-21', time: '14:00', duration: 2, rate: 85, status: 'completed', notes: 'בבא מציעא פרק ב', feedback: 4 },
-    { id: 5, tutorId: 5, student: 'אליהו שפירא', subject: 'הלכה', date: '2026-04-20', time: '12:00', duration: 1, rate: 75, status: 'completed', notes: 'הלכות שבת', feedback: 5 },
-    { id: 6, tutorId: 1, student: 'יעקב רוזנברג', subject: 'הלכה', date: '2026-04-20', time: '09:00', duration: 1, rate: 80, status: 'completed', notes: 'הלכות ברכות', feedback: 4 },
-    { id: 7, tutorId: 3, student: 'נתנאל וייס', subject: 'אנגלית', date: '2026-04-19', time: '10:00', duration: 1.5, rate: 90, status: 'completed', notes: 'Reading comprehension', feedback: 5 },
-    { id: 8, tutorId: 2, student: 'שמואל הורביץ', subject: 'נ"ך', date: '2026-04-18', time: '13:00', duration: 1, rate: 70, status: 'completed', notes: 'ספר יהושע', feedback: 4 },
-    { id: 9, tutorId: 4, student: 'רפאל מזרחי', subject: 'משנה', date: '2026-04-17', time: '15:00', duration: 1.5, rate: 85, status: 'completed', notes: 'ברכות פרק א', feedback: 5 },
-    { id: 10, tutorId: 1, student: 'חיים ברקוביץ', subject: 'גמרא', date: '2026-04-16', time: '09:00', duration: 2, rate: 80, status: 'completed', notes: 'סנהדרין פרק ד', feedback: 3 },
-    { id: 11, tutorId: 5, student: 'יוסף כהן', subject: 'מוסר', date: '2026-04-15', time: '14:00', duration: 1, rate: 75, status: 'completed', notes: 'מסילת ישרים', feedback: 5 },
-    { id: 12, tutorId: 3, student: 'דוד פרידמן', subject: 'מתמטיקה', date: '2026-04-14', time: '10:00', duration: 1, rate: 90, status: 'completed', notes: 'טריגונומטריה', feedback: 4 },
-    { id: 13, tutorId: 6, student: 'אברהם גולדברג', subject: 'מחשבים', date: '2026-04-16', time: '15:00', duration: 1.5, rate: 95, status: 'completed', notes: 'יסודות Python', feedback: 5 },
-    { id: 14, tutorId: 6, student: 'נתנאל וייס', subject: 'פיזיקה', date: '2026-04-18', time: '16:00', duration: 1, rate: 95, status: 'completed', notes: 'מכניקה ניוטונית', feedback: 4 },
-    { id: 15, tutorId: 6, student: 'שמואל הורביץ', subject: 'מתמטיקה', date: '2026-04-20', time: '14:00', duration: 1, rate: 95, status: 'completed', notes: 'אלגברה לינארית', feedback: 5 },
-    { id: 16, tutorId: 2, student: 'משה לוי', subject: 'חומש', date: '2026-04-23', time: '11:00', duration: 1, rate: 70, status: 'scheduled', notes: '', feedback: 0 },
-    { id: 17, tutorId: 1, student: 'אברהם גולדברג', subject: 'גמרא', date: '2026-04-23', time: '09:00', duration: 1.5, rate: 80, status: 'scheduled', notes: '', feedback: 0 },
-    { id: 18, tutorId: 4, student: 'נתנאל וייס', subject: 'גמרא', date: '2026-04-24', time: '14:00', duration: 1, rate: 85, status: 'scheduled', notes: '', feedback: 0 },
-    { id: 19, tutorId: 6, student: 'חיים ברקוביץ', subject: 'מחשבים', date: '2026-04-24', time: '15:00', duration: 1.5, rate: 95, status: 'scheduled', notes: '', feedback: 0 },
-    { id: 20, tutorId: 3, student: 'יוסף כהן', subject: 'מתמטיקה', date: '2026-04-25', time: '10:00', duration: 1, rate: 90, status: 'scheduled', notes: '', feedback: 0 }
+    { id: 3, tutorId: 2, student: 'אברהם גולדברג', subject: 'חומש', date: '2026-04-21', time: '11:00', duration: 1, rate: 70, status: 'completed', notes: 'פרשת שמיני', feedback: 5 }
   ],
 
   _tutorNextId: 21,

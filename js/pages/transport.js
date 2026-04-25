@@ -12,50 +12,23 @@ Object.assign(Pages, {
   ],
 
   _transportRoutes: [
+
     { id:'r1', name:'קו 1 — רמת בית שמש א\'', driverId:'d1', time:'07:15', color:'primary',
       stops:['רח\' נחל לכיש 12','רח\' נחל שורק 5','רח\' הרב עובדיה 8','כיכר הדקל','רח\' נחל אילון 3'] },
     { id:'r2', name:'קו 2 — רמת בית שמש ב\'', driverId:'d2', time:'07:20', color:'success',
       stops:['רח\' אלון 15','רח\' ברוש 7','כיכר המייסדים','רח\' תמר 22','רח\' ערבה 9'] },
     { id:'r3', name:'קו 3 — בית שמש ישנה', driverId:'d3', time:'07:10', color:'warning',
-      stops:['רח\' הרצל 30','רח\' יפו 14','רח\' הרב קוק 6','רח\' בן גוריון 18','כיכר העיר','רח\' דוד המלך 2'] },
-    { id:'r4', name:'קו 4 — נחלה / גבעת שרת', driverId:'d4', time:'07:25', color:'info',
-      stops:['רח\' שד\' האלונים 4','רח\' הגפן 11','רח\' הזית 20','שד\' הדקלים 1'] }
+      stops:['רח\' הרצל 30','רח\' יפו 14','רח\' הרב קוק 6','רח\' בן גוריון 18','כיכר העיר','רח\' דוד המלך 2'] }
   ],
 
   _transportStudents() {
     const classes = ['א','ב','ג','ד','ה','ו'];
     const students = [
+
       { id:'s1',  name:'יוסף כהן',       klass:'א', routeId:'r1', stopIdx:0 },
       { id:'s2',  name:'משה לוי',        klass:'א', routeId:'r1', stopIdx:1 },
-      { id:'s3',  name:'אברהם יצחקי',    klass:'א', routeId:'r1', stopIdx:2 },
-      { id:'s4',  name:'דוד שמעוני',      klass:'ב', routeId:'r1', stopIdx:0 },
-      { id:'s5',  name:'יעקב פרידמן',     klass:'ב', routeId:'r1', stopIdx:3 },
-      { id:'s6',  name:'שמואל ברגר',      klass:'ב', routeId:'r1', stopIdx:4 },
-      { id:'s7',  name:'אליהו גולדשטיין', klass:'ב', routeId:'r1', stopIdx:1 },
-      { id:'s8',  name:'חיים רוזנברג',    klass:'ג', routeId:'r2', stopIdx:0 },
-      { id:'s9',  name:'נתנאל וינר',      klass:'ג', routeId:'r2', stopIdx:1 },
-      { id:'s10', name:'רפאל מזרחי',      klass:'ג', routeId:'r2', stopIdx:2 },
-      { id:'s11', name:'אריה כץ',         klass:'ג', routeId:'r2', stopIdx:3 },
-      { id:'s12', name:'מנחם מנדל',       klass:'ד', routeId:'r2', stopIdx:0 },
-      { id:'s13', name:'בנימין שרביט',    klass:'ד', routeId:'r2', stopIdx:4 },
-      { id:'s14', name:'עמיתי הורוביץ',   klass:'ד', routeId:'r2', stopIdx:1 },
-      { id:'s15', name:'גד רותם',         klass:'ד', routeId:'r3', stopIdx:0 },
-      { id:'s16', name:'צבי פולק',        klass:'ה', routeId:'r3', stopIdx:1 },
-      { id:'s17', name:'איתן בלוך',       klass:'ה', routeId:'r3', stopIdx:2 },
-      { id:'s18', name:'עוזי קפלן',       klass:'ה', routeId:'r3', stopIdx:3 },
-      { id:'s19', name:'יהונתן שפירא',    klass:'ה', routeId:'r3', stopIdx:4 },
-      { id:'s20', name:'אשר אלבז',        klass:'ה', routeId:'r3', stopIdx:5 },
-      { id:'s21', name:'שלמה הלפרין',     klass:'ו', routeId:'r3', stopIdx:0 },
-      { id:'s22', name:'עזרא לנדאו',      klass:'ו', routeId:'r3', stopIdx:2 },
-      { id:'s23', name:'נחמן ברלנד',      klass:'ו', routeId:'r4', stopIdx:0 },
-      { id:'s24', name:'ישראל אוירבך',    klass:'א', routeId:'r4', stopIdx:1 },
-      { id:'s25', name:'מאיר סופר',       klass:'ב', routeId:'r4', stopIdx:2 },
-      { id:'s26', name:'פנחס הורביץ',     klass:'ג', routeId:'r4', stopIdx:3 },
-      { id:'s27', name:'זבולון שטרן',     klass:'ד', routeId:'r4', stopIdx:0 },
-      { id:'s28', name:'ברוך רבינוביץ',   klass:'ד', routeId:'r4', stopIdx:1 },
-      { id:'s29', name:'תנחום וולף',      klass:'ה', routeId:'r4', stopIdx:2 },
-      { id:'s30', name:'עובדיה חדד',      klass:'ו', routeId:'r4', stopIdx:3 }
-    ];
+      { id:'s3',  name:'אברהם יצחקי',    klass:'א', routeId:'r1', stopIdx:2 }
+  ];
     return students;
   },
 

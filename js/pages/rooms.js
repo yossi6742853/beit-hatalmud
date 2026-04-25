@@ -1,32 +1,17 @@
 /* ===== BHT v5.3 — Rooms Management (ניהול חדרים) ===== */
 Object.assign(Pages, {
   _rooms: [
+
     { id: 1, name: 'בית מדרש גדול', capacity: 80, type: 'אולם', equipment: ['מקרן', 'מיקרופון', 'לוח לבן', 'מיזוג', 'מערכת שמע'], icon: 'bi-building', floor: 1, status: 'active' },
     { id: 2, name: 'כיתה א', capacity: 30, type: 'כיתה', equipment: ['לוח לבן', 'מקרן', 'מיזוג'], icon: 'bi-easel', floor: 1, status: 'active' },
-    { id: 3, name: 'כיתה ב', capacity: 25, type: 'כיתה', equipment: ['לוח לבן', 'מיזוג'], icon: 'bi-easel', floor: 1, status: 'active' },
-    { id: 4, name: 'חדר מורים', capacity: 12, type: 'משרד', equipment: ['מקרן', 'מדפסת', 'מיזוג', 'מחשב'], icon: 'bi-people', floor: 2, status: 'active' },
-    { id: 5, name: 'ספרייה', capacity: 20, type: 'ספרייה', equipment: ['מחשבים', 'מדפסת', 'מיזוג', 'סורק'], icon: 'bi-book', floor: 2, status: 'active' },
-    { id: 6, name: 'חדר ישיבות', capacity: 8, type: 'משרד', equipment: ['שולחן', 'מקרן', 'מיזוג', 'לוח לבן'], icon: 'bi-display', floor: 2, status: 'active' },
-    { id: 7, name: 'כיתה ג', capacity: 28, type: 'כיתה', equipment: ['לוח לבן', 'מיזוג', 'מקרן'], icon: 'bi-easel', floor: 1, status: 'active' },
-    { id: 8, name: 'חדר מחשבים', capacity: 15, type: 'מעבדה', equipment: ['מחשבים', 'מקרן', 'מיזוג', 'מדפסת', 'רשת'], icon: 'bi-pc-display', floor: 2, status: 'maintenance' }
+    { id: 3, name: 'כיתה ב', capacity: 25, type: 'כיתה', equipment: ['לוח לבן', 'מיזוג'], icon: 'bi-easel', floor: 1, status: 'active' }
   ],
 
   _roomBookings: [
+
     { id: 1, roomId: 1, person: 'הרב כהן', date: '2026-04-22', start: '08:00', end: '10:00', purpose: 'שיעור כללי', recurring: true, color: '#2563eb' },
     { id: 2, roomId: 2, person: 'הרב לוי', date: '2026-04-22', start: '08:30', end: '12:00', purpose: 'כיתה א - גמרא', recurring: true, color: '#16a34a' },
-    { id: 3, roomId: 3, person: 'הרב גולדברג', date: '2026-04-22', start: '09:00', end: '11:00', purpose: 'כיתה ב - חומש', recurring: true, color: '#9333ea' },
-    { id: 4, roomId: 4, person: 'הרב פרידמן', date: '2026-04-22', start: '10:00', end: '11:00', purpose: 'ישיבת צוות', recurring: false, color: '#f59e0b' },
-    { id: 5, roomId: 1, person: 'הרב שפירא', date: '2026-04-22', start: '14:00', end: '16:00', purpose: 'שיעור אחה"צ', recurring: true, color: '#ef4444' },
-    { id: 6, roomId: 5, person: 'הרב רוזנברג', date: '2026-04-22', start: '13:00', end: '15:00', purpose: 'שעת ספרייה', recurring: false, color: '#06b6d4' },
-    { id: 7, roomId: 2, person: 'הרב לוי', date: '2026-04-23', start: '08:30', end: '12:00', purpose: 'כיתה א - גמרא', recurring: true, color: '#16a34a' },
-    { id: 8, roomId: 6, person: 'הרב כהן', date: '2026-04-23', start: '10:00', end: '12:00', purpose: 'ישיבה אישית', recurring: false, color: '#f59e0b' },
-    { id: 9, roomId: 3, person: 'הרב גולדברג', date: '2026-04-23', start: '09:00', end: '11:00', purpose: 'כיתה ב - חומש', recurring: true, color: '#9333ea' },
-    { id: 10, roomId: 1, person: 'הרב מזרחי', date: '2026-04-24', start: '16:00', end: '18:00', purpose: 'ארוע מיוחד', recurring: false, color: '#ec4899' },
-    { id: 11, roomId: 7, person: 'הרב אברהם', date: '2026-04-22', start: '08:00', end: '10:30', purpose: 'כיתה ג - הלכה', recurring: true, color: '#8b5cf6' },
-    { id: 12, roomId: 7, person: 'הרב אברהם', date: '2026-04-22', start: '14:00', end: '16:00', purpose: 'כיתה ג - נ"ך', recurring: true, color: '#8b5cf6' },
-    { id: 13, roomId: 4, person: 'הרב פרידמן', date: '2026-04-24', start: '09:00', end: '10:00', purpose: 'פגישת הורים', recurring: false, color: '#f59e0b' },
-    { id: 14, roomId: 5, person: 'הרב רוזנברג', date: '2026-04-24', start: '10:00', end: '12:00', purpose: 'חוג קריאה', recurring: false, color: '#06b6d4' },
-    { id: 15, roomId: 6, person: 'הרב שפירא', date: '2026-04-25', start: '09:00', end: '10:30', purpose: 'ישיבת הנהלה', recurring: false, color: '#ef4444' }
+    { id: 3, roomId: 3, person: 'הרב גולדברג', date: '2026-04-22', start: '09:00', end: '11:00', purpose: 'כיתה ב - חומש', recurring: true, color: '#9333ea' }
   ],
 
   _roomNextId: 16,

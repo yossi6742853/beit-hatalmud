@@ -3,30 +3,18 @@ Object.assign(Pages, {
 
   /* ---------- template definitions ---------- */
   _pcTemplates: [
+
     { id: 'student_card',   name: 'כרטיס תלמיד',      icon: 'bi-person-badge-fill', color: 'primary',  desc: 'כרטיס זיהוי תלמיד עם פרטים אישיים ותמונה' },
     { id: 'attendance',     name: 'דוח נוכחות',        icon: 'bi-calendar-check-fill', color: 'success', desc: 'דוח נוכחות לפי תלמיד או כיתה ותקופה' },
-    { id: 'certificate',    name: 'תעודה/דיפלומה',     icon: 'bi-award-fill',        color: 'warning',  desc: 'תעודת הצטיינות, סיום או הוקרה' },
-    { id: 'invoice',        name: 'חשבונית/קבלה',      icon: 'bi-receipt-cutoff',    color: 'danger',   desc: 'חשבונית שכר לימוד או קבלה על תשלום' },
-    { id: 'grades',         name: 'דוח ציונים',        icon: 'bi-journal-bookmark-fill', color: 'info', desc: 'ריכוז ציונים ומבחנים לתלמיד או כיתה' },
-    { id: 'class_list',     name: 'רשימת כיתה',       icon: 'bi-list-ol',           color: 'secondary', desc: 'רשימת שמות התלמידים עם פרטים נבחרים' },
-    { id: 'parent_letter',  name: 'מכתב להורים',      icon: 'bi-envelope-paper-fill', color: 'purple', desc: 'מכתב רשמי להורים עם כותרת המוסד' },
-    { id: 'registration',   name: 'טופס רישום',       icon: 'bi-clipboard2-check',  color: 'teal',     desc: 'טופס רישום תלמיד חדש למוסד' },
+    { id: 'certificate',    name: 'תעודה/דיפלומה',     icon: 'bi-award-fill',        color: 'warning',  desc: 'תעודת הצטיינות, סיום או הוקרה' }
   ],
 
   /* ---------- demo data ---------- */
   _pcStudents: [
+
     { name: 'יוסף כהן',       id: 'S001', cls: "כיתה א'", phone: '050-1234567', parent: 'אברהם כהן' },
     { name: 'משה לוי',         id: 'S002', cls: "כיתה א'", phone: '050-2345678', parent: 'יצחק לוי' },
-    { name: 'אברהם גולדברג',  id: 'S003', cls: "כיתה ב'", phone: '050-3456789', parent: 'דוד גולדברג' },
-    { name: 'דוד פרידמן',      id: 'S004', cls: "כיתה ב'", phone: '050-4567890', parent: 'שמואל פרידמן' },
-    { name: 'אליהו שפירא',    id: 'S005', cls: "כיתה ג'", phone: '050-5678901', parent: 'חיים שפירא' },
-    { name: 'יעקב רוזנברג',   id: 'S006', cls: "כיתה ג'", phone: '050-6789012', parent: 'נתן רוזנברג' },
-    { name: 'חיים ברקוביץ',   id: 'S007', cls: "כיתה ד'", phone: '050-7890123', parent: 'מנחם ברקוביץ' },
-    { name: 'נתנאל וייס',     id: 'S008', cls: "כיתה ד'", phone: '050-8901234', parent: 'אהרן וייס' },
-    { name: 'שמואל הורביץ',   id: 'S009', cls: "כיתה א'", phone: '050-9012345', parent: 'בנימין הורביץ' },
-    { name: 'רפאל מזרחי',     id: 'S010', cls: "כיתה ב'", phone: '050-0123456', parent: 'עמנואל מזרחי' },
-    { name: 'עמנואל שטרן',    id: 'S011', cls: "כיתה ג'", phone: '050-1112233', parent: 'ישראל שטרן' },
-    { name: 'בנימין אדלר',    id: 'S012', cls: "כיתה ד'", phone: '050-2223344', parent: 'מרדכי אדלר' },
+    { name: 'אברהם גולדברג',  id: 'S003', cls: "כיתה ב'", phone: '050-3456789', parent: 'דוד גולדברג' }
   ],
 
   _pcClasses: ["כיתה א'", "כיתה ב'", "כיתה ג'", "כיתה ד'"],

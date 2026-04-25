@@ -18,21 +18,10 @@ Object.assign(Pages, {
   },
 
   _defaultNotifications: [
+
     { id: 1,  type: 'attendance', title: 'חיסורים חריגים', desc: 'לתלמיד יוסף כהן 5 חיסורים השבוע. נדרשת התייחסות.', ts: Date.now() - 300000, read: false, important: true, archived: false },
     { id: 2,  type: 'finance', title: 'תשלום התקבל', desc: 'משפחת לוי העבירה תשלום שכר לימוד בסך 2,400 \u20AA.', ts: Date.now() - 600000, read: true, important: false, archived: false },
-    { id: 3,  type: 'academic', title: 'ציוני מבחן הוזנו', desc: 'הרב סורוצקין הזין ציוני מבחן בגמרא לכיתה א\'.', ts: Date.now() - 1800000, read: false, important: false, archived: false },
-    { id: 4,  type: 'parent', title: 'הודעה ממשפחת פרידמן', desc: 'הילד לא ירגיש טוב מחר, ייתכן שלא יגיע. אנא עדכנו.', ts: Date.now() - 3600000, read: false, important: true, archived: false },
-    { id: 5,  type: 'system', title: 'גיבוי אוטומטי הושלם', desc: 'גיבוי נתוני המערכת בוצע בהצלחה ב-03:00.', ts: Date.now() - 7200000, read: true, important: false, archived: false },
-    { id: 6,  type: 'task', title: 'משימה חדשה: הזמנת ספרים', desc: 'הוספה משימה חדשה - הזמנת ספרי לימוד לסמסטר ב\'.', ts: Date.now() - 10800000, read: false, important: false, archived: false },
-    { id: 7,  type: 'attendance', title: 'דוח נוכחות יומי', desc: 'נוכחות היום: 94% (32 מתוך 34 תלמידים). 2 חיסורים.', ts: Date.now() - 14400000, read: true, important: false, archived: false },
-    { id: 8,  type: 'finance', title: 'חוב שכר לימוד', desc: 'למשפחת אברהמי חוב פתוח של 8,500 \u20AA. יש ליצור קשר.', ts: Date.now() - 21600000, read: false, important: true, archived: false },
-    { id: 9,  type: 'academic', title: 'תוכנית לימודים עודכנה', desc: 'תוכנית הלימודים לחודש אייר עודכנה על ידי הרב ירושלמי.', ts: Date.now() - 43200000, read: true, important: false, archived: false },
-    { id: 10, type: 'parent', title: 'בקשת פגישה', desc: 'משפחת גולדשטיין מבקשים פגישה עם המחנך בשבוע הבא.', ts: Date.now() - 86400000, read: false, important: false, archived: false },
-    { id: 11, type: 'task', title: 'תזכורת: ישיבת צוות', desc: 'ישיבת צוות מחר בשעה 10:00 בחדר מורים.', ts: Date.now() - 90000000, read: true, important: true, archived: false },
-    { id: 12, type: 'system', title: 'עדכון גרסה 5.3', desc: 'המערכת עודכנה לגרסה 5.3 עם שיפורי ביצועים ותכונות חדשות.', ts: Date.now() - 172800000, read: true, important: false, archived: true },
-    { id: 13, type: 'finance', title: 'דוח כספי חודשי', desc: 'דוח כספי לחודש ניסן מוכן לצפייה. הכנסות: 45,000 \u20AA, הוצאות: 38,000 \u20AA.', ts: Date.now() - 259200000, read: true, important: false, archived: false },
-    { id: 14, type: 'attendance', title: 'תלמיד חדש נרשם', desc: 'התלמיד דוד שמעוני נרשם לכיתה ב\'. יש לעדכן רשימות נוכחות.', ts: Date.now() - 345600000, read: false, important: false, archived: false },
-    { id: 15, type: 'parent', title: 'תודה מהורי תלמיד', desc: 'משפחת רוזנברג שלחו מכתב תודה על הטיפול המסור בבנם.', ts: Date.now() - 432000000, read: true, important: false, archived: true }
+    { id: 3,  type: 'academic', title: 'ציוני מבחן הוזנו', desc: 'הרב סורוצקין הזין ציוני מבחן בגמרא לכיתה א\'.', ts: Date.now() - 1800000, read: false, important: false, archived: false }
   ],
 
   notificationsLoadDemo() {

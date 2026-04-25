@@ -18,18 +18,10 @@ Object.assign(Pages, {
   ],
 
   _demoFiles: [
+
     { id: '1',  name: '\u05DE\u05E6\u05D1\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05EA\u05E9\u05E4"\u05D5.xlsx', mimeType: 'application/spreadsheet', modifiedTime: '20/04/2026', size: 245760,  folder: 'f2', url: '#' },
     { id: '2',  name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 - \u05D0\u05E4\u05E8\u05D9\u05DC.pdf', mimeType: 'application/pdf', modifiedTime: '19/04/2026', size: 524288,  folder: 'f2', url: '#' },
-    { id: '3',  name: '\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9 2026.xlsx', mimeType: 'application/spreadsheet', modifiedTime: '18/04/2026', size: 389120,  folder: 'f3', url: '#' },
-    { id: '4',  name: '\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA - \u05E1\u05DE\u05E1\u05D8\u05E8 \u05D1.docx', mimeType: 'application/document', modifiedTime: '17/04/2026', size: 102400,  folder: 'f2', url: '#' },
-    { id: '5',  name: '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC \u05E9\u05E0\u05EA\u05D9.pdf', mimeType: 'application/pdf', modifiedTime: '16/04/2026', size: 1048576, folder: 'f4', url: '#' },
-    { id: '6',  name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4.xlsx', mimeType: 'application/spreadsheet', modifiedTime: '15/04/2026', size: 178176,  folder: 'f2', url: '#' },
-    { id: '7',  name: '\u05EA\u05E7\u05E0\u05D5\u05DF \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF.pdf', mimeType: 'application/pdf', modifiedTime: '14/04/2026', size: 716800,  folder: 'f1', url: '#' },
-    { id: '8',  name: '\u05E6\u05D9\u05DC\u05D5\u05DE\u05D9 \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E1\u05D9\u05D5\u05DD \u05E9\u05E0\u05D4.jpg', mimeType: 'image/jpeg', modifiedTime: '13/04/2026', size: 2097152, folder: null, url: '#' },
-    { id: '9',  name: '\u05D7\u05D5\u05D6\u05D4 \u05D4\u05EA\u05E7\u05E9\u05E8\u05D5\u05EA \u05E2\u05DD \u05D4\u05D5\u05E8\u05D9\u05DD.docx', mimeType: 'application/document', modifiedTime: '12/04/2026', size: 81920,   folder: 'f5', url: '#' },
-    { id: '10', name: '\u05D3\u05D5\u05D7\u05D5\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD - \u05DE\u05D1\u05D7\u05DF \u05D0\u05DE\u05E6\u05E2.xlsx', mimeType: 'application/spreadsheet', modifiedTime: '11/04/2026', size: 450560,  folder: 'f3', url: '#' },
-    { id: '11', name: '\u05E0\u05D4\u05DC\u05D9 \u05DE\u05D5\u05E1\u05D3 2026.pdf', mimeType: 'application/pdf', modifiedTime: '10/04/2026', size: 921600,  folder: 'f1', url: '#' },
-    { id: '12', name: '\u05DC\u05D5\u05D2\u05D5 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3.png', mimeType: 'image/png', modifiedTime: '09/04/2026', size: 358400,  folder: null, url: '#' },
+    { id: '3',  name: '\u05EA\u05E7\u05E6\u05D9\u05D1 \u05E9\u05E0\u05EA\u05D9 2026.xlsx', mimeType: 'application/spreadsheet', modifiedTime: '18/04/2026', size: 389120,  folder: 'f3', url: '#' }
   ],
 
   _driveStorageUsed: 7165952,   // ~6.8 MB demo

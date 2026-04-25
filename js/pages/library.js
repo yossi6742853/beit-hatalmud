@@ -110,21 +110,10 @@ Object.assign(Pages, {
 
   /* ---- Demo books (15 books across 4 categories) ---- */
   _libBooks: [
+
     { id:1,  title:'\u05D7\u05D5\u05DE\u05E9 \u05E2\u05DD \u05E8\u05E9"\u05D9 - \u05D1\u05E8\u05D0\u05E9\u05D9\u05EA',      author:'',                           category:'\u05EA\u05D5\u05E8\u05D4',  copies:10, shelf:'\u05D0-1', isbn:'',            notes:'' },
     { id:2,  title:'\u05D7\u05D5\u05DE\u05E9 \u05E2\u05DD \u05E8\u05E9"\u05D9 - \u05E9\u05DE\u05D5\u05EA',          author:'',                           category:'\u05EA\u05D5\u05E8\u05D4',  copies:8,  shelf:'\u05D0-1', isbn:'',            notes:'' },
-    { id:3,  title:'\u05DE\u05E7\u05E8\u05D0\u05D5\u05EA \u05D2\u05D3\u05D5\u05DC\u05D5\u05EA',                 author:'',                           category:'\u05EA\u05D5\u05E8\u05D4',  copies:12, shelf:'\u05D0-2', isbn:'',            notes:'' },
-    { id:4,  title:'\u05EA\u05E0"\u05DA \u05DE\u05E9\u05E0\u05D4 \u05D1\u05E8\u05D5\u05E8\u05D4',               author:'\u05D4\u05D7\u05E4\u05E5 \u05D7\u05D9\u05D9\u05DD',         category:'\u05EA\u05D5\u05E8\u05D4',  copies:6,  shelf:'\u05D0-3', isbn:'',            notes:'' },
-    { id:5,  title:'\u05DE\u05E9\u05E0\u05D4 \u05D1\u05E8\u05D5\u05E8\u05D4 \u05D7\u05DC\u05E7 \u05D0',          author:'\u05D4\u05D7\u05E4\u05E5 \u05D7\u05D9\u05D9\u05DD',         category:'\u05D4\u05DC\u05DB\u05D4',  copies:8,  shelf:'\u05D1-1', isbn:'',            notes:'' },
-    { id:6,  title:'\u05E7\u05D9\u05E6\u05D5\u05E8 \u05E9\u05D5\u05DC\u05D7\u05DF \u05E2\u05E8\u05D5\u05DA',           author:'',                           category:'\u05D4\u05DC\u05DB\u05D4',  copies:6,  shelf:'\u05D1-2', isbn:'',            notes:'' },
-    { id:7,  title:'\u05E9\u05DE\u05D9\u05E8\u05EA \u05D4\u05DC\u05E9\u05D5\u05DF',                  author:'\u05D4\u05D7\u05E4\u05E5 \u05D7\u05D9\u05D9\u05DD',         category:'\u05D4\u05DC\u05DB\u05D4',  copies:4,  shelf:'\u05D1-2', isbn:'',            notes:'' },
-    { id:8,  title:'\u05D7\u05D9\u05D9 \u05D0\u05D3\u05DD',                          author:'\u05D4\u05D7\u05E4\u05E5 \u05D7\u05D9\u05D9\u05DD',         category:'\u05D4\u05DC\u05DB\u05D4',  copies:5,  shelf:'\u05D1-3', isbn:'',            notes:'' },
-    { id:9,  title:'\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05D1\u05DC\u05D9 - \u05D1\u05E8\u05DB\u05D5\u05EA',        author:'',                           category:'\u05D2\u05DE\u05E8\u05D0',  copies:5,  shelf:'\u05D2-1', isbn:'',            notes:'' },
-    { id:10, title:'\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05D1\u05DC\u05D9 - \u05E9\u05D1\u05EA',           author:'',                           category:'\u05D2\u05DE\u05E8\u05D0',  copies:5,  shelf:'\u05D2-1', isbn:'',            notes:'' },
-    { id:11, title:'\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05D1\u05DC\u05D9 - \u05E4\u05E1\u05D7\u05D9\u05DD',       author:'',                           category:'\u05D2\u05DE\u05E8\u05D0',  copies:4,  shelf:'\u05D2-2', isbn:'',            notes:'' },
-    { id:12, title:'\u05D0\u05D5\u05E8\u05D7\u05D5\u05EA \u05E6\u05D3\u05D9\u05E7\u05D9\u05DD',                  author:'',                           category:'\u05D2\u05DE\u05E8\u05D0',  copies:3,  shelf:'\u05D2-2', isbn:'',            notes:'\u05DE\u05D4\u05D3\u05D5\u05E8\u05D4 \u05D7\u05D3\u05E9\u05D4' },
-    { id:13, title:'\u05DE\u05E1\u05D9\u05DC\u05EA \u05D9\u05E9\u05E8\u05D9\u05DD',                  author:'\u05D4\u05E8\u05DE\u05D1"\u05DD',                category:'\u05DB\u05DC\u05DC\u05D9',  copies:4,  shelf:'\u05D3-1', isbn:'',            notes:'' },
-    { id:14, title:'\u05E0\u05E4\u05E9 \u05D4\u05D7\u05D9\u05D9\u05DD',                    author:'\u05E8\u05D1\u05D9 \u05D7\u05D9\u05D9\u05DD \u05DE\u05D5\u05D5\u05DC\u05D5\u05D6\'\u05D9\u05DF', category:'\u05DB\u05DC\u05DC\u05D9',  copies:3,  shelf:'\u05D3-1', isbn:'',            notes:'' },
-    { id:15, title:'\u05E4\u05E8\u05E7\u05D9 \u05D0\u05D1\u05D5\u05EA \u05E2\u05DD \u05E4\u05D9\u05E8\u05D5\u05E9\u05D9\u05DD',       author:'',                           category:'\u05DB\u05DC\u05DC\u05D9',  copies:7,  shelf:'\u05D3-2', isbn:'',            notes:'' }
+    { id:3,  title:'\u05DE\u05E7\u05E8\u05D0\u05D5\u05EA \u05D2\u05D3\u05D5\u05DC\u05D5\u05EA',                 author:'',                           category:'\u05EA\u05D5\u05E8\u05D4',  copies:12, shelf:'\u05D0-2', isbn:'',            notes:'' }
   ],
 
   /* ---- Demo students for loans ---- */
@@ -136,14 +125,10 @@ Object.assign(Pages, {
 
   /* ---- Demo loans (8 active loans) ---- */
   _libLoans: [
+
     { id:1, bookId:1,  student:'\u05D9\u05D5\u05E1\u05E3 \u05DB\u05D4\u05DF',        borrowDate:'2026-04-10', dueDate:'2026-04-24', status:'active' },
     { id:2, bookId:1,  student:'\u05DE\u05E9\u05D4 \u05DC\u05D5\u05D9',          borrowDate:'2026-04-08', dueDate:'2026-04-22', status:'overdue' },
-    { id:3, bookId:5,  student:'\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',   borrowDate:'2026-04-12', dueDate:'2026-04-26', status:'active' },
-    { id:4, bookId:9,  student:'\u05D3\u05D5\u05D3 \u05DE\u05D6\u05E8\u05D7\u05D9',       borrowDate:'2026-04-05', dueDate:'2026-04-19', status:'overdue' },
-    { id:5, bookId:10, student:'\u05E9\u05DE\u05D5\u05D0\u05DC \u05D1\u05E8\u05D2\u05E8',     borrowDate:'2026-04-15', dueDate:'2026-04-29', status:'active' },
-    { id:6, bookId:13, student:'\u05D0\u05DC\u05D9\u05D4\u05D5 \u05E4\u05E8\u05D9\u05D3\u05DE\u05DF',   borrowDate:'2026-04-01', dueDate:'2026-04-15', status:'overdue' },
-    { id:7, bookId:3,  student:'\u05E0\u05EA\u05E0\u05D0\u05DC \u05E8\u05D5\u05D6\u05E0\u05E4\u05DC\u05D3', borrowDate:'2026-04-18', dueDate:'2026-05-02', status:'active' },
-    { id:8, bookId:6,  student:'\u05D7\u05D9\u05D9\u05DD \u05D2\u05D5\u05DC\u05D3\u05E9\u05D8\u05D9\u05D9\u05DF', borrowDate:'2026-04-14', dueDate:'2026-04-28', status:'active' }
+    { id:3, bookId:5,  student:'\u05D0\u05D1\u05E8\u05D4\u05DD \u05D9\u05E6\u05D7\u05E7\u05D9',   borrowDate:'2026-04-12', dueDate:'2026-04-26', status:'active' }
   ],
 
   /* ---- Next loan ID ---- */

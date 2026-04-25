@@ -2,25 +2,12 @@
 Object.assign(Pages, {
   facilitymap() {
     const rooms = [
+
       // קומה 0 - קרקע
       {id:1, name:'אולם תפילה', type:'hall', floor:0, capacity:80, status:'available', currentClass:'', teacher:'', equipment:['ארון קודש','במה','מיקרופון','מזגן x2'], gridCol:'1/3', gridRow:'1/2'},
       {id:2, name:'מזכירות', type:'office', floor:0, capacity:4, status:'inuse', currentClass:'', teacher:'יוסף שניידר', equipment:['מחשב','מדפסת','טלפון','מזגן','ארון תיקים'], gridCol:'3/4', gridRow:'1/2'},
-      {id:3, name:'חדר מנהל', type:'office', floor:0, capacity:3, status:'inuse', currentClass:'', teacher:'הרב ירושלמי', equipment:['מחשב','טלפון','מזגן','ספרייה'], gridCol:'4/5', gridRow:'1/2'},
-      {id:4, name:'מטבח', type:'kitchen', floor:0, capacity:6, status:'available', currentClass:'', teacher:'', equipment:['תנור','מקרר x2','כיור תעשייתי','מיקרוגל'], gridCol:'1/2', gridRow:'2/3'},
-      {id:5, name:'חדר אוכל', type:'dining', floor:0, capacity:40, status:'available', currentClass:'', teacher:'', equipment:['שולחנות x8','כיסאות x40','מזגן x2'], gridCol:'2/4', gridRow:'2/3'},
-      {id:6, name:'חצר', type:'yard', floor:0, capacity:100, status:'available', currentClass:'', teacher:'', equipment:['ספסלים x4','מתקן שתייה'], gridCol:'4/5', gridRow:'2/3'},
-      // קומה 1
-      {id:7, name:'כיתה א\'', type:'classroom', floor:1, capacity:15, status:'inuse', currentClass:'שיעור גמרא', teacher:'הרב כהן', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x8'], gridCol:'1/3', gridRow:'1/2'},
-      {id:8, name:'כיתה ב\'', type:'classroom', floor:1, capacity:15, status:'inuse', currentClass:'שיעור הלכה', teacher:'הרב גולדשטיין', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x7'], gridCol:'3/5', gridRow:'1/2'},
-      {id:9, name:'כיתה ג\'', type:'classroom', floor:1, capacity:12, status:'inuse', currentClass:'שיעור חומש', teacher:'הרב שפירא', equipment:['לוח','מזגן','ארון ספרים'], gridCol:'1/2', gridRow:'2/3'},
-      {id:10, name:'ספרייה', type:'library', floor:1, capacity:20, status:'available', currentClass:'', teacher:'', equipment:['מדפים x12','שולחנות קריאה x4','מחשב חיפוש','מזגן'], gridCol:'2/4', gridRow:'2/3'},
-      {id:11, name:'מחסן', type:'storage', floor:1, capacity:0, status:'maintenance', currentClass:'', teacher:'', equipment:['מדפים x6'], gridCol:'4/5', gridRow:'2/3'},
-      // קומה 2
-      {id:12, name:'כיתה ד\'', type:'classroom', floor:2, capacity:15, status:'available', currentClass:'', teacher:'', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x8'], gridCol:'1/3', gridRow:'1/2'},
-      {id:13, name:'חדר מחשבים', type:'lab', floor:2, capacity:10, status:'closed', currentClass:'', teacher:'', equipment:['מחשבים x10','מזגן','מדפסת','רשת'], gridCol:'3/5', gridRow:'1/2'},
-      {id:14, name:'חדר ישיבות', type:'meeting', floor:2, capacity:12, status:'available', currentClass:'', teacher:'', equipment:['שולחן ישיבות','כיסאות x12','מקרן','מזגן','לוח'], gridCol:'1/3', gridRow:'2/3'},
-      {id:15, name:'חדר צוות', type:'office', floor:2, capacity:6, status:'available', currentClass:'', teacher:'', equipment:['שולחנות x3','מחשב','מזגן','ארון'], gridCol:'3/5', gridRow:'2/3'}
-    ];
+      {id:3, name:'חדר מנהל', type:'office', floor:0, capacity:3, status:'inuse', currentClass:'', teacher:'הרב ירושלמי', equipment:['מחשב','טלפון','מזגן','ספרייה'], gridCol:'4/5', gridRow:'1/2'}
+  ];
 
     const statusMap = {
       available:  {label:'פנוי',    color:'#22c55e', bg:'rgba(34,197,94,0.15)',  icon:'bi-check-circle-fill'},
@@ -251,22 +238,11 @@ Object.assign(Pages, {
       }));
     } else {
     Pages._facilityRooms = [
+
       {id:1, name:'אולם תפילה', type:'hall', floor:0, capacity:80, status:'available', currentClass:'', teacher:'', equipment:['ארון קודש','במה','מיקרופון','מזגן x2']},
       {id:2, name:'מזכירות', type:'office', floor:0, capacity:4, status:'inuse', currentClass:'', teacher:'יוסף שניידר', equipment:['מחשב','מדפסת','טלפון','מזגן','ארון תיקים']},
-      {id:3, name:'חדר מנהל', type:'office', floor:0, capacity:3, status:'inuse', currentClass:'', teacher:'הרב ירושלמי', equipment:['מחשב','טלפון','מזגן','ספרייה']},
-      {id:4, name:'מטבח', type:'kitchen', floor:0, capacity:6, status:'available', currentClass:'', teacher:'', equipment:['תנור','מקרר x2','כיור תעשייתי','מיקרוגל']},
-      {id:5, name:'חדר אוכל', type:'dining', floor:0, capacity:40, status:'available', currentClass:'', teacher:'', equipment:['שולחנות x8','כיסאות x40','מזגן x2']},
-      {id:6, name:'חצר', type:'yard', floor:0, capacity:100, status:'available', currentClass:'', teacher:'', equipment:['ספסלים x4','מתקן שתייה']},
-      {id:7, name:'כיתה א\'', type:'classroom', floor:1, capacity:15, status:'inuse', currentClass:'שיעור גמרא', teacher:'הרב כהן', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x8']},
-      {id:8, name:'כיתה ב\'', type:'classroom', floor:1, capacity:15, status:'inuse', currentClass:'שיעור הלכה', teacher:'הרב גולדשטיין', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x7']},
-      {id:9, name:'כיתה ג\'', type:'classroom', floor:1, capacity:12, status:'inuse', currentClass:'שיעור חומש', teacher:'הרב שפירא', equipment:['לוח','מזגן','ארון ספרים']},
-      {id:10, name:'ספרייה', type:'library', floor:1, capacity:20, status:'available', currentClass:'', teacher:'', equipment:['מדפים x12','שולחנות קריאה x4','מחשב חיפוש','מזגן']},
-      {id:11, name:'מחסן', type:'storage', floor:1, capacity:0, status:'maintenance', currentClass:'', teacher:'', equipment:['מדפים x6']},
-      {id:12, name:'כיתה ד\'', type:'classroom', floor:2, capacity:15, status:'available', currentClass:'', teacher:'', equipment:['לוח חכם','מזגן','ארון ספרים','שולחנות x8']},
-      {id:13, name:'חדר מחשבים', type:'lab', floor:2, capacity:10, status:'closed', currentClass:'', teacher:'', equipment:['מחשבים x10','מזגן','מדפסת','רשת']},
-      {id:14, name:'חדר ישיבות', type:'meeting', floor:2, capacity:12, status:'available', currentClass:'', teacher:'', equipment:['שולחן ישיבות','כיסאות x12','מקרן','מזגן','לוח']},
-      {id:15, name:'חדר צוות', type:'office', floor:2, capacity:6, status:'available', currentClass:'', teacher:'', equipment:['שולחנות x3','מחשב','מזגן','ארון']}
-    ];
+      {id:3, name:'חדר מנהל', type:'office', floor:0, capacity:3, status:'inuse', currentClass:'', teacher:'הרב ירושלמי', equipment:['מחשב','טלפון','מזגן','ספרייה']}
+  ];
     } // end else (demo data)
 
     Pages._facilityStatusMap = {

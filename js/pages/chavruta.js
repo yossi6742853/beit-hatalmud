@@ -1,49 +1,17 @@
 /* ===== BHT v5.3 — Chavruta (\u05d7\u05d1\u05e8\u05d5\u05ea\u05d5\u05ea) ===== */
 Object.assign(Pages, {
   _chavPairs: [
+
     { id: 1, s1: '\u05d9\u05d5\u05e1\u05e3 \u05db\u05d4\u05df', s2: '\u05de\u05e9\u05d4 \u05dc\u05d5\u05d9', subject: '\u05d2\u05de\u05e8\u05d0', level: '\u05de\u05ea\u05e7\u05d3\u05dd', schedule: '\u05d0-\u05d2 09:00-10:30', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 24, lastSession: '2026-04-21', notes: '\u05de\u05e1\u05db\u05ea \u05d1\u05d1\u05d0 \u05de\u05e6\u05d9\u05e2\u05d0 \u05e4\u05e8\u05e7 \u05d1' },
     { id: 2, s1: '\u05d0\u05d1\u05e8\u05d4\u05dd \u05d2\u05d5\u05dc\u05d3\u05d1\u05e8\u05d2', s2: '\u05d3\u05d5\u05d3 \u05e4\u05e8\u05d9\u05d3\u05de\u05df', subject: '\u05d4\u05dc\u05db\u05d4', level: '\u05d1\u05d9\u05e0\u05d5\u05e0\u05d9', schedule: '\u05d1-\u05d3 11:00-12:00', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 18, lastSession: '2026-04-22', notes: '\u05d4\u05dc\u05db\u05d5\u05ea \u05e9\u05d1\u05ea' },
-    { id: 3, s1: '\u05d0\u05dc\u05d9\u05d4\u05d5 \u05e9\u05e4\u05d9\u05e8\u05d0', s2: '\u05d9\u05e2\u05e7\u05d1 \u05e8\u05d5\u05d6\u05e0\u05d1\u05e8\u05d2', subject: '\u05de\u05e9\u05e0\u05d4', level: '\u05de\u05ea\u05d7\u05d9\u05dc', schedule: '\u05d0-\u05d4 08:00-09:00', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 31, lastSession: '2026-04-22', notes: '\u05de\u05e1\u05db\u05ea \u05d1\u05e8\u05db\u05d5\u05ea' },
-    { id: 4, s1: '\u05d7\u05d9\u05d9\u05dd \u05d1\u05e8\u05e7\u05d5\u05d1\u05d9\u05e5', s2: '\u05e0\u05ea\u05e0\u05d0\u05dc \u05d5\u05d9\u05d9\u05e1', subject: '\u05d7\u05d5\u05de\u05e9', level: '\u05de\u05ea\u05e7\u05d3\u05dd', schedule: '\u05d2-\u05d4 14:00-15:30', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 12, lastSession: '2026-04-20', notes: '\u05e4\u05e8\u05e9\u05ea \u05d4\u05e9\u05d1\u05d5\u05e2 \u05e2\u05dd \u05e8\u05e9"\u05d9' },
-    { id: 5, s1: '\u05e9\u05de\u05d5\u05d0\u05dc \u05d4\u05d5\u05e8\u05d1\u05d9\u05e5', s2: '\u05e8\u05e4\u05d0\u05dc \u05de\u05d6\u05e8\u05d7\u05d9', subject: '\u05d2\u05de\u05e8\u05d0', level: '\u05d1\u05d9\u05e0\u05d5\u05e0\u05d9', schedule: '\u05d0-\u05d3 10:00-11:30', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 20, lastSession: '2026-04-21', notes: '\u05de\u05e1\u05db\u05ea \u05e9\u05d1\u05ea' },
-    { id: 6, s1: '\u05de\u05e0\u05d7\u05dd \u05e9\u05d8\u05e8\u05df', s2: '\u05d0\u05d4\u05e8\u05df \u05e4\u05d9\u05e9\u05e8', subject: '\u05d4\u05dc\u05db\u05d4', level: '\u05de\u05ea\u05e7\u05d3\u05dd', schedule: '\u05d1-\u05d4 13:00-14:00', status: '\u05de\u05d5\u05e9\u05d4\u05d4', sessions: 8, lastSession: '2026-04-10', notes: '\u05d4\u05dc\u05db\u05d5\u05ea \u05d1\u05e8\u05db\u05d5\u05ea' },
-    { id: 7, s1: '\u05d9\u05e9\u05e8\u05d0\u05dc \u05e7\u05dc\u05d9\u05d9\u05df', s2: '\u05d1\u05e0\u05d9\u05de\u05d9\u05df \u05d0\u05d3\u05dc\u05e8', subject: '\u05de\u05e9\u05e0\u05d4', level: '\u05de\u05ea\u05d7\u05d9\u05dc', schedule: '\u05d0-\u05d2 15:00-16:00', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 15, lastSession: '2026-04-22', notes: '\u05de\u05e1\u05db\u05ea \u05e4\u05d0\u05d4' },
-    { id: 8, s1: '\u05e6\u05d1\u05d9 \u05d4\u05d9\u05e8\u05e9', s2: '\u05d2\u05d3\u05dc\u05d9\u05d4 \u05e9\u05d5\u05d5\u05e8\u05e5', subject: '\u05d2\u05de\u05e8\u05d0', level: '\u05d1\u05d9\u05e0\u05d5\u05e0\u05d9', schedule: '\u05d1-\u05d3 09:00-10:30', status: '\u05dc\u05d0 \u05e4\u05e2\u05d9\u05dc', sessions: 5, lastSession: '2026-03-28', notes: '\u05d4\u05d5\u05e4\u05e1\u05e7 \u05d6\u05de\u05e0\u05d9\u05ea' },
-    { id: 9, s1: '\u05e2\u05de\u05d9\u05ea\u05d9 \u05d1\u05e8\u05d2\u05e8', s2: '\u05e0\u05d7\u05de\u05df \u05e8\u05d5\u05d8', subject: '\u05d7\u05d5\u05de\u05e9', level: '\u05d1\u05d9\u05e0\u05d5\u05e0\u05d9', schedule: '\u05d0-\u05d3 08:30-09:30', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 10, lastSession: '2026-04-21', notes: '\u05e4\u05e8\u05e9\u05ea \u05d4\u05e9\u05d1\u05d5\u05e2 \u05e2\u05dd \u05e8\u05de\u05d1"\u05df' },
-    { id: 10, s1: '\u05d3\u05d5\u05d1 \u05e7\u05e8\u05d0\u05d5\u05e1', s2: '\u05e9\u05dc\u05de\u05d4 \u05db\u05e5', subject: '\u05de\u05e9\u05e0\u05d4', level: '\u05de\u05ea\u05e7\u05d3\u05dd', schedule: '\u05d1-\u05d4 16:00-17:00', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 22, lastSession: '2026-04-22', notes: '\u05de\u05e1\u05db\u05ea \u05e9\u05d1\u05ea \u05e4\u05e8\u05e7 \u05d9"' }
+    { id: 3, s1: '\u05d0\u05dc\u05d9\u05d4\u05d5 \u05e9\u05e4\u05d9\u05e8\u05d0', s2: '\u05d9\u05e2\u05e7\u05d1 \u05e8\u05d5\u05d6\u05e0\u05d1\u05e8\u05d2', subject: '\u05de\u05e9\u05e0\u05d4', level: '\u05de\u05ea\u05d7\u05d9\u05dc', schedule: '\u05d0-\u05d4 08:00-09:00', status: '\u05e4\u05e2\u05d9\u05dc', sessions: 31, lastSession: '2026-04-22', notes: '\u05de\u05e1\u05db\u05ea \u05d1\u05e8\u05db\u05d5\u05ea' }
   ],
 
   _chavSessionLog: [
+
     { id: 1, pairId: 1, date: '2026-04-21', duration: 90, topic: '\u05e1\u05d5\u05d2\u05d9\u05d0 \u05e9\u05dc \u05e9\u05e0\u05d9\u05dd \u05d0\u05d5\u05d7\u05d6\u05d9\u05df', rating: 5 },
     { id: 2, pairId: 2, date: '2026-04-22', duration: 60, topic: '\u05d4\u05dc\u05db\u05d5\u05ea \u05d4\u05d3\u05dc\u05e7\u05ea \u05e0\u05e8\u05d5\u05ea', rating: 4 },
-    { id: 3, pairId: 3, date: '2026-04-22', duration: 60, topic: '\u05e4\u05e8\u05e7 \u05d2 \u05de\u05e9\u05e0\u05d4 \u05d4-\u05d7', rating: 5 },
-    { id: 4, pairId: 5, date: '2026-04-21', duration: 90, topic: '\u05d3\u05e3 \u05db"\u05d2 \u05e2\u05de\u05d5\u05d3 \u05d0', rating: 4 },
-    { id: 5, pairId: 7, date: '2026-04-22', duration: 60, topic: '\u05de\u05e9\u05e0\u05d4 \u05d3-\u05d5', rating: 3 },
-    { id: 6, pairId: 4, date: '2026-04-20', duration: 90, topic: '\u05e4\u05e8\u05e9\u05ea \u05d0\u05d7\u05e8\u05d9 \u05de\u05d5\u05ea', rating: 5 },
-    { id: 7, pairId: 1, date: '2026-04-19', duration: 90, topic: '\u05d7\u05d6\u05e8\u05d4 \u05e2\u05dc \u05d3\u05e3 \u05d7', rating: 4 },
-    { id: 8, pairId: 3, date: '2026-04-21', duration: 60, topic: '\u05e4\u05e8\u05e7 \u05d2 \u05de\u05e9\u05e0\u05d4 \u05d0-\u05d3', rating: 5 },
-    { id: 9, pairId: 9, date: '2026-04-21', duration: 60, topic: '\u05e4\u05e8\u05e9\u05ea \u05d0\u05d7\u05e8\u05d9 \u05de\u05d5\u05ea - \u05e8\u05de\u05d1"\u05df', rating: 4 },
-    { id: 10, pairId: 10, date: '2026-04-22', duration: 60, topic: '\u05e9\u05d1\u05ea \u05e4\u05e8\u05e7 \u05d9 \u05de\u05e9\u05e0\u05d4 \u05d0-\u05d3', rating: 5 },
-    { id: 11, pairId: 2, date: '2026-04-20', duration: 60, topic: '\u05d4\u05dc\u05db\u05d5\u05ea \u05de\u05d5\u05e7\u05e6\u05d4 \u05de\u05d5\u05e7\u05e6\u05d4', rating: 4 },
-    { id: 12, pairId: 5, date: '2026-04-19', duration: 90, topic: '\u05d3\u05e3 \u05db"\u05d1 \u05e2\u05de\u05d5\u05d3 \u05d1', rating: 3 },
-    { id: 13, pairId: 4, date: '2026-04-17', duration: 90, topic: '\u05e4\u05e8\u05e9\u05ea \u05e7\u05d3\u05d5\u05e9\u05d9\u05dd', rating: 5 },
-    { id: 14, pairId: 1, date: '2026-04-17', duration: 90, topic: '\u05d3\u05e3 \u05d6 \u05e2\u05de\u05d5\u05d3 \u05d1', rating: 4 },
-    { id: 15, pairId: 3, date: '2026-04-20', duration: 60, topic: '\u05e4\u05e8\u05e7 \u05d1 \u05de\u05e9\u05e0\u05d4 \u05d7-\u05d9"', rating: 5 },
-    { id: 16, pairId: 7, date: '2026-04-20', duration: 60, topic: '\u05de\u05e9\u05e0\u05d4 \u05d0-\u05d2', rating: 4 },
-    { id: 17, pairId: 9, date: '2026-04-19', duration: 60, topic: '\u05e4\u05e8\u05e9\u05ea \u05e7\u05d3\u05d5\u05e9\u05d9\u05dd - \u05e8\u05de\u05d1"\u05df', rating: 3 },
-    { id: 18, pairId: 10, date: '2026-04-20', duration: 60, topic: '\u05e9\u05d1\u05ea \u05e4\u05e8\u05e7 \u05d8 \u05de\u05e9\u05e0\u05d4 \u05d5-\u05d7', rating: 5 },
-    { id: 19, pairId: 2, date: '2026-04-17', duration: 60, topic: '\u05d4\u05dc\u05db\u05d5\u05ea \u05d1\u05d9\u05e2\u05ea \u05d7\u05de\u05e5', rating: 4 },
-    { id: 20, pairId: 5, date: '2026-04-17', duration: 90, topic: '\u05d3\u05e3 \u05db"\u05d0 \u05e2\u05de\u05d5\u05d3 \u05d0', rating: 4 },
-    { id: 21, pairId: 4, date: '2026-04-15', duration: 90, topic: '\u05e4\u05e8\u05e9\u05ea \u05de\u05e6\u05d5\u05e8\u05e2', rating: 5 },
-    { id: 22, pairId: 1, date: '2026-04-15', duration: 90, topic: '\u05d3\u05e3 \u05d5 \u05e2\u05de\u05d5\u05d3 \u05d0', rating: 5 },
-    { id: 23, pairId: 3, date: '2026-04-19', duration: 60, topic: '\u05e4\u05e8\u05e7 \u05d1 \u05de\u05e9\u05e0\u05d4 \u05d3-\u05d7', rating: 4 },
-    { id: 24, pairId: 7, date: '2026-04-17', duration: 60, topic: '\u05d7\u05d6\u05e8\u05d4 \u05db\u05dc\u05dc\u05d9\u05ea', rating: 3 },
-    { id: 25, pairId: 9, date: '2026-04-17', duration: 60, topic: '\u05e4\u05e8\u05e9\u05ea \u05de\u05e6\u05d5\u05e8\u05e2 - \u05e8\u05de\u05d1"\u05df', rating: 4 },
-    { id: 26, pairId: 10, date: '2026-04-17', duration: 60, topic: '\u05e9\u05d1\u05ea \u05e4\u05e8\u05e7 \u05d7 \u05de\u05e9\u05e0\u05d4 \u05d0-\u05d3', rating: 4 },
-    { id: 27, pairId: 6, date: '2026-04-10', duration: 60, topic: '\u05d4\u05dc\u05db\u05d5\u05ea \u05d1\u05e8\u05db\u05d5\u05ea \u05d4\u05e9\u05d7\u05e8', rating: 3 },
-    { id: 28, pairId: 6, date: '2026-04-08', duration: 60, topic: '\u05d4\u05dc\u05db\u05d5\u05ea \u05d1\u05e8\u05db\u05d5\u05ea \u05d4\u05e0\u05d4\u05e0\u05d9\u05df', rating: 4 },
-    { id: 29, pairId: 8, date: '2026-03-28', duration: 90, topic: '\u05d3\u05e3 \u05d9"\u05d0 \u05e2\u05de\u05d5\u05d3 \u05d0', rating: 2 },
-    { id: 30, pairId: 8, date: '2026-03-26', duration: 90, topic: '\u05d3\u05e3 \u05d9 \u05e2\u05de\u05d5\u05d3 \u05d1', rating: 2 }
+    { id: 3, pairId: 3, date: '2026-04-22', duration: 60, topic: '\u05e4\u05e8\u05e7 \u05d2 \u05de\u05e9\u05e0\u05d4 \u05d4-\u05d7', rating: 5 }
   ],
 
   chavruta() {

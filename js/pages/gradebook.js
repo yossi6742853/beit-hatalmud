@@ -107,17 +107,11 @@ Object.assign(Pages, {
   /* ---- Demo Data ---- */
   _gbDemoData() {
     const students = [
+
       { id: 's1', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D9\u05D5\u05E1\u05E3', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05DB\u05D4\u05DF', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' },
       { id: 's2', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05DE\u05E9\u05D4', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05DC\u05D5\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' },
-      { id: 's3', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D0\u05D1\u05E8\u05D4\u05DD', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05D9\u05E6\u05D7\u05E7\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' },
-      { id: 's4', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D3\u05D5\u05D3', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05E9\u05E4\u05D9\u05E8\u05D0', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' },
-      { id: 's5', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D9\u05E2\u05E7\u05D1', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05D0\u05D1\u05E8\u05DE\u05D5\u05D1\u05D9\u05E5', '\u05DB\u05D9\u05EA\u05D4': '\u05D1' },
-      { id: 's6', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05E9\u05DE\u05D5\u05D0\u05DC', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05D2\u05D5\u05DC\u05D3\u05D1\u05E8\u05D2', '\u05DB\u05D9\u05EA\u05D4': '\u05D1' },
-      { id: 's7', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D0\u05DC\u05D9\u05D4\u05D5', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05DE\u05D6\u05E8\u05D7\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D1' },
-      { id: 's8', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D7\u05D9\u05D9\u05DD', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05E8\u05D5\u05D6\u05E0\u05D1\u05E8\u05D2', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' },
-      { id: 's9', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05E0\u05EA\u05E0\u05D0\u05DC', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05E4\u05E8\u05D9\u05D3\u05DE\u05DF', '\u05DB\u05D9\u05EA\u05D4': '\u05D1' },
-      { id: 's10', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05E8\u05E4\u05D0\u05DC', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05D1\u05DF \u05D3\u05D5\u05D3', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' }
-    ];
+      { id: 's3', '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': '\u05D0\u05D1\u05E8\u05D4\u05DD', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': '\u05D9\u05E6\u05D7\u05E7\u05D9', '\u05DB\u05D9\u05EA\u05D4': '\u05D0' }
+  ];
 
     const exams = [
       { id: 'e1', name: '\u05DE\u05D1\u05D7\u05DF \u05D2\u05DE\u05E8\u05D0 1', subject: '\u05D2\u05DE\u05E8\u05D0', date: '2026-01-15', maxScore: 100, weight: 100 },
@@ -132,14 +126,7 @@ Object.assign(Pages, {
     const gradeSeeds = {
       s1:  [92, 88, 95, 90, 85, 91],
       s2:  [78, 82, 70, 75, 80, 73],
-      s3:  [95, 90, 88, 97, 92, 94],
-      s4:  [65, 70, 62, 68, 72, 60],
-      s5:  [85, 78, 90, 82, 76, 88],
-      s6:  [72, 68, 75, 70, 65, 71],
-      s7:  [88, 92, 85, 91, 95, 87],
-      s8:  [60, 65, 72, 63, 67, 69],
-      s9:  [80, 85, 78, 83, 88, 82],
-      s10: [98, 95, 100, 96, 93, 97]
+      s3:  [95, 90, 88, 97, 92, 94]
     };
 
     const grades = {};

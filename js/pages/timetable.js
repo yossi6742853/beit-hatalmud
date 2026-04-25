@@ -5,14 +5,10 @@ Object.assign(Pages, {
      DEMO DATA
      ====================================================================== */
   _ttSubjects: [
+
     { id: 1, name: 'גמרא',      color: '#4e79a7', icon: 'bi-book' },
     { id: 2, name: 'חומש',       color: '#f28e2b', icon: 'bi-journal-text' },
-    { id: 3, name: 'הלכה',       color: '#e15759', icon: 'bi-bookmark-star' },
-    { id: 4, name: 'נ"ך',        color: '#76b7b2', icon: 'bi-file-earmark-text' },
-    { id: 5, name: 'משנה',       color: '#59a14f', icon: 'bi-layers' },
-    { id: 6, name: 'אנגלית',     color: '#edc948', icon: 'bi-globe' },
-    { id: 7, name: 'חשבון',      color: '#b07aa1', icon: 'bi-calculator' },
-    { id: 8, name: 'פרשת שבוע',  color: '#ff9da7', icon: 'bi-star' }
+    { id: 3, name: 'הלכה',       color: '#e15759', icon: 'bi-bookmark-star' }
   ],
 
   _ttTeachers: [
@@ -33,14 +29,10 @@ Object.assign(Pages, {
   _ttDays: ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'],
 
   _ttPeriods: [
+
     { num: 1, start: '08:00', end: '08:45' },
     { num: 2, start: '08:50', end: '09:35' },
-    { num: 3, start: '09:45', end: '10:30' },
-    { num: 4, start: '10:35', end: '11:20' },
-    { num: 5, start: '11:30', end: '12:15' },
-    { num: 6, start: '12:20', end: '13:05' },
-    { num: 7, start: '14:00', end: '14:45' },
-    { num: 8, start: '14:50', end: '15:35' }
+    { num: 3, start: '09:45', end: '10:30' }
   ],
 
   _ttSchedule: null,
