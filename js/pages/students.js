@@ -937,8 +937,8 @@ Object.assign(Pages, {
       const firstName = student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'';
       const fullName = firstName + ' ' + famName;
       const entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byId[studentId] || null;
-      if (entry && entry.documents) {
-        const driveDocs = entry.documents.map(d => ({
+      if (entry && (entry.docs || entry.documents)) {
+        const driveDocs = (entry.docs || entry.documents).map(d => ({
           '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': d.name, name: d.name,
           '\u05E1\u05D5\u05D2': d.type || 'drive', type: d.type,
           driveId: d.id, '\u05E7\u05D9\u05E9\u05D5\u05E8': d.link,

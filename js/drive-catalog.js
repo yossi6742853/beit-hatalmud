@@ -1,6 +1,6 @@
 // Auto-generated Drive document catalog — 2026-04-22
 // 25 student folders, 177 documents
-const DRIVE_CATALOG = {
+var DRIVE_CATALOG = {
   "lastUpdated": "2026-04-22",
   "folders": [
     {
@@ -1418,3 +1418,12 @@ const DRIVE_CATALOG = {
     }
   ]
 };
+// Build lookup indexes
+DRIVE_CATALOG.byName = {};
+DRIVE_CATALOG.byId = {};
+DRIVE_CATALOG.folders.forEach(f => {
+  // Index by folder name and parts
+  DRIVE_CATALOG.byName[f.name] = f;
+  const parts = f.name.split(' ');
+  parts.forEach(p => { if(p.length > 1 && !DRIVE_CATALOG.byName[p]) DRIVE_CATALOG.byName[p] = f; });
+});
