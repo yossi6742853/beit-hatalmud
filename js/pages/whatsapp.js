@@ -47,8 +47,8 @@ Object.assign(Pages, {
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
         <div>
-          <h1><i class="bi bi-whatsapp me-2 text-success"></i>\u05DE\u05E8\u05DB\u05D6 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4</h1>
-          <p class="text-muted mb-0">\u05E9\u05DC\u05D9\u05D7\u05EA \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05D5\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA \u05E9\u05D9\u05D3\u05D5\u05E8</p>
+          <h1><i class="bi bi-telephone-outbound me-2 text-success"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05EA</h1>
+          <p class="text-muted mb-0">\u05E9\u05DC\u05D9\u05D7\u05EA \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA SMS, \u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05D5\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA \u05E9\u05D9\u05D3\u05D5\u05E8</p>
         </div>
       </div>
 

@@ -23,7 +23,7 @@ Object.assign(Pages, {
         <div class="d-flex gap-2 flex-wrap">
           <button class="btn btn-primary btn-sm" onclick="Pages.showAddParent()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05D4\u05D5\u05E8\u05D4</button>
           <button class="btn btn-outline-info btn-sm" onclick="Pages._parShowMeetingModal()"><i class="bi bi-calendar-plus me-1"></i>\u05E7\u05D1\u05E2 \u05E4\u05D2\u05D9\u05E9\u05D4</button>
-          <button class="btn btn-outline-success btn-sm" onclick="Pages.bulkWhatsApp()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D9\u05D7\u05D4 \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9\u05EA</button>
+          <button class="btn btn-outline-success btn-sm" onclick="Pages.bulkSMS()"><i class="bi bi-chat-left-text me-1"></i>\u05E9\u05DC\u05D9\u05D7\u05EA SMS \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9\u05EA</button>
         </div>
       </div>
 
@@ -262,8 +262,7 @@ Object.assign(Pages, {
           <div class="card-footer bg-transparent border-top-0 pt-0">
             <div class="d-flex gap-1 flex-wrap">
               ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
-              ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
-              ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+              ${phone ? `<a href="sms:${phone}" class="btn btn-sm btn-outline-success" title="SMS"><i class="bi bi-chat-left-text"></i></a>` : ''}
               <button class="btn btn-sm btn-outline-secondary" onclick="Pages._parShowCommLog(${pid})" title="\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA"><i class="bi bi-clock-history"></i></button>
               <div class="ms-auto d-flex gap-1">
                 <button class="btn btn-sm btn-outline-primary" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button>
@@ -344,7 +343,8 @@ Object.assign(Pages, {
           <div class="card-footer bg-transparent d-flex gap-1">
             ${data.parents.map(p => {
               const ph = (p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '').replace(/[-\s]/g, '').replace(/^0/, '972');
-              return ph ? `<a href="https://wa.me/${ph}" target="_blank" class="btn btn-sm btn-outline-success" title="WhatsApp ${p['\u05E9\u05DD']}"><i class="bi bi-whatsapp me-1"></i>${p['\u05E7\u05E9\u05E8']}</a>` : '';
+              const rawPh = (p['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '').replace(/[-\s]/g, '');
+              return rawPh ? `<a href="tel:${rawPh}" class="btn btn-sm btn-outline-primary" title="\u05D7\u05D9\u05D9\u05D2 ${p['\u05E9\u05DD']}"><i class="bi bi-telephone me-1"></i>${p['\u05E7\u05E9\u05E8']}</a>` : '';
             }).join('')}
           </div>
         </div>
@@ -412,8 +412,7 @@ Object.assign(Pages, {
         <td><span class="badge bg-${statusBadge}">${p['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC'}</span></td>
         <td class="text-nowrap">
           ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary me-1" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
-          ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
-          ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info me-1" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+          ${phone ? `<a href="sms:${phone}" class="btn btn-sm btn-outline-success me-1" title="SMS"><i class="bi bi-chat-left-text"></i></a>` : ''}
           <button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editParent('${pid}')"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-sm btn-outline-danger" onclick="Pages.deleteParent('${pid}')"><i class="bi bi-trash"></i></button>
         </td>
@@ -431,7 +430,7 @@ Object.assign(Pages, {
     if (!body) return;
 
     const channelIcon = (ch) => {
-      if (ch === 'whatsapp') return '<i class="bi bi-whatsapp text-success"></i>';
+      if (ch === 'whatsapp' || ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
       if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
       if (ch === 'sms') return '<i class="bi bi-chat-left-text text-primary"></i>';
       if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
@@ -600,17 +599,17 @@ Object.assign(Pages, {
     }
   },
 
-  bulkWhatsApp() {
+  bulkSMS() {
     const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:');
     if (!msg) return;
     let sent = 0;
     this._parData.forEach(p => {
       if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return;
-      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/[-\s]/g, '').replace(/^0/, '972');
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+      const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'].replace(/[-\s]/g, '');
+      window.open(`sms:${phone}?body=${encodeURIComponent(msg)}`, '_blank');
       sent++;
     });
-    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5`);
+    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA SMS \u05E0\u05E9\u05DC\u05D7\u05D5`);
   },
 
 
@@ -640,7 +639,7 @@ Object.assign(Pages, {
       : '<span class="badge bg-secondary fs-6">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</span>';
 
     const channelIcon = (ch) => {
-      if (ch === 'whatsapp') return '<i class="bi bi-whatsapp text-success"></i>';
+      if (ch === 'whatsapp' || ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
       if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
       if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
       return '<i class="bi bi-chat-left-text text-primary"></i>';
@@ -663,8 +662,7 @@ Object.assign(Pages, {
           </div>
           <div class="d-flex gap-2">
             ${phone ? `<a href="tel:${phone}" class="btn btn-outline-primary"><i class="bi bi-telephone me-1"></i>\u05D7\u05D9\u05D9\u05D2</a>` : ''}
-            ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
-            ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-outline-info"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</a>` : ''}
+            ${phone ? `<a href="sms:${phone}" class="btn btn-success"><i class="bi bi-chat-left-text me-1"></i>SMS</a>` : ''}
             <button class="btn btn-outline-primary" onclick="Pages.editParent('${id}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           </div>
         </div>
@@ -764,7 +762,8 @@ Object.assign(Pages, {
     <!-- Tabs -->
     <ul class="nav nav-tabs mb-3" id="comm-tabs">
       <li class="nav-item"><a class="nav-link active" href="#" data-comm-tab="compose" onclick="Pages._commTab='compose';Pages.renderComm();return false"><i class="bi bi-pencil-square me-1"></i>\u05D7\u05D9\u05D1\u05D5\u05E8</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="templates" onclick="Pages._commTab='templates';Pages.renderComm();return false"><i class="bi bi-whatsapp me-1"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="templates" onclick="Pages._commTab='templates';Pages.renderComm();return false"><i class="bi bi-telephone me-1"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="calllog" onclick="Pages._commTab='calllog';Pages.renderComm();return false"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA</a></li>
       <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="history" onclick="Pages._commTab='history';Pages.renderComm();return false"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</a></li>
       <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="contacts" onclick="Pages._commTab='contacts';Pages.renderComm();return false"><i class="bi bi-person-lines-fill me-1"></i>\u05E1\u05E4\u05E8 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</a></li>
     </ul>
@@ -780,11 +779,11 @@ Object.assign(Pages, {
   _commSelectedClasses: new Set(),
   _commRecipientMode: 'class',   // 'class' | 'all' | 'individual'
   _commSelectedIndividuals: new Set(),
-  _commDelivery: 'whatsapp',     // 'whatsapp' | 'sms' | 'email'
+  _commDelivery: 'sms',     // 'sms' | 'phone' | 'email'
   _commContactSearch: '',
   _commHistorySearch: '',
 
-  /* --- 7 WhatsApp Templates --- */
+  /* --- 7 Phone/SMS Templates --- */
   _waTemplates: [
     {title:'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-exclamation-triangle', color:'danger',
      text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E9\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
@@ -819,9 +818,11 @@ Object.assign(Pages, {
     this._commSelectedClasses = new Set();
     this._commSelectedIndividuals = new Set();
     this._commRecipientMode = 'class';
-    this._commDelivery = 'whatsapp';
+    this._commDelivery = 'sms';
     this._commContactSearch = '';
     this._commHistorySearch = '';
+    this._commCallLog = [];
+    this._commCallLogSearch = '';
     this._commTab = 'compose';
     this._renderCommStats();
     this.renderComm();
@@ -881,6 +882,7 @@ Object.assign(Pages, {
     }
     if (this._commTab === 'compose') this._renderCommCompose(el);
     else if (this._commTab === 'templates') this._renderCommTemplates(el);
+    else if (this._commTab === 'calllog') this._renderCommCallLog(el);
     else if (this._commTab === 'history') this._renderCommHistory(el);
     else if (this._commTab === 'contacts') this._renderCommContacts(el);
   },
@@ -907,12 +909,12 @@ Object.assign(Pages, {
           <div class="mb-3">
             <label class="form-label fw-bold"><i class="bi bi-broadcast me-1"></i>\u05D0\u05DE\u05E6\u05E2\u05D9 \u05E9\u05DC\u05D9\u05D7\u05D4</label>
             <div class="btn-group w-100" role="group">
-              <input type="radio" class="btn-check" name="comm-delivery" id="cd-wa" value="whatsapp" ${this._commDelivery==='whatsapp'?'checked':''} onchange="Pages._commDelivery='whatsapp'">
-              <label class="btn btn-outline-success" for="cd-wa"><i class="bi bi-whatsapp me-1"></i>WhatsApp</label>
               <input type="radio" class="btn-check" name="comm-delivery" id="cd-sms" value="sms" ${this._commDelivery==='sms'?'checked':''} onchange="Pages._commDelivery='sms'">
               <label class="btn btn-outline-primary" for="cd-sms"><i class="bi bi-chat-left-text me-1"></i>SMS</label>
+              <input type="radio" class="btn-check" name="comm-delivery" id="cd-phone" value="phone" ${this._commDelivery==='phone'?'checked':''} onchange="Pages._commDelivery='phone'">
+              <label class="btn btn-outline-success" for="cd-phone"><i class="bi bi-telephone me-1"></i>\u05E9\u05D9\u05D7\u05D4 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05EA</label>
               <input type="radio" class="btn-check" name="comm-delivery" id="cd-email" value="email" ${this._commDelivery==='email'?'checked':''} onchange="Pages._commDelivery='email'">
-              <label class="btn btn-outline-info" for="cd-email"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</label>
+              <label class="btn btn-outline-info" for="cd-email"><i class="bi bi-envelope me-1"></i>\u05D3\u05D5\u05D0\u05E8</label>
             </div>
           </div>
 
@@ -1022,6 +1024,91 @@ Object.assign(Pages, {
     el.innerHTML = `<div class="row g-3">${cards}</div>`;
   },
 
+  /* --- CALL LOG TAB --- */
+  _commCallLog: [],
+  _commCallLogSearch: '',
+
+  _renderCommCallLog(el) {
+    const search = this._commCallLogSearch.toLowerCase();
+    const logs = this._commCallLog || [];
+    const filtered = search
+      ? logs.filter(r => (r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD']||'').toLowerCase().includes(search) || (r['\u05E0\u05D5\u05E9\u05D0']||'').toLowerCase().includes(search) || (r['\u05EA\u05E7\u05E6\u05D9\u05E8']||'').toLowerCase().includes(search))
+      : logs;
+
+    const statusBadge = (s) => {
+      const map = {'\u05D1\u05D5\u05E6\u05E2': 'success', '\u05DC\u05D0 \u05E0\u05E2\u05E0\u05D4': 'danger', '\u05D7\u05D6\u05E8\u05D5 \u05D0\u05DC\u05D9': 'warning', '\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D4': 'info'};
+      return `<span class="badge bg-${map[s]||'secondary'}">${s||'\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}</span>`;
+    };
+
+    const rows = filtered.map((r, i) => `<tr>
+      <td>${i+1}</td>
+      <td>${r['\u05EA\u05D0\u05E8\u05D9\u05DA']||''}</td>
+      <td>${r['\u05E9\u05E2\u05D4']||''}</td>
+      <td class="fw-bold">${r['\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD']||''}</td>
+      <td>${r['\u05E0\u05D5\u05E9\u05D0']||''}</td>
+      <td class="small">${(r['\u05EA\u05E7\u05E6\u05D9\u05E8']||'').substring(0,60)}</td>
+      <td>${statusBadge(r['\u05E1\u05D8\u05D8\u05D5\u05E1'])}</td>
+      <td>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-warning" onclick="Pages._editCallLog(${i})" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-outline-danger" onclick="Pages._deleteCallLog(${i})" title="\u05DE\u05D7\u05D9\u05E7\u05D4"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+    el.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-journal-text me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05D5\u05EA</h5>
+        <button class="btn btn-primary btn-sm" onclick="Pages._addCallLog()"><i class="bi bi-plus-lg me-1"></i>\u05E8\u05D9\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</button>
+      </div>
+      <div class="input-group input-group-sm mb-3" style="max-width:400px">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" id="calllog-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D1\u05D9\u05D5\u05DE\u05DF..." value="${this._commCallLogSearch}" oninput="Pages._commCallLogSearch=this.value;Pages._renderCommCallLog(document.getElementById('comm-content'))">
+      </div>
+      ${!filtered.length ? '<div class="text-center text-muted py-5"><i class="bi bi-journal display-1"></i><h5 class="mt-3">\u05D0\u05D9\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05D1\u05D9\u05D5\u05DE\u05DF</h5><p>\u05DC\u05D7\u05E5 "\u05E8\u05D9\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4" \u05DC\u05D4\u05D5\u05E1\u05E4\u05EA \u05E8\u05E9\u05D5\u05DE\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4</p></div>' : `
+      <div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+        <thead><tr><th>#</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E9\u05E2\u05D4</th><th>\u05E9\u05DD</th><th>\u05E0\u05D5\u05E9\u05D0</th><th>\u05EA\u05E7\u05E6\u05D9\u05E8</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`}
+      <div class="text-muted small mt-2">${filtered.length} \u05E9\u05D9\u05D7\u05D5\u05EA \u05D1\u05D9\u05D5\u05DE\u05DF</div>`;
+  },
+
+  _addCallLog() {
+    const name = prompt('\u05E9\u05DD \u05D4\u05E0\u05DE\u05E2\u05DF:');
+    if (!name) return;
+    const subject = prompt('\u05E0\u05D5\u05E9\u05D0 \u05D4\u05E9\u05D9\u05D7\u05D4:') || '';
+    const summary = prompt('\u05EA\u05E7\u05E6\u05D9\u05E8 \u05E7\u05E6\u05E8:') || '';
+    const now = new Date();
+    this._commCallLog.unshift({
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': now.toLocaleDateString('he-IL'),
+      '\u05E9\u05E2\u05D4': now.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}),
+      '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': name,
+      '\u05E0\u05D5\u05E9\u05D0': subject,
+      '\u05EA\u05E7\u05E6\u05D9\u05E8': summary,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D1\u05D5\u05E6\u05E2'
+    });
+    Utils.toast('\u05E9\u05D9\u05D7\u05D4 \u05E0\u05E8\u05E9\u05DE\u05D4 \u05D1\u05D9\u05D5\u05DE\u05DF', 'success');
+    this._renderCommCallLog(document.getElementById('comm-content'));
+  },
+
+  _editCallLog(idx) {
+    const log = this._commCallLog[idx];
+    if (!log) return;
+    const status = prompt('\u05E1\u05D8\u05D8\u05D5\u05E1 (\u05D1\u05D5\u05E6\u05E2/\u05DC\u05D0 \u05E0\u05E2\u05E0\u05D4/\u05D7\u05D6\u05E8\u05D5 \u05D0\u05DC\u05D9/\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D4):', log['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '');
+    if (status === null) return;
+    const summary = prompt('\u05EA\u05E7\u05E6\u05D9\u05E8:', log['\u05EA\u05E7\u05E6\u05D9\u05E8'] || '');
+    if (summary !== null) log['\u05EA\u05E7\u05E6\u05D9\u05E8'] = summary;
+    if (status.trim()) log['\u05E1\u05D8\u05D8\u05D5\u05E1'] = status.trim();
+    Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4', 'success');
+    this._renderCommCallLog(document.getElementById('comm-content'));
+  },
+
+  _deleteCallLog(idx) {
+    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
+    this._commCallLog.splice(idx, 1);
+    Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'success');
+    this._renderCommCallLog(document.getElementById('comm-content'));
+  },
+
   /* --- HISTORY TAB --- */
   _renderCommHistory(el) {
     const search = this._commHistorySearch.toLowerCase();
@@ -1035,10 +1122,11 @@ Object.assign(Pages, {
     }
 
     const deliveryIcon = (m) => {
-      const d = m['\u05D0\u05DE\u05E6\u05E2\u05D9'] || 'whatsapp';
+      const d = m['\u05D0\u05DE\u05E6\u05E2\u05D9'] || 'sms';
       if (d === 'sms') return '<i class="bi bi-chat-left-text text-primary" title="SMS"></i>';
-      if (d === 'email') return '<i class="bi bi-envelope text-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"></i>';
-      return '<i class="bi bi-whatsapp text-success" title="WhatsApp"></i>';
+      if (d === 'email') return '<i class="bi bi-envelope text-info" title="\u05D3\u05D5\u05D0\u05E8"></i>';
+      if (d === 'phone') return '<i class="bi bi-telephone text-success" title="\u05D8\u05DC\u05E4\u05D5\u05DF"></i>';
+      return '<i class="bi bi-telephone text-success" title="\u05D8\u05DC\u05E4\u05D5\u05DF"></i>';
     };
 
     const rows = filtered.map(r => {
@@ -1087,9 +1175,8 @@ Object.assign(Pages, {
         <td dir="ltr">${Utils.formatPhone ? Utils.formatPhone(phone) : phone}</td>
         <td class="small">${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td>
         <td class="text-nowrap">
-          ${phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="btn btn-sm btn-outline-success me-1" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
           ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary me-1" title="\u05D7\u05D9\u05D9\u05D2"><i class="bi bi-telephone"></i></a>` : ''}
-          ${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] ? `<a href="mailto:${p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']}" class="btn btn-sm btn-outline-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
+          ${phone ? `<a href="sms:${phone}" class="btn btn-sm btn-outline-success me-1" title="SMS"><i class="bi bi-chat-left-text"></i></a>` : ''}
         </td>
       </tr>`;
     }).join('');
@@ -1205,11 +1292,21 @@ Object.assign(Pages, {
     let sent = 0;
     const delivery = this._commDelivery;
 
-    if (delivery === 'whatsapp') {
+    if (delivery === 'phone') {
+      // Phone call mode - open dialer for first recipient, log the call
       recipients.forEach(t => {
-        const phone = t.phone.replace(/[-\s]/g, '').replace(/^0/, '972');
-        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        const phone = t.phone.replace(/[-\s]/g, '');
+        window.open(`tel:${phone}`, '_self');
         sent++;
+      });
+      // Log the call
+      this._commCallLog.unshift({
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': new Date().toLocaleDateString('he-IL'),
+        '\u05E9\u05E2\u05D4': new Date().toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}),
+        '\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD': recipients.map(r => r.name).join(', '),
+        '\u05E0\u05D5\u05E9\u05D0': subject,
+        '\u05EA\u05E7\u05E6\u05D9\u05E8': msg.substring(0, 200),
+        '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D1\u05D5\u05E6\u05E2'
       });
     } else if (delivery === 'sms') {
       recipients.forEach(t => {
@@ -1248,7 +1345,7 @@ Object.assign(Pages, {
     } catch(e) { /* silent */ }
     this._commData.unshift(record);
     this._renderCommStats();
-    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1${delivery === 'whatsapp' ? 'WhatsApp' : delivery === 'sms' ? 'SMS' : '\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'}`);
+    Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1${delivery === 'phone' ? '\u05D8\u05DC\u05E4\u05D5\u05DF' : delivery === 'sms' ? 'SMS' : '\u05D3\u05D5\u05D0\u05E8'}`);
   },
 
 
