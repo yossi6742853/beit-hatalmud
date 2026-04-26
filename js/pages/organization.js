@@ -422,6 +422,37 @@ Object.assign(Pages, {
         <div class="col-6 col-md-3"><div class="card p-3 text-center border-start border-4 border-danger"><div class="fs-3 fw-bold text-danger" id="task-stat-overdue">0</div><small class="text-muted">\u05D1\u05D0\u05D9\u05D7\u05D5\u05E8</small></div></div>
       </div>
 
+      <!-- Quick Add Bar -->
+      <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-body p-2">
+          <div class="d-flex gap-2 flex-wrap align-items-end">
+            <div class="flex-grow-1" style="min-width:180px">
+              <label class="form-label small mb-0 fw-bold">\u05DB\u05D5\u05EA\u05E8\u05EA</label>
+              <input class="form-control form-control-sm" id="quick-task" placeholder="\u05DE\u05E9\u05D9\u05DE\u05D4 \u05D7\u05D3\u05E9\u05D4..." onkeydown="if(event.key==='Enter')Pages.quickAddTask()">
+            </div>
+            <div style="min-width:140px">
+              <label class="form-label small mb-0">\u05D0\u05D7\u05E8\u05D0\u05D9</label>
+              <input class="form-control form-control-sm" id="quick-task-assignee" list="staff-datalist" placeholder="\u05D1\u05D7\u05E8...">
+              <datalist id="staff-datalist"></datalist>
+            </div>
+            <div style="width:110px">
+              <label class="form-label small mb-0">\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA</label>
+              <select class="form-select form-select-sm" id="quick-task-priority">
+                <option value="\u05E8\u05D2\u05D9\u05DC">\u05E8\u05D2\u05D9\u05DC</option>
+                <option value="\u05D2\u05D1\u05D5\u05D4">\u05D2\u05D1\u05D5\u05D4</option>
+                <option value="\u05D3\u05D7\u05D5\u05E3">\u05D3\u05D7\u05D5\u05E3</option>
+                <option value="\u05E0\u05DE\u05D5\u05DA">\u05E0\u05DE\u05D5\u05DA</option>
+              </select>
+            </div>
+            <div style="width:140px">
+              <label class="form-label small mb-0">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D9\u05E2\u05D3</label>
+              <input type="date" class="form-control form-control-sm" id="quick-task-due">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="Pages.quickAddTask()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Kanban Columns -->
       <div class="row g-3" id="task-kanban">
         <!-- \u05DC\u05D1\u05D9\u05E6\u05D5\u05E2 -->
@@ -531,6 +562,15 @@ Object.assign(Pages, {
       this._taskData = this._getDemoTasks();
     }
     this._taskFilteredData = null;
+    // Populate staff datalist for quick-add assignee
+    const staffDL = document.getElementById('staff-datalist');
+    if (staffDL) {
+      const staff = _gc('\u05E6\u05D5\u05D5\u05EA').filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+      staffDL.innerHTML = staff.map(s => {
+        const name = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim() || (typeof Utils !== 'undefined' && Utils.fullName ? Utils.fullName(s) : '');
+        return name ? '<option value="' + name + '">' : '';
+      }).filter(Boolean).join('');
+    }
     this.filterTasks();
   },
 
@@ -743,10 +783,24 @@ Object.assign(Pages, {
   async quickAddTask() {
     const inp = document.getElementById('quick-task');
     const title = (inp ? inp.value : '').trim();
-    if (!title) return;
+    if (!title) { Utils.toast('\u05D4\u05D6\u05DF \u05DB\u05D5\u05EA\u05E8\u05EA','warning'); return; }
+    const assignee = (document.getElementById('quick-task-assignee')?.value || '').trim();
+    const priority = document.getElementById('quick-task-priority')?.value || '\u05E8\u05D2\u05D9\u05DC';
+    const due = document.getElementById('quick-task-due')?.value || '';
+    const row = {
+      '\u05DB\u05D5\u05EA\u05E8\u05EA': title,
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05D7\u05D3\u05E9',
+      '\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA': priority,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO()
+    };
+    if (assignee) row['\u05D0\u05D7\u05E8\u05D0\u05D9'] = assignee;
+    if (due) row['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3'] = due;
     try {
-      await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row:{'\u05DB\u05D5\u05EA\u05E8\u05EA':title,'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05D7\u05D3\u05E9','\u05E2\u05D3\u05D9\u05E4\u05D5\u05EA':'\u05E8\u05D2\u05D9\u05DC','\u05EA\u05D0\u05E8\u05D9\u05DA':Utils.todayISO()}});
+      await App.apiCall('add','\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA',{row});
       if (inp) inp.value = '';
+      const assigneeInp = document.getElementById('quick-task-assignee'); if (assigneeInp) assigneeInp.value = '';
+      const priSel = document.getElementById('quick-task-priority'); if (priSel) priSel.value = '\u05E8\u05D2\u05D9\u05DC';
+      const dueInp = document.getElementById('quick-task-due'); if (dueInp) dueInp.value = '';
       Utils.toast('\u05DE\u05E9\u05D9\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4');
       this.tasksInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
@@ -1475,6 +1529,7 @@ Object.assign(Pages, {
       <div><h1><i class="bi bi-archive-fill me-2"></i>\u05DE\u05E2\u05E8\u05DB\u05EA \u05EA\u05D9\u05D5\u05E7</h1>
       <p class="text-muted mb-0">\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05D4\u05D5\u05E8\u05D9\u05DD, \u05E6\u05D5\u05D5\u05EA \u05D5\u05DE\u05D5\u05E1\u05D3</p></div>
       <div class="d-flex gap-2 flex-wrap">
+        ${typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.privateFolderLink ? '<a href="' + DRIVE_CATALOG.privateFolderLink + '" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm"><i class="bi bi-google me-1"></i>\u05E4\u05EA\u05D7 \u05D1-Drive</a>' : ''}
         <button class="btn btn-primary btn-sm" onclick="Pages.showUploadDoc()"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
         <button class="btn btn-success btn-sm" onclick="Pages.showBulkUpload()"><i class="bi bi-files me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</button>
         <button class="btn btn-outline-warning btn-sm" onclick="Pages.showMissingDocs()"><i class="bi bi-exclamation-triangle me-1"></i>\u05D7\u05E1\u05E8\u05D9\u05DD</button>
@@ -1627,16 +1682,21 @@ Object.assign(Pages, {
     this._staffForDocs = staff.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
     this._parentsForDocs = parents;
 
-    // Load Drive catalog
-    try {
-      const resp = await fetch('student_folder_search_results.json');
-      this._driveFolders = await resp.json();
-    } catch(e) { this._driveFolders = null; }
-
-    try {
-      const resp2 = await fetch('student_docs_catalog.json');
-      this._driveCatalog = await resp2.json();
-    } catch(e) { this._driveCatalog = null; }
+    // Load Drive catalog from global DRIVE_CATALOG (drive-catalog.js)
+    if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.folders) {
+      this._driveCatalog = DRIVE_CATALOG;
+      this._driveFolders = null; // not needed — use DRIVE_CATALOG.byName directly
+    } else {
+      // Fallback: try loading from JSON files
+      try {
+        const resp = await fetch('student_folder_search_results.json');
+        this._driveFolders = await resp.json();
+      } catch(e) { this._driveFolders = null; }
+      try {
+        const resp2 = await fetch('student_docs_catalog.json');
+        this._driveCatalog = await resp2.json();
+      } catch(e) { this._driveCatalog = null; }
+    }
 
     // Populate entity filter dropdown based on active tab
     this._populateFilters();
@@ -1830,16 +1890,31 @@ Object.assign(Pages, {
 
   // ── Helper: find Drive folder info for a student ──
   _findDriveFolder(studentName, studentId) {
+    // Primary: use DRIVE_CATALOG.byName (from drive-catalog.js)
+    if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.byName) {
+      const entry = DRIVE_CATALOG.byName[studentName];
+      if (entry) {
+        return { folder_id: entry.folderId, folder_name: entry.name, folder_link: entry.folderLink, parent_folder: '', source: 'catalog', docs: entry.docs || [] };
+      }
+      // Try partial match by last name / first name
+      if (studentName) {
+        const parts = studentName.split(' ');
+        for (const p of parts) {
+          if (p.length > 1 && DRIVE_CATALOG.byName[p]) {
+            const e = DRIVE_CATALOG.byName[p];
+            return { folder_id: e.folderId, folder_name: e.name, folder_link: e.folderLink, parent_folder: '', source: 'catalog', docs: e.docs || [] };
+          }
+        }
+      }
+    }
+    // Fallback: legacy _driveFolders JSON
     if (!this._driveFolders) return null;
-    // Check matched_in_parents
     const matched = (this._driveFolders.matched_in_parents || []);
     let found = matched.find(m => m.student === studentName || m.student_id === studentId);
     if (found) return { folder_id: found.folder_id, folder_name: found.folder_name, parent_folder: found.parent_folder, source: 'matched' };
-    // Check found_via_search
     const searched = (this._driveFolders.found_via_search || []);
     found = searched.find(m => m.student === studentName || m.student_id === studentId);
     if (found) return { folder_id: found.folder_id, folder_name: found.folder_name, parent_folder: '', source: 'search' };
-    // Check missing list
     const missing = (this._driveFolders.missing || []);
     const isMissing = missing.find(m => m.name === studentName || m.id === studentId);
     if (isMissing) return { missing: true };
@@ -1848,9 +1923,18 @@ Object.assign(Pages, {
 
   // ── Helper: get catalog doc count for a folder_id ──
   _getDriveCatalogInfo(folderId) {
+    // Primary: use DRIVE_CATALOG.folders (from drive-catalog.js)
+    if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.folders) {
+      const entry = DRIVE_CATALOG.folders.find(f => f.folderId === folderId);
+      return entry || null;
+    }
+    // Fallback: legacy array catalog
     if (!this._driveCatalog || !folderId) return null;
-    const entry = this._driveCatalog.find(c => c.folderId === folderId);
-    return entry || null;
+    if (Array.isArray(this._driveCatalog)) {
+      const entry = this._driveCatalog.find(c => c.folderId === folderId);
+      return entry || null;
+    }
+    return null;
   },
 
   // ═══════════════════════════════════════════════════════
@@ -1890,10 +1974,17 @@ Object.assign(Pages, {
       const pctClass = completePct === 100 ? 'success' : completePct >= 50 ? 'warning' : 'danger';
       const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2);
 
-      // Drive folder lookup
+      // Drive folder lookup — prefer DRIVE_CATALOG.byName
       const driveInfo = this._findDriveFolder(s.name, s.id);
-      const catalogInfo = driveInfo && !driveInfo.missing ? this._getDriveCatalogInfo(driveInfo.folder_id) : null;
-      const driveDocCount = catalogInfo ? catalogInfo.documents.length : 0;
+      let driveDocCount = 0;
+      if (driveInfo && !driveInfo.missing) {
+        if (driveInfo.docs && driveInfo.docs.length) {
+          driveDocCount = driveInfo.docs.length;
+        } else {
+          const catalogInfo = this._getDriveCatalogInfo(driveInfo.folder_id);
+          driveDocCount = catalogInfo && catalogInfo.docs ? catalogInfo.docs.length : (catalogInfo && catalogInfo.documents ? catalogInfo.documents.length : 0);
+        }
+      }
 
       // Required doc checklist icons
       const checklistIcons = reqKeys.map(k => {
@@ -1902,10 +1993,11 @@ Object.assign(Pages, {
         return `<span class="me-1" title="${info?.label||k}: ${has?'\u05E7\u05D9\u05D9\u05DD':'\u05D7\u05E1\u05E8'}" style="opacity:${has?1:0.3}"><i class="bi ${has?'bi-check-circle-fill':'bi-x-circle'} text-${has?'success':'danger'}"></i></span>`;
       }).join('');
 
-      // Drive link button
+      // Drive link button — use folderLink from DRIVE_CATALOG when available
       let driveBtn = '';
       if (driveInfo && !driveInfo.missing && driveInfo.folder_id) {
-        driveBtn = `<a href="https://drive.google.com/drive/folders/${driveInfo.folder_id}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation()" title="\u05E4\u05EA\u05D7 \u05D1-Drive${driveInfo.parent_folder ? ' (' + driveInfo.parent_folder + ')' : ''}"><i class="bi bi-google me-1"></i>\u05E4\u05EA\u05D7 \u05D1-Drive${driveDocCount ? ' (' + driveDocCount + ')' : ''}</a>`;
+        const driveLink = driveInfo.folder_link || ('https://drive.google.com/drive/folders/' + driveInfo.folder_id);
+        driveBtn = `<a href="${driveLink}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation()" title="\u05E4\u05EA\u05D7 \u05D1-Drive${driveInfo.parent_folder ? ' (' + driveInfo.parent_folder + ')' : ''}"><i class="bi bi-google me-1"></i>\u05E4\u05EA\u05D7 \u05D1-Drive${driveDocCount ? ' (' + driveDocCount + ')' : ''}</a>`;
       } else if (driveInfo && driveInfo.missing) {
         driveBtn = `<span class="badge bg-warning bg-opacity-10 text-warning" title="\u05D0\u05D9\u05DF \u05EA\u05D9\u05E7\u05D9\u05D9\u05D4 \u05D1-Drive"><i class="bi bi-exclamation-triangle me-1"></i>\u05D0\u05D9\u05DF \u05EA\u05D9\u05E7\u05D9\u05D9\u05D4</span>`;
       }
