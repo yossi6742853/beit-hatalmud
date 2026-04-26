@@ -30,6 +30,7 @@ Object.assign(Pages, {
           </div>
           <div id="dash-notifications"></div>
         </div>
+        <div class="mt-1"><span class="badge bg-light text-muted border" id="dash-data-date"><i class="bi bi-database me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD: \u05D8\u05D5\u05E2\u05DF...</span></div>
       </div>
 
       <!-- Quick Actions -->
@@ -271,6 +272,13 @@ Object.assign(Pages, {
       const cls = s['\u05DB\u05D9\u05EA\u05D4'] || s['\u05DE\u05E1\u05D2\u05E8\u05EA'] || '\u05DC\u05D0 \u05DE\u05E9\u05D5\u05D9\u05DA';
       classCounts[cls] = (classCounts[cls] || 0) + 1;
     });
+
+    // === 0. Data freshness badge ===
+    const dataDateEl = document.getElementById('dash-data-date');
+    if (dataDateEl && typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated) {
+      const d = new Date(DATA_CACHE._lastUpdated);
+      dataDateEl.innerHTML = '<i class="bi bi-database me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DE-' + d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+    }
 
     // === 1. Stats Cards — REAL numbers only ===
     this._setText('stat-students', activeStudents.length);

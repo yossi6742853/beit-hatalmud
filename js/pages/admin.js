@@ -1383,6 +1383,20 @@ Object.assign(Pages, {
       <!-- Data Management Tab -->
       <div class="settings-tab d-none" id="tab-data">
         <div class="row g-3">
+          <!-- Refresh Data from Google Sheets -->
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-arrow-clockwise me-2 text-primary"></i>\u05E8\u05E2\u05E0\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DE-Google Sheets</h6>
+            <p class="small text-muted mb-2">\u05E2\u05D3\u05DB\u05D5\u05DF \u05D0\u05D7\u05E8\u05D5\u05DF: <strong id="data-last-updated">${typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated ? new Date(DATA_CACHE._lastUpdated).toLocaleDateString('he-IL') + ' ' + new Date(DATA_CACHE._lastUpdated).toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'}) : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}</strong></p>
+            <button class="btn btn-primary btn-sm mb-2" onclick="Pages._showRefreshDataInfo()"><i class="bi bi-arrow-repeat me-1"></i>\u05E8\u05E2\u05E0\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</button>
+            <div id="refresh-data-info" class="d-none alert alert-info small mt-2 mb-0">
+              <i class="bi bi-terminal me-1"></i>\u05DC\u05E8\u05E2\u05E0\u05D5\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD, \u05D4\u05E4\u05E2\u05DC \u05D0\u05EA \u05D4\u05E1\u05E7\u05E8\u05D9\u05E4\u05D8:<br><code dir="ltr">python refresh_data.py</code>
+            </div>
+          </div></div>
+          <!-- Record counts per sheet -->
+          <div class="col-md-6"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-database me-2 text-success"></i>\u05E1\u05D9\u05DB\u05D5\u05DD \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</h6>
+            <div id="data-record-counts" class="small" style="max-height:200px;overflow-y:auto"></div>
+          </div></div>
           <div class="col-md-4"><div class="card p-3 text-center">
             <i class="bi bi-trash3 fs-1 text-warning"></i>
             <h6 class="fw-bold mt-2">\u05E0\u05E7\u05D4 \u05DE\u05D8\u05DE\u05D5\u05DF</h6>
@@ -1477,6 +1491,21 @@ Object.assign(Pages, {
     // Apply saved font size on load
     const savedSize = localStorage.getItem('bht_font_size');
     if (savedSize) document.documentElement.style.fontSize = savedSize + 'px';
+
+    // Populate record counts in data tab
+    const countsEl = document.getElementById('data-record-counts');
+    if (countsEl && typeof DATA_CACHE !== 'undefined') {
+      const rows = Object.keys(DATA_CACHE)
+        .filter(k => k !== '_lastUpdated' && Array.isArray(DATA_CACHE[k]))
+        .map(k => `<div class="d-flex justify-content-between border-bottom py-1"><span>${k}</span><span class="badge bg-secondary">${DATA_CACHE[k].length}</span></div>`)
+        .join('');
+      countsEl.innerHTML = rows || '<span class="text-muted">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</span>';
+    }
+  },
+
+  _showRefreshDataInfo() {
+    const el = document.getElementById('refresh-data-info');
+    if (el) el.classList.toggle('d-none');
   },
 
   // --- Theme Toggle ---
