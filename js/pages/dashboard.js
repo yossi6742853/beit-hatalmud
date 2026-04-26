@@ -181,13 +181,30 @@ Object.assign(Pages, {
         </div>
       </div>
 
-      <!-- Recent Activity Feed -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-          <h6 class="fw-bold mb-3">
-            <i class="bi bi-clock-history me-2 text-info"></i>\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
-          </h6>
-          <div id="activity-feed"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+      <!-- Recent Calls + Activity Feed Row -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">
+                  <i class="bi bi-telephone-inbound-fill me-2 text-success"></i>\u05E9\u05D9\u05D7\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
+                </h6>
+                <button class="btn btn-outline-success btn-sm" onclick="Pages._openCallLogModal('','','')"><i class="bi bi-plus-lg"></i></button>
+              </div>
+              <div id="recent-calls"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-clock-history me-2 text-info"></i>\u05E4\u05E2\u05D9\u05DC\u05D5\u05D9\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
+              </h6>
+              <div id="activity-feed"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -421,7 +438,34 @@ Object.assign(Pages, {
       }
     }
 
-    // === 6. System Health ===
+    // === 6. Recent Phone Calls from localStorage ===
+    const callsEl = document.getElementById('recent-calls');
+    if (callsEl) {
+      const recentCalls = JSON.parse(localStorage.getItem('bht_call_log') || '[]').slice(0, 5);
+      if (recentCalls.length === 0) {
+        callsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-telephone fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05DE\u05EA\u05D5\u05E2\u05D3\u05D5\u05EA<br><small>\u05DC\u05D7\u05E5 + \u05DB\u05D3\u05D9 \u05DC\u05E8\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</small></div>';
+      } else {
+        callsEl.innerHTML = recentCalls.map(c => {
+          const displayName = c.studentName || c.parentName || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+          const dateStr = c.date ? Utils.formatDateShort(c.date) : '';
+          return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:#dcfce7">
+              <i class="bi bi-telephone-fill text-success"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold small">${displayName}${c.parentName && c.studentName ? ' <span class="text-muted fw-normal">(' + c.parentName + ')</span>' : ''}</div>
+              <small class="text-muted text-truncate d-block" style="max-width:200px">${c.summary || '\u05DC\u05DC\u05D0 \u05EA\u05E7\u05E6\u05D9\u05E8'}</small>
+            </div>
+            <div class="text-end">
+              <small class="text-muted d-block">${dateStr}</small>
+              <span class="badge bg-light text-dark">${c.duration || ''}</span>
+            </div>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    // === 7. System Health ===
     this._initSystemHealth();
   },
 

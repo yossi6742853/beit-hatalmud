@@ -1248,7 +1248,32 @@ Object.assign(Pages, {
                 </div>
               </div></div>`;
             }).join('')}</div>`
-        }</div>
+        }
+
+          <!-- Recent Phone Calls -->
+          <hr class="my-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0"><i class="bi bi-telephone-inbound me-2 text-success"></i>\u05E9\u05D9\u05D7\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA</h6>
+            <button class="btn btn-outline-success btn-sm" onclick="Pages._openCallLogModal('${name}', '${parentPhone}', '${sId}')"><i class="bi bi-plus-lg me-1"></i>\u05E8\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</button>
+          </div>
+          ${(() => {
+            const allCalls = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+            const studentCalls = allCalls.filter(c => c.studentId === sId || (c.studentName && c.studentName === name)).slice(0, 3);
+            if (!studentCalls.length) return '<div class="text-muted text-center py-2 small">\u05D0\u05D9\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05DE\u05EA\u05D5\u05E2\u05D3\u05D5\u05EA</div>';
+            return studentCalls.map(c => `<div class="card p-2 mb-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <div class="fw-semibold small">${c.parentName || '\u05DC\u05D0 \u05E6\u05D5\u05D9\u05DF'}</div>
+                  <div class="small text-muted">${c.summary || ''}</div>
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted">${c.date || ''}</div>
+                  <span class="badge bg-light text-dark">${c.duration || ''}</span>
+                </div>
+              </div>
+            </div>`).join('');
+          })()}
+        </div>
 
         <!-- ============ 7. Documents Tab ============ -->
         <div class="tab-pane fade" id="tab-docs">
@@ -1817,5 +1842,133 @@ Object.assign(Pages, {
       Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4', 'success');
       this.studentInit(this._scStudentId);
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+  },
+
+  /* ======================================================================
+     PHONE CALL LOG — localStorage-based (bht_call_log)
+     ====================================================================== */
+
+  /** Open the call log modal. Can be called from anywhere in the app. */
+  _openCallLogModal(studentName, parentPhone, studentId) {
+    document.getElementById('sc-modal-container')?.remove();
+    const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
+
+    // Try to find parent name from DATA_CACHE
+    let parentName = '';
+    if (studentId || studentName) {
+      try {
+        const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+        const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+        const match = parents.find(p => {
+          const pStudent = p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4'] || '';
+          const pName = p['\u05E9\u05DD'] || p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+          return (studentId && String(pStudent) === String(studentId)) || (studentName && pName === studentName);
+        });
+        if (match) {
+          parentName = ((match['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (match['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
+          if (!parentPhone) parentPhone = match['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
+        }
+      } catch(e) {}
+    }
+
+    document.body.insertAdjacentHTML('beforeend', `
+      <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5><i class="bi bi-telephone-plus me-2"></i>\u05E8\u05D9\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05EA</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">\u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3</label>
+              <input type="text" class="form-control" id="cl-student-name" value="${(studentName||'').replace(/'/g, '&#39;')}" ${studentName ? 'readonly' : ''}>
+              <input type="hidden" id="cl-student-id" value="${studentId||''}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">\u05E9\u05DD \u05D4\u05D5\u05E8\u05D4</label>
+              <input type="text" class="form-control" id="cl-parent-name" value="${(parentName||'').replace(/'/g, '&#39;')}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D5\u05E8\u05D4</label>
+              <input type="text" class="form-control" id="cl-parent-phone" dir="ltr" value="${parentPhone||''}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label>
+              <input type="date" class="form-control" id="cl-date" value="${today}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">\u05DE\u05E9\u05DA \u05E9\u05D9\u05D7\u05D4</label>
+              <select class="form-select" id="cl-duration">
+                <option value="5 \u05D3\u05E7\u05D5\u05EA">5 \u05D3\u05E7\u05D5\u05EA</option>
+                <option value="10 \u05D3\u05E7\u05D5\u05EA" selected>10 \u05D3\u05E7\u05D5\u05EA</option>
+                <option value="15 \u05D3\u05E7\u05D5\u05EA">15 \u05D3\u05E7\u05D5\u05EA</option>
+                <option value="30 \u05D3\u05E7\u05D5\u05EA">30 \u05D3\u05E7\u05D5\u05EA</option>
+                <option value="60 \u05D3\u05E7\u05D5\u05EA">60 \u05D3\u05E7\u05D5\u05EA</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">\u05EA\u05E7\u05E6\u05D9\u05E8 \u05E9\u05D9\u05D7\u05D4</label>
+              <textarea class="form-control" id="cl-summary" rows="3" placeholder="\u05DE\u05D4 \u05D3\u05D5\u05D1\u05E8 \u05D1\u05E9\u05D9\u05D7\u05D4..."></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05E0\u05D3\u05E8\u05E9\u05D5\u05EA</label>
+              <textarea class="form-control" id="cl-actions" rows="2" placeholder="\u05DE\u05D4 \u05E6\u05E8\u05D9\u05DA \u05DC\u05E2\u05E9\u05D5\u05EA \u05D1\u05D4\u05DE\u05E9\u05DA..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+          <button class="btn btn-success" onclick="Pages._saveCallLog()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8 \u05E9\u05D9\u05D7\u05D4</button>
+        </div>
+      </div></div></div>`);
+    new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
+  },
+
+  /** Save a phone call entry to localStorage bht_call_log */
+  _saveCallLog() {
+    const studentName = (document.getElementById('cl-student-name')?.value || '').trim();
+    const studentId = (document.getElementById('cl-student-id')?.value || '').trim();
+    const parentName = (document.getElementById('cl-parent-name')?.value || '').trim();
+    const parentPhone = (document.getElementById('cl-parent-phone')?.value || '').trim();
+    const date = (document.getElementById('cl-date')?.value || '').trim();
+    const duration = (document.getElementById('cl-duration')?.value || '').trim();
+    const summary = (document.getElementById('cl-summary')?.value || '').trim();
+    const actions = (document.getElementById('cl-actions')?.value || '').trim();
+
+    if (!studentName && !parentName) {
+      Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05DC\u05E4\u05D7\u05D5\u05EA \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3 \u05D0\u05D5 \u05D4\u05D5\u05E8\u05D4', 'warning');
+      return;
+    }
+
+    const entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+      studentName,
+      studentId,
+      parentName,
+      parentPhone,
+      date,
+      duration,
+      summary,
+      actions,
+      createdAt: new Date().toISOString()
+    };
+
+    const logs = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+    logs.unshift(entry);
+    // Keep max 500 entries
+    if (logs.length > 500) logs.length = 500;
+    localStorage.setItem('bht_call_log', JSON.stringify(logs));
+
+    bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
+    Utils.toast('\u05E9\u05D9\u05D7\u05D4 \u05E0\u05E8\u05E9\u05DE\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+
+    // Refresh student card if we're on one
+    if (this._scStudentId) this.studentInit(this._scStudentId);
+  },
+
+  /** Get recent calls from localStorage (used by dashboard too) */
+  _getRecentCalls(limit) {
+    const logs = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+    return logs.slice(0, limit || 5);
   },
 });
