@@ -68,10 +68,11 @@ Object.assign(Pages, {
   _staffExpandedId: null,
   _staffCurrentView: null,
 
-  async staffInit() {
+  staffInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let data;
     try {
-      data = await App.getData('\u05E6\u05D5\u05D5\u05EA');
+      data = _gc('\u05E6\u05D5\u05D5\u05EA');
     } catch(e) {
       data = [];
     }
@@ -255,13 +256,14 @@ Object.assign(Pages, {
   /* ======================================================================
      STAFF SCHEDULE — Weekly Grid
      ====================================================================== */
-  async _renderScheduleView(container) {
+  _renderScheduleView(container) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
     const hours = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
 
     // Load real schedule data from מערכת_שעות
     let scheduleData = [];
-    try { scheduleData = await App.getData('מערכת_שעות'); } catch (e) {}
+    try { scheduleData = _gc('מערכת_שעות'); } catch (e) {}
 
     const scheduleMap = {};
     if (scheduleData.length > 0) {
@@ -356,11 +358,12 @@ Object.assign(Pages, {
   _stfAttData: {},
   _stfAttLog: [],
 
-  async _renderAttendanceView(container) {
+  _renderAttendanceView(container) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const staff = this._staffData || [];
     const todayISO = Utils.todayISO();
     let attData = [];
-    try { attData = await App.getData('נוכחות_צוות'); } catch (e) { /* sheet may not exist */ }
+    try { attData = _gc('נוכחות_צוות'); } catch (e) { /* sheet may not exist */ }
     const todayAtt = attData.filter(a => a['תאריך'] === todayISO);
     const attMap = {};
     todayAtt.forEach(a => {
@@ -448,9 +451,10 @@ Object.assign(Pages, {
   /* ======================================================================
      DOCUMENT MANAGEMENT — Per-staff
      ====================================================================== */
-  async showStaffDocs(sid, name) {
+  showStaffDocs(sid, name) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let staffDocs = [];
-    try { staffDocs = await App.getData('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
     const docs = staffDocs.filter(d => d['מזהה_עובד'] === sid || d['שם_עובד'] === name);
     const requiredDocs = ['תעודת זהות', 'תעודת משטרה', 'תלוש משכורת', 'אישור משטרה'];
     const hasDocTypes = docs.map(d => d['סוג_מסמך'] || '');
@@ -610,9 +614,10 @@ Object.assign(Pages, {
      ====================================================================== */
   staff_card(id) { return `<div id="staff-card-content">${Utils.skeleton(2)}</div>`; },
 
-  async staff_cardInit(id) {
+  staff_cardInit(id) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let staff = [];
-    try { staff = await App.getData('צוות'); } catch(e) {}
+    try { staff = _gc('צוות'); } catch(e) {}
     if (!staff) staff = [];
     const s = staff.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {
@@ -629,7 +634,7 @@ Object.assign(Pages, {
 
     // Try to get attendance record
     let attData = [];
-    try { attData = await App.getData('נוכחות_צוות'); } catch (e) {}
+    try { attData = _gc('נוכחות_צוות'); } catch (e) {}
     const myAtt = attData.filter(a => a['שם_עובד'] === name || a['מזהה_עובד'] === String(id));
     const presentDays = myAtt.filter(a => a['סטטוס'] === 'נוכח').length;
     const totalDays = myAtt.length || 1;
@@ -637,7 +642,7 @@ Object.assign(Pages, {
 
     // Try to get documents
     let staffDocs = [];
-    try { staffDocs = await App.getData('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
     const docs = staffDocs.filter(d => d['מזהה_עובד'] === String(id) || d['שם_עובד'] === name);
 
     document.getElementById('staff-card-content').innerHTML = `
@@ -866,9 +871,10 @@ Object.assign(Pages, {
     </div>`;
   },
 
-  async staff_salaryInit() {
+  staff_salaryInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let realData = [];
-    try { realData = await App.getData('שכר_צוות'); } catch (e) {}
+    try { realData = _gc('שכר_צוות'); } catch (e) {}
     this._salData = (realData && realData.length > 0) ? realData : [];
     // Build monthly data from real salary records (grouped by חודש field)
     this._salMonthlyData = this._buildMonthlyFromData(this._salData);
@@ -1395,11 +1401,12 @@ Object.assign(Pages, {
   async showStaffAttendance() {
     this.toggleStaffView('attendance');
   },
-  async showStaffMissingDocs() {
+  showStaffMissingDocs() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Quick missing docs check
     const staff = this._staffData || [];
     let staffDocs = [];
-    try { staffDocs = await App.getData('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
     const requiredDocs = ['תעודת זהות', 'תעודת משטרה', 'תלוש משכורת', 'אישור משטרה'];
     const missing = [];
     staff.forEach(s => {

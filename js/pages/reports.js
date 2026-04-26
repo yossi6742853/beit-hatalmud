@@ -271,9 +271,10 @@ Object.assign(Pages, {
     this._renderScheduledReports();
   },
 
-  async _populateClassFilter() {
+  _populateClassFilter() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
-      const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       if (!students || !students.length) return;
       const classes = [...new Set(students.map(s => s['\u05DB\u05D9\u05EA\u05D4'] || '').filter(Boolean))].sort();
       const sel = document.getElementById('rpt-class');

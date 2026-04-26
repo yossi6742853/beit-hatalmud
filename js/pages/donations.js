@@ -263,10 +263,11 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async donationsInit() {
+  donationsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let data;
     try {
-      const apiData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+      const apiData = _gc('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
       if (apiData && apiData.length) {
         data = apiData;
       } else if (this._donUseDemo) {

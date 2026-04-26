@@ -137,11 +137,12 @@ Object.assign(Pages, {
   },
 
   /* ---- Init ---- */
-  async gradebookInit() {
+  gradebookInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API first
     let loaded = false;
     try {
-      const apiGrades = await App.getData('ציונים');
+      const apiGrades = _gc('ציונים');
       if (apiGrades && apiGrades.length) {
         // API returns flat grade rows — build grades map
         this._gbGrades = {};
@@ -155,7 +156,7 @@ Object.assign(Pages, {
     } catch(e) { /* fall through */ }
 
     try {
-      const apiStudents = await App.getData('תלמידים');
+      const apiStudents = _gc('תלמידים');
       if (apiStudents && apiStudents.length) {
         this._gbStudents = apiStudents.map((s, i) => ({
           id: s.id || ('s' + (i + 1)),
@@ -168,7 +169,7 @@ Object.assign(Pages, {
     } catch(e) { /* fall through */ }
 
     try {
-      const apiExams = await App.getData('מבחנים');
+      const apiExams = _gc('מבחנים');
       if (apiExams && apiExams.length) {
         this._gbExams = apiExams.map((ex, i) => ({
           id: ex.id || ('e' + (i + 1)),

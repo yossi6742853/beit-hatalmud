@@ -308,12 +308,13 @@ Object.assign(Pages, {
     App.navigate('printcenter');
   },
 
-  async printcenterInit() {
+  printcenterInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._pcSelectedTemplate = null;
 
     // Load REAL student data from API
     try {
-      const raw = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      const raw = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       if (raw && raw.length) {
         this._pcStudents = raw.map(s => ({
           name: Utils.fullName(s),
@@ -358,7 +359,7 @@ Object.assign(Pages, {
 
     // Also try to load medical data for trip list
     try {
-      const medRaw = await App.getData('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+      const medRaw = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
       if (medRaw && medRaw.length) {
         this._pcMedicalData = medRaw;
       }
@@ -366,7 +367,7 @@ Object.assign(Pages, {
 
     // Also try to load parent data
     try {
-      const parentsRaw = await App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD');
+      const parentsRaw = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
       if (parentsRaw && parentsRaw.length) {
         this._pcParentsData = parentsRaw;
       }

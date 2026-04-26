@@ -166,12 +166,13 @@ Object.assign(Pages, {
   },
 
   /* ---------- init ---------- */
-  async bulletinInit() {
+  bulletinInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._bulletinFilter = { search:'', category:'all', showArchive:false };
 
     // Try loading from API, fall back to localStorage
     try {
-      const apiData = await App.getData('לוח_מודעות');
+      const apiData = _gc('לוח_מודעות');
       if (apiData && apiData.length) {
         this._bulletinData = apiData;
         this._bulletinNextId = Math.max(...apiData.map(b => b.id || 0)) + 1;

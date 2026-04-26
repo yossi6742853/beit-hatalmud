@@ -358,10 +358,11 @@ Object.assign(Pages, {
   },
 
   /* ---- Init: set up keyboard and state ---- */
-  async checklistInit() {
+  checklistInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try to load from API and merge/replace local data
     try {
-      const apiData = await App.getData('משימות');
+      const apiData = _gc('משימות');
       if (apiData && apiData.length && apiData[0].lists) {
         // API returned checklist data object
         localStorage.setItem(this._clKey, JSON.stringify(apiData[0]));

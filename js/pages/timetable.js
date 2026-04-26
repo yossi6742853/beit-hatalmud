@@ -592,10 +592,11 @@ Object.assign(Pages, {
     App.navigate('timetable');
   },
 
-  async timetableInit() {
+  timetableInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, fall back to demo
     try {
-      const apiData = await App.getData('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
+      const apiData = _gc('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
       if (apiData && Object.keys(apiData).length > 0) {
         if (apiData.schedule) this._ttSchedule = apiData.schedule;
         if (apiData.subjects) this._ttSubjects = apiData.subjects;

@@ -216,11 +216,12 @@ Object.assign(Pages, {
     App.navigate('facilitymap');
   },
 
-  async facilitymapInit() {
+  facilitymapInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading rooms from API, fall back to hardcoded data
     let apiRooms = [];
     try {
-      apiRooms = await App.getData('חדרים');
+      apiRooms = _gc('חדרים');
     } catch(e) { /* use demo */ }
 
     // Store rooms data globally for modal access

@@ -296,11 +296,12 @@ Object.assign(Pages, {
     App.navigate('forms');
   },
 
-  async formsInit() {
+  formsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API
     this._formsData = this._formsUseDemo ? this._formsDemoData : [];
     try {
-      const apiData = await App.getData('טפסים');
+      const apiData = _gc('טפסים');
       if (apiData && apiData.length) {
         this._formsData = apiData.map(row => ({
           _id: row._id || row.id || 'f_' + Date.now(),

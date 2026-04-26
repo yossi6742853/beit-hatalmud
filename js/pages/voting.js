@@ -516,10 +516,11 @@ Object.assign(Pages, {
     App.navigate('voting');
   },
 
-  async votingInit() {
+  votingInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API, fall back to demo data
     try {
-      const apiData = await App.getData('הצבעות');
+      const apiData = _gc('הצבעות');
       if (apiData && apiData.length) {
         this._pollState.polls = apiData.map(row => ({
           id: row._id || row.id || 'p_' + Date.now(),

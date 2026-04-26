@@ -384,10 +384,11 @@ Object.assign(Pages, {
     this._certUpdateStats();
   },
 
-  async certificatesInit() {
+  certificatesInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API
     try {
-      const apiData = await App.getData('תעודות');
+      const apiData = _gc('תעודות');
       if (apiData && apiData.length) {
         this._certHistory = apiData.map((row, i) => ({
           id: row._id || row.id || i + 1,

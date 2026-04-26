@@ -253,10 +253,11 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
-  async emergencyInit() {
+  emergencyInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, then localStorage, fall back to defaults
     try {
-      const apiData = await App.getData('\u05D7\u05D9\u05E8\u05D5\u05DD');
+      const apiData = _gc('\u05D7\u05D9\u05E8\u05D5\u05DD');
       if (apiData && (apiData.drills || apiData.contacts)) {
         this._emergencySaveData(apiData);
       }

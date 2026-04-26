@@ -267,14 +267,15 @@ Object.assign(Pages, {
 
   /* ---------- Init — build all charts ---------- */
   async analyticsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading real data from API
     let apiStudents, apiAttendance, apiGrades, apiFinance;
     try {
       [apiStudents, apiAttendance, apiGrades, apiFinance] = await Promise.all([
-        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
-        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(() => []),
-        App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(() => []),
-        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(() => [])
+        _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
+        _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
+        _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD'),
+        _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3')
       ]);
     } catch(e) {
       apiStudents = []; apiAttendance = []; apiGrades = []; apiFinance = [];

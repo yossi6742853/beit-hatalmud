@@ -133,13 +133,14 @@ Object.assign(Pages, {
     `;
   },
 
-  async notificationsInit() {
+  notificationsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._notifFilter = 'all';
     this._notifDetailId = null;
 
     // Try syncing from API
     try {
-      const apiData = await App.getData('התראות');
+      const apiData = _gc('התראות');
       if (apiData && apiData.length) {
         const mapped = apiData.map(row => ({
           id: row._id || row.id || Date.now(),

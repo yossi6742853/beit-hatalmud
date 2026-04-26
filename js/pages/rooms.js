@@ -287,10 +287,11 @@ Object.assign(Pages, {
     App.navigate('rooms');
   },
 
-  async roomsInit() {
+  roomsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, then localStorage, fall back to demo
     try {
-      const apiData = await App.getData('\u05D7\u05D3\u05E8\u05D9\u05DD');
+      const apiData = _gc('\u05D7\u05D3\u05E8\u05D9\u05DD');
       if (apiData && apiData.length > 0) {
         if (apiData.rooms) this._rooms = apiData.rooms;
         if (apiData.bookings) this._roomBookings = apiData.bookings;

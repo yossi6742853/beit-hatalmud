@@ -213,10 +213,11 @@ Object.assign(Pages, {
     App.navigate('inventory');
   },
 
-  async inventoryInit() {
+  inventoryInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API, fall back to localStorage, then demo data
     try {
-      const apiData = await App.getData('רכוש');
+      const apiData = _gc('רכוש');
       if (apiData && apiData.length) {
         this._invData = apiData.map(r => ({ ...r, checkouts: r.checkouts || [] }));
         this._invNextId = Math.max(...this._invData.map(i => i.id || 0)) + 1;

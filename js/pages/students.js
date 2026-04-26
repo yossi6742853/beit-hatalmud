@@ -185,10 +185,11 @@ Object.assign(Pages, {
     `;
   },
 
-  async studentsInit() {
+  studentsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let data;
     try {
-      data = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      data = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     } catch(e) {
       data = [];
     }
@@ -752,21 +753,22 @@ Object.assign(Pages, {
   /* ======================================================================
      PRINT STUDENT REPORT CARD
      ====================================================================== */
-  async printStudentCard(id) {
-    const students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+  printStudentCard(id) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     const s = students.find(x => String(Utils.rowId(x)) === String(id));
     if (!s) return;
     const name = Utils.fullName(s);
-    const att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+    const att = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     const studentAtt = att.filter(a => (a['\u05E9\u05DD']||a['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||a['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
     const present = studentAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7').length;
     const attPct = studentAtt.length ? Math.round(present/studentAtt.length*100) : 0;
 
-    const grades = await App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(()=>[]);
+    const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
     const studentGrades = grades.filter(g => (g['\u05E9\u05DD']||g['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||g['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||g['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
     const avgGrade = studentGrades.length ? Math.round(studentGrades.reduce((s,g)=>s+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length) : null;
 
-    const behavior = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[]);
+    const behavior = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
     const studentBeh = behavior.filter(b => (b['\u05E9\u05DD']||b['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === name || String(b['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||b['\u05EA\u05DC\u05DE\u05D9\u05D3']||'') === String(id));
     const posB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05D7\u05D9\u05D5\u05D1\u05D9').length;
     const negB = studentBeh.filter(b => (b['\u05E1\u05D5\u05D2']||'') === '\u05E9\u05DC\u05D9\u05DC\u05D9').length;
@@ -827,9 +829,10 @@ Object.assign(Pages, {
     // Use DATA_CACHE directly if available (avoids async issues)
     let students = [];
     if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'] && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'].length) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
       students = DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'];
     } else {
-      students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     }
     const s = students.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {

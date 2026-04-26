@@ -146,8 +146,9 @@ Object.assign(Pages, {
     this._ctRender();
   },
 
-  async contactsInit() {
-    let data = await App.getData('\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8');
+  contactsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    let data = _gc('\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8');
     if (!data || data.length === 0) {
       if (this._contactsUseDemo) {
         data = this._contactsDemoData.map((d, i) => ({ ...d, _row: i + 2 }));

@@ -142,12 +142,13 @@ Object.assign(Pages, {
     App.navigate('library');
   },
 
-  async libraryInit() {
+  libraryInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._libView = 'grid';
 
     // Try loading from API, fall back to localStorage, then demo data
     try {
-      const apiData = await App.getData('ספריה');
+      const apiData = _gc('ספריה');
       if (apiData && apiData.length) {
         this._libBooks = apiData.filter(r => r.type === 'book' || !r.type);
         this._libLoans = apiData.filter(r => r.type === 'loan');

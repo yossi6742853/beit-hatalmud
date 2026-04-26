@@ -466,10 +466,11 @@ Object.assign(Pages, {
     App.navigate('rewards');
   },
 
-  async rewardsInit() {
+  rewardsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading from API
     try {
-      var apiData = await App.getData('\u05E4\u05E8\u05E1\u05D9\u05DD');
+      var apiData = _gc('\u05E4\u05E8\u05E1\u05D9\u05DD');
       if (apiData && apiData.length) {
         this._rewardStudents = apiData.filter(function(r) { return r['\u05E1\u05D5\u05D2'] === '\u05EA\u05DC\u05DE\u05D9\u05D3' || !r['\u05E1\u05D5\u05D2']; }).map(function(row, i) {
           return {

@@ -448,10 +448,11 @@ Object.assign(Pages, {
     App.navigate('transport');
   },
 
-  async transportInit() {
+  transportInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, fall back to demo/localStorage
     try {
-      const apiData = await App.getData('\u05D4\u05E1\u05E2\u05D5\u05EA');
+      const apiData = _gc('\u05D4\u05E1\u05E2\u05D5\u05EA');
       if (apiData && apiData.length > 0) {
         if (apiData.drivers) this._transportDrivers = apiData.drivers;
         if (apiData.routes) this._transportRoutes = apiData.routes;

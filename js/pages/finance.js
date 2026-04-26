@@ -181,9 +181,10 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async financeInit() {
+  financeInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
-      this._finData = await App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
+      this._finData = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
     } catch(e) {
       this._finData = [];
     }
@@ -592,6 +593,7 @@ Object.assign(Pages, {
 
   /* ---------- Quick payment modal ---------- */
   showAddPayment(editId) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const editing = editId ? (this._finData || []).find(f => Utils.rowId(f) === editId) : null;
     const title = editing ? '\u05E2\u05E8\u05D9\u05DB\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD' : '\u05EA\u05E9\u05DC\u05D5\u05DD \u05D7\u05D3\u05E9';
     const html = `<div class="modal fade" id="fin-modal-dyn" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
@@ -632,7 +634,7 @@ Object.assign(Pages, {
     document.body.insertAdjacentHTML('beforeend', html);
 
     // Populate student list
-    App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
+    _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
       const sel = document.getElementById('ff-student');
       if (!sel) return;
       sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
@@ -751,6 +753,7 @@ Object.assign(Pages, {
 
   /* ---------- Invoice modal ---------- */
   showInvoiceModal() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const html = `<div class="modal fade" id="fin-invoice-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
       <div class="modal-header"><h5 class="modal-title"><i class="bi bi-receipt me-2"></i>\u05D9\u05E6\u05D9\u05E8\u05EA \u05D7\u05E9\u05D1\u05D5\u05E0\u05D9\u05EA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
@@ -770,7 +773,7 @@ Object.assign(Pages, {
     document.getElementById('fin-invoice-modal')?.remove();
     document.body.insertAdjacentHTML('beforeend', html);
 
-    App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
+    _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
       const sel = document.getElementById('inv-student');
       if (!sel) return;
       sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.fullName(s)}">${Utils.fullName(s)}</option>`).join('');
@@ -1110,9 +1113,10 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async pettycashInit() {
+  pettycashInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
-      this._pcData = await App.getData('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+      this._pcData = _gc('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
     } catch(e) {
       this._pcData = [];
     }
@@ -1698,10 +1702,11 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async budgetInit() {
+  budgetInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let data;
     try {
-      data = await App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1');
+      data = _gc('\u05EA\u05E7\u05E6\u05D9\u05D1');
     } catch(e) {
       data = [];
     }

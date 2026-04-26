@@ -336,10 +336,11 @@ Object.assign(Pages, {
     App.navigate('tutoring');
   },
 
-  async tutoringInit() {
+  tutoringInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, then localStorage, fall back to demo
     try {
-      const apiData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8');
+      const apiData = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8');
       if (apiData && apiData.length > 0) {
         if (apiData.tutors) this._tutors = apiData.tutors;
         if (apiData.sessions) this._tutorSessions = apiData.sessions;

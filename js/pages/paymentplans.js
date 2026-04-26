@@ -289,10 +289,11 @@ Object.assign(Pages, {
     this._ppRenderCharts();
   },
 
-  async paymentplansInit() {
+  paymentplansInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, fall back to demo
     try {
-      const apiData = await App.getData('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD');
+      const apiData = _gc('\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD');
       if (apiData && apiData.length > 0) {
         this._ppPlans = apiData;
       } else {

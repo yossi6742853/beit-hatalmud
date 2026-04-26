@@ -340,11 +340,12 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async mealsInit() {
+  mealsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, then localStorage
     let hasData = false;
     try {
-      const apiData = await App.getData('\u05EA\u05E4\u05E8\u05D9\u05D8');
+      const apiData = _gc('\u05EA\u05E4\u05E8\u05D9\u05D8');
       if (apiData && Object.keys(apiData).length > 0) {
         this._mealsDemoMenu = apiData;
         hasData = true;

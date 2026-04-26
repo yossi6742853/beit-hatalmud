@@ -241,14 +241,15 @@ Object.assign(Pages, {
     App.navigate('medical');
   },
 
-  async medicalInit() {
+  medicalInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._medData = null;
     this._medEvents = null;
     this._medVaccines = null;
 
     // Try loading from API first
     try {
-      const apiData = await App.getData('מידע_רפואי');
+      const apiData = _gc('מידע_רפואי');
       if (apiData && apiData.length) {
         this._medData = apiData;
         this._saveMedData();

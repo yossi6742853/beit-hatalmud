@@ -397,10 +397,11 @@ Object.assign(Pages, {
     App.navigate('hebrewcal');
   },
 
-  async hebrewcalInit() {
+  hebrewcalInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API for events
     try {
-      const apiData = await App.getData('לוח_שנה');
+      const apiData = _gc('לוח_שנה');
       if (apiData && apiData.length) {
         this._hcEvents = apiData;
         return;

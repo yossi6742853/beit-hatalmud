@@ -92,7 +92,8 @@ Object.assign(Pages, {
     App.navigate('whatsapp');
   },
 
-  async whatsappInit() {
+  whatsappInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._waTab = 'send';
     this._waSelectedRecipients = new Set();
     this._waSelectedGroup = null;
@@ -100,7 +101,7 @@ Object.assign(Pages, {
 
     // Try loading contacts/history from API
     try {
-      const apiData = await App.getData('תקשורת_הורים');
+      const apiData = _gc('תקשורת_הורים');
       if (apiData && apiData.length) {
         // Map API data to contacts format
         const contacts = apiData.filter(r => r['סוג_רשומה'] !== 'היסטוריה');

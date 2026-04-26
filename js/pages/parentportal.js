@@ -315,10 +315,11 @@ Object.assign(Pages, {
     App.navigate('parentportal');
   },
 
-  async parentportalInit() {
+  parentportalInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try loading parents from API
     try {
-      const apiData = await App.getData('הורים');
+      const apiData = _gc('הורים');
       if (apiData && apiData.length) {
         this._portalParents = apiData.map((row, i) => ({
           id: row._id || row.id || i + 1,

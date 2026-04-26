@@ -266,14 +266,15 @@ Object.assign(Pages, {
   /* ================================================================
      INIT
      ================================================================ */
-  async emailInit() {
+  emailInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._emailFolder = 'INBOX';
     this._emailSelected = new Set();
     this._emailSearchQuery = '';
 
     // Try loading real email data from API
     try {
-      const data = await App.getData('\u05D3\u05D5\u05D0\u05E8');
+      const data = _gc('\u05D3\u05D5\u05D0\u05E8');
       if (data && data.length) {
         this._emailApiInbox = data.filter(e => !e.folder || e.folder === 'INBOX');
         this._emailApiSent = data.filter(e => e.folder === 'SENT');

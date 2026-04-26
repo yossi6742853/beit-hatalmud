@@ -250,10 +250,11 @@ Object.assign(Pages, {
     App.navigate('chavruta');
   },
 
-  async chavrutaInit() {
+  chavrutaInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API
     try {
-      const apiData = await App.getData('חברותות');
+      const apiData = _gc('חברותות');
       if (apiData && apiData.length) {
         this._chavPairs = apiData;
         return;

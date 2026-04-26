@@ -227,10 +227,11 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async homeworkInit() {
+  homeworkInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first
     try {
-      const apiData = await App.getData('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
+      const apiData = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
       if (apiData && apiData.length > 0) {
         this._hwData = apiData;
       } else if (this._hwUseDemo) {
@@ -257,6 +258,7 @@ Object.assign(Pages, {
     }
 
     if (this._hwUseDemo) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
       this._hwGenerateDemo();
       this._hwSubmissions = this._hwDemoSubmissions;
       this._hwStudents = this._hwDemoStudents;
@@ -265,7 +267,7 @@ Object.assign(Pages, {
       this._hwStudents = [];
       // Try loading students for submissions
       try {
-        const stuData = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+        const stuData = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
         if (stuData && stuData.length) this._hwStudents = stuData;
       } catch(e) {}
     }

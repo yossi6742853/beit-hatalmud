@@ -302,11 +302,12 @@ Object.assign(Pages, {
 
   /* ---- Load & Render ---- */
   async loadDrive() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const list = document.getElementById('drive-list');
     if (list) list.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
 
     try {
-      const apiData = await App.getData('קבצים_מצורפים');
+      const apiData = _gc('קבצים_מצורפים');
       if (apiData && apiData.length) {
         this._loadedFiles = apiData.map((row, i) => ({
           id: row._id || row.id || String(i + 1),
