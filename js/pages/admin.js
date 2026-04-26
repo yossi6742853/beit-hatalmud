@@ -132,6 +132,7 @@ Object.assign(Pages, {
               <option value="finance">\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</option>
               <option value="students_by_class">\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D4</option>
               <option value="behavior">\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</option>
+              <option value="annual">\u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05E0\u05EA\u05D9</option>
             </select>
           </div>
           <div class="col-md-2">
@@ -270,18 +271,24 @@ Object.assign(Pages, {
 
   /* Export CSV */
   rptExportCSV() {
-    const table = document.querySelector('#rpt-content table');
-    if (!table) { Utils.toast('\u05D0\u05D9\u05DF \u05D8\u05D1\u05DC\u05D4 \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'warning'); return; }
+    const content = document.getElementById('rpt-content');
+    const tables = content ? content.querySelectorAll('table') : [];
+    if (!tables.length) { Utils.toast('\u05D0\u05D9\u05DF \u05D8\u05D1\u05DC\u05D4 \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'warning'); return; }
     const rows = [];
-    table.querySelectorAll('tr').forEach(tr => {
-      const cells = [];
-      tr.querySelectorAll('th,td').forEach(td => cells.push('"' + (td.textContent||'').replace(/"/g,'""') + '"'));
-      rows.push(cells.join(','));
+    tables.forEach((table, idx) => {
+      if (idx > 0) rows.push('');
+      table.querySelectorAll('tr').forEach(tr => {
+        const cells = [];
+        tr.querySelectorAll('th,td').forEach(td => cells.push('"' + (td.textContent||'').replace(/"/g,'""') + '"'));
+        rows.push(cells.join(','));
+      });
     });
     const bom = '\uFEFF';
     const blob = new Blob([bom + rows.join('\n')], {type:'text/csv;charset=utf-8'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = '\u05D3\u05D5\u05D7_' + (document.getElementById('rpt-type')?.value||'report') + '.csv';
+    const rptType = document.getElementById('rpt-type')?.value || 'report';
+    const dateStr = new Date().toISOString().slice(0,10);
+    const a = document.createElement('a'); a.href = url; a.download = '\u05D3\u05D5\u05D7_' + rptType + '_' + dateStr + '.csv';
     a.click(); URL.revokeObjectURL(url);
     Utils.toast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D9\u05D5\u05E8\u05D3', 'success');
   },
@@ -290,7 +297,7 @@ Object.assign(Pages, {
   _rptDestroyCharts() {
     if (Pages._rptCharts) Pages._rptCharts.forEach(c => c.destroy());
     Pages._rptCharts = [];
-    ['rptAtt','rptFin','rptBeh','rptCls','rptAtt14','rptFinM','rptBehR','rptAttDaily','rptAttMonthly','rptFinSummary','rptBehSummary'].forEach(k => {
+    ['rptAtt','rptFin','rptBeh','rptCls','rptAtt14','rptFinM','rptBehR','rptAttDaily','rptAttMonthly','rptFinSummary','rptBehSummary','rptAnnAtt','rptAnnGrades','rptAnnBeh','rptAnnPay'].forEach(k => {
       if (App.charts[k]) { App.charts[k].destroy(); delete App.charts[k]; }
     });
   },
@@ -309,12 +316,12 @@ Object.assign(Pages, {
       fin = this._rptDemoFin();
       beh = this._rptDemoBeh();
     } else {
-      const needed = { overview:4, att_daily:2, att_monthly:2, finance:2, students_by_class:1, behavior:2 };
+      const needed = { overview:4, att_daily:2, att_monthly:2, finance:2, students_by_class:1, behavior:2, annual:5 };
       const n = needed[type] || 4;
       students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-      att = (n >= 2 && (type.startsWith('att') || type==='overview')) ? _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA') : [];
-      fin = (n >= 2 && (type==='finance'||type==='overview')) ? _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3') : [];
-      beh = (n >= 2 && (type==='behavior'||type==='overview')) ? _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA') : [];
+      att = (n >= 2 && (type.startsWith('att') || type==='overview' || type==='annual')) ? _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA') : [];
+      fin = (n >= 2 && (type==='finance'||type==='overview'||type==='annual')) ? _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3') : [];
+      beh = (n >= 2 && (type==='behavior'||type==='overview'||type==='annual')) ? _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA') : [];
     }
 
     if (!this._rptUseDemo && !students.length && !att.length && !fin.length && !beh.length) {
@@ -653,6 +660,142 @@ Object.assign(Pages, {
       if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}}); Pages._rptCharts.push(App.charts.rptBehR);
       const btCtx = document.getElementById('rpt-beh-type-chart');
       if (btCtx) App.charts.rptBehSummary = new Chart(btCtx, {type:'doughnut', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[totalPos,totalNeg,totalNote], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptBehSummary);
+    }
+
+    /* ---- ANNUAL SUMMARY ---- */
+    else if (type === 'annual') {
+      const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
+      const now = new Date();
+      const yearStart = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+      const yrFrom = yearStart + '-09-01';
+      const yrTo = (yearStart + 1) + '-08-31';
+      const yrFilter = (arr, df) => arr.filter(r => { const d = r[df]||''; return d >= yrFrom && d <= yrTo; });
+
+      const yrAtt = yrFilter(att, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const yrFin = yrFilter(fin, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const yrBeh = yrFilter(beh, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+      const yrGrades = yrFilter(grades, '\u05EA\u05D0\u05E8\u05D9\u05DA');
+
+      // Summary stats
+      const totalStudents = active.length;
+      const attPresent = yrAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
+      const attRate = yrAtt.length ? Math.round(attPresent / yrAtt.length * 100) : 0;
+      const allScores = yrGrades.map(g => parseFloat(g['\u05E6\u05D9\u05D5\u05DF'])||0).filter(v => v > 0);
+      const avgGrade = allScores.length ? Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length) : 0;
+      const posB2 = yrBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+      const negB2 = yrBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+      const behScore = posB2 - negB2;
+      const totalAmount = yrFin.reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const paidAmount = yrFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').reduce((s,f) => s+(Number(f['\u05E1\u05DB\u05D5\u05DD'])||0), 0);
+      const pendingAmount = totalAmount - paidAmount;
+      const collectionRate = totalAmount ? Math.round(paidAmount / totalAmount * 100) : 0;
+
+      // Monthly attendance trend
+      const months = [];
+      for (let m = 0; m < 12; m++) {
+        const mi = ((8 + m) % 12) + 1;
+        const yr = mi >= 9 ? yearStart : yearStart + 1;
+        const key = yr + '-' + String(mi).padStart(2,'0');
+        const mAtt = yrAtt.filter(a => (a['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(key));
+        const mPresent = mAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1']==='\u05E0\u05D5\u05DB\u05D7').length;
+        const mRate = mAtt.length ? Math.round(mPresent / mAtt.length * 100) : 0;
+        const hMonths = ['\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8\u05D9\u05DC','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0\u05D9','\u05D9\u05D5\u05DC\u05D9','\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8','\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8','\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8','\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8','\u05D3\u05E6\u05DE\u05D1\u05E8'];
+        months.push({ label: hMonths[mi-1], rate: mRate, count: mAtt.length });
+      }
+
+      // Grade distribution
+      const gradeBuckets = {'0-54':0, '55-69':0, '70-79':0, '80-89':0, '90-100':0};
+      allScores.forEach(s => {
+        if (s < 55) gradeBuckets['0-54']++;
+        else if (s < 70) gradeBuckets['55-69']++;
+        else if (s < 80) gradeBuckets['70-79']++;
+        else if (s < 90) gradeBuckets['80-89']++;
+        else gradeBuckets['90-100']++;
+      });
+
+      // Monthly behavior trend
+      const behMonths = months.map((m, i) => {
+        const mi2 = ((8 + i) % 12) + 1;
+        const yr2 = mi2 >= 9 ? yearStart : yearStart + 1;
+        const key2 = yr2 + '-' + String(mi2).padStart(2,'0');
+        const mBeh = yrBeh.filter(b => (b['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').startsWith(key2));
+        const mPos = mBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05D7\u05D9\u05D5\u05D1\u05D9').length;
+        const mNeg = mBeh.filter(b => b['\u05E1\u05D5\u05D2']==='\u05E9\u05DC\u05D9\u05DC\u05D9').length;
+        return { label: m.label, pos: mPos, neg: mNeg };
+      });
+
+      // Payment status breakdown
+      const payPaid = yrFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05E9\u05D5\u05DC\u05DD').length;
+      const payPending = yrFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D7\u05D5\u05D1').length;
+      const payOverdue = yrFin.filter(f => (f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'')==='\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8').length;
+      const payOther = yrFin.length - payPaid - payPending - payOverdue;
+
+      const yearLabel = yearStart + '/' + (yearStart + 1);
+
+      c.innerHTML = `<div id="rpt-print-area">
+        <div class="text-center mb-4 border-bottom pb-3">
+          <h3 class="fw-bold mb-1"><i class="bi bi-building me-2"></i>\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h3>
+          <h5 class="text-muted">\u05D3\u05D5\u05D7 \u05E1\u05D9\u05DB\u05D5\u05DD \u05E9\u05E0\u05EA\u05D9 ${yearLabel}</h5>
+          <small class="text-muted">\u05D4\u05D5\u05E4\u05E7: ${new Date().toLocaleDateString('he-IL')}</small>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-primary">${totalStudents}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small></div></div>
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${attRate}%</div><small>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small></div></div>
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-info">${avgGrade}</div><small>\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div></div>
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold ${behScore >= 0 ? 'text-success' : 'text-danger'}">${behScore >= 0 ? '+' : ''}${behScore}</div><small>\u05E0\u05D9\u05E7\u05D5\u05D3 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div></div>
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-success">${Utils.formatCurrency(paidAmount)}</div><small>\u05E9\u05D5\u05DC\u05DD</small></div></div>
+          <div class="col-md-2 col-4"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger">${Utils.formatCurrency(pendingAmount)}</div><small>\u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7</small></div></div>
+        </div>
+
+        <div class="card p-3 mb-3">
+          <h6 class="fw-bold mb-2">\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05E1\u05E4\u05D9</h6>
+          <table class="table table-sm table-bordered mb-0">
+            <thead><tr><th>\u05E1\u05D4"\u05DB \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD</th><th>\u05E1\u05D4"\u05DB \u05E9\u05D5\u05DC\u05DD</th><th>\u05E1\u05D4"\u05DB \u05D7\u05D5\u05D1</th><th>\u05D0\u05D7\u05D5\u05D6 \u05D2\u05D1\u05D9\u05D4</th></tr></thead>
+            <tbody><tr>
+              <td class="fw-bold">${Utils.formatCurrency(totalAmount)}</td>
+              <td class="text-success fw-bold">${Utils.formatCurrency(paidAmount)}</td>
+              <td class="text-danger fw-bold">${Utils.formatCurrency(pendingAmount)}</td>
+              <td><span class="badge ${collectionRate >= 80 ? 'bg-success' : collectionRate >= 50 ? 'bg-warning' : 'bg-danger'}">${collectionRate}%</span></td>
+            </tr></tbody>
+          </table>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-graph-up me-2"></i>\u05DE\u05D2\u05DE\u05EA \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9\u05EA</h6><div style="height:280px"><canvas id="rpt-ann-att-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-bar-chart me-2"></i>\u05D4\u05EA\u05E4\u05DC\u05D2\u05D5\u05EA \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</h6><div style="height:280px"><canvas id="rpt-ann-grades-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-emoji-smile me-2"></i>\u05DE\u05D2\u05DE\u05EA \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</h6><div style="height:280px"><canvas id="rpt-ann-beh-chart"></canvas></div></div></div>
+          <div class="col-md-6"><div class="card p-3"><h6 class="fw-bold"><i class="bi bi-cash-coin me-2"></i>\u05DE\u05E6\u05D1 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD</h6><div style="height:280px"><canvas id="rpt-ann-pay-chart"></canvas></div></div></div>
+        </div>
+      </div>`;
+
+      // Chart 1: Monthly attendance trend
+      const annAttCtx = document.getElementById('rpt-ann-att-chart');
+      if (annAttCtx) {
+        App.charts.rptAnnAtt = new Chart(annAttCtx, {type:'line', data:{labels:months.map(m=>m.label), datasets:[{label:'\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA %', data:months.map(m=>m.rate), borderColor:'#0f9d58', backgroundColor:'rgba(15,157,88,0.1)', fill:true, tension:0.3, pointRadius:4}]}, options:{responsive:true, maintainAspectRatio:false, scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}, plugins:{legend:{display:false}}}});
+        Pages._rptCharts.push(App.charts.rptAnnAtt);
+      }
+
+      // Chart 2: Grade distribution
+      const annGrCtx = document.getElementById('rpt-ann-grades-chart');
+      if (annGrCtx) {
+        App.charts.rptAnnGrades = new Chart(annGrCtx, {type:'bar', data:{labels:Object.keys(gradeBuckets), datasets:[{label:'\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', data:Object.values(gradeBuckets), backgroundColor:['#ea4335','#f9ab00','#4285f4','#0f9d58','#34a853'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+        Pages._rptCharts.push(App.charts.rptAnnGrades);
+      }
+
+      // Chart 3: Monthly behavior trend
+      const annBhCtx = document.getElementById('rpt-ann-beh-chart');
+      if (annBhCtx) {
+        App.charts.rptAnnBeh = new Chart(annBhCtx, {type:'bar', data:{labels:behMonths.map(m=>m.label), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9', data:behMonths.map(m=>m.pos), backgroundColor:'#0f9d58', borderRadius:4},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9', data:behMonths.map(m=>-m.neg), backgroundColor:'#ea4335', borderRadius:4}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}});
+        Pages._rptCharts.push(App.charts.rptAnnBeh);
+      }
+
+      // Chart 4: Payment status
+      const annPayCtx = document.getElementById('rpt-ann-pay-chart');
+      if (annPayCtx) {
+        App.charts.rptAnnPay = new Chart(annPayCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1','\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8','\u05D0\u05D7\u05E8'], datasets:[{data:[payPaid, payPending, payOverdue, payOther > 0 ? payOther : 0].filter((_,i) => i < 3 || payOther > 0), backgroundColor:['#0f9d58','#f9ab00','#ea4335','#9e9e9e'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
+        Pages._rptCharts.push(App.charts.rptAnnPay);
+      }
     }
   },
 
