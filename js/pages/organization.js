@@ -3175,8 +3175,8 @@ Object.assign(Pages, {
       <div class="row g-3" id="trip-budget-content"></div>
     </div>
 
-    <!-- Create/Edit Trip Modal -->
-    <div class="modal fade" id="trip-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+    <!-- Create/Edit Trip Modal (enhanced with schedule, equipment, emergency) -->
+    <div class="modal fade" id="trip-modal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title"><i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9</h5>
         <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -3184,7 +3184,10 @@ Object.assign(Pages, {
       <div class="modal-body">
         <ul class="nav nav-tabs mb-3" id="trip-form-tabs">
           <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tf-tab-details">\u05E4\u05E8\u05D8\u05D9\u05DD</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-schedule"><i class="bi bi-clock me-1"></i>\u05DC\u05D5\u05D7 \u05D6\u05DE\u05E0\u05D9\u05DD</a></li>
           <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-logistics">\u05DC\u05D5\u05D2\u05D9\u05E1\u05D8\u05D9\u05E7\u05D4</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-equipment"><i class="bi bi-backpack me-1"></i>\u05E6\u05D9\u05D5\u05D3</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-emergency"><i class="bi bi-telephone-fill me-1"></i>\u05D7\u05D9\u05E8\u05D5\u05DD</a></li>
           <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tf-tab-budget">\u05EA\u05E7\u05E6\u05D9\u05D1</a></li>
         </ul>
         <div class="tab-content">
@@ -3214,6 +3217,16 @@ Object.assign(Pages, {
               </div>
             </div>
           </div>
+          <!-- Schedule Tab -->
+          <div class="tab-pane fade" id="tf-tab-schedule">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-clock-history me-1"></i>\u05DC\u05D5\u05D7 \u05D6\u05DE\u05E0\u05D9\u05DD \u05DE\u05E4\u05D5\u05E8\u05D8</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages.addTripScheduleSlot()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</button>
+            </div>
+            <div id="tf-schedule-list">
+              <div class="text-center text-muted py-4"><i class="bi bi-clock fs-1 d-block mb-2"></i>\u05DC\u05D7\u05E5 "\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA" \u05DC\u05D1\u05E0\u05D5\u05EA \u05D0\u05EA \u05DC\u05D5\u05D7 \u05D4\u05D6\u05DE\u05E0\u05D9\u05DD</div>
+            </div>
+          </div>
           <div class="tab-pane fade" id="tf-tab-logistics">
             <div class="row g-3">
               <div class="col-md-6"><label class="form-label"><i class="bi bi-bus-front me-1"></i>\u05D4\u05E1\u05E2\u05D4</label>
@@ -3238,6 +3251,37 @@ Object.assign(Pages, {
                 <label class="form-label"><i class="bi bi-people me-1"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD (\u05DE\u05E1\u05E4\u05E8)</label>
                 <input type="number" class="form-control" id="tf-participants" min="0" placeholder="0">
               </div>
+            </div>
+          </div>
+          <!-- Equipment Tab -->
+          <div class="tab-pane fade" id="tf-tab-equipment">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-backpack me-1"></i>\u05E8\u05E9\u05D9\u05DE\u05EA \u05E6\u05D9\u05D5\u05D3 \u05E0\u05D3\u05E8\u05E9</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages.addTripEquipmentItem()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D8</button>
+            </div>
+            <div class="mb-3">
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" onclick="Pages.loadEquipmentPreset('hiking')"><i class="bi bi-signpost-2 me-1"></i>\u05D8\u05D9\u05D5\u05DC \u05E8\u05D2\u05DC\u05D9</button>
+                <button class="btn btn-outline-secondary" onclick="Pages.loadEquipmentPreset('water')"><i class="bi bi-water me-1"></i>\u05D8\u05D9\u05D5\u05DC \u05DE\u05D9\u05DD</button>
+                <button class="btn btn-outline-secondary" onclick="Pages.loadEquipmentPreset('overnight')"><i class="bi bi-moon-stars me-1"></i>\u05DC\u05D9\u05E0\u05D4</button>
+                <button class="btn btn-outline-secondary" onclick="Pages.loadEquipmentPreset('basic')"><i class="bi bi-bag me-1"></i>\u05D1\u05E1\u05D9\u05E1\u05D9</button>
+              </div>
+            </div>
+            <div id="tf-equipment-list">
+              <div class="text-center text-muted py-4"><i class="bi bi-backpack fs-1 d-block mb-2"></i>\u05DC\u05D7\u05E5 "\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D8" \u05D0\u05D5 \u05D1\u05D7\u05E8 \u05EA\u05D1\u05E0\u05D9\u05EA \u05DE\u05D5\u05DB\u05E0\u05D4</div>
+            </div>
+          </div>
+          <!-- Emergency Contacts Tab -->
+          <div class="tab-pane fade" id="tf-tab-emergency">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-bold mb-0"><i class="bi bi-telephone-fill me-1"></i>\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages.addTripEmergencyContact()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8</button>
+            </div>
+            <div class="alert alert-info small mb-3">
+              <i class="bi bi-info-circle me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD: \u05DE\u05DC\u05D5\u05D5\u05D4, \u05D0\u05D7\u05E8\u05D0\u05D9, \u05DE\u05D3"\u05D0, \u05D4\u05E0\u05D4\u05DC\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3
+            </div>
+            <div id="tf-emergency-list">
+              <div class="text-center text-muted py-4"><i class="bi bi-telephone fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05E2\u05D3\u05D9\u05D9\u05DF</div>
             </div>
           </div>
           <div class="tab-pane fade" id="tf-tab-budget">
@@ -3290,6 +3334,49 @@ Object.assign(Pages, {
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">\u05E1\u05D2\u05D5\u05E8</button>
+      </div>
+    </div></div></div>
+
+    <!-- Trip Checklist Modal (auto-generated from students) -->
+    <div class="modal fade" id="trip-checklist-modal" tabindex="-1"><div class="modal-dialog modal-fullscreen"><div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="bi bi-list-check me-2"></i>\u05E6\u05D9\u05E7\u05DC\u05D9\u05E1\u05D8 \u05D8\u05D9\u05D5\u05DC</h5>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="badge bg-light text-dark" id="trip-cl-name"></span>
+          <button class="btn btn-sm btn-outline-light" onclick="Pages.printTripList()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- Checklist stats -->
+        <div class="row g-3 mb-4" id="trip-cl-stats"></div>
+        <!-- Filter -->
+        <div class="card p-3 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <input type="search" class="form-control form-control-sm" id="trip-cl-search" placeholder="\u05D7\u05E4\u05E9 \u05EA\u05DC\u05DE\u05D9\u05D3..." oninput="Pages.filterTripChecklist()">
+            </div>
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" id="trip-cl-filter-perm" onchange="Pages.filterTripChecklist()">
+                <option value="">\u05DB\u05DC \u05D4\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD</option>
+                <option value="signed">\u05D7\u05EA\u05D5\u05DD</option>
+                <option value="pending">\u05DE\u05DE\u05EA\u05D9\u05DF</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" id="trip-cl-filter-pay" onchange="Pages.filterTripChecklist()">
+                <option value="">\u05DB\u05DC \u05D4\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD</option>
+                <option value="paid">\u05E9\u05D5\u05DC\u05DD</option>
+                <option value="unpaid">\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-outline-secondary btn-sm w-100" onclick="Pages.resetTripChecklistFilters()"><i class="bi bi-x-lg me-1"></i>\u05E0\u05E7\u05D4</button>
+            </div>
+          </div>
+        </div>
+        <!-- Checklist table -->
+        <div class="table-responsive" id="trip-cl-table-wrap"></div>
       </div>
     </div></div></div>`;
   },
@@ -3429,6 +3516,8 @@ Object.assign(Pages, {
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li><a class="dropdown-item" href="#" onclick="Pages.editTrip('${tId}');return false"><i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</a></li>
                   <li><a class="dropdown-item" href="#" onclick="Pages.showTripParticipants('${tId}');return false"><i class="bi bi-people me-2"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="Pages.showTripChecklist('${tId}');return false"><i class="bi bi-list-check me-2"></i>\u05E6\u05D9\u05E7\u05DC\u05D9\u05E1\u05D8</a></li>
+                  <li><a class="dropdown-item" href="#" onclick="Pages.printTripList('${tId}');return false"><i class="bi bi-printer me-2"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item text-danger" href="#" onclick="Pages.deleteTrip('${tId}');return false"><i class="bi bi-trash me-2"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</a></li>
                 </ul>
@@ -3658,6 +3747,9 @@ Object.assign(Pages, {
 
   showAddTrip() {
     this._tripEditId = null;
+    this._tripFormSchedule = [];
+    this._tripFormEquipment = [];
+    this._tripFormEmergency = [];
     document.getElementById('tf-dest').value = '';
     document.getElementById('tf-class').value = '';
     document.getElementById('tf-start').value = '';
@@ -3671,6 +3763,9 @@ Object.assign(Pages, {
     document.getElementById('tf-paid').value = '';
     document.getElementById('tf-total-calc').textContent = '\u20AA0';
     document.getElementById('tf-remaining-calc').textContent = '\u20AA0';
+    this._renderTripScheduleList();
+    this._renderTripEquipmentList();
+    this._renderTripEmergencyList();
     document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9';
     // Reset to first tab
     const firstTab = document.querySelector('#trip-form-tabs .nav-link');
@@ -3691,7 +3786,10 @@ Object.assign(Pages, {
       '\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD': Number(document.getElementById('tf-participants').value) || 0,
       '\u05E2\u05DC\u05D5\u05EA_\u05DC\u05EA\u05DC\u05DE\u05D9\u05D3': Number(document.getElementById('tf-cost').value) || 0,
       '\u05EA\u05E9\u05DC\u05D5\u05DD': Number(document.getElementById('tf-paid').value) || 0,
-      '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD': 0
+      '\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD': 0,
+      '\u05DC\u05D5\u05D7_\u05D6\u05DE\u05E0\u05D9\u05DD': JSON.stringify(this._tripFormSchedule || []),
+      '\u05E6\u05D9\u05D5\u05D3': JSON.stringify(this._tripFormEquipment || []),
+      '\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8_\u05D7\u05D9\u05E8\u05D5\u05DD': JSON.stringify(this._tripFormEmergency || [])
     };
     if (!row['\u05D9\u05E2\u05D3']) { Utils.toast('\u05D7\u05E1\u05E8 \u05D9\u05E2\u05D3', 'warning'); return; }
     try {
@@ -3758,6 +3856,13 @@ Object.assign(Pages, {
     const paid = Number(item['\u05EA\u05E9\u05DC\u05D5\u05DD'] || 0);
     document.getElementById('tf-total-calc').textContent = '\u20AA' + total.toLocaleString();
     document.getElementById('tf-remaining-calc').textContent = '\u20AA' + (total - paid).toLocaleString();
+    // Load schedule, equipment, emergency
+    try { this._tripFormSchedule = JSON.parse(item['\u05DC\u05D5\u05D7_\u05D6\u05DE\u05E0\u05D9\u05DD'] || '[]'); } catch(e) { this._tripFormSchedule = []; }
+    try { this._tripFormEquipment = JSON.parse(item['\u05E6\u05D9\u05D5\u05D3'] || '[]'); } catch(e) { this._tripFormEquipment = []; }
+    try { this._tripFormEmergency = JSON.parse(item['\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8_\u05D7\u05D9\u05E8\u05D5\u05DD'] || '[]'); } catch(e) { this._tripFormEmergency = []; }
+    this._renderTripScheduleList();
+    this._renderTripEquipmentList();
+    this._renderTripEmergencyList();
     document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05EA \u05D8\u05D9\u05D5\u05DC';
     const firstTab = document.querySelector('#trip-form-tabs .nav-link');
     if (firstTab) new bootstrap.Tab(firstTab).show();
@@ -3830,6 +3935,485 @@ Object.assign(Pages, {
     this.showTripParticipants(tripId);
     this._updateTripStats();
     this.renderTrips();
+  },
+
+
+  /* ======================================================================
+     TRIPS — Schedule, Equipment, Emergency, Checklist, Print
+     ====================================================================== */
+  _tripFormSchedule: [],
+  _tripFormEquipment: [],
+  _tripFormEmergency: [],
+  _tripChecklistData: [],
+  _tripChecklistTripId: null,
+
+  // --- Schedule management ---
+  addTripScheduleSlot() {
+    this._tripFormSchedule.push({ time: '', activity: '', notes: '' });
+    this._renderTripScheduleList();
+    // Focus last time input
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.tf-sched-time');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  },
+
+  removeTripScheduleSlot(idx) {
+    this._tripFormSchedule.splice(idx, 1);
+    this._renderTripScheduleList();
+  },
+
+  _updateTripScheduleSlot(idx, field, value) {
+    if (this._tripFormSchedule[idx]) this._tripFormSchedule[idx][field] = value;
+  },
+
+  _renderTripScheduleList() {
+    const el = document.getElementById('tf-schedule-list');
+    if (!el) return;
+    const items = this._tripFormSchedule;
+    if (!items.length) {
+      el.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-clock fs-1 d-block mb-2"></i>\u05DC\u05D7\u05E5 "\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA" \u05DC\u05D1\u05E0\u05D5\u05EA \u05D0\u05EA \u05DC\u05D5\u05D7 \u05D4\u05D6\u05DE\u05E0\u05D9\u05DD</div>';
+      return;
+    }
+    el.innerHTML = items.map((s, i) => `
+      <div class="card p-2 mb-2 border-start border-3 border-primary">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-2">
+            <input type="time" class="form-control form-control-sm tf-sched-time" value="${s.time || ''}" onchange="Pages._updateTripScheduleSlot(${i},'time',this.value)" placeholder="\u05E9\u05E2\u05D4">
+          </div>
+          <div class="col-md-4">
+            <input type="text" class="form-control form-control-sm" value="${Utils.escapeHTML ? Utils.escapeHTML(s.activity||'') : (s.activity||'').replace(/</g,'&lt;')}" onchange="Pages._updateTripScheduleSlot(${i},'activity',this.value)" placeholder="\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA">
+          </div>
+          <div class="col-md-5">
+            <input type="text" class="form-control form-control-sm" value="${Utils.escapeHTML ? Utils.escapeHTML(s.notes||'') : (s.notes||'').replace(/</g,'&lt;')}" onchange="Pages._updateTripScheduleSlot(${i},'notes',this.value)" placeholder="\u05D4\u05E2\u05E8\u05D5\u05EA">
+          </div>
+          <div class="col-md-1 text-end">
+            <button class="btn btn-sm btn-outline-danger" onclick="Pages.removeTripScheduleSlot(${i})"><i class="bi bi-x"></i></button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  // --- Equipment management ---
+  _equipmentPresets: {
+    hiking: ['\u05DB\u05D5\u05D1\u05E2', '\u05E0\u05E2\u05DC\u05D9 \u05D4\u05DC\u05D9\u05DB\u05D4', '\u05DE\u05D9\u05DD (2 \u05DC\u05D9\u05D8\u05E8)', '\u05DB\u05D5\u05D1\u05E2 \u05E8\u05D0\u05E9', '\u05E7\u05E8\u05DD \u05D4\u05D2\u05E0\u05D4', '\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05E2\u05E8\u05DB\u05EA \u05E2\u05D6\u05E8\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4'],
+    water: ['\u05D1\u05D2\u05D3 \u05D9\u05DD', '\u05DE\u05D2\u05D1\u05EA', '\u05DB\u05E4\u05DB\u05E4\u05D9\u05DD / \u05E1\u05E0\u05D3\u05DC\u05D9\u05DD', '\u05DE\u05D9\u05DD (3 \u05DC\u05D9\u05D8\u05E8)', '\u05E7\u05E8\u05DD \u05D4\u05D2\u05E0\u05D4', '\u05DB\u05D5\u05D1\u05E2', '\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD'],
+    overnight: ['\u05E9\u05E7 \u05E9\u05D9\u05E0\u05D4', '\u05DB\u05E8\u05D9\u05EA \u05E9\u05D9\u05E0\u05D4', '\u05E4\u05E0\u05E1', '\u05D1\u05D2\u05D3\u05D9 \u05D4\u05D7\u05DC\u05E4\u05D4', '\u05DE\u05D1\u05E8\u05E9\u05EA \u05E9\u05D9\u05E0\u05D9\u05D9\u05DD', '\u05E1\u05D9\u05D3\u05D5\u05E8\u05D9\u05DD', '\u05DE\u05D9\u05DD (3 \u05DC\u05D9\u05D8\u05E8)', '\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA'],
+    basic: ['\u05DB\u05D5\u05D1\u05E2', '\u05DE\u05D9\u05DD (1.5 \u05DC\u05D9\u05D8\u05E8)', '\u05D0\u05E8\u05D5\u05D7\u05EA \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD', '\u05DB\u05D5\u05D1\u05E2 \u05E8\u05D0\u05E9']
+  },
+
+  loadEquipmentPreset(type) {
+    const items = this._equipmentPresets[type] || [];
+    this._tripFormEquipment = items.map(name => ({ name, required: true }));
+    this._renderTripEquipmentList();
+    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D4 \u05EA\u05D1\u05E0\u05D9\u05EA: ' + items.length + ' \u05E4\u05E8\u05D9\u05D8\u05D9\u05DD');
+  },
+
+  addTripEquipmentItem() {
+    this._tripFormEquipment.push({ name: '', required: true });
+    this._renderTripEquipmentList();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.tf-equip-name');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  },
+
+  removeTripEquipmentItem(idx) {
+    this._tripFormEquipment.splice(idx, 1);
+    this._renderTripEquipmentList();
+  },
+
+  _updateTripEquipmentItem(idx, field, value) {
+    if (this._tripFormEquipment[idx]) this._tripFormEquipment[idx][field] = value;
+  },
+
+  _renderTripEquipmentList() {
+    const el = document.getElementById('tf-equipment-list');
+    if (!el) return;
+    const items = this._tripFormEquipment;
+    if (!items.length) {
+      el.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-backpack fs-1 d-block mb-2"></i>\u05DC\u05D7\u05E5 "\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D8" \u05D0\u05D5 \u05D1\u05D7\u05E8 \u05EA\u05D1\u05E0\u05D9\u05EA \u05DE\u05D5\u05DB\u05E0\u05D4</div>';
+      return;
+    }
+    el.innerHTML = items.map((eq, i) => `
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" ${eq.required ? 'checked' : ''} onchange="Pages._updateTripEquipmentItem(${i},'required',this.checked)">
+        </div>
+        <input type="text" class="form-control form-control-sm tf-equip-name" value="${Utils.escapeHTML ? Utils.escapeHTML(eq.name||'') : (eq.name||'').replace(/</g,'&lt;')}" onchange="Pages._updateTripEquipmentItem(${i},'name',this.value)" placeholder="\u05E9\u05DD \u05D4\u05E4\u05E8\u05D9\u05D8">
+        <button class="btn btn-sm btn-outline-danger" onclick="Pages.removeTripEquipmentItem(${i})"><i class="bi bi-x"></i></button>
+      </div>
+    `).join('');
+  },
+
+  // --- Emergency contacts management ---
+  addTripEmergencyContact() {
+    this._tripFormEmergency.push({ name: '', role: '', phone: '', phone2: '' });
+    this._renderTripEmergencyList();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.tf-emerg-name');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  },
+
+  removeTripEmergencyContact(idx) {
+    this._tripFormEmergency.splice(idx, 1);
+    this._renderTripEmergencyList();
+  },
+
+  _updateTripEmergencyContact(idx, field, value) {
+    if (this._tripFormEmergency[idx]) this._tripFormEmergency[idx][field] = value;
+  },
+
+  _renderTripEmergencyList() {
+    const el = document.getElementById('tf-emergency-list');
+    if (!el) return;
+    const items = this._tripFormEmergency;
+    if (!items.length) {
+      el.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-telephone fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05E2\u05D3\u05D9\u05D9\u05DF</div>';
+      return;
+    }
+    el.innerHTML = items.map((c, i) => `
+      <div class="card p-2 mb-2 border-start border-3 border-danger">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-3">
+            <input type="text" class="form-control form-control-sm tf-emerg-name" value="${Utils.escapeHTML ? Utils.escapeHTML(c.name||'') : (c.name||'').replace(/</g,'&lt;')}" onchange="Pages._updateTripEmergencyContact(${i},'name',this.value)" placeholder="\u05E9\u05DD">
+          </div>
+          <div class="col-md-3">
+            <select class="form-select form-select-sm" onchange="Pages._updateTripEmergencyContact(${i},'role',this.value)">
+              <option value="" ${!c.role?'selected':''}>\u05EA\u05E4\u05E7\u05D9\u05D3...</option>
+              <option value="\u05DE\u05DC\u05D5\u05D5\u05D4" ${c.role==='\u05DE\u05DC\u05D5\u05D5\u05D4'?'selected':''}>\u05DE\u05DC\u05D5\u05D5\u05D4</option>
+              <option value="\u05D0\u05D7\u05E8\u05D0\u05D9" ${c.role==='\u05D0\u05D7\u05E8\u05D0\u05D9'?'selected':''}>\u05D0\u05D7\u05E8\u05D0\u05D9</option>
+              <option value="\u05DE\u05D3"\u05D0" ${c.role==='\u05DE\u05D3"\u05D0'?'selected':''}>\u05DE\u05D3"\u05D0</option>
+              <option value="\u05D4\u05E0\u05D4\u05DC\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3" ${c.role==='\u05D4\u05E0\u05D4\u05DC\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3'?'selected':''}>\u05D4\u05E0\u05D4\u05DC\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3</option>
+              <option value="\u05D0\u05D7\u05E8" ${c.role==='\u05D0\u05D7\u05E8'?'selected':''}>\u05D0\u05D7\u05E8</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <input type="tel" class="form-control form-control-sm" dir="ltr" value="${c.phone||''}" onchange="Pages._updateTripEmergencyContact(${i},'phone',this.value)" placeholder="\u05D8\u05DC\u05E4\u05D5\u05DF 1">
+          </div>
+          <div class="col-md-2">
+            <input type="tel" class="form-control form-control-sm" dir="ltr" value="${c.phone2||''}" onchange="Pages._updateTripEmergencyContact(${i},'phone2',this.value)" placeholder="\u05D8\u05DC\u05E4\u05D5\u05DF 2">
+          </div>
+          <div class="col-md-2 text-end">
+            <button class="btn btn-sm btn-outline-danger" onclick="Pages.removeTripEmergencyContact(${i})"><i class="bi bi-x"></i></button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  // --- Trip Checklist (auto-generated from students) ---
+  showTripChecklist(tripId) {
+    const trip = this._tripData.find(t => String(t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t)) === String(tripId));
+    if (!trip) { Utils.toast('\u05D8\u05D9\u05D5\u05DC \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
+
+    this._tripChecklistTripId = tripId;
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const allStudents = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+    const medical = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+    const finance = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    const tripClass = trip['\u05DB\u05D9\u05EA\u05D4'] || '';
+
+    // Filter students by class
+    let students = allStudents;
+    if (tripClass) {
+      const classes = tripClass.split('+');
+      students = allStudents.filter(s => {
+        const sc = s['\u05DB\u05D9\u05EA\u05D4'] || '';
+        return classes.some(c => sc.includes(c));
+      });
+    }
+
+    // Build checklist data per student
+    const approved = Number(trip['\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD'] || 0);
+    // Load saved checklist state if exists
+    let savedState = {};
+    try { savedState = JSON.parse(trip['\u05E6\u05D9\u05E7\u05DC\u05D9\u05E1\u05D8'] || '{}'); } catch(e) { /* ignore */ }
+
+    this._tripChecklistData = students.map((s, idx) => {
+      const sid = Utils.rowId(s);
+      const name = Utils.fullName(s);
+      const studentId = s['\u05EA\u05D6'] || s['\u05DE\u05E1\u05E4\u05E8_\u05D6\u05D4\u05D5\u05EA'] || '';
+      const phone = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || s['\u05E0\u05D9\u05D9\u05D3'] || '';
+      const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '';
+
+      // Find parent info
+      const parent = parents.find(p => {
+        const pName = (p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '');
+        return pName === name || String(p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '') === String(sid);
+      });
+      const parentName = parent ? ((parent['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (parent['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim() || parent['\u05E9\u05DD'] || '' : '';
+      const parentPhone = parent ? (parent['\u05D8\u05DC\u05E4\u05D5\u05DF'] || parent['\u05E0\u05D9\u05D9\u05D3'] || '') : '';
+
+      // Find medical info
+      const med = medical.find(m => {
+        const mName = m['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || m['\u05E9\u05DD'] || '';
+        return mName === name || String(m['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '') === String(sid);
+      });
+      const medNotes = med ? (med['\u05D4\u05E2\u05E8\u05D5\u05EA'] || med['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA'] || med['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA'] || '') : '';
+
+      // Saved state per student
+      const state = savedState[sid] || {};
+
+      return {
+        sid, name, studentId, phone, cls,
+        parentName, parentPhone, medNotes,
+        permSigned: state.permSigned || (idx < approved),
+        paid: state.paid || false
+      };
+    });
+
+    // Update modal
+    document.getElementById('trip-cl-name').textContent = trip['\u05D9\u05E2\u05D3'] || '';
+    this._renderTripChecklist();
+    new bootstrap.Modal(document.getElementById('trip-checklist-modal')).show();
+  },
+
+  _renderTripChecklist() {
+    const data = this._getFilteredChecklist();
+    const allData = this._tripChecklistData;
+    const totalSigned = allData.filter(s => s.permSigned).length;
+    const totalPaid = allData.filter(s => s.paid).length;
+    const totalMed = allData.filter(s => s.medNotes).length;
+    const signPct = allData.length > 0 ? Math.round((totalSigned / allData.length) * 100) : 0;
+    const payPct = allData.length > 0 ? Math.round((totalPaid / allData.length) * 100) : 0;
+
+    // Stats
+    document.getElementById('trip-cl-stats').innerHTML = `
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <div class="fs-3 fw-bold text-primary">${allData.length}</div>
+        <small class="text-muted">\u05E1\u05D4"\u05DB \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <div class="fs-3 fw-bold text-success">${totalSigned}</div>
+        <small class="text-muted">\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD (${signPct}%)</small>
+        <div class="progress mt-1" style="height:4px"><div class="progress-bar bg-success" style="width:${signPct}%"></div></div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <div class="fs-3 fw-bold text-warning">${totalPaid}</div>
+        <small class="text-muted">\u05E9\u05D9\u05DC\u05DE\u05D5 (${payPct}%)</small>
+        <div class="progress mt-1" style="height:4px"><div class="progress-bar bg-warning" style="width:${payPct}%"></div></div>
+      </div></div>
+      <div class="col-6 col-md-3"><div class="card p-3 text-center">
+        <div class="fs-3 fw-bold text-danger">${totalMed}</div>
+        <small class="text-muted">\u05D4\u05E2\u05E8\u05D5\u05EA \u05E8\u05E4\u05D5\u05D0\u05D9\u05D5\u05EA</small>
+      </div></div>`;
+
+    // Table
+    const wrap = document.getElementById('trip-cl-table-wrap');
+    if (!data.length) {
+      wrap.innerHTML = '<div class="text-center py-5 text-muted"><i class="bi bi-people fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DC\u05D4\u05E6\u05D9\u05D2</div>';
+      return;
+    }
+    wrap.innerHTML = `
+      <table class="table table-hover table-sm align-middle">
+        <thead class="table-light">
+          <tr>
+            <th style="width:30px">#</th>
+            <th>\u05EA\u05DC\u05DE\u05D9\u05D3</th>
+            <th>\u05EA.\u05D6. / \u05DE\u05D6\u05D4\u05D4</th>
+            <th>\u05DB\u05D9\u05EA\u05D4</th>
+            <th>\u05D8\u05DC\u05E4\u05D5\u05DF</th>
+            <th>\u05D4\u05D5\u05E8\u05D4</th>
+            <th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D5\u05E8\u05D4</th>
+            <th>\u05D4\u05E2\u05E8\u05D5\u05EA \u05E8\u05E4\u05D5\u05D0\u05D9\u05D5\u05EA</th>
+            <th>\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E8\u05D9\u05DD</th>
+            <th>\u05EA\u05E9\u05DC\u05D5\u05DD</th>
+          </tr>
+        </thead>
+        <tbody>${data.map((s, i) => {
+          const medBadge = s.medNotes
+            ? `<span class="badge bg-danger" title="${(Utils.escapeHTML ? Utils.escapeHTML(s.medNotes) : s.medNotes.replace(/</g,'&lt;').replace(/"/g,'&quot;'))}">\u05D9\u05E9 \u05D4\u05E2\u05E8\u05D5\u05EA</span>`
+            : '<span class="text-muted">-</span>';
+          return `<tr class="trip-cl-row">
+            <td class="text-muted">${i + 1}</td>
+            <td class="fw-bold">${Utils.avatarHTML ? Utils.avatarHTML(s.name, 'sm') : ''} ${s.name}</td>
+            <td dir="ltr">${s.studentId || '-'}</td>
+            <td>${s.cls || '-'}</td>
+            <td dir="ltr">${s.phone || '-'}</td>
+            <td>${s.parentName || '-'}</td>
+            <td dir="ltr">${s.parentPhone ? `<a href="tel:${s.parentPhone}" class="text-decoration-none">${s.parentPhone}</a>` : '-'}</td>
+            <td>${medBadge}</td>
+            <td>
+              <button class="btn btn-sm btn-${s.permSigned ? 'success' : 'outline-warning'}" onclick="Pages.toggleChecklistPerm(${i})">
+                <i class="bi bi-${s.permSigned ? 'check-circle-fill' : 'circle'}"></i>
+                ${s.permSigned ? '\u05D7\u05EA\u05D5\u05DD' : '\u05DE\u05DE\u05EA\u05D9\u05DF'}
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-${s.paid ? 'success' : 'outline-danger'}" onclick="Pages.toggleChecklistPay(${i})">
+                <i class="bi bi-${s.paid ? 'check-circle-fill' : 'circle'}"></i>
+                ${s.paid ? '\u05E9\u05D5\u05DC\u05DD' : '\u05DC\u05D0 \u05E9\u05D5\u05DC\u05DD'}
+              </button>
+            </td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  },
+
+  _getFilteredChecklist() {
+    let data = [...this._tripChecklistData];
+    const search = (document.getElementById('trip-cl-search')?.value || '').trim().toLowerCase();
+    const permFilter = document.getElementById('trip-cl-filter-perm')?.value || '';
+    const payFilter = document.getElementById('trip-cl-filter-pay')?.value || '';
+    if (search) data = data.filter(s => s.name.toLowerCase().includes(search) || (s.studentId || '').includes(search));
+    if (permFilter === 'signed') data = data.filter(s => s.permSigned);
+    if (permFilter === 'pending') data = data.filter(s => !s.permSigned);
+    if (payFilter === 'paid') data = data.filter(s => s.paid);
+    if (payFilter === 'unpaid') data = data.filter(s => !s.paid);
+    return data;
+  },
+
+  filterTripChecklist() {
+    this._renderTripChecklist();
+  },
+
+  resetTripChecklistFilters() {
+    const el = id => document.getElementById(id);
+    if (el('trip-cl-search')) el('trip-cl-search').value = '';
+    if (el('trip-cl-filter-perm')) el('trip-cl-filter-perm').value = '';
+    if (el('trip-cl-filter-pay')) el('trip-cl-filter-pay').value = '';
+    this._renderTripChecklist();
+  },
+
+  toggleChecklistPerm(idx) {
+    if (this._tripChecklistData[idx]) {
+      this._tripChecklistData[idx].permSigned = !this._tripChecklistData[idx].permSigned;
+      this._renderTripChecklist();
+    }
+  },
+
+  toggleChecklistPay(idx) {
+    if (this._tripChecklistData[idx]) {
+      this._tripChecklistData[idx].paid = !this._tripChecklistData[idx].paid;
+      this._renderTripChecklist();
+    }
+  },
+
+  // --- Print Trip List ---
+  printTripList(tripId) {
+    // If called from dropdown (with tripId), load checklist first
+    if (tripId && tripId !== true) {
+      const trip = this._tripData.find(t => String(t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t)) === String(tripId));
+      if (!trip) { Utils.toast('\u05D8\u05D9\u05D5\u05DC \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
+      // Build checklist data silently
+      this.showTripChecklist(tripId);
+      // Wait for modal to show then print
+      setTimeout(() => this._executeTripPrint(trip), 300);
+      return;
+    }
+    // Called from checklist modal (no tripId or true)
+    const trip = this._tripData.find(t => String(t.id || t['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(t)) === String(this._tripChecklistTripId));
+    if (!trip) return;
+    this._executeTripPrint(trip);
+  },
+
+  _executeTripPrint(trip) {
+    const data = this._tripChecklistData;
+    let schedule = [];
+    try { schedule = JSON.parse(trip['\u05DC\u05D5\u05D7_\u05D6\u05DE\u05E0\u05D9\u05DD'] || '[]'); } catch(e) { /* ignore */ }
+    let equipment = [];
+    try { equipment = JSON.parse(trip['\u05E6\u05D9\u05D5\u05D3'] || '[]'); } catch(e) { /* ignore */ }
+    let emergency = [];
+    try { emergency = JSON.parse(trip['\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8_\u05D7\u05D9\u05E8\u05D5\u05DD'] || '[]'); } catch(e) { /* ignore */ }
+
+    const totalSigned = data.filter(s => s.permSigned).length;
+    const totalPaid = data.filter(s => s.paid).length;
+
+    const printWin = window.open('', '_blank');
+    printWin.document.write(`<!DOCTYPE html><html dir="rtl" lang="he"><head>
+      <meta charset="UTF-8">
+      <title>\u05E8\u05E9\u05D9\u05DE\u05EA \u05D8\u05D9\u05D5\u05DC - ${trip['\u05D9\u05E2\u05D3'] || ''}</title>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Heebo', sans-serif; padding: 20px; font-size: 12px; color: #333; direction: rtl; }
+        h1 { font-size: 22px; margin-bottom: 5px; }
+        h2 { font-size: 16px; margin: 15px 0 8px; border-bottom: 2px solid #2563eb; padding-bottom: 4px; color: #2563eb; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 3px solid #333; padding-bottom: 10px; }
+        .header p { color: #666; font-size: 14px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .info-item { background: #f8f9fa; padding: 8px; border-radius: 4px; }
+        .info-item strong { display: block; color: #2563eb; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #dee2e6; padding: 6px 8px; text-align: right; }
+        th { background: #e9ecef; font-weight: 700; font-size: 11px; }
+        td { font-size: 11px; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .schedule-item { display: flex; gap: 10px; padding: 4px 0; border-bottom: 1px dotted #ddd; }
+        .schedule-time { font-weight: 700; min-width: 50px; color: #2563eb; }
+        .equip-list { columns: 2; list-style: none; }
+        .equip-list li { padding: 2px 0; }
+        .equip-list li::before { content: "\\2610 "; }
+        .emergency-table th { background: #fee2e2; }
+        .summary { display: flex; gap: 20px; justify-content: center; margin: 10px 0; }
+        .summary-item { text-align: center; }
+        .summary-item .num { font-size: 20px; font-weight: 700; }
+        @media print { body { padding: 10px; } }
+      </style>
+    </head><body>
+      <div class="header">
+        <h1>\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 - \u05E8\u05E9\u05D9\u05DE\u05EA \u05D8\u05D9\u05D5\u05DC</h1>
+        <p>${trip['\u05D9\u05E2\u05D3'] || ''} | ${trip['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || ''} ${trip['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] && trip['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] !== trip['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] ? '- ' + trip['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] : ''}</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item"><strong>\u05DB\u05D9\u05EA\u05D4</strong>${trip['\u05DB\u05D9\u05EA\u05D4'] || '\u05DB\u05DC \u05D4\u05DE\u05D5\u05E1\u05D3'}</div>
+        <div class="info-item"><strong>\u05D4\u05E1\u05E2\u05D4</strong>${trip['\u05D4\u05E1\u05E2\u05D4'] || '-'}</div>
+        <div class="info-item"><strong>\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA</strong>${trip['\u05D0\u05E8\u05D5\u05D7\u05D5\u05EA'] || '-'}</div>
+      </div>
+
+      <div class="summary">
+        <div class="summary-item"><div class="num">${data.length}</div><div>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</div></div>
+        <div class="summary-item"><div class="num" style="color:green">${totalSigned}</div><div>\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD</div></div>
+        <div class="summary-item"><div class="num" style="color:orange">${totalPaid}</div><div>\u05E9\u05D9\u05DC\u05DE\u05D5</div></div>
+      </div>
+
+      ${trip['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? `<h2>\u05EA\u05D9\u05D0\u05D5\u05E8</h2><p>${trip['\u05EA\u05D9\u05D0\u05D5\u05E8']}</p>` : ''}
+
+      ${schedule.length ? `<h2>\u05DC\u05D5\u05D7 \u05D6\u05DE\u05E0\u05D9\u05DD</h2>
+        ${schedule.map(s => `<div class="schedule-item"><span class="schedule-time">${s.time || ''}</span><span>${s.activity || ''}</span>${s.notes ? `<span style="color:#666"> - ${s.notes}</span>` : ''}</div>`).join('')}` : ''}
+
+      ${equipment.length ? `<h2>\u05E6\u05D9\u05D5\u05D3 \u05E0\u05D3\u05E8\u05E9</h2>
+        <ul class="equip-list">${equipment.map(e => `<li>${e.name || ''}</li>`).join('')}</ul>` : ''}
+
+      <h2>\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h2>
+      <table>
+        <thead><tr>
+          <th>#</th><th>\u05E9\u05DD</th><th>\u05EA.\u05D6.</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th>
+          <th>\u05D4\u05D5\u05E8\u05D4</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF \u05D4\u05D5\u05E8\u05D4</th><th>\u05E8\u05E4\u05D5\u05D0\u05D9</th>
+          <th>\u05D0\u05D9\u05E9\u05D5\u05E8</th><th>\u05EA\u05E9\u05DC\u05D5\u05DD</th>
+        </tr></thead>
+        <tbody>${data.map((s, i) => `<tr>
+          <td>${i + 1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td>${s.studentId || '-'}</td>
+          <td>${s.cls || '-'}</td>
+          <td>${s.phone || '-'}</td>
+          <td>${s.parentName || '-'}</td>
+          <td>${s.parentPhone || '-'}</td>
+          <td>${s.medNotes ? `<span class="badge badge-danger">${s.medNotes}</span>` : '-'}</td>
+          <td><span class="badge ${s.permSigned ? 'badge-success' : 'badge-warning'}">${s.permSigned ? '\u05D7\u05EA\u05D5\u05DD' : '\u05DE\u05DE\u05EA\u05D9\u05DF'}</span></td>
+          <td><span class="badge ${s.paid ? 'badge-success' : 'badge-warning'}">${s.paid ? '\u05E9\u05D5\u05DC\u05DD' : '\u05DC\u05D0'}</span></td>
+        </tr>`).join('')}</tbody>
+      </table>
+
+      ${emergency.length ? `<h2 class="emergency-title">\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD</h2>
+        <table class="emergency-table"><thead><tr><th>\u05E9\u05DD</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF 1</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF 2</th></tr></thead>
+        <tbody>${emergency.map(c => `<tr><td><strong>${c.name || ''}</strong></td><td>${c.role || ''}</td><td>${c.phone || ''}</td><td>${c.phone2 || ''}</td></tr>`).join('')}</tbody></table>` : ''}
+
+      <div style="text-align:center;margin-top:20px;color:#999;font-size:10px">
+        \u05D4\u05D5\u05D3\u05E4\u05E1 \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA: ${new Date().toLocaleDateString('he-IL')} | \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3
+      </div>
+    </body></html>`);
+    printWin.document.close();
+    setTimeout(() => { printWin.focus(); printWin.print(); }, 500);
   },
 
 
