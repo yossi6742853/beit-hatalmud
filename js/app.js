@@ -847,19 +847,44 @@ const App = {
 
     // Global keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      // Ctrl+K or Cmd+K = focus search
+      const tag = e.target.tagName;
+      const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.target.isContentEditable;
+
+      // Ctrl+K or Cmd+K = focus search / command palette (always active)
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         const search = document.getElementById('global-search');
         if (search) search.focus();
+        return;
       }
-      // Escape = close search, close modals
+
+      // Escape = close search dropdown, close modals, close command palette
       if (e.key === 'Escape') {
         const search = document.getElementById('global-search');
         if (search && document.activeElement === search) {
           search.value = '';
           search.blur();
           document.getElementById('search-results')?.classList.remove('show');
+        }
+        // Close any open Bootstrap modals
+        document.querySelectorAll('.modal.show').forEach(m => {
+          const inst = bootstrap.Modal.getInstance(m);
+          if (inst) inst.hide();
+        });
+        // Close command palette
+        document.getElementById('command-palette')?.remove();
+        return;
+      }
+
+      // Skip navigation shortcuts when user is typing in a form field
+      if (inInput) return;
+
+      // Ctrl+1..4 = quick page navigation
+      if (e.ctrlKey || e.metaKey) {
+        const navMap = { '1': 'dashboard', '2': 'students', '3': 'attendance', '4': 'finance' };
+        if (navMap[e.key]) {
+          e.preventDefault();
+          location.hash = navMap[e.key];
         }
       }
     });
