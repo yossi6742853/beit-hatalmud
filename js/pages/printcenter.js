@@ -13,7 +13,8 @@ Object.assign(Pages, {
     { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' },
     { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' },
     { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' },
-    { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' }
+    { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' },
+    { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' }
   ],
 
   /* ---------- demo data ---------- */
@@ -429,7 +430,7 @@ Object.assign(Pages, {
     document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
     var monthWrap = document.getElementById('pc-month-wrap');
-    if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report') ? '' : 'none';
+    if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report' || tplId === 'finance_summary') ? '' : 'none';
 
     // For registration/phone_list, hide student selector since not needed
     const hideStudentSel = tplId === 'registration' || tplId === 'phone_list';
@@ -794,6 +795,7 @@ Object.assign(Pages, {
       case 'phone_list':      return this._pcBuildPhoneList(opts);
       case 'attendance_monthly': return this._pcBuildAttendanceMonthly(opts);
       case 'behavior_report':    return this._pcBuildBehaviorReport(opts);
+      case 'finance_summary':    return this._pcBuildFinanceSummary(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1622,6 +1624,86 @@ Object.assign(Pages, {
                   <td style="font-size:.85rem;color:#555">' + (s.lastDesc || '\u2014') + ' <small style="color:#999">(' + (s.lastDate || '') + ')</small></td>\
                 </tr>';
               }).join('') + '</tbody>\
+            </table>') + '\
+        </div>\
+        ' + this._pcDocFooter(opts) + '\
+      </div>\
+    ';
+  },
+
+  /* --- Finance Summary --- */
+  _pcBuildFinanceSummary(opts) {
+    var _gc = function(s) { return (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : []; };
+    var tuition = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    var month = (opts.month || new Date().toISOString().slice(0, 7));
+    var monthLabel = month;
+    try {
+      var d = new Date(month + '-01');
+      monthLabel = d.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' });
+    } catch(e) {}
+
+    // Filter by month
+    var filtered = tuition.filter(function(r) {
+      var dt = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || r['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
+      return dt.slice(0, 7) === month;
+    });
+
+    // Stats
+    var totalBilled = 0, totalPaid = 0, totalPending = 0;
+    filtered.forEach(function(r) {
+      var amt = parseFloat(r['\u05E1\u05DB\u05D5\u05DD'] || r['\u05E1\u05D4"\u05DB'] || 0);
+      var status = (r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '').trim();
+      totalBilled += amt;
+      if (status === '\u05E9\u05D5\u05DC\u05DD') { totalPaid += amt; } else { totalPending += amt; }
+    });
+
+    var rows = filtered.map(function(r, i) {
+      var name = r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u2014';
+      var amt = parseFloat(r['\u05E1\u05DB\u05D5\u05DD'] || r['\u05E1\u05D4"\u05DB'] || 0);
+      var status = (r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '').trim();
+      var isPaid = status === '\u05E9\u05D5\u05DC\u05DD';
+      var date = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || r['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '\u2014';
+      var method = r['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD'] || r['\u05D0\u05DE\u05E6\u05E2\u05D9'] || '\u2014';
+      return '<tr>' +
+        '<td>' + (i + 1) + '</td>' +
+        '<td style="font-weight:600">' + name + '</td>' +
+        '<td style="text-align:center">\u20AA' + amt.toLocaleString() + '</td>' +
+        '<td style="text-align:center"><span style="padding:2px 10px;border-radius:12px;font-size:.85rem;background:' + (isPaid ? '#d1e7dd' : '#fff3cd') + ';color:' + (isPaid ? '#0f5132' : '#664d03') + '">' + (isPaid ? '\u05E9\u05D5\u05DC\u05DD' : '\u05DE\u05DE\u05EA\u05D9\u05DF') + '</span></td>' +
+        '<td style="text-align:center;font-size:.85rem">' + date + '</td>' +
+        '<td style="text-align:center;font-size:.85rem">' + method + '</td>' +
+        '</tr>';
+    }).join('');
+
+    return '\
+      <div class="pc-doc">\
+        ' + this._pcDocHeader(opts, '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u2014 ' + monthLabel) + '\
+        <div class="pc-body">\
+          <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap">\
+            <div style="flex:1;min-width:140px;background:#e8f5e9;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#2e7d32">\u05E1\u05D4"\u05DB \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#1b5e20">\u20AA' + totalBilled.toLocaleString() + '</div>\
+            </div>\
+            <div style="flex:1;min-width:140px;background:#e3f2fd;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#1565c0">\u05E9\u05D5\u05DC\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#0d47a1">\u20AA' + totalPaid.toLocaleString() + '</div>\
+            </div>\
+            <div style="flex:1;min-width:140px;background:#fff3e0;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#e65100">\u05DE\u05DE\u05EA\u05D9\u05DF \u05DC\u05EA\u05E9\u05DC\u05D5\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#bf360c">\u20AA' + totalPending.toLocaleString() + '</div>\
+            </div>\
+          </div>\
+          ' + (filtered.length === 0
+            ? '<p style="text-align:center;color:#999;margin-top:20px">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05EA\u05E9\u05DC\u05D5\u05DD \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D6\u05D4</p>'
+            : '<table class="pc-table">\
+              <thead><tr>\
+                <th style="width:30px">#</th>\
+                <th>\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3</th>\
+                <th style="text-align:center">\u05E1\u05DB\u05D5\u05DD</th>\
+                <th style="text-align:center">\u05E1\u05D8\u05D8\u05D5\u05E1</th>\
+                <th style="text-align:center">\u05EA\u05D0\u05E8\u05D9\u05DA</th>\
+                <th style="text-align:center">\u05D0\u05DE\u05E6\u05E2\u05D9 \u05EA\u05E9\u05DC\u05D5\u05DD</th>\
+              </tr></thead>\
+              <tbody>' + rows + '</tbody>\
             </table>') + '\
         </div>\
         ' + this._pcDocFooter(opts) + '\

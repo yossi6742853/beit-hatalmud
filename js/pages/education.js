@@ -102,12 +102,11 @@ Object.assign(Pages, {
   _acaExams: [], _acaGrades: [], _acaStudents: [], _acaUseDemo: false,
 
   async academicsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try real data first
-    const [exams, grades, students] = await Promise.all([
-      App.getData('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD').catch(() => []),
-      App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD').catch(() => []),
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => [])
-    ]);
+    const exams = _gc('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD');
+    const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
     this._acaExams = exams;
     this._acaGrades = grades;
     this._acaStudents = students;
@@ -920,13 +919,14 @@ Object.assign(Pages, {
   },
 
   async rankingsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Update demo toggle text
     const btn = document.getElementById('rank-demo-btn');
     if (btn) btn.textContent = this._rankUseDemo ? '\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D0\u05DE\u05D9\u05EA\u05D9\u05D9\u05DD' : '\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5';
 
     // Load live data if not demo
     if (!this._rankUseDemo) {
-      await this._rankLoadLiveData();
+      this._rankLoadLiveData(_gc);
       // Show empty state if no live data
       if (!this._rankLiveStudents || !this._rankLiveStudents.length) {
         const tableEl = document.getElementById('rank-table');
@@ -943,14 +943,13 @@ Object.assign(Pages, {
     this.renderRankings();
   },
 
-  async _rankLoadLiveData() {
+  _rankLoadLiveData(_gc) {
     try {
-      const [students, beh, att, grades] = await Promise.all([
-        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
-        App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA'),
-        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
-        App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD')
-      ]);
+      if (!_gc) _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+      const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      const beh = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
+      const att = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+      const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
       // Build per-student metrics
       const map = {};
       students.forEach(s => {
@@ -1428,23 +1427,20 @@ Object.assign(Pages, {
   },
 
   async mivtzaInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._mvzActiveTab = 'active';
-    // Try loading from API
-    try {
-      const data = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
-      if (data && data.length) {
-        this._mvzData = data;
-        this._mvzCampaigns = data;
-        this._mvzProgress = [];
-        try {
-          const prog = await App.getData('\u05DE\u05D1\u05E6\u05E2_\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA');
-          if (prog && prog.length) this._mvzProgress = prog;
-        } catch(e) {}
-        this.renderMvzStats();
-        this.renderMvzActiveTab();
-        return;
-      }
-    } catch(e) { /* no data */ }
+    // Try loading from cache
+    const data = _gc('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    if (data && data.length) {
+      this._mvzData = data;
+      this._mvzCampaigns = data;
+      this._mvzProgress = [];
+      const prog = _gc('\u05DE\u05D1\u05E6\u05E2_\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA');
+      if (prog && prog.length) this._mvzProgress = prog;
+      this.renderMvzStats();
+      this.renderMvzActiveTab();
+      return;
+    }
 
     // If demo was previously toggled, keep it
     if (this._mvzUseDemo) {
