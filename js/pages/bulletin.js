@@ -290,7 +290,7 @@ Object.assign(Pages, {
     if (unpinned.length > 0) {
       listEl.innerHTML = unpinned.map(b => this._bulletinCard(b, false)).join('');
     } else if (pinned.length === 0) {
-      listEl.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-megaphone fs-1 d-block mb-2"></i>\u05d0\u05d9\u05df \u05de\u05d5\u05d3\u05e2\u05d5\u05ea<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.bulletinLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05d8\u05e2\u05df \u05d3\u05de\u05d5</button></div>';
+      listEl.innerHTML = '<div class="text-center text-muted py-5"><i class="bi bi-megaphone fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D1\u05DC\u05D5\u05D7<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.bulletinLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
     } else {
       listEl.innerHTML = '';
     }

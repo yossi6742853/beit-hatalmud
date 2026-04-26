@@ -302,9 +302,16 @@ Object.assign(Pages, {
       this._roomLoadFromStorage();
     }
     // If still has hardcoded demo and not flagged, clear
-    if (!this._roomsUseDemo && this._rooms.length && this._rooms[0]?.id === 1 && this._rooms[0]?.name === 'בית מדרש גדול') {
+    if (!this._roomsUseDemo && this._rooms.length && this._rooms[0]?.id === 1 && this._rooms[0]?.name === '\u05D1\u05D9\u05EA \u05DE\u05D3\u05E8\u05E9 \u05D2\u05D3\u05D5\u05DC') {
       this._rooms = [];
       this._roomBookings = [];
+    }
+    // Show empty state if no rooms
+    if (!this._rooms.length) {
+      const container = document.querySelector('#app .row.g-3.mb-4');
+      if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-door-open fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D7\u05D3\u05E8\u05D9\u05DD \u05DE\u05D5\u05D2\u05D3\u05E8\u05D9\u05DD<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.roomsLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
+      const bookingsBody = document.getElementById('room-bookings-body');
+      if (bookingsBody) bookingsBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">\u05D0\u05D9\u05DF \u05D4\u05D6\u05DE\u05E0\u05D5\u05EA</td></tr>';
     }
   },
 

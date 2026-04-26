@@ -235,6 +235,24 @@ Object.assign(Pages, {
   },
 
   visitsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    try {
+      const apiData = _gc('\u05D1\u05D9\u05E7\u05D5\u05E8\u05D9\u05DD');
+      if (apiData && apiData.length > 0) {
+        this._visits = apiData;
+      }
+    } catch (e) { /* keep current */ }
+    // If no real data and not demo, clear and show empty state
+    if (!this._visitsUseDemo && this._visits.length && this._visits[0]?.id === 1 && this._visits[0]?.parent === '\u05E8\u05D7\u05DC \u05DB\u05D4\u05DF') {
+      this._visits = [];
+    }
+    if (!this._visits.length) {
+      const container = document.getElementById('visit-cards-container');
+      if (container) container.innerHTML = '<div class="col-12 text-center text-muted py-5"><i class="bi bi-person-walking fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D1\u05D9\u05E7\u05D5\u05E8\u05D9\u05DD<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.visitsLoadDemo()"><i class="bi bi-play-circle me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
+      const tbody = document.getElementById('visit-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted py-4">\u05D0\u05D9\u05DF \u05D1\u05D9\u05E7\u05D5\u05E8\u05D9\u05DD</td></tr>';
+      return;
+    }
     // set default date to today
     const dateInput = document.getElementById('vf-date');
     if (dateInput) dateInput.value = '2026-04-22';
