@@ -139,46 +139,54 @@ Object.assign(Pages, {
   /* ---- Init ---- */
   gradebookInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try loading from API first
     let loaded = false;
-    try {
-      const apiGrades = _gc('ציונים');
-      if (apiGrades && apiGrades.length) {
-        // API returns flat grade rows — build grades map
-        this._gbGrades = {};
-        apiGrades.forEach(row => {
-          if (row.studentId && row.examId) {
-            this._gbGrades[row.studentId + '_' + row.examId] = row.grade;
-          }
-        });
-        loaded = true;
-      }
-    } catch(e) { /* fall through */ }
 
+    // Load exams from מבחנים (Hebrew field names from real data)
     try {
-      const apiStudents = _gc('תלמידים');
-      if (apiStudents && apiStudents.length) {
-        this._gbStudents = apiStudents.map((s, i) => ({
-          id: s.id || ('s' + (i + 1)),
-          '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || s.firstName || '',
-          '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || s.lastName || '',
-          '\u05DB\u05D9\u05EA\u05D4': s['\u05DB\u05D9\u05EA\u05D4'] || s.class || ''
-        }));
-        loaded = true;
-      }
-    } catch(e) { /* fall through */ }
-
-    try {
-      const apiExams = _gc('מבחנים');
+      const apiExams = _gc('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD');
       if (apiExams && apiExams.length) {
-        this._gbExams = apiExams.map((ex, i) => ({
-          id: ex.id || ('e' + (i + 1)),
-          name: ex.name || ex['\u05E9\u05DD'] || '',
-          subject: ex.subject || ex['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '',
-          date: ex.date || ex['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
-          maxScore: ex.maxScore || 100,
+        this._gbExams = apiExams.map(ex => ({
+          id: ex['\u05DE\u05D6\u05D4\u05D4'] || ex.id || ('e' + Math.random().toString(36).slice(2,8)),
+          name: ex['\u05E9\u05DD_\u05DE\u05D1\u05D7\u05DF'] || ex.name || '',
+          subject: ex['\u05DE\u05E7\u05E6\u05D5\u05E2'] || ex.subject || '',
+          date: ex['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ex.date || '',
+          maxScore: parseInt(ex['\u05E6\u05D9\u05D5\u05DF_\u05DE\u05E7\u05E1\u05D9\u05DE\u05DC\u05D9']) || ex.maxScore || 100,
           weight: ex.weight || 100
         }));
+        loaded = true;
+      }
+    } catch(e) { /* fall through */ }
+
+    // Load students from תלמידים
+    try {
+      const apiStudents = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      if (apiStudents && apiStudents.length) {
+        this._gbStudents = apiStudents.map(s => ({
+          id: s['\u05DE\u05D6\u05D4\u05D4'] || s.id || ('s' + Math.random().toString(36).slice(2,8)),
+          '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '',
+          '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '',
+          '\u05DB\u05D9\u05EA\u05D4': s['\u05DB\u05D9\u05EA\u05D4'] || ''
+        }));
+        loaded = true;
+      }
+    } catch(e) { /* fall through */ }
+
+    // Load grades from ציונים — build lookup map studentId_examId -> grade
+    try {
+      const apiGrades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
+      if (apiGrades && apiGrades.length) {
+        this._gbGrades = {};
+        apiGrades.forEach(row => {
+          const studentId = row['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || row.studentId || '';
+          const examId = row['\u05DE\u05D6\u05D4\u05D4_\u05DE\u05D1\u05D7\u05DF'] || row.examId || '';
+          const grade = row['\u05E6\u05D9\u05D5\u05DF'] || row.grade;
+          if (examId && grade !== undefined && grade !== '') {
+            // If student ID is missing, skip (29 records have no student)
+            if (studentId) {
+              this._gbGrades[studentId + '_' + examId] = parseFloat(grade);
+            }
+          }
+        });
         loaded = true;
       }
     } catch(e) { /* fall through */ }
@@ -198,7 +206,6 @@ Object.assign(Pages, {
     }
 
     if (!loaded && !this._gbUseDemo) {
-      // Show empty state
       this._gbStudents = [];
       this._gbExams = [];
       this._gbGrades = {};
@@ -209,6 +216,18 @@ Object.assign(Pages, {
 
     if (!loaded && this._gbUseDemo) {
       this._loadDemoGradebook();
+    }
+
+    // Filter exams to only those that have at least one grade
+    if (loaded && !this._gbUseDemo) {
+      const examsWithGrades = new Set();
+      Object.keys(this._gbGrades).forEach(key => {
+        const parts = key.split('_');
+        if (parts.length >= 2) examsWithGrades.add(parts.slice(1).join('_'));
+      });
+      if (examsWithGrades.size > 0) {
+        this._gbExams = this._gbExams.filter(ex => examsWithGrades.has(ex.id));
+      }
     }
 
     this._populateGbFilters();

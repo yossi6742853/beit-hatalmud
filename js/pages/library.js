@@ -145,24 +145,32 @@ Object.assign(Pages, {
   libraryInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._libView = 'grid';
+    let loaded = false;
 
-    // Try loading from API, fall back to localStorage, then demo data
+    // Try loading from API
     try {
-      const apiData = _gc('ספריה');
+      const apiData = _gc('\u05E1\u05E4\u05E8\u05D9\u05D4');
       if (apiData && apiData.length) {
         this._libBooks = apiData.filter(r => r.type === 'book' || !r.type);
         this._libLoans = apiData.filter(r => r.type === 'loan');
-      } else {
-        this._libLoadFromStorage();
+        loaded = true;
       }
-    } catch(e) {
+    } catch(e) { /* fall through */ }
+
+    // Fall back to localStorage
+    if (!loaded) {
       this._libLoadFromStorage();
+      loaded = this._libBooks && this._libBooks.length > 0;
     }
 
     // If still has hardcoded demo data and not flagged, clear
-    if (!this._libUseDemo && this._libBooks?.length && this._libBooks[0]?.id === 1) {
+    if (!loaded && !this._libUseDemo) {
       this._libBooks = [];
       this._libLoans = [];
+    }
+
+    if (!loaded && this._libUseDemo) {
+      // Keep demo data as-is
     }
 
     this._updateLoanStatuses();
@@ -250,7 +258,14 @@ Object.assign(Pages, {
   /* ---- Book card grid ---- */
   _renderBookGrid(books) {
     if (books.length === 0) {
-      document.getElementById('lib-content').innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05D4\u05E1\u05D9\u05E0\u05D5\u05DF</p></div>`;
+      const isFiltered = (document.getElementById('lib-search')?.value || '').trim() ||
+                         (document.getElementById('lib-cat-filter')?.value || '') ||
+                         (document.getElementById('lib-avail-filter')?.value || '');
+      if (isFiltered) {
+        document.getElementById('lib-content').innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05D4\u05E1\u05D9\u05E0\u05D5\u05DF</p></div>`;
+      } else {
+        document.getElementById('lib-content').innerHTML = `<div class="empty-state text-center py-5"><i class="bi bi-book-half fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E1\u05E4\u05E8\u05D9\u05DD \u05D1\u05DE\u05D0\u05D2\u05E8</h5><p class="text-muted">\u05E0\u05D9\u05EA\u05DF \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05E1\u05E4\u05E8\u05D9\u05DD \u05D9\u05D3\u05E0\u05D9\u05EA \u05D1\u05DC\u05D7\u05E5 "\u05E1\u05E4\u05E8 \u05D7\u05D3\u05E9"</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.libraryLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>`;
+      }
       return;
     }
     const catColors = this._libCatColors;
