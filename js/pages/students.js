@@ -1045,6 +1045,7 @@ Object.assign(Pages, {
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-docs"><i class="bi bi-folder me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF</a></li>
         <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-comm"><i class="bi bi-chat-dots me-1"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-tala"><i class="bi bi-file-earmark-person me-1"></i>\u05EA\u05DC"\u05D0</a></li>
       </ul>
       <div class="tab-content">
 
@@ -1349,6 +1350,11 @@ Object.assign(Pages, {
             </div>`;
           }).join('')}</div>` : ''}
         </div></div>
+
+        <!-- ============ 10. Tala Tab ============ -->
+        <div class="tab-pane fade" id="tab-tala">
+          ${(typeof Pages !== 'undefined' && Pages._talaRenderTab) ? Pages._talaRenderTab(sId, name) : '<div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div>'}
+        </div>
 
       </div>
     `;
