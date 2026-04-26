@@ -47,6 +47,7 @@ Object.assign(Pages, {
       <div><h1><i class="bi bi-person-lines-fill me-2"></i>\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</h1><p id="ct-count" class="text-muted mb-0"></p></div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-primary btn-sm" onclick="Pages._ctShowAdd()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8</button>
+        <button class="btn btn-outline-dark btn-sm" onclick="Pages._ctPrintDirectory()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1 \u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD</button>
         <button class="btn btn-outline-info btn-sm" onclick="Pages._ctShowGroups()"><i class="bi bi-diagram-3 me-1"></i>\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA</button>
         <div class="dropdown d-inline-block">
           <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-arrow-down-up me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0/\u05D9\u05D9\u05E6\u05D5\u05D0</button>
@@ -148,14 +149,47 @@ Object.assign(Pages, {
 
   contactsInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    let data = _gc('\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8');
-    if (!data || data.length === 0) {
+
+    // Load real staff data from DATA_CACHE('צוות') and map to contact format
+    let staffData = _gc('\u05E6\u05D5\u05D5\u05EA');
+    let contactsRaw = _gc('\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8');
+
+    let data = [];
+
+    // Map staff records to contact objects
+    if (staffData && staffData.length > 0) {
+      data = staffData.map((s, i) => {
+        const name = (typeof Utils !== 'undefined' && Utils.fullName) ? Utils.fullName(s) : (s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '');
+        return {
+          id: 'staff-' + (Utils.rowId ? Utils.rowId(s) : i),
+          name: name.trim() || s['\u05E9\u05DD'] || '',
+          phone: s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '',
+          email: s['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '',
+          role: s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || '',
+          org: '\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3',
+          category: '\u05E6\u05D5\u05D5\u05EA',
+          notes: s['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '',
+          favorite: false,
+          _row: s._row || (i + 2),
+          _source: 'staff'
+        };
+      });
+    }
+
+    // Also merge any existing contacts data
+    if (contactsRaw && contactsRaw.length > 0) {
+      data = data.concat(contactsRaw);
+    }
+
+    // Fallback to demo data
+    if (!data.length) {
       if (this._contactsUseDemo) {
         data = this._contactsDemoData.map((d, i) => ({ ...d, _row: i + 2 }));
       } else {
         data = [];
       }
     }
+
     this._contactsData = data;
     this._contactsActiveCategory = '';
     this._contactsEditingId = null;
@@ -545,6 +579,74 @@ Object.assign(Pages, {
     this._ctRender();
     if (typeof App !== 'undefined' && App.toast) App.toast(this._ctImportParsed.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D9\u05D5\u05D1\u05D0\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
     this._ctImportParsed = [];
+  },
+
+  /* ======================================================================
+     PRINT PHONE DIRECTORY
+     ====================================================================== */
+  _ctPrintDirectory() {
+    const data = this._contactsData;
+    if (!data.length) {
+      if (typeof App !== 'undefined' && App.toast) App.toast('\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05DC\u05D4\u05D3\u05E4\u05E1\u05D4', 'warning');
+      return;
+    }
+
+    // Group by category
+    const groups = {};
+    data.forEach(c => {
+      const cat = c.category || '\u05D0\u05D7\u05E8';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(c);
+    });
+
+    // Sort each group alphabetically
+    Object.values(groups).forEach(arr => arr.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'he')));
+
+    const catDefs = {
+      '\u05E6\u05D5\u05D5\u05EA': { icon: '\u{1F464}', label: '\u05E6\u05D5\u05D5\u05EA' },
+      '\u05D4\u05D5\u05E8\u05D9\u05DD': { icon: '\u{1F465}', label: '\u05D4\u05D5\u05E8\u05D9\u05DD' },
+      '\u05D7\u05D9\u05E6\u05D5\u05E0\u05D9': { icon: '\u{1F3E2}', label: '\u05D7\u05D9\u05E6\u05D5\u05E0\u05D9' }
+    };
+
+    let tableRows = '';
+    Object.entries(groups).forEach(([cat, members]) => {
+      const def = catDefs[cat] || { label: cat };
+      tableRows += `<tr style="background:#e8f0fe"><td colspan="4" style="font-weight:bold;font-size:1.1em;padding:10px 8px">${def.label} (${members.length})</td></tr>`;
+      members.forEach(c => {
+        tableRows += `<tr>
+          <td style="padding:6px 8px;font-weight:600">${c.name || ''}</td>
+          <td style="padding:6px 8px" dir="ltr">${c.phone || ''}</td>
+          <td style="padding:6px 8px">${c.role || ''}</td>
+          <td style="padding:6px 8px" dir="ltr">${c.email || ''}</td>
+        </tr>`;
+      });
+    });
+
+    const w = window.open('', '_blank', 'width=800,height=900');
+    w.document.write(`<!DOCTYPE html><html dir="rtl"><head><title>\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD</title>
+      <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+      <style>
+        body{font-family:Heebo,sans-serif;padding:20px;max-width:800px;margin:0 auto;color:#333}
+        h1{text-align:center;margin-bottom:5px;font-size:1.6em}
+        .subtitle{text-align:center;color:#666;margin-bottom:20px;font-size:.9em}
+        table{width:100%;border-collapse:collapse;font-size:.9em}
+        th{background:#1e3a5f;color:#fff;padding:8px;text-align:right}
+        td{border-bottom:1px solid #ddd}
+        tr:hover{background:#f8f9fa}
+        .footer{text-align:center;margin-top:30px;font-size:.8em;color:#999;border-top:1px solid #ddd;padding-top:10px}
+        @media print{body{padding:10px;font-size:.85em}h1{font-size:1.3em}.footer{position:fixed;bottom:10px;width:100%}}
+      </style>
+    </head><body>
+      <h1>\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD</h1>
+      <div class="subtitle">\u05E2\u05D5\u05D3\u05DB\u05DF: ${new Date().toLocaleDateString('he-IL')} | \u05E1\u05D4"\u05DB ${data.length} \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</div>
+      <table>
+        <thead><tr><th>\u05E9\u05DD</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05EA\u05E4\u05E7\u05D9\u05D3</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div class="footer">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2022 \u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05E4\u05E0\u05D9\u05DE\u05D9</div>
+      <script>setTimeout(()=>{window.print()},500)<\/script>
+    </body></html>`);
+    w.document.close();
   }
 
 });

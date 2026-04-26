@@ -1195,18 +1195,50 @@ Object.assign(Pages, {
     this._renderPcCatChart(catTotals);
   },
 
+  _pcShowAll: false,
+  _pcPageSize: 20,
+
   _renderPcTable(data, startBal) {
     if (!data.length) {
       document.getElementById('pc-list').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-cash-coin fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E2\u05D5\u05DC\u05D4 \u05E8\u05D0\u05E9\u05D5\u05E0\u05D4 \u05DC\u05E7\u05D5\u05E4\u05D4 \u05D4\u05E7\u05D8\u05E0\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.pcLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
       return;
     }
+
+    // Build running balance for all rows
     let bal = startBal;
     const cats = this._pcCategories;
-    const rows = data.map(r => {
+    const allRows = data.map(r => {
       const a = parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0;
       const isIn = r['\u05E1\u05D5\u05D2'] === '\u05D4\u05DB\u05E0\u05E1\u05D4';
-      const pcId = r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r);
       if (isIn) bal += a; else bal -= a;
+      return { r, a, isIn, bal };
+    });
+
+    // Recent transactions summary (last 5)
+    const recent = allRows.slice(-5).reverse();
+    const recentHtml = `<div class="card mb-3 p-3">
+      <h6 class="mb-2"><i class="bi bi-clock-history me-1"></i>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA</h6>
+      <div class="list-group list-group-flush">${recent.map(({r, a, isIn}) => {
+        const catCfg = cats[r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']] || {};
+        return `<div class="list-group-item d-flex justify-content-between align-items-center px-0">
+          <div>
+            <span class="badge ${isIn ? 'bg-success' : 'bg-danger'} me-2">${isIn ? '\u05D4\u05DB\u05E0\u05E1\u05D4' : '\u05D4\u05D5\u05E6\u05D0\u05D4'}</span>
+            <span>${r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || ''}</span>
+            <small class="text-muted ms-2">${r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || ''}</small>
+          </div>
+          <span class="fw-bold ${isIn ? 'text-success' : 'text-danger'}">${isIn ? '+' : '-'}\u20AA${a.toLocaleString()}</span>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+
+    // Determine visible rows (paginated — show recent first in table, newest at top)
+    const showAll = this._pcShowAll;
+    const pageSize = this._pcPageSize;
+    const totalCount = allRows.length;
+    const visibleRows = showAll ? allRows : allRows.slice(-pageSize);
+
+    const rows = visibleRows.map(({r, a, isIn, bal: rowBal}) => {
+      const pcId = r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r);
       const catCfg = cats[r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']] || {};
       const catBadge = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']
         ? `<span class="badge" style="background:${catCfg.color || '#6c757d'}"><i class="bi ${catCfg.icon || ''} me-1"></i>${r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']}</span>`
@@ -1218,17 +1250,27 @@ Object.assign(Pages, {
         <td>${catBadge}</td>
         <td class="fw-bold ${isIn ? 'text-success' : 'text-danger'}">${isIn ? '+' : '-'}\u20AA${a.toLocaleString()}</td>
         <td><small>${r['\u05E7\u05D1\u05DC\u05D4'] || ''}</small></td>
-        <td class="fw-bold">\u20AA${bal.toLocaleString()}</td>
+        <td class="fw-bold">\u20AA${rowBal.toLocaleString()}</td>
         <td>
           <button class="btn btn-sm btn-outline-primary me-1" onclick="Pages.editPc('${pcId}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
           <button class="btn btn-sm btn-outline-danger" onclick="Pages.deletePc('${pcId}')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button>
         </td>
       </tr>`;
     }).join('');
-    document.getElementById('pc-list').innerHTML = `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
+
+    const toggleBtn = totalCount > pageSize
+      ? `<div class="text-center py-2 border-top">
+          <button class="btn btn-sm btn-outline-primary" onclick="Pages._pcShowAll=!Pages._pcShowAll;Pages.renderPc()">
+            <i class="bi bi-${showAll ? 'chevron-up' : 'chevron-down'} me-1"></i>${showAll ? '\u05D4\u05E6\u05D2 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA \u05D1\u05DC\u05D1\u05D3' : '\u05D4\u05E6\u05D2 \u05D0\u05EA \u05DB\u05DC ' + totalCount + ' \u05D4\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA'}
+          </button>
+          <small class="text-muted d-block mt-1">\u05DE\u05E6\u05D9\u05D2 ${visibleRows.length} \u05DE\u05EA\u05D5\u05DA ${totalCount}</small>
+        </div>`
+      : '';
+
+    document.getElementById('pc-list').innerHTML = recentHtml + `<div class="card"><div class="table-responsive"><table class="table table-bht table-hover mb-0">
       <thead><tr><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th><th>\u05E1\u05D5\u05D2</th><th>\u05EA\u05D9\u05D0\u05D5\u05E8</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05E7\u05D1\u05DC\u05D4</th><th>\u05D9\u05EA\u05E8\u05D4</th><th></th></tr></thead>
       <tbody>${rows}</tbody>
-    </table></div></div>`;
+    </table></div>${toggleBtn}</div>`;
   },
 
   filterPcTable() {
