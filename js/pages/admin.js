@@ -170,7 +170,8 @@ Object.assign(Pages, {
 
     // Populate class dropdown from student data
     try {
-      const students = this._rptUseDemo ? this._rptDemoStudents() : await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]);
+      const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+      const students = this._rptUseDemo ? this._rptDemoStudents() : _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       const classes = new Set();
       students.forEach(s => { const c = s['\u05DB\u05D9\u05EA\u05D4']||''; if (c) classes.add(c); });
       [...classes].sort().forEach(c => {
@@ -1063,7 +1064,8 @@ Object.assign(Pages, {
       contacts = this._phoneDemoContacts();
     } else {
       try {
-        const staff = await App.getData('\u05E6\u05D5\u05D5\u05EA');
+        const _gc2 = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+        const staff = _gc2('\u05E6\u05D5\u05D5\u05EA');
         contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
       } catch(e) {
         contacts = [];

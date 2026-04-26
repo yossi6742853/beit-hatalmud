@@ -1757,9 +1757,10 @@ Object.assign(Pages, {
     `;
   },
 
-  async formsInit() {
+  formsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
-      this._formsData = await App.getData('\u05D8\u05E4\u05E1\u05D9\u05DD');
+      this._formsData = _gc('\u05D8\u05E4\u05E1\u05D9\u05DD');
     } catch(e) { this._formsData = []; }
     this._formsTab = 'list';
     this._renderFormsContent();
