@@ -1516,8 +1516,8 @@ Object.assign(Pages, {
       const el = document.getElementById('mvz-tab-' + t);
       if (el) el.style.display = t === tab ? '' : 'none';
     });
-    if (event) event.target.closest('.nav-link').classList.add('active');
-    else document.querySelector(`#mvz-tabs .nav-link:first-child`).classList.add('active');
+    if (event) event.target.closest('.nav-link')?.classList.add('active');
+    else document.querySelector('#mvz-tabs .nav-link:first-child')?.classList.add('active');
 
     switch(tab) {
       case 'active': this.renderMvzActiveTab(); break;

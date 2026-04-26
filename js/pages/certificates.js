@@ -530,9 +530,12 @@ Object.assign(Pages, {
     const area = document.getElementById('cert-preview-area');
     if (area) {
       area.innerHTML = this._certBuildHTML(type, student, date, text, principal);
-      area.querySelector('.cert-frame').style.transform = 'scale(0.7)';
-      area.querySelector('.cert-frame').style.transformOrigin = 'top center';
-      area.querySelector('.cert-frame').style.marginBottom = '-120px';
+      const frame = area.querySelector('.cert-frame');
+      if (frame) {
+        frame.style.transform = 'scale(0.7)';
+        frame.style.transformOrigin = 'top center';
+        frame.style.marginBottom = '-120px';
+      }
     }
   },
 

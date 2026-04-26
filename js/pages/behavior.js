@@ -471,7 +471,7 @@ Object.assign(Pages, {
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi ${icon} text-${color} mt-1"></i>
                     <div>
-                      <a href="#" class="fw-bold text-decoration-none" onclick="Pages.behShowProfile('${r.תלמיד_מזהה}','${r.שם_תלמיד}');return false;">${r.שם_תלמיד}</a>
+                      <a href="#" class="fw-bold text-decoration-none" onclick="Pages.behShowProfile('${r.תלמיד_מזהה}','${(r.שם_תלמיד||'').replace(/'/g,"\\'").replace(/"/g,'&quot;')}');return false;">${r.שם_תלמיד}</a>
                       <span class="badge bg-${color} bg-opacity-10 text-${color} ms-2">${r.קטגוריה}</span>
                       <span class="badge bg-light text-dark ms-1"><i class="bi ${catIcon} me-1"></i>${r.כיתה || ''}</span>
                       <p class="mb-0 small text-muted mt-1">${r.תיאור || ''}</p>
@@ -536,7 +536,7 @@ Object.assign(Pages, {
                   const pct = Math.abs(s.total) / maxAbs * 100;
                   const barColor = s.total >= 0 ? 'success' : 'danger';
                   return `
-                  <tr class="${i < 3 ? 'table-warning table-' + ['warning','light','light'][i] : ''}" style="cursor:pointer" onclick="Pages.behShowProfile('${s.id}','${name}')">
+                  <tr class="${i < 3 ? 'table-warning table-' + ['warning','light','light'][i] : ''}" style="cursor:pointer" onclick="Pages.behShowProfile('${s.id}','${name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
                     <td class="fw-bold fs-5">${i < 3 ? medals[i] : i + 1}</td>
                     <td class="fw-bold">${name}</td>
                     <td class="text-center text-success">+${s.pos}</td>
