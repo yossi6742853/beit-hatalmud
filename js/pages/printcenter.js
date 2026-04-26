@@ -14,7 +14,8 @@ Object.assign(Pages, {
     { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' },
     { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' },
     { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' },
-    { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' }
+    { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' },
+    { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' }
   ],
 
   /* ---------- demo data ---------- */
@@ -163,10 +164,28 @@ Object.assign(Pages, {
               </div>
             </div>
 
-            <!-- Letter body for parent_letter -->
+            <!-- Letter type & body for parent_letter -->
+            <div class="col-md-4" id="pc-letter-type-wrap" style="display:none">
+              <label class="form-label fw-bold">\u05E1\u05D5\u05D2 \u05DE\u05DB\u05EA\u05D1</label>
+              <select class="form-select form-select-sm" id="pc-letter-type" onchange="Pages._pcFillLetterTemplate()">
+                <option value="general">\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA</option>
+                <option value="trip_permission">\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D8\u05D9\u05D5\u05DC</option>
+                <option value="fee_reminder">\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD</option>
+                <option value="meeting_invite">\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4</option>
+                <option value="custom">\u05DE\u05DB\u05EA\u05D1 \u05D7\u05D5\u05E4\u05E9\u05D9</option>
+              </select>
+            </div>
+            <div class="col-md-4" id="pc-letter-target-wrap" style="display:none">
+              <label class="form-label fw-bold">\u05D4\u05D3\u05E4\u05E1\u05D4 \u05E2\u05D1\u05D5\u05E8</label>
+              <select class="form-select form-select-sm" id="pc-letter-target">
+                <option value="selected">\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05D1\u05D7\u05E8 / \u05DB\u05D9\u05EA\u05D4</option>
+                <option value="all">\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</option>
+              </select>
+            </div>
             <div class="col-12" id="pc-letter-body-wrap" style="display:none">
-              <label class="form-label fw-bold">תוכן המכתב</label>
-              <textarea class="form-control form-control-sm" id="pc-letter-body" rows="4" placeholder="כתוב כאן את תוכן המכתב..."></textarea>
+              <label class="form-label fw-bold">\u05EA\u05D5\u05DB\u05DF \u05D4\u05DE\u05DB\u05EA\u05D1</label>
+              <textarea class="form-control form-control-sm" id="pc-letter-body" rows="6" placeholder="\u05DB\u05EA\u05D5\u05D1 \u05DB\u05D0\u05DF \u05D0\u05EA \u05EA\u05D5\u05DB\u05DF \u05D4\u05DE\u05DB\u05EA\u05D1..." dir="rtl"></textarea>
+              <small class="text-muted">\u05EA\u05D2\u05D9\u05D5\u05EA \u05D6\u05DE\u05D9\u05E0\u05D5\u05EA: {student} = \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3, {parent} = \u05E9\u05DD \u05D4\u05D5\u05E8\u05D4, {family} = \u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4, {class} = \u05DB\u05D9\u05EA\u05D4, {date} = \u05EA\u05D0\u05E8\u05D9\u05DA</small>
             </div>
 
             <!-- Month selector for attendance_monthly -->
@@ -427,7 +446,11 @@ Object.assign(Pages, {
     const dateRange = ['attendance', 'grades'].includes(tplId);
     document.getElementById('pc-date-range-wrap').style.display = dateRange ? '' : 'none';
     document.getElementById('pc-date-range-to-wrap').style.display = dateRange ? '' : 'none';
-    document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
+    const isLetter = tplId === 'parent_letter';
+    document.getElementById('pc-letter-type-wrap').style.display = isLetter ? '' : 'none';
+    document.getElementById('pc-letter-target-wrap').style.display = isLetter ? '' : 'none';
+    document.getElementById('pc-letter-body-wrap').style.display = isLetter ? '' : 'none';
+    if (isLetter) { this._pcFillLetterTemplate(); }
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
     var monthWrap = document.getElementById('pc-month-wrap');
     if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report' || tplId === 'finance_summary') ? '' : 'none';
@@ -490,6 +513,8 @@ Object.assign(Pages, {
       customFooter: document.getElementById('pc-custom-footer')?.value || '',
       showLogo: document.getElementById('pc-show-logo')?.checked !== false,
       letterBody: document.getElementById('pc-letter-body')?.value || '',
+      letterType: document.getElementById('pc-letter-type')?.value || 'general',
+      letterTarget: document.getElementById('pc-letter-target')?.value || 'selected',
       invoiceAmount: document.getElementById('pc-invoice-amount')?.value || '0',
       invoiceDesc: document.getElementById('pc-invoice-desc')?.value || '',
       invoiceNum: document.getElementById('pc-invoice-num')?.value || '',
@@ -1088,32 +1113,101 @@ Object.assign(Pages, {
     `;
   },
 
-  /* --- Parent Letter --- */
-  _pcBuildParentLetter(opts) {
-    const s = opts.student || this._pcStudents[0];
-    const body = opts.letterBody || 'הננו להודיעכם כי בית התלמוד מתכבד להזמין אתכם לערב הורים שיתקיים בע"ה ביום רביעי הקרוב בשעה 20:00 באולם המוסד.\n\nנשמח לראותכם ולשתף אתכם בהתקדמות בנכם בלימודים.';
+  /* --- Parent Letter: template definitions --- */
+  _pcLetterTemplates: {
+    general: {
+      subject: '\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA',
+      body: '\u05DC\u05DB\u05D1\u05D5\u05D3 \u05D4\u05D5\u05E8\u05D9 {student}, \u05E9\u05DC\u05D5\u05DD \u05D5\u05D1\u05E8\u05DB\u05D4.\n\n\u05D4\u05E0\u05E0\u05D5 \u05DC\u05D4\u05D5\u05D3\u05D9\u05E2\u05DB\u05DD \u05DB\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05DE\u05EA\u05DB\u05D1\u05D3 \u05DC\u05D4\u05D6\u05DE\u05D9\u05DF \u05D0\u05EA\u05DB\u05DD \u05DC\u05E2\u05E8\u05D1 \u05D4\u05D5\u05E8\u05D9\u05DD \u05E9\u05D9\u05EA\u05E7\u05D9\u05D9\u05DD \u05D1\u05E2"\u05D4 \u05D1\u05D9\u05D5\u05DD \u05E8\u05D1\u05D9\u05E2\u05D9 \u05D4\u05E7\u05E8\u05D5\u05D1 \u05D1\u05E9\u05E2\u05D4 20:00 \u05D1\u05D0\u05D5\u05DC\u05DD \u05D4\u05DE\u05D5\u05E1\u05D3.\n\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E8\u05D0\u05D5\u05EA\u05DB\u05DD \u05D5\u05DC\u05E9\u05EA\u05E3 \u05D0\u05EA\u05DB\u05DD \u05D1\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D1\u05E0\u05DB\u05DD \u05D1\u05DC\u05D9\u05DE\u05D5\u05D3\u05D9\u05DD.'
+    },
+    trip_permission: {
+      subject: '\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D4\u05E9\u05EA\u05EA\u05E4\u05D5\u05EA \u05D1\u05D8\u05D9\u05D5\u05DC',
+      body: '\u05D4\u05E8\u05D9\u05E0\u05D9 \u05DE\u05D0\u05E9\u05E8/\u05EA \u05D0\u05EA \u05D1\u05E0\u05D9/\u05D1\u05EA\u05D9 {student} \u05DE\u05DB\u05D9\u05EA\u05D4 {class} \u05DC\u05D4\u05E9\u05EA\u05EA\u05E3 \u05D1\u05D8\u05D9\u05D5\u05DC \u05E9\u05D9\u05EA\u05E7\u05D9\u05D9\u05DD \u05D1\u05E2"\u05D4 \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA ____________.\n\n\u05D9\u05D3\u05D5\u05E2 \u05DC\u05D9 \u05DB\u05D9 \u05D4\u05D8\u05D9\u05D5\u05DC \u05DB\u05D5\u05DC\u05DC \u05E0\u05E1\u05D9\u05E2\u05D4 \u05D1\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1 \u05D5\u05DB\u05D9 \u05D9\u05E9 \u05DC\u05D3\u05D0\u05D5\u05D2 \u05DC\u05D1\u05E8\u05D9\u05D0\u05D5\u05EA \u05D5\u05DC\u05DE\u05D6\u05D5\u05DF \u05DE\u05EA\u05D0\u05D9\u05DD.\n\n\u05E0\u05D0 \u05DC\u05D4\u05D7\u05D6\u05D9\u05E8 \u05D8\u05D5\u05E4\u05E1 \u05D6\u05D4 \u05D7\u05EA\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3 \u05E2\u05D3 \u05EA\u05D0\u05E8\u05D9\u05DA ____________.\n\n\u05D7\u05EA\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D4: ________________    \u05EA\u05D0\u05E8\u05D9\u05DA: ________________'
+    },
+    fee_reminder: {
+      subject: '\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD',
+      body: '\u05DC\u05DB\u05D1\u05D5\u05D3 \u05DE\u05E9\u05E4\u05D7\u05EA {family},\n\n\u05DC\u05D4\u05DC\u05DF \u05E2\u05D3\u05DB\u05D5\u05DF \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC\u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3 \u05E2\u05D1\u05D5\u05E8 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 {student} \u05DE\u05DB\u05D9\u05EA\u05D4 {class}.\n\n\u05E2\u05DC \u05E4\u05D9 \u05E8\u05D9\u05E9\u05D5\u05DE\u05D9\u05E0\u05D5, \u05E7\u05D9\u05D9\u05DD \u05D7\u05D5\u05D1 \u05E4\u05EA\u05D5\u05D7 \u05D1\u05E1\u05DA ____________ \u05E9"\u05D7.\n\n\u05E0\u05D0 \u05DC\u05D4\u05E1\u05D3\u05D9\u05E8 \u05D0\u05EA \u05D4\u05EA\u05E9\u05DC\u05D5\u05DD \u05D1\u05D4\u05E7\u05D3\u05DD \u05D4\u05D0\u05E4\u05E9\u05E8\u05D9 \u05D1\u05D0\u05DE\u05E6\u05E2\u05D5\u05EA \u05D4\u05E2\u05D1\u05E8\u05D4 \u05D1\u05E0\u05E7\u05D0\u05D9\u05EA / \u05D4\u05DE\u05D7\u05D0\u05D4 / \u05DE\u05D6\u05D5\u05DE\u05DF, \u05D0\u05D5 \u05DC\u05E4\u05E0\u05D5\u05EA \u05DC\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA \u05DC\u05EA\u05D9\u05D0\u05D5\u05DD \u05EA\u05DB\u05E0\u05D9\u05EA \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD.\n\n\u05D1\u05D1\u05E8\u05DB\u05D4 \u05D5\u05D1\u05D4\u05D5\u05E7\u05E8\u05D4.'
+    },
+    meeting_invite: {
+      subject: '\u05D4\u05D6\u05DE\u05E0\u05D4 \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4',
+      body: '\u05D4\u05E0\u05DB\u05DD \u05DE\u05D5\u05D6\u05DE\u05E0\u05D9\u05DD \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4 \u05D1\u05E0\u05D5\u05E9\u05D0 {student} \u05DE\u05DB\u05D9\u05EA\u05D4 {class}.\n\n\u05D4\u05E4\u05D2\u05D9\u05E9\u05D4 \u05EA\u05EA\u05E7\u05D9\u05D9\u05DD \u05D1\u05E2"\u05D4 \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA ____________ \u05D1\u05E9\u05E2\u05D4 ____________ \u05D1\u05DE\u05E9\u05E8\u05D3\u05D9 \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3.\n\n\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA\u05DB\u05DD \u05D7\u05E9\u05D5\u05D1\u05D4 \u05DC\u05E0\u05D5 \u05DE\u05D0\u05D5\u05D3 \u05D5\u05E0\u05E9\u05DE\u05D7 \u05DC\u05E8\u05D0\u05D5\u05EA\u05DB\u05DD.\n\n\u05E0\u05D0 \u05DC\u05D0\u05E9\u05E8 \u05D0\u05EA \u05D4\u05D2\u05E2\u05EA\u05DB\u05DD \u05D1\u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05DE\u05D6\u05DB\u05D9\u05E8\u05D5\u05EA: 02-1234567.'
+    },
+    custom: {
+      subject: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3',
+      body: ''
+    }
+  },
 
-    return `
-      <div class="pc-doc">
-        ${this._pcDocHeader(opts, 'מכתב להורים')}
-        <div class="pc-body">
-          <div style="margin-bottom:20px">
-            <div>ב"ה, ${opts.date}</div>
-          </div>
-          <div style="margin-bottom:16px">
-            <div style="font-weight:700">לכבוד</div>
-            <div>הורי התלמיד ${s.name}</div>
-            <div>משפחת ${s.parent}</div>
-          </div>
-          <div style="font-weight:700;margin-bottom:12px;font-size:1.1rem">הנדון: ${opts.customHeader || 'הודעה מבית התלמוד'}</div>
-          <div style="white-space:pre-wrap;line-height:1.8;margin-bottom:24px">${body}</div>
-          <div style="margin-bottom:8px">בברכה,</div>
-          <div style="font-weight:700">הנהלת בית התלמוד</div>
-        </div>
-        ${this._pcDocSignature()}
-        ${this._pcDocFooter(opts)}
-      </div>
-    `;
+  /* --- Fill letter body from template type --- */
+  _pcFillLetterTemplate() {
+    var sel = document.getElementById('pc-letter-type');
+    var bodyEl = document.getElementById('pc-letter-body');
+    if (!sel || !bodyEl) return;
+    var type = sel.value;
+    var tpl = this._pcLetterTemplates[type];
+    if (tpl) {
+      bodyEl.value = tpl.body;
+      var headerEl = document.getElementById('pc-custom-header');
+      if (headerEl && tpl.subject) headerEl.value = tpl.subject;
+    }
+  },
+
+  /* --- Parent Letter (mail-merge, multi-student) --- */
+  _pcBuildParentLetter(opts) {
+    var letterType = opts.letterType || 'general';
+    var tpl = this._pcLetterTemplates[letterType] || this._pcLetterTemplates.general;
+    var bodyTemplate = opts.letterBody || tpl.body;
+    var subject = opts.customHeader || tpl.subject;
+
+    // Determine target students
+    var students;
+    if (opts.letterTarget === 'all') {
+      var cls = opts.cls;
+      students = cls ? this._pcStudents.filter(function(s) { return s.cls === cls; }) : this._pcStudents;
+    } else if (opts.student) {
+      students = [opts.student];
+    } else {
+      var cls2 = opts.cls;
+      students = cls2 ? this._pcStudents.filter(function(s) { return s.cls === cls2; }) : [this._pcStudents[0]];
+    }
+
+    var self = this;
+    return students.map(function(s) {
+      // Mail-merge: replace placeholders
+      var body = bodyTemplate
+        .replace(/\{student\}/g, s.name)
+        .replace(/\{parent\}/g, s.parent || '')
+        .replace(/\{family\}/g, s.parent || '')
+        .replace(/\{class\}/g, s.cls || '')
+        .replace(/\{date\}/g, opts.date || '');
+
+      var mergedSubject = subject
+        .replace(/\{student\}/g, s.name)
+        .replace(/\{parent\}/g, s.parent || '')
+        .replace(/\{family\}/g, s.parent || '')
+        .replace(/\{class\}/g, s.cls || '')
+        .replace(/\{date\}/g, opts.date || '');
+
+      return '\
+      <div class="pc-doc">\
+        ' + self._pcDocHeader(opts, '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD') + '\
+        <div class="pc-body">\
+          <div style="margin-bottom:20px">\
+            <div>\u05D1"\u05D4, ' + (opts.date || '') + '</div>\
+          </div>\
+          <div style="margin-bottom:16px">\
+            <div style="font-weight:700">\u05DC\u05DB\u05D1\u05D5\u05D3</div>\
+            <div>\u05D4\u05D5\u05E8\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 ' + s.name + '</div>\
+            <div>\u05DE\u05E9\u05E4\u05D7\u05EA ' + (s.parent || '') + '</div>\
+          </div>\
+          <div style="font-weight:700;margin-bottom:12px;font-size:1.1rem">\u05D4\u05E0\u05D3\u05D5\u05DF: ' + mergedSubject + '</div>\
+          <div style="white-space:pre-wrap;line-height:1.8;margin-bottom:24px">' + body + '</div>\
+          <div style="margin-top:30px;margin-bottom:8px">\u05D1\u05D1\u05E8\u05DB\u05D4,</div>\
+          <div style="font-weight:700">\u05D4\u05E0\u05D4\u05DC\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div>\
+        </div>\
+        ' + self._pcDocSignature() + '\
+        ' + self._pcDocFooter(opts) + '\
+      </div>';
+    }).join('<div style="page-break-after:always"></div>');
   },
 
   /* --- Registration Form --- */
