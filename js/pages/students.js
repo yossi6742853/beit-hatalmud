@@ -932,8 +932,8 @@ Object.assign(Pages, {
     let studentDocs = (documents||[]).filter(match);
     // Enrich with Drive catalog if available
     if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.byName) {
-      const famName = student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'';
-      const firstName = student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'';
+      const famName = s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'';
+      const firstName = s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'';
       const fullName = firstName + ' ' + famName;
       const entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byId[studentId] || null;
       if (entry && (entry.docs || entry.documents)) {
