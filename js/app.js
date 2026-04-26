@@ -230,7 +230,10 @@ const App = {
       if (Pages[page]) {
         content.innerHTML = '<div class="fade-in">' + Pages[page](param) + '</div>';
         if (Pages[page + 'Init']) {
-          Pages[page + 'Init'](param);
+          try {
+            const result = Pages[page + 'Init'](param);
+            if (result && result.catch) result.catch(e => console.error('Page init error:', page, e));
+          } catch(e) { console.error('Page init error:', page, e); }
         }
       } else {
         content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
