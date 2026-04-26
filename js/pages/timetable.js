@@ -168,7 +168,29 @@ Object.assign(Pages, {
      MAIN PAGE RENDER
      ====================================================================== */
   timetable() {
-    if (this._ttUseDemo || this._ttData?.length) { this._ttGenerateDemo(); }
+    if (this._ttUseDemo) { this._ttGenerateDemo(); }
+
+    // Empty state — no schedule data
+    if (!this._ttSchedule) {
+      return `
+        <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <div>
+            <h4 class="mb-1"><i class="bi bi-calendar2-week me-2"></i>\u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA</h4>
+            <small class="text-muted">\u05E0\u05D9\u05D4\u05D5\u05DC \u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA \u05E9\u05D1\u05D5\u05E2\u05D9\u05EA \u05DC\u05DE\u05D5\u05E1\u05D3</small>
+          </div>
+        </div>
+        <div class="text-center py-5">
+          <i class="bi bi-calendar2-week fs-1 text-muted d-block mb-3"></i>
+          <h5 class="text-muted">\u05D0\u05D9\u05DF \u05DE\u05E2\u05E8\u05DB\u05EA \u05E9\u05E2\u05D5\u05EA \u05DE\u05D5\u05D2\u05D3\u05E8\u05EA</h5>
+          <p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD \u05DC\u05DE\u05E2\u05E8\u05DB\u05EA \u05D4\u05E9\u05E2\u05D5\u05EA \u05D0\u05D5 \u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-primary" onclick="Pages.timetableLoadDemo()">
+              <i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5
+            </button>
+          </div>
+        </div>`;
+    }
+
     const stats = this._ttCalcStats();
     const conflicts = this._ttFindConflicts();
 
@@ -594,17 +616,35 @@ Object.assign(Pages, {
 
   timetableInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try API first, fall back to demo
     try {
       const apiData = _gc('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
-      if (apiData && Object.keys(apiData).length > 0) {
+      // apiData is an array from DATA_CACHE; check it has rows
+      if (Array.isArray(apiData) && apiData.length > 0) {
+        // Build schedule from flat rows if available
+        // Each row expected: { class, day, period, subjectId, teacherId, room }
+        const schedule = {};
+        apiData.forEach(r => {
+          if (!r.class) return;
+          if (!schedule[r.class]) schedule[r.class] = Array.from({length:6}, () => Array(8).fill(null));
+          const d = Number(r.day), p = Number(r.period);
+          if (!isNaN(d) && !isNaN(p)) {
+            schedule[r.class][d][p] = { subjectId: Number(r.subjectId), teacherId: Number(r.teacherId), room: r.room || '' };
+          }
+        });
+        if (Object.keys(schedule).length > 0) {
+          this._ttSchedule = schedule;
+          this._ttClasses = Object.keys(schedule);
+          this._ttSelectedClass = this._ttClasses[0];
+        }
+      } else if (apiData && !Array.isArray(apiData) && Object.keys(apiData).length > 0) {
+        // Object format (legacy)
         if (apiData.schedule) this._ttSchedule = apiData.schedule;
         if (apiData.subjects) this._ttSubjects = apiData.subjects;
         if (apiData.teachers) this._ttTeachers = apiData.teachers;
         if (apiData.periods) this._ttPeriods = apiData.periods;
       }
     } catch (e) {
-      // Use demo data (already generated in timetable() render)
+      // No API data — empty state will show
     }
   }
 });

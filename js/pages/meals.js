@@ -104,12 +104,20 @@ Object.assign(Pages, {
     if (!this._mealsDemoMenu) {
       return `
       <div class="page-header d-flex justify-content-between align-items-center mb-3">
-        <h1 class="mb-0"><i class="bi bi-egg-fried me-2"></i>ניהול ארוחות</h1>
+        <h1 class="mb-0"><i class="bi bi-egg-fried me-2"></i>\u05E0\u05D9\u05D4\u05D5\u05DC \u05D0\u05E8\u05D5\u05D7\u05D5\u05EA</h1>
       </div>
-      <div class="empty-state text-center py-5">
-        <i class="bi bi-egg-fried fs-1 text-muted d-block mb-2"></i>
-        <h5>אין נתונים עדיין – הוסף תפריט ראשון</h5>
-        <a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.mealsLoadDemo();return false"><i class="bi bi-database me-1"></i>טען נתוני דמו</a>
+      <div class="text-center py-5">
+        <i class="bi bi-egg-fried fs-1 text-muted d-block mb-3"></i>
+        <h5 class="text-muted">\u05D0\u05D9\u05DF \u05EA\u05E4\u05E8\u05D9\u05D8 \u05DE\u05D5\u05D2\u05D3\u05E8</h5>
+        <p class="text-muted">\u05E6\u05D5\u05E8 \u05EA\u05E4\u05E8\u05D9\u05D8 \u05E9\u05D1\u05D5\u05E2\u05D9 \u05D0\u05D5 \u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</p>
+        <div class="d-flex justify-content-center gap-2">
+          <button class="btn btn-primary" onclick="Pages._mealsCreateWeeklyMenu()">
+            <i class="bi bi-plus-circle me-1"></i>\u05E6\u05D5\u05E8 \u05EA\u05E4\u05E8\u05D9\u05D8 \u05E9\u05D1\u05D5\u05E2\u05D9
+          </button>
+          <button class="btn btn-outline-secondary" onclick="Pages.mealsLoadDemo()">
+            <i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5
+          </button>
+        </div>
       </div>`;
     }
 
@@ -333,11 +341,10 @@ Object.assign(Pages, {
 
   mealsLoadDemo() {
     this._mealsUseDemo = true;
-    this._mealsGenerateDemo();
     this._mealsDemoMenu = null; // Force regeneration
     this._mealsGenerateDemo();
-    App.navigate('meals'); // Re-render page
-    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
+    App.navigate('meals');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
   mealsInit() {
@@ -346,7 +353,13 @@ Object.assign(Pages, {
     let hasData = false;
     try {
       const apiData = _gc('\u05EA\u05E4\u05E8\u05D9\u05D8');
-      if (apiData && Object.keys(apiData).length > 0) {
+      // apiData may be array (rows) or object (menu map)
+      if (Array.isArray(apiData) && apiData.length > 0) {
+        // Convert rows to menu map: each row has day, breakfast, lunch, snack
+        const menu = {};
+        apiData.forEach(r => { if (r.day) menu[r.day] = { breakfast: r.breakfast || '', lunch: r.lunch || '', snack: r.snack || '' }; });
+        if (Object.keys(menu).length > 0) { this._mealsDemoMenu = menu; hasData = true; }
+      } else if (apiData && !Array.isArray(apiData) && Object.keys(apiData).length > 0) {
         this._mealsDemoMenu = apiData;
         hasData = true;
       }
@@ -379,6 +392,18 @@ Object.assign(Pages, {
         if (e.key === 'Enter') { e.preventDefault(); this._mealsSaveCell(); }
       });
     }
+  },
+
+  _mealsCreateWeeklyMenu() {
+    const days = ['\u05E8\u05D0\u05E9\u05D5\u05DF','\u05E9\u05E0\u05D9','\u05E9\u05DC\u05D9\u05E9\u05D9','\u05E8\u05D1\u05D9\u05E2\u05D9','\u05D7\u05DE\u05D9\u05E9\u05D9','\u05E9\u05D9\u05E9\u05D9'];
+    const menu = {};
+    days.forEach(d => { menu[d] = { breakfast: '', lunch: '', snack: '' }; });
+    this._mealsDemoMenu = menu;
+    this._mealsDemoRestrictions = [];
+    this._mealsDemoIngredients = {};
+    this._mealsSaveToStorage();
+    App.navigate('meals');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05EA\u05E4\u05E8\u05D9\u05D8 \u05E9\u05D1\u05D5\u05E2\u05D9 \u05E0\u05D5\u05E6\u05E8 \u2014 \u05DC\u05D7\u05E5 \u05E2\u05DC \u05EA\u05D0 \u05DC\u05E2\u05E8\u05D9\u05DB\u05D4', 'success');
   },
 
   _mealsLoadFromStorage() {
