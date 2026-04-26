@@ -263,12 +263,18 @@ Object.assign(Pages, {
       this._hwSubmissions = this._hwDemoSubmissions;
       this._hwStudents = this._hwDemoStudents;
     } else {
-      this._hwSubmissions = [];
+      this._hwSubmissions = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA_\u05D4\u05D2\u05E9\u05D5\u05EA') || [];
       this._hwStudents = [];
-      // Try loading students for submissions
+      // Load real students and enrich with _fullName / _id
       try {
         const stuData = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-        if (stuData && stuData.length) this._hwStudents = stuData;
+        if (stuData && stuData.length) {
+          this._hwStudents = stuData.map(s => {
+            s._fullName = Utils.fullName(s);
+            s._id = Utils.rowId(s);
+            return s;
+          });
+        }
       } catch(e) {}
     }
 
