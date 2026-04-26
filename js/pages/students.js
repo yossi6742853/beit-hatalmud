@@ -949,6 +949,21 @@ Object.assign(Pages, {
         studentDocs = [...studentDocs, ...driveDocs];
       }
     }
+    // Merge locally uploaded docs from localStorage
+    try {
+      const localDocsKey = 'bht_student_docs_' + studentId;
+      const localDocs = JSON.parse(localStorage.getItem(localDocsKey) || '[]');
+      if (localDocs.length) {
+        const mappedLocal = localDocs.map(d => ({
+          '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': d.name, name: d.name,
+          '\u05E1\u05D5\u05D2': d.docType || '\u05DE\u05E7\u05D5\u05DE\u05D9', type: d.fileType || '',
+          '\u05EA\u05D0\u05E8\u05D9\u05DA': d.date || '', '\u05E1\u05D8\u05D8\u05D5\u05E1': d.status || '\u05D4\u05D5\u05D2\u05E9',
+          '\u05D4\u05E2\u05E8\u05D5\u05EA': d.notes || '',
+          _localId: d.id, _localFile: true
+        }));
+        studentDocs = [...studentDocs, ...mappedLocal];
+      }
+    } catch(e) { /* localStorage unavailable */ }
     const studentActivity = (activityLog||[]).filter(match);
 
     // WhatsApp helper
@@ -1269,9 +1284,13 @@ Object.assign(Pages, {
                   </div>
                   <div class="d-flex gap-1 align-items-center">
                     <span class="badge bg-${isOk ? 'success' : 'warning'} me-1">${docStatus||'\u05D7\u05E1\u05E8'}</span>
-                    ${driveId ? `<a href="https://drive.google.com/file/d/${driveId}/preview" target="_blank" class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4"><i class="bi bi-eye"></i></a>` : ''}
-                    ${driveId ? `<a href="https://drive.google.com/uc?export=download&id=${driveId}" target="_blank" class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>`
-                      : (docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary" title="\u05E4\u05EA\u05D7"><i class="bi bi-box-arrow-up-right"></i></a>` : '')}
+                    ${d._localFile ? `<button class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4" onclick="Pages._scViewLocalDoc('${d._localId}')"><i class="bi bi-eye"></i></button>` : ''}
+                    ${d._localFile ? `<button class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4" onclick="Pages._scDownloadLocalDoc('${d._localId}')"><i class="bi bi-download"></i></button>` : ''}
+                    ${d._localFile ? `<button class="btn btn-sm btn-outline-danger" title="\u05DE\u05D7\u05D9\u05E7\u05D4" onclick="Pages._scDeleteLocalDoc('${d._localId}')"><i class="bi bi-trash"></i></button>` : ''}
+                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/file/d/${driveId}/preview" target="_blank" class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4"><i class="bi bi-eye"></i></a>` : ''}
+                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/uc?export=download&id=${driveId}" target="_blank" class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>`
+                      : (!d._localFile && docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary" title="\u05E4\u05EA\u05D7"><i class="bi bi-box-arrow-up-right"></i></a>` : '')}
+                    ${d._localFile ? '<small class="badge bg-info ms-1">\u05DE\u05E7\u05D5\u05DE\u05D9</small>' : ''}
                   </div>
                 </div>`;
               }).join('')}</div>`
@@ -1596,7 +1615,12 @@ Object.assign(Pages, {
       <div class="modal fade" id="sc-modal-container" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
         <div class="modal-header"><h5>\u05D4\u05E2\u05DC\u05D0\u05EA \u05DE\u05E1\u05DE\u05DA - ${name}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">\u05E9\u05DD \u05DE\u05E1\u05DE\u05DA *</label><input type="text" class="form-control" id="sc-doc-name" required></div>
+          <div class="mb-3">
+            <label class="form-label">\u05D1\u05D7\u05E8 \u05E7\u05D5\u05D1\u05E5 *</label>
+            <input type="file" class="form-control" id="sc-doc-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.bmp,.webp">
+            <small class="text-muted">\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D9\u05D9\u05E9\u05DE\u05E8 \u05DE\u05E7\u05D5\u05DE\u05D9\u05EA \u05D1\u05DE\u05DB\u05E9\u05D9\u05E8 (\u05E2\u05D3 10MB)</small>
+          </div>
+          <div class="mb-3"><label class="form-label">\u05E9\u05DD \u05DE\u05E1\u05DE\u05DA</label><input type="text" class="form-control" id="sc-doc-name" placeholder="\u05D9\u05DE\u05D5\u05DC\u05D0 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05DE\u05E9\u05DD \u05D4\u05E7\u05D5\u05D1\u05E5"></div>
           <div class="row g-3">
             <div class="col-6"><label class="form-label">\u05E1\u05D5\u05D2</label>
               <select class="form-select" id="sc-doc-type">
@@ -1609,40 +1633,136 @@ Object.assign(Pages, {
             </div>
             <div class="col-6"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
               <select class="form-select" id="sc-doc-status">
-                <option value="\u05D7\u05E1\u05E8">\u05D7\u05E1\u05E8</option>
                 <option value="\u05D4\u05D5\u05D2\u05E9">\u05D4\u05D5\u05D2\u05E9</option>
+                <option value="\u05D7\u05E1\u05E8">\u05D7\u05E1\u05E8</option>
                 <option value="\u05EA\u05E7\u05D9\u05DF">\u05EA\u05E7\u05D9\u05DF</option>
               </select>
             </div>
           </div>
-          <div class="mb-3 mt-3"><label class="form-label">\u05E7\u05D9\u05E9\u05D5\u05E8 (URL)</label><input type="url" class="form-control" id="sc-doc-url" dir="ltr" placeholder="https://..."></div>
-          <div class="mb-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input type="text" class="form-control" id="sc-doc-notes"></div>
+          <div class="mb-3 mt-3"><label class="form-label">\u05D4\u05E2\u05E8\u05D5\u05EA</label><input type="text" class="form-control" id="sc-doc-notes"></div>
+          <div id="sc-doc-preview" class="text-center d-none mt-2"></div>
         </div>
-        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveDoc()">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._scSaveDoc()" id="sc-doc-save-btn">\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>
       </div></div></div>`);
+    // Auto-fill name from file selection
+    document.getElementById('sc-doc-file').addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) {
+        Utils.toast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D2\u05D3\u05D5\u05DC \u05DE\u05D3\u05D9 (10MB \u05DE\u05E7\u05E1\u05D9\u05DE\u05D5\u05DD)', 'warning');
+        this.value = '';
+        return;
+      }
+      const nameInput = document.getElementById('sc-doc-name');
+      if (!nameInput.value.trim()) nameInput.value = file.name;
+      // Show preview for images
+      const preview = document.getElementById('sc-doc-preview');
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.innerHTML = '<img src="' + e.target.result + '" class="img-fluid rounded" style="max-height:150px">';
+          preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = '<i class="bi bi-file-earmark-check fs-1 text-success"></i><div class="small text-muted">' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)</div>';
+        preview.classList.remove('d-none');
+      }
+    });
     new bootstrap.Modal(document.getElementById('sc-modal-container')).show();
   },
 
   async _scSaveDoc() {
-    const docName = document.getElementById('sc-doc-name').value.trim();
-    if (!docName) { Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0 \u05E9\u05DD \u05DE\u05E1\u05DE\u05DA', 'warning'); return; }
+    const fileInput = document.getElementById('sc-doc-file');
+    const file = fileInput?.files?.[0];
+    const docName = document.getElementById('sc-doc-name').value.trim() || (file ? file.name : '');
+    if (!docName && !file) { Utils.toast('\u05E0\u05D0 \u05DC\u05D1\u05D7\u05D5\u05E8 \u05E7\u05D5\u05D1\u05E5', 'warning'); return; }
+    if (!file) { Utils.toast('\u05E0\u05D0 \u05DC\u05D1\u05D7\u05D5\u05E8 \u05E7\u05D5\u05D1\u05E5', 'warning'); return; }
+    const saveBtn = document.getElementById('sc-doc-save-btn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>\u05E9\u05D5\u05DE\u05E8...'; }
     const today = (typeof Utils !== 'undefined' && Utils.todayISO) ? Utils.todayISO() : new Date().toISOString().slice(0,10);
-    const row = {
-      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': this._scStudentId,
-      '\u05E9\u05DD': this._scStudentName,
-      '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': docName,
-      '\u05E1\u05D5\u05D2': document.getElementById('sc-doc-type').value,
-      '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sc-doc-status').value,
-      '\u05E7\u05D9\u05E9\u05D5\u05E8': document.getElementById('sc-doc-url').value.trim(),
-      '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('sc-doc-notes').value.trim(),
-      '\u05EA\u05D0\u05E8\u05D9\u05DA': today
-    };
     try {
-      await App.apiCall('add', '\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD', { row });
+      // Read file as base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      // Build doc entry
+      const docEntry = {
+        id: 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+        name: docName,
+        fileName: file.name,
+        fileType: file.type,
+        docType: document.getElementById('sc-doc-type').value,
+        status: document.getElementById('sc-doc-status').value,
+        notes: document.getElementById('sc-doc-notes').value.trim(),
+        date: today,
+        size: file.size,
+        data: base64
+      };
+      // Save to localStorage
+      const key = 'bht_student_docs_' + this._scStudentId;
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push(docEntry);
+      localStorage.setItem(key, JSON.stringify(existing));
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
-      Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05D5\u05E1\u05E3', 'success');
+      Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05E9\u05DE\u05E8 \u05DE\u05E7\u05D5\u05DE\u05D9\u05EA', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) {
+      console.error('Doc save error:', e);
+      if (e.name === 'QuotaExceededError' || (e.message && e.message.includes('quota'))) {
+        Utils.toast('\u05D0\u05D9\u05DF \u05DE\u05E1\u05E4\u05D9\u05E7 \u05DE\u05E7\u05D5\u05DD \u05D1\u05D0\u05D7\u05E1\u05D5\u05DF. \u05DE\u05D7\u05E7 \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D9\u05E9\u05E0\u05D9\u05DD', 'danger');
+      } else {
+        Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4: ' + (e.message||''), 'danger');
+      }
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '\u05E9\u05DE\u05D9\u05E8\u05D4'; }
+    }
+  },
+
+  /** View a locally stored document */
+  _scViewLocalDoc(localId) {
+    const key = 'bht_student_docs_' + this._scStudentId;
+    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const doc = docs.find(d => d.id === localId);
+    if (!doc || !doc.data) { Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
+    // Open in new tab
+    const win = window.open('', '_blank');
+    if (doc.fileType && doc.fileType.startsWith('image/')) {
+      win.document.write('<html dir="rtl"><head><title>' + doc.name + '</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#222"><img src="' + doc.data + '" style="max-width:100%;max-height:100vh"></body></html>');
+    } else if (doc.fileType === 'application/pdf') {
+      win.document.write('<html><head><title>' + doc.name + '</title></head><body style="margin:0"><iframe src="' + doc.data + '" style="width:100%;height:100vh;border:none"></iframe></body></html>');
+    } else {
+      // Download for other types
+      this._scDownloadLocalDoc(localId);
+      win.close();
+    }
+  },
+
+  /** Download a locally stored document */
+  _scDownloadLocalDoc(localId) {
+    const key = 'bht_student_docs_' + this._scStudentId;
+    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const doc = docs.find(d => d.id === localId);
+    if (!doc || !doc.data) { Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
+    const a = document.createElement('a');
+    a.href = doc.data;
+    a.download = doc.fileName || doc.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  },
+
+  /** Delete a locally stored document */
+  _scDeleteLocalDoc(localId) {
+    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05DE\u05E1\u05DE\u05DA?')) return;
+    const key = 'bht_student_docs_' + this._scStudentId;
+    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const filtered = docs.filter(d => d.id !== localId);
+    localStorage.setItem(key, JSON.stringify(filtered));
+    Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05DE\u05D7\u05E7', 'success');
+    this.studentInit(this._scStudentId);
   },
 
   /** Add activity log note */

@@ -1,7 +1,10 @@
-// Auto-generated Drive document catalog — 2026-04-22
-// 25 student folders, 177 documents
+// Auto-generated Drive document catalog — 2026-04-26
+// Private folder: 1IRL5jc86XGxRDLpZQbgoY9uBjRq-Majz
+// 29 student folders, 210 documents
 var DRIVE_CATALOG = {
-  "lastUpdated": "2026-04-22",
+  "lastUpdated": "2026-04-26",
+  "privateFolderId": "1IRL5jc86XGxRDLpZQbgoY9uBjRq-Majz",
+  "privateFolderLink": "https://drive.google.com/drive/folders/1IRL5jc86XGxRDLpZQbgoY9uBjRq-Majz",
   "folders": [
     {
       "name": "\u05d1\u05e8-\u05d7\u05df \u05de\u05d0\u05d9\u05e8",
@@ -399,6 +402,69 @@ var DRIVE_CATALOG = {
           "id": "1sg0YAUxCgJcpnaNKULWl1Y-ahUoFFUWH",
           "link": "https://drive.google.com/file/d/1sg0YAUxCgJcpnaNKULWl1Y-ahUoFFUWH/view?usp=drivesdk",
           "size": 62546
+        }
+      ]
+    },
+    {
+      "name": "\u05d4\u05d7\u05dc\u05d8\u05d5\u05ea \u05d4\u05d5\u05d5\u05e2\u05d3\u05d5\u05ea",
+      "folderId": "1WZaJ3ca69UOODsPeIcnBR75jHtna69s8",
+      "folderLink": "https://drive.google.com/drive/folders/1WZaJ3ca69UOODsPeIcnBR75jHtna69s8",
+      "docs": [
+        {
+          "name": "\u05e7\u05d3\u05d5\u05e9 \u05e4\u05e8\u05d5\u05d8\u05d5\u05e7\u05d5\u05dc",
+          "type": "pdf",
+          "id": "1WMCQrtRmj5VHuHxJwuUYKn4wFn5Z-IVV",
+          "link": "https://drive.google.com/file/d/1WMCQrtRmj5VHuHxJwuUYKn4wFn5Z-IVV/view?usp=drivesdk",
+          "size": 69407
+        },
+        {
+          "name": "\u05d3\u05d5\u05d9\u05d9\u05d8\u05e9 \u05e4\u05e8\u05d5\u05d8\u05d5\u05e7\u05d5\u05dc",
+          "type": "pdf",
+          "id": "1vgDjY6DwG8wH_vie0Glu-yxqUE0h-GsU",
+          "link": "https://drive.google.com/file/d/1vgDjY6DwG8wH_vie0Glu-yxqUE0h-GsU/view?usp=drivesdk",
+          "size": 68186
+        },
+        {
+          "name": "\u05e7\u05d3\u05d5\u05e9",
+          "type": "pdf",
+          "id": "15zxqO4-D-Nl54-Ni7M0DHdZvzVgF9fx9",
+          "link": "https://drive.google.com/file/d/15zxqO4-D-Nl54-Ni7M0DHdZvzVgF9fx9/view?usp=drivesdk",
+          "size": 61203
+        },
+        {
+          "name": "\u05d3\u05d5\u05d9\u05d9\u05d8\u05e9.pdf",
+          "type": "pdf",
+          "id": "1Fu4S_VmzyXs4DXbHc2lFaeBh5Y6vfUbY",
+          "link": "https://drive.google.com/file/d/1Fu4S_VmzyXs4DXbHc2lFaeBh5Y6vfUbY/view?usp=drivesdk",
+          "size": 62283
+        },
+        {
+          "name": "\u05dc\u05d9\u05d1\u05e8.pdf",
+          "type": "pdf",
+          "id": "1_ukzUUAphZiiPiYtnP8BGKCqbvFgnUqP",
+          "link": "https://drive.google.com/file/d/1_ukzUUAphZiiPiYtnP8BGKCqbvFgnUqP/view?usp=drivesdk",
+          "size": 61953
+        },
+        {
+          "name": "\u05e0\u05e4\u05e8\u05e1\u05d8\u05e7.pdf",
+          "type": "pdf",
+          "id": "1ObQgZbK0UcpF_90CYjBDEXGdHNFr1YaZ",
+          "link": "https://drive.google.com/file/d/1ObQgZbK0UcpF_90CYjBDEXGdHNFr1YaZ/view?usp=drivesdk",
+          "size": 62257
+        },
+        {
+          "name": "\u05d9\u05d0\u05d9\u05e8.pdf",
+          "type": "pdf",
+          "id": "1J1NN3VnA2QPFDYzVfZYA1hUlL0zs-qbc",
+          "link": "https://drive.google.com/file/d/1J1NN3VnA2QPFDYzVfZYA1hUlL0zs-qbc/view?usp=drivesdk",
+          "size": 61935
+        },
+        {
+          "name": "\u05e4\u05d5\u05dc\u05e0\u05e1\u05e7\u05d9.pdf",
+          "type": "pdf",
+          "id": "1A3Myr5FBUJFegxyNTxz0asnXHRTXc1mh",
+          "link": "https://drive.google.com/file/d/1A3Myr5FBUJFegxyNTxz0asnXHRTXc1mh/view?usp=drivesdk",
+          "size": 62095
         }
       ]
     },
@@ -1155,7 +1221,29 @@ var DRIVE_CATALOG = {
       "name": "\u05d9\u05d0\u05d9\u05e8 \u05d0\u05dc\u05e2\u05d6\u05e8",
       "folderId": "1MK2WouCnAPg4qnJHsxZP6zxKQYcS7Bql",
       "folderLink": "https://drive.google.com/drive/folders/1MK2WouCnAPg4qnJHsxZP6zxKQYcS7Bql",
-      "docs": []
+      "docs": [
+        {
+          "name": "\u05ea\u05e2\u05d5\u05d3 \u05d8\u05d9\u05e4\u05d5\u05dc\u05d9",
+          "type": "folder",
+          "id": "1xA1OUe4WTOTAgFOABfxsbVIveEks_UGt",
+          "link": "https://drive.google.com/drive/folders/1xA1OUe4WTOTAgFOABfxsbVIveEks_UGt",
+          "size": 0
+        },
+        {
+          "name": "\u05ea\u05dc\"\u05d0",
+          "type": "folder",
+          "id": "1wT1MlouTyiOHJU6rGIgZrxd6bOuSF5Fk",
+          "link": "https://drive.google.com/drive/folders/1wT1MlouTyiOHJU6rGIgZrxd6bOuSF5Fk",
+          "size": 0
+        },
+        {
+          "name": "\u05d0\u05d9\u05e0\u05e4\u05d5\u05e8\u05de\u05e6\u05d9\u05d4 \u05db\u05dc\u05dc\u05d9\u05ea",
+          "type": "folder",
+          "id": "1iFfFKtvHnwSFFhacGs8W5pFktDv0jS_s",
+          "link": "https://drive.google.com/drive/folders/1iFfFKtvHnwSFFhacGs8W5pFktDv0jS_s",
+          "size": 0
+        }
+      ]
     },
     {
       "name": "\u05e4\u05e8\u05d3\u05e1\u05d5\u05df \u05d3\u05d5\u05d1\u05d9",
@@ -1415,6 +1503,181 @@ var DRIVE_CATALOG = {
           "size": 207821
         }
       ]
+    },
+    {
+      "name": "\u05dc\u05d0 \u05de\u05de\u05d5\u05d9\u05d9\u05df",
+      "folderId": "1OkzTKCAGEMBRvhEEEEKikQc2B5UKF3Dd",
+      "folderLink": "https://drive.google.com/drive/folders/1OkzTKCAGEMBRvhEEEEKikQc2B5UKF3Dd",
+      "docs": [
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05e0\u05ea\u05e0\u05d0\u05dc \u05e9\u05de\u05d7\u05d4 \u05d7\u05e4\u05e5 (1).pdf",
+          "type": "pdf",
+          "id": "13PYIa9ej9_IbFyvm5X2gTcDckKBJQy1p",
+          "link": "https://drive.google.com/file/d/13PYIa9ej9_IbFyvm5X2gTcDckKBJQy1p/view?usp=drivesdk",
+          "size": 115664
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05e9\u05de\u05d7\u05d4 \u05d9\u05d4\u05d5\u05d3\u05d4 \u05dc\u05d9\u05d9\u05d1\u05dc\u05e8 (1).pdf",
+          "type": "pdf",
+          "id": "12lX1Cc_RnA9zk83U2ntAYTDhEZT-ifoI",
+          "link": "https://drive.google.com/file/d/12lX1Cc_RnA9zk83U2ntAYTDhEZT-ifoI/view?usp=drivesdk",
+          "size": 116316
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d9\u05d4\u05d5\u05d3\u05d4 \u05d7\u05d9\u05d9\u05dd \u05d2\u05d5\u05d8\u05d2\u05d5\u05dc\u05d3 (1).pdf",
+          "type": "pdf",
+          "id": "1okEU6TpmLdKg4LgCi7YE81FJuDasLaiL",
+          "link": "https://drive.google.com/file/d/1okEU6TpmLdKg4LgCi7YE81FJuDasLaiL/view?usp=drivesdk",
+          "size": 115906
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d9\u05d5\u05e0\u05ea\u05df \u05dc\u05d5\u05d9 (1).pdf",
+          "type": "pdf",
+          "id": "1t5E9yxLSRDhhHa4TOaS-qaY7rAZaRraF",
+          "link": "https://drive.google.com/file/d/1t5E9yxLSRDhhHa4TOaS-qaY7rAZaRraF/view?usp=drivesdk",
+          "size": 116317
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d0\u05d4\u05e8\u05d5\u05df \u05e9\u05e0\u05e7\u05e8.pdf",
+          "type": "pdf",
+          "id": "1xKKxO0m3ROPSq5CaV_7LVXeDoxjVT1rf",
+          "link": "https://drive.google.com/file/d/1xKKxO0m3ROPSq5CaV_7LVXeDoxjVT1rf/view?usp=drivesdk",
+          "size": 116324
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d1\u05e6\u05dc\u05d0\u05dc \u05e4\u05d8\u05d9\u05e0\u05d5.pdf",
+          "type": "pdf",
+          "id": "1v2URtac3rKQ5ayCDcnwa-AKbF_qyDzJl",
+          "link": "https://drive.google.com/file/d/1v2URtac3rKQ5ayCDcnwa-AKbF_qyDzJl/view?usp=drivesdk",
+          "size": 238108
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05e0\u05ea\u05e0\u05d0\u05dc \u05e9\u05de\u05d7\u05d4 \u05d7\u05e4\u05e5.pdf",
+          "type": "pdf",
+          "id": "1QgH-xguAQQAu_Tgl2dBGzDvY9xpyd4p1",
+          "link": "https://drive.google.com/file/d/1QgH-xguAQQAu_Tgl2dBGzDvY9xpyd4p1/view?usp=drivesdk",
+          "size": 115664
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05e9\u05de\u05d7\u05d4 \u05d9\u05d4\u05d5\u05d3\u05d4 \u05dc\u05d9\u05d9\u05d1\u05dc\u05e8.pdf",
+          "type": "pdf",
+          "id": "1f8G0fzY-Jj3sLWkl36XxeZKifNCPW4-E",
+          "link": "https://drive.google.com/file/d/1f8G0fzY-Jj3sLWkl36XxeZKifNCPW4-E/view?usp=drivesdk",
+          "size": 116316
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d9\u05d4\u05d5\u05d3\u05d4 \u05d7\u05d9\u05d9\u05dd \u05d2\u05d5\u05d8\u05d2\u05d5\u05dc\u05d3.pdf",
+          "type": "pdf",
+          "id": "1zBzFi0vdoqBy5CNUfbHh8gheqbxfRd08",
+          "link": "https://drive.google.com/file/d/1zBzFi0vdoqBy5CNUfbHh8gheqbxfRd08/view?usp=drivesdk",
+          "size": 115906
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d9\u05d5\u05e0\u05ea\u05df \u05dc\u05d5\u05d9.pdf",
+          "type": "pdf",
+          "id": "1N3Npd0WGEZDl8gI4bkPtXtZNSCCE2vaR",
+          "link": "https://drive.google.com/file/d/1N3Npd0WGEZDl8gI4bkPtXtZNSCCE2vaR/view?usp=drivesdk",
+          "size": 116317
+        },
+        {
+          "name": "\u05d8\u05d5\u05e4\u05e1 \u05d4\u05e4\u05e0\u05d9\u05d9\u05d4 \u05d3\u05d5\u05d1\u05d9 \u05e4\u05e8\u05d3\u05e1\u05d5\u05df.docx",
+          "type": "docx",
+          "id": "1eGQs5TRTuYsWzmMjOAJxDpsars6bYzoP",
+          "link": "https://docs.google.com/document/d/1eGQs5TRTuYsWzmMjOAJxDpsars6bYzoP/edit?usp=drivesdk&ouid=109664995467767979736&rtpof=true&sd=true",
+          "size": 27821
+        },
+        {
+          "name": "\u05d8\u05d5\u05e4\u05e1 \u05d4\u05e4\u05e0\u05d9\u05d4 \u05d9\u05d4\u05d5\u05d3\u05d4 \u05d2\u05d9\u05d9\u05e7\u05d5\u05d1\u05e1.docx",
+          "type": "docx",
+          "id": "1FYdzwYOKcmeGMPwT0U_HNvdG0C3nxpMX",
+          "link": "https://docs.google.com/document/d/1FYdzwYOKcmeGMPwT0U_HNvdG0C3nxpMX/edit?usp=drivesdk&ouid=109664995467767979736&rtpof=true&sd=true",
+          "size": 28639
+        },
+        {
+          "name": "\u05d8\u05d5\u05e4\u05e1 \u05d4\u05e4\u05e0\u05d9\u05d4 \u05d0\u05dc\u05e2\u05d6\u05e8 \u05d9\u05d0\u05d9\u05e8.docx",
+          "type": "docx",
+          "id": "16WDOsoPvb73Awfqhn-QDpgS9qHVq9Z5v",
+          "link": "https://docs.google.com/document/d/16WDOsoPvb73Awfqhn-QDpgS9qHVq9Z5v/edit?usp=drivesdk&ouid=109664995467767979736&rtpof=true&sd=true",
+          "size": 28017
+        },
+        {
+          "name": "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e0\u05d5\u05db\u05d7\u05d5\u05ea \u05d9\u05e6\u05d7\u05e7 \u05d3\u05d5\u05d9\u05d8\u05e9.pdf",
+          "type": "pdf",
+          "id": "15I4Pw_9Go0QvB2IBk7V_pcyD6g1gwmp7",
+          "link": "https://drive.google.com/file/d/15I4Pw_9Go0QvB2IBk7V_pcyD6g1gwmp7/view?usp=drivesdk",
+          "size": 115715
+        }
+      ]
+    },
+    {
+      "name": "\u05d0\u05d0\u05d0 \u05d4\u05d3\u05e8\u05da \u05dc\u05d4\u05e6\u05dc\u05d7\u05d4",
+      "folderId": "1rh_1oa36UW9Dx4CM23lSeKgZ_dEQHCz5",
+      "folderLink": "https://drive.google.com/drive/folders/1rh_1oa36UW9Dx4CM23lSeKgZ_dEQHCz5",
+      "docs": [
+        {
+          "name": "\u05e9\u05d0\u05dc\u05d5\u05df \u05dc\u05de\u05d5\u05e8\u05d4.pdf",
+          "type": "pdf",
+          "id": "1ZFnNuy3FoX6IxKmucUO1dmS3mJ4vqglU",
+          "link": "https://drive.google.com/file/d/1ZFnNuy3FoX6IxKmucUO1dmS3mJ4vqglU/view?usp=drivesdk",
+          "size": 265526
+        },
+        {
+          "name": "\u05e9\u05d0\u05dc\u05d5\u05df \u05d4\u05d5\u05e8\u05d9\u05dd.pdf",
+          "type": "pdf",
+          "id": "1CNV5pPz7kvRYLAHPZL5bFPIZfqxKt5a8",
+          "link": "https://drive.google.com/file/d/1CNV5pPz7kvRYLAHPZL5bFPIZfqxKt5a8/view?usp=drivesdk",
+          "size": 286525
+        },
+        {
+          "name": "\u05d4\u05e6\u05e2\u05ea \u05de\u05d7\u05d9\u05e8 \u05d0\u05d1 \u05d1\u05d7\u05db\u05de\u05d4.pdf",
+          "type": "pdf",
+          "id": "1X32dQmpobWqZH4kb41--whsJeOQeV8xc",
+          "link": "https://drive.google.com/file/d/1X32dQmpobWqZH4kb41--whsJeOQeV8xc/view?usp=drivesdk",
+          "size": 119884
+        }
+      ]
+    },
+    {
+      "name": "\u05d8\u05e4\u05e1\u05d9\u05dd \u05e8\u05d9\u05e7\u05d9\u05dd",
+      "folderId": "1Y41f1lFy2mXASDY8iYDNCi6EdctvaMy-",
+      "folderLink": "https://drive.google.com/drive/folders/1Y41f1lFy2mXASDY8iYDNCi6EdctvaMy-",
+      "docs": [
+        {
+          "name": "\u05d8\u05d5\u05e4\u05e1 14 \u05d1\u05d7\u05d9\u05e8\u05ea \u05d4\u05d5\u05e8\u05d9\u05dd \u05e2\u05dd \u05e1\u05d9\u05de\u05d5\u05df \u05d1\u05d9\u05ea \u05d4\u05ea\u05dc\u05de\u05d5\u05d3.pdf",
+          "type": "pdf",
+          "id": "1Ernfs4SYMvenE79t-SU8uVqVQ7Zkjl7l",
+          "link": "https://drive.google.com/file/d/1Ernfs4SYMvenE79t-SU8uVqVQ7Zkjl7l/view?usp=drivesdk",
+          "size": 39323
+        },
+        {
+          "name": "\u05e9\u05d0\u05dc\u05d5\u05e0\u05d9\u05dd \u05e9\u05dc \u05d3\"\u05e8 \u05d7\u05d1\u05d9\u05d1 \u05e4\u05e1\u05d9\u05db\u05d5\u05dc\u05d5\u05d2",
+          "type": "folder",
+          "id": "1SwrVW4fstLKzk7yCHoaB_JWsBVcDO7fP",
+          "link": "https://drive.google.com/drive/folders/1SwrVW4fstLKzk7yCHoaB_JWsBVcDO7fP",
+          "size": 0
+        },
+        {
+          "name": "\u05d8\u05d5\u05e4\u05e1 \u05d1\u05d7\u05d9\u05e8\u05ea \u05d4\u05d5\u05e8\u05d9\u05dd.pdf",
+          "type": "pdf",
+          "id": "17o1VSd9ncuNS69Soe3PQ_sUm4hlMtaHV",
+          "link": "https://drive.google.com/file/d/17o1VSd9ncuNS69Soe3PQ_sUm4hlMtaHV/view?usp=drivesdk",
+          "size": 259392
+        },
+        {
+          "name": "\u05d5\u05d9\u05ea\u05d5\u05e8 \u05e1\u05d5\u05d3\u05d9\u05d5\u05ea \u05dc\u05d5\u05e2\u05d3\u05ea \u05d6\u05db\u05d0\u05d5\u05ea \u05d5\u05d0\u05e4\u05d9\u05d5\u05df.pdf",
+          "type": "pdf",
+          "id": "1e92TyqnXb5B7vgpAGWTBlSUwiAdJmgmb",
+          "link": "https://drive.google.com/file/d/1e92TyqnXb5B7vgpAGWTBlSUwiAdJmgmb/view?usp=drivesdk",
+          "size": 75596
+        },
+        {
+          "name": "\u05e9\u05d0\u05dc\u05d5\u05df \u05dc\u05d5\u05d5\u05e2\u05d3\u05d5\u05ea \u05d0\u05e4\u05d9\u05d5\u05df \u05d5\u05d6\u05db\u05d0\u05d5\u05ea.docx",
+          "type": "docx",
+          "id": "1dDdtNpEOlF1vrVCvYXrC7vUXuuiwnmae",
+          "link": "https://docs.google.com/document/d/1dDdtNpEOlF1vrVCvYXrC7vUXuuiwnmae/edit?usp=drivesdk&ouid=109664995467767979736&rtpof=true&sd=true",
+          "size": 51869
+        }
+      ]
     }
   ]
 };
@@ -1424,6 +1687,8 @@ DRIVE_CATALOG.byId = {};
 DRIVE_CATALOG.folders.forEach(f => {
   // Index by folder name and parts
   DRIVE_CATALOG.byName[f.name] = f;
-  const parts = f.name.split(' ');
+  const parts = f.name.split(" ");
   parts.forEach(p => { if(p.length > 1 && !DRIVE_CATALOG.byName[p]) DRIVE_CATALOG.byName[p] = f; });
+  // Index docs by Drive file ID
+  (f.docs||[]).forEach(d => { if(d.id) DRIVE_CATALOG.byId[d.id] = { doc: d, folder: f }; });
 });
