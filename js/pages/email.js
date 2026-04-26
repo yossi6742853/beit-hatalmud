@@ -347,10 +347,14 @@ Object.assign(Pages, {
       let emptyText;
       if (this._emailFolder === 'TRASH') emptyText = '\u05D0\u05E9\u05E4\u05D4 \u05E8\u05D9\u05E7\u05D4';
       else if (q) emptyText = '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA';
-      else if (hasNoData) emptyText = '\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF';
+      else if (hasNoData) emptyText = '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D3\u05D5\u05D0\u05E8';
       else emptyText = '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA';
-      const demoLink = hasNoData && this._emailFolder !== 'TRASH' ? '<br><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.emailLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a>' : '';
-      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${emptyIcon} fs-1 d-block mb-2"></i><h6>${emptyText}</h6>${demoLink}</div>`;
+      let emptyActions = '';
+      if (hasNoData && this._emailFolder !== 'TRASH') {
+        emptyActions = '<br><a href="https://mail.google.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-envelope-open me-1"></i>\u05E4\u05EA\u05D7 Gmail</a>' +
+          '<br><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.emailLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a>';
+      }
+      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${emptyIcon} fs-1 d-block mb-2"></i><h6>${emptyText}</h6>${emptyActions}</div>`;
       return;
     }
 

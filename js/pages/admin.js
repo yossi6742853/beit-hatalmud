@@ -288,6 +288,8 @@ Object.assign(Pages, {
 
   /* Destroy old chart instances */
   _rptDestroyCharts() {
+    if (Pages._rptCharts) Pages._rptCharts.forEach(c => c.destroy());
+    Pages._rptCharts = [];
     ['rptAtt','rptFin','rptBeh','rptCls','rptAtt14','rptFinM','rptBehR','rptAttDaily','rptAttMonthly','rptFinSummary','rptBehSummary'].forEach(k => {
       if (App.charts[k]) { App.charts[k].destroy(); delete App.charts[k]; }
     });
@@ -352,14 +354,14 @@ Object.assign(Pages, {
       </div>`;
 
       const attCtx = document.getElementById('rpt-att-chart');
-      if (attCtx) App.charts.rptAtt = new Chart(attCtx, {type:'bar', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present, absent, late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+      if (attCtx) App.charts.rptAtt = new Chart(attCtx, {type:'bar', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present, absent, late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}}); Pages._rptCharts.push(App.charts.rptAtt);
       const finCtx = document.getElementById('rpt-fin-chart');
-      if (finCtx) App.charts.rptFin = new Chart(finCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1'], datasets:[{data:[paidFin, totalFin-paidFin], backgroundColor:['#0f9d58','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom'}}}});
+      if (finCtx) App.charts.rptFin = new Chart(finCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1'], datasets:[{data:[paidFin, totalFin-paidFin], backgroundColor:['#0f9d58','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptFin);
       const behCtx = document.getElementById('rpt-beh-chart');
-      if (behCtx) App.charts.rptBeh = new Chart(behCtx, {type:'bar', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[posB, negB, filteredBeh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D4\u05E2\u05E8\u05D4').length], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+      if (behCtx) App.charts.rptBeh = new Chart(behCtx, {type:'bar', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[posB, negB, filteredBeh.filter(b=>b['\u05E1\u05D5\u05D2']==='\u05D4\u05E2\u05E8\u05D4').length], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderRadius:8}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}}}); Pages._rptCharts.push(App.charts.rptBeh);
       const classes = {}; active.forEach(s => { const cl = s['\u05DB\u05D9\u05EA\u05D4']||'\u05D0\u05D7\u05E8'; classes[cl]=(classes[cl]||0)+1; });
       const clsCtx = document.getElementById('rpt-cls-chart');
-      if (clsCtx) App.charts.rptCls = new Chart(clsCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.values(classes), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}});
+      if (clsCtx) App.charts.rptCls = new Chart(clsCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.values(classes), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptCls);
     }
 
     /* ---- ATTENDANCE DAILY ---- */
@@ -416,7 +418,7 @@ Object.assign(Pages, {
       </div>`;
 
       const adCtx = document.getElementById('rpt-att-daily-chart');
-      if (adCtx && filtered.length) App.charts.rptAttDaily = new Chart(adCtx, {type:'doughnut', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present,absent,late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
+      if (adCtx && filtered.length) App.charts.rptAttDaily = new Chart(adCtx, {type:'doughnut', data:{labels:['\u05E0\u05D5\u05DB\u05D7','\u05D7\u05D9\u05E1\u05D5\u05E8','\u05D0\u05D9\u05D7\u05D5\u05E8'], datasets:[{data:[present,absent,late], backgroundColor:['#0f9d58','#ea4335','#f9ab00'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptAttDaily);
     }
 
     /* ---- ATTENDANCE MONTHLY ---- */
@@ -481,7 +483,7 @@ Object.assign(Pages, {
       </div>`;
 
       const amCtx = document.getElementById('rpt-att-monthly-chart');
-      if (amCtx && dates.length) App.charts.rptAttMonthly = new Chart(amCtx, {type:'bar', data:{labels:dates.map(d=>d.substring(5)), datasets:[{label:'\u05E0\u05D5\u05DB\u05D7',data:dates.map(d=>byDate[d].p),backgroundColor:'#0f9d58'},{label:'\u05D7\u05D9\u05E1\u05D5\u05E8',data:dates.map(d=>byDate[d].a),backgroundColor:'#ea4335'},{label:'\u05D0\u05D9\u05D7\u05D5\u05E8',data:dates.map(d=>byDate[d].l),backgroundColor:'#f9ab00'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}, plugins:{legend:{position:'top'}}}});
+      if (amCtx && dates.length) App.charts.rptAttMonthly = new Chart(amCtx, {type:'bar', data:{labels:dates.map(d=>d.substring(5)), datasets:[{label:'\u05E0\u05D5\u05DB\u05D7',data:dates.map(d=>byDate[d].p),backgroundColor:'#0f9d58'},{label:'\u05D7\u05D9\u05E1\u05D5\u05E8',data:dates.map(d=>byDate[d].a),backgroundColor:'#ea4335'},{label:'\u05D0\u05D9\u05D7\u05D5\u05E8',data:dates.map(d=>byDate[d].l),backgroundColor:'#f9ab00'}]}, options:{responsive:true, maintainAspectRatio:false, scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}, plugins:{legend:{position:'top'}}}}); Pages._rptCharts.push(App.charts.rptAttMonthly);
     }
 
     /* ---- FINANCE SUMMARY ---- */
@@ -554,9 +556,9 @@ Object.assign(Pages, {
       </div>`;
 
       const fmCtx = document.getElementById('rpt-fin-monthly-chart');
-      if (fmCtx && months.length) App.charts.rptFinM = new Chart(fmCtx, {type:'bar', data:{labels:months, datasets:[{label:'\u05D7\u05D9\u05D5\u05D1',data:months.map(m=>byMonth[m].total),backgroundColor:'rgba(37,99,235,.3)',borderColor:'#2563eb',borderWidth:2},{label:'\u05D2\u05D1\u05D9\u05D4',data:months.map(m=>byMonth[m].paid),backgroundColor:'rgba(15,157,88,.3)',borderColor:'#0f9d58',borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}}});
+      if (fmCtx && months.length) App.charts.rptFinM = new Chart(fmCtx, {type:'bar', data:{labels:months, datasets:[{label:'\u05D7\u05D9\u05D5\u05D1',data:months.map(m=>byMonth[m].total),backgroundColor:'rgba(37,99,235,.3)',borderColor:'#2563eb',borderWidth:2},{label:'\u05D2\u05D1\u05D9\u05D4',data:months.map(m=>byMonth[m].paid),backgroundColor:'rgba(15,157,88,.3)',borderColor:'#0f9d58',borderWidth:2}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'top'}}}}); Pages._rptCharts.push(App.charts.rptFinM);
       const fpCtx = document.getElementById('rpt-fin-pie-chart');
-      if (fpCtx) App.charts.rptFinSummary = new Chart(fpCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1','\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8'], datasets:[{data:[paidAmount, pendingAmount, overdueAmount], backgroundColor:['#0f9d58','#f9ab00','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
+      if (fpCtx) App.charts.rptFinSummary = new Chart(fpCtx, {type:'doughnut', data:{labels:['\u05E9\u05D5\u05DC\u05DD','\u05D7\u05D5\u05D1','\u05D1\u05E4\u05D9\u05D2\u05D5\u05E8'], datasets:[{data:[paidAmount, pendingAmount, overdueAmount], backgroundColor:['#0f9d58','#f9ab00','#ea4335'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptFinSummary);
     }
 
     /* ---- STUDENTS BY CLASS ---- */
@@ -592,7 +594,7 @@ Object.assign(Pages, {
       </div>`;
 
       const cpCtx = document.getElementById('rpt-cls-pie');
-      if (cpCtx) App.charts.rptCls = new Chart(cpCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.keys(classes).map(k=>classes[k].length), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
+      if (cpCtx) App.charts.rptCls = new Chart(cpCtx, {type:'pie', data:{labels:Object.keys(classes), datasets:[{data:Object.keys(classes).map(k=>classes[k].length), backgroundColor:['#2563eb','#0f9d58','#f9ab00','#ea4335','#8b5cf6','#06b6d4','#ec4899'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}}); Pages._rptCharts.push(App.charts.rptCls);
     }
 
     /* ---- BEHAVIOR SUMMARY ---- */
@@ -648,9 +650,9 @@ Object.assign(Pages, {
       </div>`;
 
       const brCtx = document.getElementById('rpt-beh-rank-chart');
-      if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}});
+      if (brCtx && sorted.length) App.charts.rptBehR = new Chart(brCtx, {type:'bar', data:{labels:sorted.slice(0,15).map(r=>r.name), datasets:[{label:'\u05D7\u05D9\u05D5\u05D1\u05D9',data:sorted.slice(0,15).map(r=>r.pos),backgroundColor:'#0f9d58'},{label:'\u05E9\u05DC\u05D9\u05DC\u05D9',data:sorted.slice(0,15).map(r=>-r.neg),backgroundColor:'#ea4335'}]}, options:{responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{x:{stacked:true},y:{stacked:true}}, plugins:{legend:{position:'top'}}}}); Pages._rptCharts.push(App.charts.rptBehR);
       const btCtx = document.getElementById('rpt-beh-type-chart');
-      if (btCtx) App.charts.rptBehSummary = new Chart(btCtx, {type:'doughnut', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[totalPos,totalNeg,totalNote], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}});
+      if (btCtx) App.charts.rptBehSummary = new Chart(btCtx, {type:'doughnut', data:{labels:['\u05D7\u05D9\u05D5\u05D1\u05D9','\u05E9\u05DC\u05D9\u05DC\u05D9','\u05D4\u05E2\u05E8\u05D4'], datasets:[{data:[totalPos,totalNeg,totalNote], backgroundColor:['#0f9d58','#ea4335','#4285f4'], borderWidth:0}]}, options:{responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{legend:{position:'bottom'}}}}); Pages._rptCharts.push(App.charts.rptBehSummary);
     }
   },
 
