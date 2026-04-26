@@ -1420,6 +1420,14 @@ Object.assign(Pages, {
             <button class="btn btn-outline-success btn-sm" onclick="Pages.runImport()"><i class="bi bi-arrow-repeat me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 \u05DE\u05DE\u05E7\u05D5\u05E8</button>
             <div id="import-result" class="mt-2"></div>
           </div></div>
+          <div class="col-12"><div class="card p-3">
+            <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-down me-2 text-primary"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</h6>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary btn-sm" onclick="Pages.exportFullBackupJSON()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05D2\u05D9\u05D1\u05D5\u05D9 \u05DE\u05DC\u05D0</button>
+              <button class="btn btn-outline-success btn-sm" onclick="Pages.exportStudentsCSV()"><i class="bi bi-filetype-csv me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD (CSV)</button>
+              <button class="btn btn-outline-success btn-sm" onclick="Pages.exportStaffCSV()"><i class="bi bi-filetype-csv me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05E8\u05E9\u05D9\u05DE\u05EA \u05E6\u05D5\u05D5\u05EA (CSV)</button>
+            </div>
+          </div></div>
         </div>
       </div>
 
@@ -1672,6 +1680,46 @@ Object.assign(Pages, {
     Utils.toast('\u05E9\u05E0\u05D4 \u05D7\u05D3\u05E9\u05D4 \u05D4\u05D5\u05D7\u05DC\u05D4! \u05DB\u05DC \u05D4\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D4\u05D5\u05E2\u05D1\u05E8\u05D5 \u05DC\u05D0\u05E8\u05DB\u05D9\u05D5\u05DF.');
   },
 
+  // --- Data Export (JSON/CSV) ---
+  _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  },
+  exportFullBackupJSON() {
+    if (typeof DATA_CACHE === 'undefined') { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D1\u05DE\u05D8\u05DE\u05D5\u05DF','warning'); return; }
+    const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+    const blob = new Blob([JSON.stringify(DATA_CACHE, null, 2)], {type:'application/json'});
+    this._downloadBlob(blob, 'bht_full_backup_' + ts + '.json');
+    Utils.toast('\u05D2\u05D9\u05D1\u05D5\u05D9 \u05DE\u05DC\u05D0 \u05D9\u05D5\u05E8\u05D3!');
+  },
+  _toCSV(headers, rows) {
+    const esc = v => { const s = String(v ?? ''); return s.includes(',') || s.includes('"') || s.includes('\n') ? '"' + s.replace(/"/g,'""') + '"' : s; };
+    const lines = [headers.map(esc).join(',')];
+    for (const r of rows) lines.push(headers.map(h => esc(r[h])).join(','));
+    return '\uFEFF' + lines.join('\r\n');
+  },
+  exportStudentsCSV() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    if (!students.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD','warning'); return; }
+    const fields = ['\u05E9\u05DD','\u05DB\u05D9\u05EA\u05D4','\u05D8\u05DC\u05E4\u05D5\u05DF','\u05DB\u05EA\u05D5\u05D1\u05EA','\u05E2\u05D9\u05E8','\u05EA\u05E2\u05D5\u05D3\u05EA_\u05D6\u05D4\u05D5\u05EA','\u05E1\u05D8\u05D8\u05D5\u05E1'];
+    const csv = this._toCSV(fields, students);
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    this._downloadBlob(blob, 'students_' + (Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0,10)) + '.csv');
+    Utils.toast('\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05D5\u05E8\u05D3\u05D4!');
+  },
+  exportStaffCSV() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const staff = _gc('\u05E6\u05D5\u05D5\u05EA');
+    if (!staff.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E6\u05D5\u05D5\u05EA','warning'); return; }
+    const fields = ['\u05E9\u05DD','\u05D8\u05DC\u05E4\u05D5\u05DF','\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC','\u05EA\u05E4\u05E7\u05D9\u05D3'];
+    const csv = this._toCSV(fields, staff);
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    this._downloadBlob(blob, 'staff_' + (Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0,10)) + '.csv');
+    Utils.toast('\u05E8\u05E9\u05D9\u05DE\u05EA \u05E6\u05D5\u05D5\u05EA \u05D9\u05D5\u05E8\u05D3\u05D4!');
+  },
 
   /* ======================================================================
      USER MANAGEMENT — Enhanced with PIN masking, role badges, edit
