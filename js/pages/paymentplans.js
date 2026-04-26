@@ -819,6 +819,10 @@ Object.assign(Pages, {
       const s = this._ppPlanStats(p);
       rows.push(`${p.studentName},${p.templateLabel},${p.total},${s.paid},${s.overdue},${s.pending},${s.pct}%`);
     });
-    Utils.downloadCSV(rows.join('\n'), '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD');
+    const csv = '\uFEFF' + rows.join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
+    link.download = '\u05EA\u05D5\u05DB\u05E0\u05D9\u05D5\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD_' + Utils.todayISO() + '.csv'; link.click();
+    Utils.toast('CSV \u05D9\u05D5\u05E6\u05D0');
   }
 });

@@ -985,7 +985,6 @@ Object.assign(Pages, {
       </div>`;
     }).join('');
 
-    console.log('studentInit: rendering card for', name, 'id:', sId);
     document.getElementById('student-card-content').innerHTML = `
       <!-- Back + Actions -->
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">

@@ -1314,6 +1314,33 @@ const App = {
       setTimeout(() => this.preloadPage(page), 2000 + i * 1500);
     });
   },
+
+  /* ==============================
+     NAVIGATION HELPERS
+     ============================== */
+  navigate(page) {
+    location.hash = page;
+  },
+
+  loadPage(page) {
+    location.hash = page;
+  },
+
+  /* ==============================
+     TOAST ALIAS (delegates to Utils.toast)
+     ============================== */
+  showToast(message, type) {
+    Utils.toast(message, type);
+  },
+
+  toast(message, type) {
+    Utils.toast(message, type);
+  },
+
+  /* ==============================
+     IN-MEMORY STORE (key-value for page state)
+     ============================== */
+  store: {},
 };
 
 /* ===== Start ===== */
