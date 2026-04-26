@@ -15,7 +15,8 @@ Object.assign(Pages, {
     { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' },
     { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' },
     { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' },
-    { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' }
+    { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' },
+    { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' }
   ],
 
   /* ---------- demo data ---------- */
@@ -453,7 +454,7 @@ Object.assign(Pages, {
     if (isLetter) { this._pcFillLetterTemplate(); }
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
     var monthWrap = document.getElementById('pc-month-wrap');
-    if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report' || tplId === 'finance_summary') ? '' : 'none';
+    if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report' || tplId === 'finance_summary' || tplId === 'student_attendance') ? '' : 'none';
 
     // For registration/phone_list, hide student selector since not needed
     const hideStudentSel = tplId === 'registration' || tplId === 'phone_list';
@@ -821,6 +822,7 @@ Object.assign(Pages, {
       case 'attendance_monthly': return this._pcBuildAttendanceMonthly(opts);
       case 'behavior_report':    return this._pcBuildBehaviorReport(opts);
       case 'finance_summary':    return this._pcBuildFinanceSummary(opts);
+      case 'student_attendance': return this._pcBuildStudentAttendance(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1799,6 +1801,126 @@ Object.assign(Pages, {
               </tr></thead>\
               <tbody>' + rows + '</tbody>\
             </table>') + '\
+        </div>\
+        ' + this._pcDocFooter(opts) + '\
+      </div>\
+    ';
+  },
+
+  /* --- Student Attendance Report (individual) --- */
+  _pcBuildStudentAttendance(opts) {
+    var s = opts.student || this._pcStudents[0];
+    if (!s) return '<p style="text-align:center;color:#999">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</p>';
+
+    var month = opts.month || new Date().toISOString().slice(0, 7);
+    var yearNum = parseInt(month.split('-')[0], 10);
+    var monthNum = parseInt(month.split('-')[1], 10);
+    var monthNames = ['', '\u05D9\u05E0\u05D5\u05D0\u05E8', '\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8', '\u05DE\u05E8\u05E5', '\u05D0\u05E4\u05E8\u05D9\u05DC', '\u05DE\u05D0\u05D9', '\u05D9\u05D5\u05E0\u05D9', '\u05D9\u05D5\u05DC\u05D9', '\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8', '\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8', '\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8', '\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8', '\u05D3\u05E6\u05DE\u05D1\u05E8'];
+
+    // Gather attendance records for this student
+    var attData = this._pcAttendanceData || [];
+    var studentName = s.name;
+    var studentId = s.id;
+    var records = attData.filter(function(r) {
+      var rName = (r['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '').trim();
+      var rId = r['\u05DE\u05D6\u05D4\u05D4'] || r['id'] || '';
+      return rName === studentName || (studentId && rId === studentId);
+    });
+
+    // Categorize by month
+    var monthMap = {};
+    var totalPresent = 0, totalAbsent = 0, totalLate = 0, totalDays = 0;
+    records.forEach(function(r) {
+      var d = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || r['date'] || '';
+      var status = (r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || r['status'] || '').trim();
+      if (!d) return;
+      var ds = String(d).slice(0, 7);
+      if (!monthMap[ds]) monthMap[ds] = { present: 0, absent: 0, late: 0, total: 0 };
+      monthMap[ds].total++;
+      totalDays++;
+      if (status === '\u05E0\u05D5\u05DB\u05D7' || status === '\u05E0\u05D5\u05DB\u05D7/\u05EA') { monthMap[ds].present++; totalPresent++; }
+      else if (status === '\u05D7\u05D9\u05E1\u05D5\u05E8') { monthMap[ds].absent++; totalAbsent++; }
+      else if (status === '\u05D0\u05D9\u05D7\u05D5\u05E8') { monthMap[ds].late++; totalLate++; }
+      else { monthMap[ds].present++; totalPresent++; }
+    });
+
+    var pct = totalDays > 0 ? Math.round((totalPresent / totalDays) * 100) : 0;
+    var pctColor = pct >= 90 ? '#0f9d58' : pct >= 75 ? '#f9ab00' : '#ea4335';
+
+    // Build monthly breakdown rows
+    var sortedMonths = Object.keys(monthMap).sort();
+    var monthRows = sortedMonths.map(function(mk) {
+      var mm = monthMap[mk];
+      var mPct = mm.total > 0 ? Math.round((mm.present / mm.total) * 100) : 0;
+      var mi = parseInt(mk.split('-')[1], 10);
+      var mName = monthNames[mi] || mk;
+      return '<tr>' +
+        '<td>' + mName + ' ' + mk.split('-')[0] + '</td>' +
+        '<td style="text-align:center">' + mm.total + '</td>' +
+        '<td style="text-align:center">' + mm.present + '</td>' +
+        '<td style="text-align:center">' + mm.absent + '</td>' +
+        '<td style="text-align:center">' + mm.late + '</td>' +
+        '<td style="text-align:center;font-weight:700;color:' + (mPct >= 90 ? '#0f9d58' : mPct >= 75 ? '#f9ab00' : '#ea4335') + '">' + mPct + '%</td>' +
+        '</tr>';
+    }).join('');
+
+    if (!monthRows) {
+      monthRows = '<tr><td colspan="6" style="text-align:center;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</td></tr>';
+    }
+
+    return '\
+      <div class="pc-doc">\
+        ' + this._pcDocHeader(opts, '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3') + '\
+        <div class="pc-body">\
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px">\
+            <div class="pc-field" style="flex:1;min-width:200px"><span class="pc-field-label">\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3:</span> ' + s.name + '</div>\
+            <div class="pc-field" style="flex:1;min-width:200px"><span class="pc-field-label">\u05DB\u05D9\u05EA\u05D4:</span> ' + (s.cls || '\u2014') + '</div>\
+          </div>\
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">\
+            <div style="flex:1;min-width:120px;background:#e8f5e9;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#2e7d32">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#1b5e20">' + totalPresent + '</div>\
+            </div>\
+            <div style="flex:1;min-width:120px;background:#ffebee;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#c62828">\u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#b71c1c">' + totalAbsent + '</div>\
+            </div>\
+            <div style="flex:1;min-width:120px;background:#fff3e0;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#e65100">\u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#bf360c">' + totalLate + '</div>\
+            </div>\
+            <div style="flex:1;min-width:120px;background:#e3f2fd;border-radius:8px;padding:12px;text-align:center">\
+              <div style="font-size:.8rem;color:#1565c0">\u05E1\u05D4"\u05DB \u05D9\u05DE\u05D9\u05DD</div>\
+              <div style="font-size:1.4rem;font-weight:700;color:#0d47a1">' + totalDays + '</div>\
+            </div>\
+          </div>\
+          <div style="text-align:center;margin-bottom:24px">\
+            <div style="font-size:.9rem;color:#555;margin-bottom:4px">\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</div>\
+            <div style="font-size:2.2rem;font-weight:900;color:' + pctColor + '">' + pct + '%</div>\
+            <div style="width:200px;height:10px;background:#e0e0e0;border-radius:5px;margin:8px auto;overflow:hidden">\
+              <div style="width:' + pct + '%;height:100%;background:' + pctColor + ';border-radius:5px"></div>\
+            </div>\
+          </div>\
+          <h4 style="font-size:1.1rem;color:#1a3e5c;margin-bottom:8px">\u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9</h4>\
+          <table class="pc-table">\
+            <thead><tr>\
+              <th>\u05D7\u05D5\u05D3\u05E9</th>\
+              <th style="text-align:center">\u05E1\u05D4"\u05DB \u05D9\u05DE\u05D9\u05DD</th>\
+              <th style="text-align:center">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</th>\
+              <th style="text-align:center">\u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD</th>\
+              <th style="text-align:center">\u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD</th>\
+              <th style="text-align:center">\u05D0\u05D7\u05D5\u05D6 %</th>\
+            </tr></thead>\
+            <tbody>' + monthRows + '</tbody>\
+            <tfoot><tr style="font-weight:700;background:#f0f4f8">\
+              <td>\u05E1\u05D4"\u05DB</td>\
+              <td style="text-align:center">' + totalDays + '</td>\
+              <td style="text-align:center">' + totalPresent + '</td>\
+              <td style="text-align:center">' + totalAbsent + '</td>\
+              <td style="text-align:center">' + totalLate + '</td>\
+              <td style="text-align:center;color:' + pctColor + '">' + pct + '%</td>\
+            </tr></tfoot>\
+          </table>\
         </div>\
         ' + this._pcDocFooter(opts) + '\
       </div>\

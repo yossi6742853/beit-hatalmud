@@ -4484,3 +4484,6 @@ h5, .h5 { font-size: 1.15rem; }
 [data-theme="dark"] .breadcrumb-nav a:hover {
   color: #93bbfd;
 }
+[data-theme="dark"] .stat-card { background: #1e293b; }
+[data-theme="dark"] .empty-state { color: #94a3b8; }
+[data-theme="dark"] .breadcrumb-nav { color: #94a3b8; }
