@@ -360,16 +360,29 @@ Object.assign(Pages, {
   /* ---- Init: set up keyboard and state ---- */
   checklistInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try to load from API and merge/replace local data
+    // Try to load from API (DATA_CACHE) and sync to localStorage
     try {
-      const apiData = _gc('משימות');
-      if (apiData && apiData.length && apiData[0].lists) {
-        // API returned checklist data object
+      const apiData = _gc('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA');
+      if (apiData && Array.isArray(apiData) && apiData.length && apiData[0] && apiData[0].lists) {
+        // API returned array with checklist data object as first element
         localStorage.setItem(this._clKey, JSON.stringify(apiData[0]));
-      } else if (apiData && apiData.lists) {
+      } else if (apiData && !Array.isArray(apiData) && apiData.lists) {
+        // API returned checklist data object directly
         localStorage.setItem(this._clKey, JSON.stringify(apiData));
       }
     } catch(e) { /* keep local data */ }
+    // Ensure localStorage has valid structure
+    try {
+      var raw = localStorage.getItem(this._clKey);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.lists)) {
+          localStorage.setItem(this._clKey, JSON.stringify({ lists: [], activeListId: null, filter: 'all', priorityFilter: 'all' }));
+        }
+      }
+    } catch(e) {
+      localStorage.setItem(this._clKey, JSON.stringify({ lists: [], activeListId: null, filter: 'all', priorityFilter: 'all' }));
+    }
   },
 
   /* ============================================================

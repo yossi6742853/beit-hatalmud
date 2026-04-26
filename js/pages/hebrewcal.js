@@ -11,10 +11,32 @@ Object.assign(Pages, {
 
   // Complete 5786 holiday database
   _hcHolidays: [
-
-    { name: 'ראש השנה א׳', type: 'chag', gDates: ['2025-09-23'], emoji: '' },
-    { name: 'ראש השנה ב׳', type: 'chag', gDates: ['2025-09-24'], emoji: '' },
-    { name: 'צום גדליה', type: 'fast', gDates: ['2025-09-25'], emoji: '' }
+    // \u05E8\u05D0\u05E9 \u05D4\u05E9\u05E0\u05D4
+    { name: '\u05E8\u05D0\u05E9 \u05D4\u05E9\u05E0\u05D4 \u05D0\u05F3', type: 'chag', gDates: ['2025-09-23'], emoji: '' },
+    { name: '\u05E8\u05D0\u05E9 \u05D4\u05E9\u05E0\u05D4 \u05D1\u05F3', type: 'chag', gDates: ['2025-09-24'], emoji: '' },
+    { name: '\u05E6\u05D5\u05DD \u05D2\u05D3\u05DC\u05D9\u05D4', type: 'fast', gDates: ['2025-09-25'], emoji: '' },
+    // \u05D9\u05D5\u05DD \u05DB\u05D9\u05E4\u05D5\u05E8
+    { name: '\u05D9\u05D5\u05DD \u05DB\u05D9\u05E4\u05D5\u05E8', type: 'chag', gDates: ['2025-10-02'], emoji: '' },
+    // \u05E1\u05D5\u05DB\u05D5\u05EA
+    { name: '\u05E1\u05D5\u05DB\u05D5\u05EA \u05D0\u05F3', type: 'chag', gDates: ['2025-10-07'], emoji: '' },
+    { name: '\u05D7\u05D5\u05DC \u05D4\u05DE\u05D5\u05E2\u05D3 \u05E1\u05D5\u05DB\u05D5\u05EA', type: 'chol_hamoed', gDates: ['2025-10-08','2025-10-09','2025-10-10','2025-10-11','2025-10-12'], emoji: '' },
+    { name: '\u05D4\u05D5\u05E9\u05E2\u05E0\u05D0 \u05E8\u05D1\u05D4', type: 'chag', gDates: ['2025-10-13'], emoji: '' },
+    { name: '\u05E9\u05DE\u05D7\u05EA \u05EA\u05D5\u05E8\u05D4', type: 'chag', gDates: ['2025-10-14'], emoji: '' },
+    // \u05D7\u05E0\u05D5\u05DB\u05D4
+    { name: '\u05D7\u05E0\u05D5\u05DB\u05D4', type: 'minor', gDates: ['2025-12-15','2025-12-16','2025-12-17','2025-12-18','2025-12-19','2025-12-20','2025-12-21','2025-12-22','2025-12-23'], emoji: '' },
+    // \u05E4\u05D5\u05E8\u05D9\u05DD
+    { name: '\u05E4\u05D5\u05E8\u05D9\u05DD', type: 'minor', gDates: ['2026-03-17'], emoji: '' },
+    // \u05E4\u05E1\u05D7
+    { name: '\u05E2\u05E8\u05D1 \u05E4\u05E1\u05D7', type: 'chag', gDates: ['2026-04-01'], emoji: '' },
+    { name: '\u05E4\u05E1\u05D7 \u05D0\u05F3', type: 'chag', gDates: ['2026-04-02'], emoji: '' },
+    { name: '\u05D7\u05D5\u05DC \u05D4\u05DE\u05D5\u05E2\u05D3 \u05E4\u05E1\u05D7', type: 'chol_hamoed', gDates: ['2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07'], emoji: '' },
+    { name: '\u05E9\u05D1\u05D9\u05E2\u05D9 \u05E9\u05DC \u05E4\u05E1\u05D7', type: 'chag', gDates: ['2026-04-08'], emoji: '' },
+    { name: '\u05D0\u05D7\u05E8\u05D5\u05DF \u05E9\u05DC \u05E4\u05E1\u05D7', type: 'chag', gDates: ['2026-04-09'], emoji: '' },
+    // \u05D9\u05D5\u05DD \u05D4\u05E2\u05E6\u05DE\u05D0\u05D5\u05EA
+    { name: '\u05D9\u05D5\u05DD \u05D4\u05E2\u05E6\u05DE\u05D0\u05D5\u05EA', type: 'memorial', gDates: ['2026-04-22'], emoji: '' },
+    // \u05E9\u05D1\u05D5\u05E2\u05D5\u05EA
+    { name: '\u05E9\u05D1\u05D5\u05E2\u05D5\u05EA \u05D0\u05F3', type: 'chag', gDates: ['2026-05-22'], emoji: '' },
+    { name: '\u05E9\u05D1\u05D5\u05E2\u05D5\u05EA \u05D1\u05F3', type: 'chag', gDates: ['2026-05-23'], emoji: '' }
   ],
 
   // Weekly parsha list for 5786
@@ -163,7 +185,7 @@ Object.assign(Pages, {
           <span class="fw-bold small ${isShabbat ? 'text-primary' : isToday ? 'text-white bg-primary rounded-circle px-1' : ''}">${d}</span>
           <span class="small text-muted">${hebD}</span>
         </div>
-        ${hols.map(h => `<div class="small fw-bold text-${typeColors[h.type] || 'dark'} text-truncate px-1" style="font-size:0.65rem">${h.name}</div>`).join('')}
+        ${hols.map(h => `<div class="small fw-bold text-truncate px-1" style="font-size:0.65rem;color:#7c3aed">${h.name}</div>`).join('')}
         ${events.map(e => `<div class="small text-truncate px-1" style="font-size:0.6rem"><span class="d-inline-block rounded-circle me-1" style="width:6px;height:6px;background:${e.color}"></span>${e.title}</div>`).join('')}
         ${showOmer ? `<div class="position-absolute bottom-0 start-0 px-1" style="font-size:0.55rem"><span class="text-muted">${dayOmer}</span></div>` : ''}
         ${isFriday ? `<div class="position-absolute bottom-0 end-0 px-1" style="font-size:0.55rem"><span class="text-warning"><i class="bi bi-brightness-high"></i></span></div>` : ''}
