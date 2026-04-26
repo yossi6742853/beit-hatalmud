@@ -11,7 +11,8 @@ Object.assign(Pages, {
     { id: 'class_roster',   name: 'רשימה שמית לפי כיתה', icon: 'bi-list-ul',          color: 'secondary',desc: 'רשימת תלמידים מלאה עם כל הפרטים הטכניים' },
     { id: 'empty_attendance',name: 'טופס נוכחות ריק',    icon: 'bi-check2-square',    color: 'success',  desc: 'טופס נוכחות ריק להדפסה עם שמות תלמידים ותיבות סימון' },
     { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' },
-    { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' }
+    { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' },
+    { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' }
   ],
 
   /* ---------- demo data ---------- */
@@ -164,6 +165,12 @@ Object.assign(Pages, {
             <div class="col-12" id="pc-letter-body-wrap" style="display:none">
               <label class="form-label fw-bold">תוכן המכתב</label>
               <textarea class="form-control form-control-sm" id="pc-letter-body" rows="4" placeholder="כתוב כאן את תוכן המכתב..."></textarea>
+            </div>
+
+            <!-- Month selector for attendance_monthly -->
+            <div class="col-md-4" id="pc-month-wrap" style="display:none">
+              <label class="form-label fw-bold">\u05D7\u05D5\u05D3\u05E9</label>
+              <input type="month" class="form-control form-control-sm" id="pc-month" value="${today.slice(0, 7)}">
             </div>
 
             <!-- Invoice fields -->
@@ -357,6 +364,14 @@ Object.assign(Pages, {
       console.warn('Print Center: could not load student data from API, using defaults', e);
     }
 
+    // Load attendance data for monthly report
+    try {
+      var attRaw = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+      if (attRaw && attRaw.length) {
+        this._pcAttendanceData = attRaw;
+      }
+    } catch (e) { /* optional */ }
+
     // Also try to load medical data for trip list
     try {
       const medRaw = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
@@ -404,6 +419,8 @@ Object.assign(Pages, {
     document.getElementById('pc-date-range-to-wrap').style.display = dateRange ? '' : 'none';
     document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
+    var monthWrap = document.getElementById('pc-month-wrap');
+    if (monthWrap) monthWrap.style.display = tplId === 'attendance_monthly' ? '' : 'none';
 
     // For registration/phone_list, hide student selector since not needed
     const hideStudentSel = tplId === 'registration' || tplId === 'phone_list';
@@ -466,6 +483,7 @@ Object.assign(Pages, {
       invoiceAmount: document.getElementById('pc-invoice-amount')?.value || '0',
       invoiceDesc: document.getElementById('pc-invoice-desc')?.value || '',
       invoiceNum: document.getElementById('pc-invoice-num')?.value || '',
+      month: document.getElementById('pc-month')?.value || new Date().toISOString().slice(0, 7),
     };
   },
 
@@ -765,6 +783,7 @@ Object.assign(Pages, {
       case 'class_roster':     return this._pcBuildClassRoster(opts);
       case 'empty_attendance': return this._pcBuildEmptyAttendance(opts);
       case 'phone_list':      return this._pcBuildPhoneList(opts);
+      case 'attendance_monthly': return this._pcBuildAttendanceMonthly(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1328,6 +1347,130 @@ Object.assign(Pages, {
         ${this._pcDocFooter(opts)}
       </div>
     `;
+  },
+
+  /* --- Monthly Attendance Report (דוח נוכחות חודשי) --- */
+  _pcBuildAttendanceMonthly(opts) {
+    var monthStr = opts.month || new Date().toISOString().slice(0, 7);
+    var parts = monthStr.split('-');
+    var year = parseInt(parts[0], 10);
+    var monthIdx = parseInt(parts[1], 10) - 1;
+    var daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+    var heMonths = ['\u05D9\u05E0\u05D5\u05D0\u05E8', '\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8', '\u05DE\u05E8\u05E5', '\u05D0\u05E4\u05E8\u05D9\u05DC', '\u05DE\u05D0\u05D9', '\u05D9\u05D5\u05E0\u05D9',
+                    '\u05D9\u05D5\u05DC\u05D9', '\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8', '\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8', '\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8', '\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8', '\u05D3\u05E6\u05DE\u05D1\u05E8'];
+    var monthName = heMonths[monthIdx] + ' ' + year;
+
+    // Filter students by class if selected
+    var cls = opts.cls || '';
+    var students = cls ? this._pcStudents.filter(function(s) { return s.cls === cls; }) : this._pcStudents;
+
+    // Build attendance lookup: key = "studentId|date" or "studentName|date" -> status
+    var attMap = {};
+    var attendance = this._pcAttendanceData || [];
+    attendance.forEach(function(a) {
+      var aDate = a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      if (!aDate) return;
+      // Normalize date
+      if (aDate.length !== 10) {
+        try { var d = new Date(aDate); if (!isNaN(d.getTime())) aDate = d.toISOString().slice(0, 10); } catch(e) { return; }
+      }
+      if (aDate.slice(0, 7) !== monthStr) return;
+      var sId = String(a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '');
+      var sName = a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      var status = a['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
+      var day = parseInt(aDate.slice(8, 10), 10);
+      if (sId) attMap[sId + '|' + day] = status;
+      if (sName) attMap[sName + '|' + day] = status;
+    });
+
+    // Status display helpers
+    var statusSymbol = function(st) {
+      if (!st) return '';
+      if (st === '\u05E0\u05D5\u05DB\u05D7') return '\u2713';
+      if (st === '\u05D7\u05D9\u05E1\u05D5\u05E8') return '\u2717';
+      if (st === '\u05D0\u05D9\u05D7\u05D5\u05E8') return '\u23F0';
+      if (st === '\u05E4\u05D8\u05D5\u05E8') return '\u2713';
+      return st.charAt(0);
+    };
+    var statusColor = function(st) {
+      if (st === '\u05E0\u05D5\u05DB\u05D7') return '#198754';
+      if (st === '\u05D7\u05D9\u05E1\u05D5\u05E8') return '#dc3545';
+      if (st === '\u05D0\u05D9\u05D7\u05D5\u05E8') return '#fd7e14';
+      if (st === '\u05E4\u05D8\u05D5\u05E8') return '#6c757d';
+      return '#333';
+    };
+
+    // Day headers — skip Shabbat (Saturday)
+    var dayHeaders = '';
+    var activeDays = [];
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dt = new Date(year, monthIdx, d);
+      if (dt.getDay() === 6) continue; // Skip Shabbat
+      activeDays.push(d);
+      var dayName = ['\u05D0', '\u05D1', '\u05D2', '\u05D3', '\u05D4', '\u05D5', '\u05E9'][dt.getDay()];
+      dayHeaders += '<th style="width:24px;font-size:.6rem;padding:2px;text-align:center;writing-mode:vertical-rl">' + d + '<br>' + dayName + '</th>';
+    }
+
+    // Summary totals
+    var totalPresent = 0, totalAbsent = 0, totalLate = 0;
+
+    // Student rows
+    var rows = students.map(function(s, idx) {
+      var sPresent = 0, sAbsent = 0, sLate = 0, sCounted = 0;
+      var cells = activeDays.map(function(day) {
+        var st = attMap[s.id + '|' + day] || attMap[s.name + '|' + day] || '';
+        var sym = statusSymbol(st);
+        var clr = statusColor(st);
+        if (st === '\u05E0\u05D5\u05DB\u05D7' || st === '\u05E4\u05D8\u05D5\u05E8') { sPresent++; sCounted++; }
+        else if (st === '\u05D7\u05D9\u05E1\u05D5\u05E8') { sAbsent++; sCounted++; }
+        else if (st === '\u05D0\u05D9\u05D7\u05D5\u05E8') { sLate++; sCounted++; }
+        return '<td style="text-align:center;padding:2px;font-size:.75rem;color:' + clr + '">' + sym + '</td>';
+      }).join('');
+      totalPresent += sPresent;
+      totalAbsent += sAbsent;
+      totalLate += sLate;
+      var pct = sCounted > 0 ? Math.round((sPresent / sCounted) * 100) : '-';
+      return '<tr><td style="font-weight:600;white-space:nowrap;font-size:.8rem">' + (idx + 1) + '</td><td style="font-weight:600;white-space:nowrap;font-size:.8rem">' + s.name + '</td>' + cells + '<td style="font-weight:700;text-align:center;font-size:.8rem">' + pct + (pct !== '-' ? '%' : '') + '</td></tr>';
+    }).join('');
+
+    // Summary row
+    var summaryRow = '<tr style="background:#1a3e5c;color:#fff;font-weight:600"><td colspan="2" style="border-color:#1a3e5c;font-size:.8rem">\u05E1\u05D4"\u05DB</td>';
+    summaryRow += activeDays.map(function(day) {
+      var dayP = 0, dayA = 0, dayL = 0;
+      students.forEach(function(s) {
+        var st = attMap[s.id + '|' + day] || attMap[s.name + '|' + day] || '';
+        if (st === '\u05E0\u05D5\u05DB\u05D7' || st === '\u05E4\u05D8\u05D5\u05E8') dayP++;
+        else if (st === '\u05D7\u05D9\u05E1\u05D5\u05E8') dayA++;
+        else if (st === '\u05D0\u05D9\u05D7\u05D5\u05E8') dayL++;
+      });
+      var total = dayP + dayA + dayL;
+      return '<td style="text-align:center;padding:2px;font-size:.6rem;border-color:#1a3e5c">' + (total > 0 ? dayP : '') + '</td>';
+    }).join('');
+    summaryRow += '<td style="text-align:center;font-size:.75rem;border-color:#1a3e5c">' + totalPresent + '/' + (totalPresent + totalAbsent + totalLate) + '</td></tr>';
+
+    return '<div class="pc-doc" style="max-width:100%">' +
+      this._pcDocHeader(opts, '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 ' + monthName + (cls ? ' \u2014 ' + cls : '')) +
+      '<div class="pc-body">' +
+        '<div style="display:flex;gap:24px;margin-bottom:12px">' +
+          '<div class="pc-field"><span class="pc-field-label">\u05DE\u05E1\u05E4\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ' + students.length + '</div>' +
+          '<div class="pc-field"><span class="pc-field-label">\u05D9\u05DE\u05D9 \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA:</span> ' + activeDays.length + '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:8px;font-size:.75rem;color:#666">\u05DE\u05E7\u05E8\u05D0: <span style="color:#198754">\u2713 \u05E0\u05D5\u05DB\u05D7</span> &nbsp; <span style="color:#dc3545">\u2717 \u05D7\u05D9\u05E1\u05D5\u05E8</span> &nbsp; <span style="color:#fd7e14">\u23F0 \u05D0\u05D9\u05D7\u05D5\u05E8</span></div>' +
+        '<div style="overflow-x:auto">' +
+        '<table class="pc-table" style="font-size:.75rem">' +
+          '<thead><tr><th style="width:28px">#</th><th style="min-width:100px">\u05E9\u05DD</th>' + dayHeaders + '<th style="width:50px">%</th></tr></thead>' +
+          '<tbody>' + rows + summaryRow + '</tbody>' +
+        '</table></div>' +
+        '<div style="margin-top:16px;display:flex;gap:24px;font-size:.85rem">' +
+          '<div><strong style="color:#198754">\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD:</strong> ' + totalPresent + '</div>' +
+          '<div><strong style="color:#dc3545">\u05D7\u05D9\u05E1\u05D5\u05E8\u05D9\u05DD:</strong> ' + totalAbsent + '</div>' +
+          '<div><strong style="color:#fd7e14">\u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD:</strong> ' + totalLate + '</div>' +
+        '</div>' +
+      '</div>' +
+      this._pcDocSignature() +
+      this._pcDocFooter(opts) +
+    '</div>';
   },
 
   /* --- Empty Attendance Form (טופס נוכחות ריק) --- */

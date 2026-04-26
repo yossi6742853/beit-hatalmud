@@ -399,16 +399,47 @@ Object.assign(Pages, {
 
   hebrewcalInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try API for events
+    // Try loading events from DATA_CACHE
     try {
-      const apiData = _gc('לוח_שנה');
+      const apiData = _gc('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4');
       if (apiData && apiData.length) {
-        this._hcEvents = apiData;
+        // Map API rows to the {date, title, color, type} format used by the calendar
+        const typeColorMap = {
+          '\u05D7\u05D2': '#dc3545',
+          '\u05D0\u05D9\u05E8\u05D5\u05E2': '#2563eb',
+          '\u05DE\u05D1\u05D7\u05DF': '#ef4444',
+          '\u05D8\u05D9\u05D5\u05DC': '#16a34a',
+          '\u05D9\u05E9\u05D9\u05D1\u05D4': '#6f42c1',
+          '\u05D7\u05D5\u05E4\u05E9\u05D4': '#fd7e14',
+          '\u05D4\u05E8\u05E6\u05D0\u05D4': '#0dcaf0',
+          '\u05D0\u05D7\u05E8': '#6c757d'
+        };
+        this._hcEvents = apiData.map(function(row) {
+          var title = row['\u05E9\u05DD'] || row['\u05E0\u05D5\u05E9\u05D0'] || row['\u05EA\u05D9\u05D0\u05D5\u05E8'] || row['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '';
+          var date = row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+          var type = (row['\u05E1\u05D5\u05D2'] || row['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '').trim();
+          var color = row['\u05E6\u05D1\u05E2'] || typeColorMap[type] || '#2563eb';
+          // Normalize date to YYYY-MM-DD if possible
+          if (date && date.length === 10) {
+            // already in ISO format
+          } else if (date) {
+            try {
+              var d = new Date(date);
+              if (!isNaN(d.getTime())) date = d.toISOString().slice(0, 10);
+            } catch(e) { /* keep original */ }
+          }
+          return { date: date, title: title, color: color, type: type || 'event' };
+        }).filter(function(e) { return e.date && e.title; });
         return;
       }
-    } catch(e) {}
-    // No demo auto-load
-    if (!this._hcUseDemo) {
+    } catch(e) {
+      // Silently fall through
+    }
+    // If demo mode was explicitly loaded, use demo events
+    if (this._hcUseDemo) {
+      this._hcEvents = this._hcDemoEvents;
+    } else {
+      // No data available — calendar still renders with holidays/parshiot, just no custom events
       this._hcEvents = [];
     }
   },
