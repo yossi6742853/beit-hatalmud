@@ -464,6 +464,19 @@ Object.assign(Pages, {
     }
     // Activate first tab by default
     this._trCurrentTab = 'routes';
+
+    // Show empty state if no routes
+    if (!this._transportRoutes || !this._transportRoutes.length) {
+      const routesContainer = document.querySelector('#trTabRoutes .row');
+      if (routesContainer) {
+        routesContainer.innerHTML = '<div class="col-12"><div class="card p-5 text-center text-muted">' +
+          '<i class="bi bi-bus-front fs-1 d-block mb-2"></i>' +
+          '<h5>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DC\u05D5\u05DC\u05D9 \u05D4\u05E1\u05E2\u05D5\u05EA</h5>' +
+          '<p>\u05D4\u05D5\u05E1\u05E3 \u05E7\u05D5 \u05D7\u05D3\u05E9 \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p>' +
+          '<button class="btn btn-primary btn-sm mt-2" onclick="Pages.trAddRoute()"><i class="bi bi-plus-lg me-1"></i>\u05E7\u05D5 \u05D7\u05D3\u05E9</button>' +
+          '</div></div>';
+      }
+    }
   },
 
   _trLoadFromStorage() {

@@ -253,6 +253,14 @@ Object.assign(Pages, {
   },
 
   /* ---------- Init ---------- */
+  /* Default emergency contacts — always shown */
+  _emergencyDefaultContacts: [
+    { name: '\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3', phone: '02-5476989', icon: 'bi-building', color: 'primary' },
+    { name: '\u05DE\u05E9\u05D8\u05E8\u05D4', phone: '100', icon: 'bi-shield-fill', color: 'dark' },
+    { name: '\u05DE\u05D2\u05DF \u05D3\u05D5\u05D3 \u05D0\u05D3\u05D5\u05DD', phone: '101', icon: 'bi-heart-pulse-fill', color: 'danger' },
+    { name: '\u05DB\u05D9\u05D1\u05D5\u05D9 \u05D0\u05E9', phone: '102', icon: 'bi-fire', color: 'warning' }
+  ],
+
   emergencyInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Try API first, then localStorage, fall back to defaults
@@ -263,6 +271,44 @@ Object.assign(Pages, {
       }
     } catch (e) {
       // Use localStorage/defaults via _emergencyLoadData
+    }
+
+    const data = this._emergencyLoadData();
+    const hasNoData = !data.drills.length && !data.contacts.length && !data.studentContacts.length;
+
+    // If no custom contacts, inject default emergency contacts into the contacts card
+    if (!data.contacts || !data.contacts.length) {
+      const contactsCard = document.querySelector('.card-header.bg-danger.text-white');
+      if (contactsCard) {
+        const cardBody = contactsCard.closest('.card').querySelector('.card-body');
+        if (cardBody) {
+          cardBody.innerHTML = '<div class="row g-3">' + this._emergencyDefaultContacts.map(c =>
+            '<div class="col-md-3 col-6">' +
+              '<div class="d-flex align-items-center gap-3 p-3 border rounded-3">' +
+                '<div class="rounded-circle bg-' + c.color + ' bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px">' +
+                  '<i class="bi ' + c.icon + ' fs-4 text-' + c.color + '"></i>' +
+                '</div>' +
+                '<div>' +
+                  '<div class="fw-bold">' + c.name + '</div>' +
+                  '<a href="tel:' + c.phone + '" class="text-decoration-none fs-5 fw-bold text-' + c.color + '">' + c.phone + '</a>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          ).join('') + '</div>';
+        }
+      }
+    }
+
+    // Show empty state for procedures section if no data at all
+    if (hasNoData) {
+      const drillTbody = document.getElementById('emg-drill-tbody');
+      if (drillTbody) {
+        drillTbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">' +
+          '<i class="bi bi-shield-exclamation fs-3 d-block mb-2"></i>' +
+          '\u05D0\u05D9\u05DF \u05E0\u05D4\u05DC\u05D9 \u05D7\u05D9\u05E8\u05D5\u05DD' +
+          '<br><small>\u05D4\u05D5\u05E1\u05E3 \u05EA\u05E8\u05D2\u05D9\u05DC \u05E8\u05D0\u05E9\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</small>' +
+          '</td></tr>';
+      }
     }
 
     const searchEl = document.getElementById('emg-student-search');

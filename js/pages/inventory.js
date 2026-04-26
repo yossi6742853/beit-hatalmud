@@ -297,7 +297,12 @@ Object.assign(Pages, {
     if (!container) return;
 
     if (items.length === 0) {
-      container.innerHTML = `<div class="card p-5 text-center text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>לא נמצאו פריטים</div>`;
+      const isEmptyDB = !this._invData.length;
+      container.innerHTML = `<div class="card p-5 text-center text-muted">
+        <i class="bi bi-${isEmptyDB ? 'box-seam' : 'inbox'} fs-1 d-block mb-2"></i>
+        <h5>${isEmptyDB ? '\u05D0\u05D9\u05DF \u05E4\u05E8\u05D9\u05D8\u05D9 \u05E8\u05DB\u05D5\u05E9' : '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05E4\u05E8\u05D9\u05D8\u05D9\u05DD'}</h5>
+        ${isEmptyDB ? '<p>\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D9\u05D8 \u05E8\u05D0\u05E9\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC</p><button class="btn btn-primary btn-sm mt-2" onclick="Pages.invShowModal()"><i class="bi bi-plus-lg me-1"></i>\u05E4\u05E8\u05D9\u05D8 \u05D7\u05D3\u05E9</button>' : '<p>\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05DE\u05E1\u05E0\u05E0\u05D9 \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9</p>'}
+      </div>`;
       return;
     }
 
