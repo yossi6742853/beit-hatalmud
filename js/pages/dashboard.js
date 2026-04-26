@@ -39,41 +39,29 @@ Object.assign(Pages, {
             <i class="bi bi-lightning-charge-fill text-warning"></i>
             <h6 class="fw-bold mb-0">\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA</h6>
           </div>
-          <div class="row g-2">
-            <div class="col-6 col-md-2">
-              <a href="#students" class="btn btn-outline-primary w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-person-plus-fill fs-5"></i>
-                <small>\u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3</small>
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <a href="#attendance" class="btn btn-success w-100 py-3 d-flex flex-column align-items-center gap-2 shadow-sm" style="font-size:1rem">
+                <i class="bi bi-calendar-check-fill fs-3"></i>
+                <span class="fw-bold">\u05E8\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</span>
               </a>
             </div>
-            <div class="col-6 col-md-2">
-              <a href="#attendance" class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-calendar-check-fill fs-5"></i>
-                <small>\u05E8\u05E9\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small>
+            <div class="col-6 col-md-3">
+              <button class="btn btn-info text-white w-100 py-3 d-flex flex-column align-items-center gap-2 shadow-sm" style="font-size:1rem" onclick="Pages._openCallLogModal('','','')">
+                <i class="bi bi-telephone-plus-fill fs-3"></i>
+                <span class="fw-bold">\u05E8\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</span>
+              </button>
+            </div>
+            <div class="col-6 col-md-3">
+              <a href="#printcenter" class="btn btn-warning w-100 py-3 d-flex flex-column align-items-center gap-2 shadow-sm" style="font-size:1rem">
+                <i class="bi bi-printer-fill fs-3"></i>
+                <span class="fw-bold">\u05D4\u05D3\u05E4\u05E1 \u05E8\u05E9\u05D9\u05DE\u05D4</span>
               </a>
             </div>
-            <div class="col-6 col-md-2">
-              <a href="#communications" class="btn btn-outline-info w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-chat-dots-fill fs-5"></i>
-                <small>\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4</small>
-              </a>
-            </div>
-            <div class="col-6 col-md-2">
-              <a href="#finance" class="btn btn-outline-warning w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-credit-card-fill fs-5"></i>
-                <small>\u05D4\u05D5\u05E1\u05E3 \u05EA\u05E9\u05DC\u05D5\u05DD</small>
-              </a>
-            </div>
-            <div class="col-6 col-md-2">
-              <a href="#checklist" class="btn btn-outline-danger w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-list-task fs-5"></i>
-                <small>\u05E6\u05D5\u05E8 \u05DE\u05E9\u05D9\u05DE\u05D4</small>
-              </a>
-            </div>
-            <div class="col-6 col-md-2">
-              <a href="#reports" class="btn btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1">
-                <i class="bi bi-file-earmark-bar-graph-fill fs-5"></i>
-                <small>\u05D3\u05D5\u05D7 \u05DE\u05D4\u05D9\u05E8</small>
+            <div class="col-6 col-md-3">
+              <a href="#students" class="btn btn-primary w-100 py-3 d-flex flex-column align-items-center gap-2 shadow-sm" style="font-size:1rem">
+                <i class="bi bi-people-fill fs-3"></i>
+                <span class="fw-bold">\u05E6\u05E4\u05D4 \u05D1\u05EA\u05DC\u05DE\u05D9\u05D3</span>
               </a>
             </div>
           </div>

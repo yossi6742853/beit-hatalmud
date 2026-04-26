@@ -4453,3 +4453,8 @@ img.lazy-load.loaded {
     width: 100% !important;
   }
 }
+
+/* Haredi UX: larger text for readability */
+.card, .list-group-item, .table { font-size: 0.95rem; }
+.btn { font-size: 0.9rem; }
+h5, .h5 { font-size: 1.15rem; }
