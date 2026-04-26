@@ -172,17 +172,16 @@ Object.assign(Pages, {
   _orgDemoContacts: [],
 
   /* -- Init -- */
-  async organizationInit() {
+  organizationInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     // Gather real data where available, fallback to demo
     let students = [], staff = [], classes = [], committees = [], events = [], budget = [];
     try {
-      [students, staff, committees, events, budget] = await Promise.all([
-        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
-        App.getData('\u05E6\u05D5\u05D5\u05EA').catch(() => []),
-        App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA').catch(() => []),
-        App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
-        App.getData('\u05EA\u05E7\u05E6\u05D9\u05D1').catch(() => [])
-      ]);
+      students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      staff = _gc('\u05E6\u05D5\u05D5\u05EA');
+      committees = _gc('\u05D5\u05E2\u05D3\u05D5\u05EA');
+      events = _gc('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4');
+      budget = _gc('\u05EA\u05E7\u05E6\u05D9\u05D1');
     } catch(e) { /* use demo */ }
 
     const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
@@ -524,8 +523,9 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async tasksInit() {
-    this._taskData = await App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []);
+  tasksInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    this._taskData = _gc('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA');
     // Only use demo if explicitly toggled by user
     if ((!this._taskData || this._taskData.length === 0) && this._taskUseDemo) {
       this._taskData = this._getDemoTasks();
@@ -960,7 +960,7 @@ Object.assign(Pages, {
   // Demo data: 20 events across 3 months
   _calDemoEvents: [],
 
-  async calendarInit() {
+  calendarInit() {
     const d = new Date();
     this._calYear = d.getFullYear();
     this._calMonth = d.getMonth();
@@ -970,7 +970,7 @@ Object.assign(Pages, {
     // Set active view button
     document.getElementById('cal-view-month')?.classList.add('active');
     document.getElementById('cal-view-week')?.classList.remove('active');
-    await this.loadCalendar();
+    this.loadCalendar();
   },
 
   changeMonth(dir) {
@@ -1019,9 +1019,10 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async loadCalendar() {
+  loadCalendar() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let serverEvents = [];
-    try { serverEvents = await App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4'); } catch(e) { /* no data */ }
+    try { serverEvents = _gc('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4'); } catch(e) { /* no data */ }
     // Use API data if available, otherwise demo only if explicitly toggled
     this._calEvents = serverEvents.length ? serverEvents : (this._calUseDemo ? this._calDemoEvents : []);
     this.renderCalView();
@@ -1615,12 +1616,11 @@ Object.assign(Pages, {
 
   // ── Init ──
   async documentsInit() {
-    const [docs, students, staff, parents] = await Promise.all([
-      App.getData('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD').catch(()=>[]),
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
-      App.getData('\u05E6\u05D5\u05D5\u05EA').catch(()=>[]),
-      App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(()=>[])
-    ]);
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const docs = _gc('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD');
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const staff = _gc('\u05E6\u05D5\u05D5\u05EA');
+    const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
     this._docsData = docs;
     this._localDocs = this._getLocalDocs();
     this._studentsForDocs = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
@@ -2721,9 +2721,10 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async committeesInit() {
+  committeesInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
-      const raw = await App.getData('\u05D5\u05E2\u05D3\u05D5\u05EA');
+      const raw = _gc('\u05D5\u05E2\u05D3\u05D5\u05EA');
       this._commtData = raw && raw.length ? raw : (this._commtUseDemo ? this._commDemoCommittees : []);
     } catch(e) {
       this._commtData = this._commtUseDemo ? this._commDemoCommittees : [];
@@ -3309,8 +3310,9 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async tripsInit() {
-    let data = await App.getData('\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD');
+  tripsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    let data = _gc('\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD');
     if (!data || !data.length) data = this._tripUseDemo ? this._tripDemoData : [];
     this._tripData = data;
     this._updateTripStats();
@@ -3899,8 +3901,9 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
-  async institutionsInit() {
-    let data = await App.getData('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
+  institutionsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    let data = _gc('\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA');
     if (!data || !data.length) {
       data = this._instUseDemo ? this._instDemoData : [];
     }

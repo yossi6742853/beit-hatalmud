@@ -292,7 +292,8 @@ Object.assign(Pages, {
     });
   },
 
-  async loadReport(type) {
+  loadReport(type) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     const c = document.getElementById('rpt-content');
     if (!c) return;
     c.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
@@ -307,11 +308,10 @@ Object.assign(Pages, {
     } else {
       const needed = { overview:4, att_daily:2, att_monthly:2, finance:2, students_by_class:1, behavior:2 };
       const n = needed[type] || 4;
-      const fetches = [App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[])];
-      if (n >= 2) fetches.push(type.startsWith('att') || type==='overview' ? App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA').catch(()=>[]) : Promise.resolve([]));
-      if (n >= 2 && (type==='finance'||type==='overview')) fetches.push(App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3').catch(()=>[])); else fetches.push(Promise.resolve([]));
-      if (n >= 2 && (type==='behavior'||type==='overview')) fetches.push(App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA').catch(()=>[])); else fetches.push(Promise.resolve([]));
-      [students, att, fin, beh] = await Promise.all(fetches);
+      students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      att = (n >= 2 && (type.startsWith('att') || type==='overview')) ? _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA') : [];
+      fin = (n >= 2 && (type==='finance'||type==='overview')) ? _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3') : [];
+      beh = (n >= 2 && (type==='behavior'||type==='overview')) ? _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA') : [];
     }
 
     if (!this._rptUseDemo && !students.length && !att.length && !fin.length && !beh.length) {
@@ -1524,12 +1524,13 @@ Object.assign(Pages, {
     </div></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages.saveUser()">\u05E9\u05DE\u05D5\u05E8</button></div></div></div></div>`;
   },
   _umData: [],
-  async user_managementInit() {
+  user_managementInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     if (this._umUseDemo) {
       this._umData = this._umDemoData();
     } else {
       try {
-        const apiData = await App.getData('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
+        const apiData = _gc('\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD');
         this._umData = (apiData && apiData.length) ? apiData : [];
       } catch(e) {
         this._umData = [];
@@ -1634,12 +1635,13 @@ Object.assign(Pages, {
     return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA</h1></div><div class="d-flex gap-2"><input type="date" class="form-control form-control-sm" id="log-date" style="width:160px"><div class="search-box"><i class="bi bi-search"></i><input type="text" class="form-control form-control-sm" id="log-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9..." style="width:180px"></div></div></div><div id="log-list">${Utils.skeleton(5)}</div>`;
   },
   _logData: [],
-  async activity_logInit() {
+  activity_logInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     if (this._logUseDemo) {
       this._logData = this._logDemoData();
     } else {
       try {
-        const apiData = await App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
+        const apiData = _gc('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
         this._logData = (apiData && apiData.length) ? apiData : [];
       } catch(e) {
         this._logData = [];
