@@ -236,29 +236,17 @@ Object.assign(Pages, {
     `;
   },
 
-  /* ---- Dashboard Init: populate all sections with real API data ---- */
-  async dashboardInit() {
-    // Load ALL 6 sheets in parallel
-    let students, finance, attendance, calendar, tasks, activityLog;
-    try {
-      [students, finance, attendance, calendar, tasks, activityLog] = await Promise.all([
-        App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'),
-        App.getData('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3'),
-        App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'),
-        App.getData('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4').catch(() => []),
-        App.getData('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA').catch(() => []),
-        App.getData('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA').catch(() => [])
-      ]);
-    } catch(e) {
-      console.error('Dashboard data load error:', e);
-      students = []; finance = []; attendance = []; calendar = []; tasks = []; activityLog = [];
-    }
-    if (!students) students = [];
-    if (!finance) finance = [];
-    if (!attendance) attendance = [];
-    if (!calendar) calendar = [];
-    if (!tasks) tasks = [];
-    if (!activityLog) activityLog = [];
+  /* ---- Dashboard Init: populate all sections with real DATA_CACHE data ---- */
+  dashboardInit() {
+    // Helper: load from DATA_CACHE (sync, no API calls)
+    const _gc = (sheet) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[sheet]) ? DATA_CACHE[sheet] : [];
+
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const finance = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    const attendance = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+    const calendar = _gc('\u05DC\u05D5\u05D7_\u05E9\u05E0\u05D4');
+    const tasks = _gc('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA');
+    const activityLog = _gc('\u05D9\u05D5\u05DE\u05DF_\u05E4\u05E2\u05D9\u05DC\u05D5\u05EA');
 
     // --- Compute stats ---
     const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');

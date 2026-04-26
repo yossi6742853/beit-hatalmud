@@ -305,36 +305,29 @@ Object.assign(Pages, {
   /* ======================================================================
      INIT
      ====================================================================== */
-  async behaviorInit() {
-    // Try API first
-    try {
-      const apiData = await App.getData('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
-      if (apiData && apiData.length > 0) {
-        this._behData = apiData.map(r => ({
-          id: r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r),
-          '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
-          '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
-          '\u05DB\u05D9\u05EA\u05D4': r['\u05DB\u05D9\u05EA\u05D4'] || '',
-          '\u05EA\u05D0\u05E8\u05D9\u05DA': r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
-          '\u05E1\u05D5\u05D2': r['\u05E1\u05D5\u05D2'] || '',
-          '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '',
-          '\u05EA\u05D9\u05D0\u05D5\u05E8': r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '',
-          '\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA': parseInt(r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA'] || r['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '0', 10),
-          '\u05E6\u05D5\u05D5\u05EA': r['\u05E6\u05D5\u05D5\u05EA'] || ''
-        }));
-      } else if (this._behUseDemo) {
-        this._behGenerateDemo();
-        this._behData = this._behDemoData;
-      } else {
-        this._behData = [];
-      }
-    } catch (e) {
-      if (this._behUseDemo) {
-        this._behGenerateDemo();
-        this._behData = this._behDemoData;
-      } else {
-        this._behData = [];
-      }
+  behaviorInit() {
+    // Load from DATA_CACHE (sync, no API calls)
+    const _gc = (sheet) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[sheet]) ? DATA_CACHE[sheet] : [];
+
+    const apiData = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
+    if (apiData && apiData.length > 0) {
+      this._behData = apiData.map(r => ({
+        id: r.id || r['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(r),
+        '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
+        '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '',
+        '\u05DB\u05D9\u05EA\u05D4': r['\u05DB\u05D9\u05EA\u05D4'] || '',
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
+        '\u05E1\u05D5\u05D2': r['\u05E1\u05D5\u05D2'] || '',
+        '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '',
+        '\u05EA\u05D9\u05D0\u05D5\u05E8': r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '',
+        '\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA': parseInt(r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA'] || r['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '0', 10),
+        '\u05E6\u05D5\u05D5\u05EA': r['\u05E6\u05D5\u05D5\u05EA'] || ''
+      }));
+    } else if (this._behUseDemo) {
+      this._behGenerateDemo();
+      this._behData = this._behDemoData;
+    } else {
+      this._behData = [];
     }
 
     this._behFilter = { type: '', category: '', student: '', period: 'month' };
@@ -925,14 +918,9 @@ Object.assign(Pages, {
   /* ======================================================================
      QUICK ADD / SAVE / DELETE
      ====================================================================== */
-  async behQuickAdd(type, studentId, studentName) {
-    // Populate student dropdown
-    let students;
-    try {
-      students = await App.getData('תלמידים');
-    } catch (e) {
-      students = [];
-    }
+  behQuickAdd(type, studentId, studentName) {
+    // Populate student dropdown from DATA_CACHE (sync, no API calls)
+    let students = (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD']) ? DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'] : [];
     if ((!students || !students.length) && this._behUseDemo) students = this._behDemoStudents.map(s => ({ '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': s.name.split(' ')[0], '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': s.name.split(' ')[1] || '', '\u05DE\u05D6\u05D4\u05D4': s.id, _id: s.id }));
     if (!students || !students.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D1\u05DE\u05E2\u05E8\u05DB\u05EA', 'warning'); return; }
 

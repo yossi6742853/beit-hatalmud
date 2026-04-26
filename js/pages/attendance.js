@@ -236,15 +236,13 @@ Object.assign(Pages, {
   },
 
   /* ---- Init ---- */
-  async attendanceInit() {
-    let students, attendance;
-    try {
-      students = await App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
-      attendance = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-    } catch (e) {
-      students = [];
-      attendance = [];
-    }
+  attendanceInit() {
+    // Helper: load from DATA_CACHE (sync, no API calls)
+    const _gc = (sheet) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[sheet]) ? DATA_CACHE[sheet] : [];
+
+    let students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    let attendance = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+
     if (!students || !students.length) {
       if (this._attUseDemo) {
         this._attGenerateDemo();
@@ -983,7 +981,7 @@ Object.assign(Pages, {
   },
 
   _attmListenersAdded: false,
-  async attendance_monthlyInit() {
+  attendance_monthlyInit() {
     const d = new Date();
     document.getElementById('attm-month').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     if (!this._attmListenersAdded) {
@@ -993,15 +991,11 @@ Object.assign(Pages, {
     this.loadAttMonthly();
   },
 
-  async loadAttMonthly() {
+  loadAttMonthly() {
     const month = document.getElementById('attm-month').value;
     if (!month) return;
-    let att;
-    try {
-      att = await App.getData('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
-    } catch (e) {
-      att = [];
-    }
+    // Load from DATA_CACHE (sync, no API calls)
+    let att = (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA']) ? DATA_CACHE['\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA'] : [];
     if (!att || !att.length) {
       if (this._attUseDemo) {
         this._attGenerateDemo();
