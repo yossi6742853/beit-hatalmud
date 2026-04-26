@@ -950,25 +950,37 @@ Object.assign(Pages, {
       const beh = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
       const att = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
       const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
-      // Build per-student metrics
+      // Build per-student metrics keyed by name, also build id->name lookup
       const map = {};
+      const idToName = {};
       students.forEach(s => {
         const id = s['\u05DE\u05D6\u05D4\u05D4'] || Utils.rowId(s);
         const name = Utils.fullName(s);
         if (!name) return;
         map[name] = {id, name, cls: s['\u05DB\u05D9\u05EA\u05D4'] || '-', att: 0, _attTotal: 0, _attPresent: 0, gradeAvg: 0, _gradeSum: 0, _gradeCount: 0, behPts: 0, prevRank: 0};
+        if (id) idToName[id] = name;
       });
       att.forEach(a => {
-        const n = a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''; if (!n || !map[n]) return;
+        const n = a['\u05E9\u05DD'] || a['\u05EA\u05DC\u05DE\u05D9\u05D3'] || idToName[a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']] || ''; if (!n || !map[n]) return;
         map[n]._attTotal++; if (a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E0\u05D5\u05DB\u05D7') map[n]._attPresent++;
       });
+      // Grades link via תלמיד_מזהה (student ID) or שם field
       grades.forEach(g => {
-        const n = g['\u05E9\u05DD'] || ''; const sc = parseFloat(g['\u05E6\u05D9\u05D5\u05DF']); if (!n || !map[n] || isNaN(sc)) return;
+        const n = g['\u05E9\u05DD'] || idToName[g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']] || '';
+        const sc = parseFloat(g['\u05E6\u05D9\u05D5\u05DF']); if (!n || !map[n] || isNaN(sc)) return;
         map[n]._gradeSum += sc; map[n]._gradeCount++;
       });
       beh.forEach(r => {
-        const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || ''; if (!n || !map[n]) return;
-        if (r['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9') map[n].behPts++; else if (r['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') map[n].behPts--;
+        const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || idToName[r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']] || ''; if (!n || !map[n]) return;
+        // Use חומרה (severity) score if available, otherwise count by סוג
+        const severity = parseFloat(r['\u05D7\u05D5\u05DE\u05E8\u05D4']);
+        if (!isNaN(severity) && severity > 0) {
+          if (r['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') map[n].behPts -= severity;
+          else map[n].behPts += severity;
+        } else {
+          if (r['\u05E1\u05D5\u05D2'] === '\u05D7\u05D9\u05D5\u05D1\u05D9') map[n].behPts++;
+          else if (r['\u05E1\u05D5\u05D2'] === '\u05E9\u05DC\u05D9\u05DC\u05D9') map[n].behPts--;
+        }
       });
       Object.values(map).forEach(s => {
         s.att = s._attTotal ? Math.round(s._attPresent / s._attTotal * 100) : 0;

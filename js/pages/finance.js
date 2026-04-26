@@ -1758,6 +1758,41 @@ Object.assign(Pages, {
       } else {
         data = [];
       }
+    } else {
+      // Real data has fields: קטגוריה, שם_הוצאה, תקציב, ביצוע, שנה
+      // Update annual budget and category allocations from real data
+      const catAlloc = {};
+      let totalBudget = 0;
+      data.forEach(r => {
+        const cat = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '\u05D0\u05D7\u05E8';
+        const alloc = parseFloat(r['\u05EA\u05E7\u05E6\u05D9\u05D1']) || 0;
+        catAlloc[cat] = (catAlloc[cat] || 0) + alloc;
+        totalBudget += alloc;
+      });
+      this._budgAnnualBudget = totalBudget || 500000;
+      // Update existing categories or add new ones from real data
+      const defaultIcons = ['bi-folder','bi-cart','bi-gear','bi-house','bi-book','bi-three-dots'];
+      const defaultColors = ['#2563eb','#dc2626','#16a34a','#f59e0b','#8b5cf6','#06b6d4'];
+      let ci = 0;
+      Object.entries(catAlloc).forEach(([cat, alloc]) => {
+        if (this._budgCategories[cat]) {
+          this._budgCategories[cat].allocated = alloc;
+        } else {
+          this._budgCategories[cat] = { icon: defaultIcons[ci % defaultIcons.length], color: defaultColors[ci % defaultColors.length], allocated: alloc };
+          ci++;
+        }
+      });
+      // Map real records to expense-like rows for table/chart rendering
+      data = data.map(r => ({
+        '\u05DE\u05D6\u05D4\u05D4': r['\u05DE\u05D6\u05D4\u05D4'] || '',
+        '\u05EA\u05D0\u05E8\u05D9\u05DA': (r['\u05E9\u05E0\u05D4'] || new Date().getFullYear()) + '-01-01',
+        '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '\u05D0\u05D7\u05E8',
+        '\u05EA\u05D9\u05D0\u05D5\u05E8': r['\u05E9\u05DD_\u05D4\u05D5\u05E6\u05D0\u05D4'] || r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '',
+        '\u05E1\u05DB\u05D5\u05DD': parseFloat(r['\u05D1\u05D9\u05E6\u05D5\u05E2']) || 0,
+        '\u05E1\u05E4\u05E7': '',
+        '\u05DE\u05E1\u05E4\u05E8_\u05E7\u05D1\u05DC\u05D4': '',
+        _budget: parseFloat(r['\u05EA\u05E7\u05E6\u05D9\u05D1']) || 0
+      }));
     }
     this._budgData = data;
     this._budgFilteredData = [...data];
