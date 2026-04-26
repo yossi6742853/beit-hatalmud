@@ -12,7 +12,8 @@ Object.assign(Pages, {
     { id: 'empty_attendance',name: 'טופס נוכחות ריק',    icon: 'bi-check2-square',    color: 'success',  desc: 'טופס נוכחות ריק להדפסה עם שמות תלמידים ותיבות סימון' },
     { id: 'registration',   name: 'טופס רישום חדש',     icon: 'bi-pencil-square',     color: 'danger',   desc: 'טופס רישום ריק לתלמיד חדש — להדפסה ומילוי ידני' },
     { id: 'phone_list',     name: 'מספרי טלפון לפי כיתה', icon: 'bi-telephone-fill',   color: 'teal',     desc: 'ספר טלפונים להדפסה — תלמידים והורים לפי כיתה' },
-    { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' }
+    { id: 'attendance_monthly', name: 'דוח נוכחות חודשי', icon: 'bi-calendar2-range-fill', color: 'success', desc: 'טבלת נוכחות חודשית — שורה לתלמיד, עמודה לכל יום בחודש' },
+    { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' }
   ],
 
   /* ---------- demo data ---------- */
@@ -388,6 +389,14 @@ Object.assign(Pages, {
       }
     } catch (e) { /* optional */ }
 
+    // Load behavior data for behavior report
+    try {
+      const behRaw = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
+      if (behRaw && behRaw.length) {
+        this._pcBehaviorData = behRaw;
+      }
+    } catch (e) { /* optional */ }
+
     // Pre-populate batch student list
     this._pcBatchFilterStudents();
   },
@@ -420,7 +429,7 @@ Object.assign(Pages, {
     document.getElementById('pc-letter-body-wrap').style.display = tplId === 'parent_letter' ? '' : 'none';
     document.getElementById('pc-invoice-wrap').style.display = tplId === 'invoice' ? '' : 'none';
     var monthWrap = document.getElementById('pc-month-wrap');
-    if (monthWrap) monthWrap.style.display = tplId === 'attendance_monthly' ? '' : 'none';
+    if (monthWrap) monthWrap.style.display = (tplId === 'attendance_monthly' || tplId === 'behavior_report') ? '' : 'none';
 
     // For registration/phone_list, hide student selector since not needed
     const hideStudentSel = tplId === 'registration' || tplId === 'phone_list';
@@ -784,6 +793,7 @@ Object.assign(Pages, {
       case 'empty_attendance': return this._pcBuildEmptyAttendance(opts);
       case 'phone_list':      return this._pcBuildPhoneList(opts);
       case 'attendance_monthly': return this._pcBuildAttendanceMonthly(opts);
+      case 'behavior_report':    return this._pcBuildBehaviorReport(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1523,6 +1533,100 @@ Object.assign(Pages, {
         ${this._pcDocFooter(opts)}
       </div>
     `;
+  },
+
+  /* --- Behavior Report (monthly) --- */
+  _pcBuildBehaviorReport(opts) {
+    var behData = this._pcBehaviorData || [];
+    var month = opts.month || new Date().toISOString().slice(0, 7); // "YYYY-MM"
+    var cls = opts.cls || '';
+
+    // Filter by selected month
+    var monthRows = behData.filter(function(r) {
+      var d = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      if (!d) return false;
+      // Support both YYYY-MM-DD and DD/MM/YYYY formats
+      var dateStr = '';
+      if (d.indexOf('-') !== -1) {
+        dateStr = d.slice(0, 7);
+      } else if (d.indexOf('/') !== -1) {
+        var parts = d.split('/');
+        if (parts.length >= 3) dateStr = parts[2] + '-' + parts[1].padStart(2, '0');
+      }
+      return dateStr === month;
+    });
+
+    // Filter by class if selected
+    if (cls) {
+      monthRows = monthRows.filter(function(r) { return (r['\u05DB\u05D9\u05EA\u05D4'] || '') === cls; });
+    }
+
+    // Aggregate per student
+    var studentMap = {};
+    monthRows.forEach(function(r) {
+      var name = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || r['\u05E9\u05DD'] || r['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+      if (!studentMap[name]) studentMap[name] = { positive: 0, negative: 0, lastDate: '', lastDesc: '' };
+      var type = (r['\u05E1\u05D5\u05D2'] || '').trim();
+      var pts = parseInt(r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA'] || r['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '0', 10);
+      var isPositive = type === '\u05D7\u05D9\u05D5\u05D1\u05D9' || pts > 0;
+      var isNegative = type === '\u05E9\u05DC\u05D9\u05DC\u05D9' || pts < 0;
+      if (isPositive) studentMap[name].positive += Math.abs(pts) || 1;
+      else if (isNegative) studentMap[name].negative += Math.abs(pts) || 1;
+      else if (pts > 0) studentMap[name].positive += pts;
+      else if (pts < 0) studentMap[name].negative += Math.abs(pts);
+
+      var dt = r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      if (dt > studentMap[name].lastDate) {
+        studentMap[name].lastDate = dt;
+        studentMap[name].lastDesc = r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '';
+      }
+    });
+
+    var students = Object.keys(studentMap).sort();
+    var monthLabel = month; // e.g. "2026-04"
+    try {
+      var mParts = month.split('-');
+      var hebrewMonths = ['\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8\u05D9\u05DC','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0\u05D9','\u05D9\u05D5\u05DC\u05D9','\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8','\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8','\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8','\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8','\u05D3\u05E6\u05DE\u05D1\u05E8'];
+      monthLabel = hebrewMonths[parseInt(mParts[1], 10) - 1] + ' ' + mParts[0];
+    } catch(e) {}
+
+    return '\
+      <div class="pc-doc">\
+        ' + this._pcDocHeader(opts, '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9' + (cls ? ' \u2014 ' + cls : '')) + '\
+        <div class="pc-body">\
+          <div class="pc-field"><span class="pc-field-label">\u05D7\u05D5\u05D3\u05E9:</span> ' + monthLabel + '</div>\
+          <div class="pc-field"><span class="pc-field-label">\u05E1\u05D4"\u05DB \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD:</span> ' + monthRows.length + '</div>\
+          <div class="pc-field"><span class="pc-field-label">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:</span> ' + students.length + '</div>\
+          ' + (students.length === 0
+            ? '<p style="text-align:center;color:#999;margin-top:20px">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05DC\u05D7\u05D5\u05D3\u05E9 \u05D6\u05D4</p>'
+            : '<table class="pc-table">\
+              <thead><tr>\
+                <th style="width:30px">#</th>\
+                <th>\u05E9\u05DD \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3</th>\
+                <th style="text-align:center">\u05D7\u05D9\u05D5\u05D1\u05D9</th>\
+                <th style="text-align:center">\u05E9\u05DC\u05D9\u05DC\u05D9</th>\
+                <th style="text-align:center">\u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5</th>\
+                <th>\u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF</th>\
+              </tr></thead>\
+              <tbody>' + students.map(function(name, i) {
+                var s = studentMap[name];
+                var net = s.positive - s.negative;
+                var netColor = net > 0 ? '#198754' : net < 0 ? '#dc3545' : '#666';
+                var netSign = net > 0 ? '+' : '';
+                return '<tr>\
+                  <td>' + (i + 1) + '</td>\
+                  <td style="font-weight:600">' + name + '</td>\
+                  <td style="text-align:center;color:#198754;font-weight:600">' + s.positive + '</td>\
+                  <td style="text-align:center;color:#dc3545;font-weight:600">' + s.negative + '</td>\
+                  <td style="text-align:center;font-weight:700;color:' + netColor + '">' + netSign + net + '</td>\
+                  <td style="font-size:.85rem;color:#555">' + (s.lastDesc || '\u2014') + ' <small style="color:#999">(' + (s.lastDate || '') + ')</small></td>\
+                </tr>';
+              }).join('') + '</tbody>\
+            </table>') + '\
+        </div>\
+        ' + this._pcDocFooter(opts) + '\
+      </div>\
+    ';
   },
 
 });

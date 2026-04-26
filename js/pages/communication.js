@@ -92,15 +92,11 @@ Object.assign(Pages, {
     `;
   },
 
-  async parentsInit() {
-    const [parents, students, commLog] = await Promise.all([
-      App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => []),
-      App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(() => []),
-      App.getData('\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA_\u05D4\u05D5\u05E8\u05D9\u05DD').catch(() => [])
-    ]);
-    this._parData = parents || [];
-    this._parStudents = students || [];
-    this._parCommLog = commLog || [];
+  parentsInit() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    this._parData = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+    this._parStudents = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    this._parCommLog = _gc('\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA_\u05D4\u05D5\u05E8\u05D9\u05DD');
     this._parMeetings = [];
     this._parTab = 'cards';
     this._parSearch = '';
