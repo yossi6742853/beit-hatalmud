@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v6.5-0426b';
+const CACHE_VERSION = 'bht-v6.6-0426';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -8,8 +8,13 @@ const ASSETS = [
   './index.html',
   './form.html',
   './manifest.json',
-  // CSS
+  // CSS + vendor
   './css/style.css',
+  './css/vendor/bootstrap.rtl.min.css',
+  './css/vendor/bootstrap-icons.css',
+  // Vendor JS
+  './js/vendor/bootstrap.bundle.min.js',
+  './js/vendor/chart.umd.min.js',
   // Core JS
   './js/data-cache.js',
   './js/app.js',
@@ -60,6 +65,7 @@ const ASSETS = [
   './js/pages/homework.js',
   './js/pages/paymentplans.js',
   './js/pages/printcenter.js',
+  './js/pages/tala.js',
   // Icons & images
   './icons/icon-192.png',
   './icons/icon-512.png',
