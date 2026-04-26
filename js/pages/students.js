@@ -1075,8 +1075,45 @@ Object.assign(Pages, {
               <div class="col-sm-6"><label class="form-label text-muted small">\u05DE\u05E1\u05D2\u05E8\u05EA</label><div class="fw-bold">${s['\u05DE\u05E1\u05D2\u05E8\u05EA'] || '--'}</div></div>
               ${s['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? `<div class="col-12"><label class="form-label text-muted small">\u05D4\u05E2\u05E8\u05D5\u05EA</label><div class="p-2 bg-light rounded">${s['\u05D4\u05E2\u05E8\u05D5\u05EA']}</div></div>` : ''}
             </div>
-            ${studentMed.length > 0 ? `<hr><h6 class="fw-bold mb-2"><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h6>
-              <div class="list-group">${studentMed.map(m => `<div class="list-group-item"><div class="fw-bold">${m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||''}</div><small class="text-muted">${m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']||''}</small></div>`).join('')}</div>` : ''}
+            ${(() => {
+              // --- Medical Info Section ---
+              const allergies = studentMed.filter(m => (m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||'').includes('\u05D0\u05DC\u05E8\u05D2') || (m['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||'') === '\u05D0\u05DC\u05E8\u05D2\u05D9\u05D4');
+              const medications = studentMed.filter(m => (m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||'').includes('\u05EA\u05E8\u05D5\u05E4') || (m['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4']||'') === '\u05EA\u05E8\u05D5\u05E4\u05D4');
+              const otherMed = studentMed.filter(m => !allergies.includes(m) && !medications.includes(m));
+              // Emergency contact from parents
+              const emergencyParent = studentParents.length ? studentParents[0] : null;
+              const emergencyPhone = emergencyParent ? (emergencyParent['\u05D8\u05DC\u05E4\u05D5\u05DF']||emergencyParent['\u05E0\u05D9\u05D9\u05D3']||'') : '';
+              const emergencyName = emergencyParent ? (emergencyParent['\u05E9\u05DD']||emergencyParent['\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4']||(emergencyParent['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'')+' '+(emergencyParent['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')) : '';
+              const hasAny = studentMed.length > 0 || emergencyParent;
+              if (!hasAny) return '';
+              let html = '<hr><h6 class="fw-bold mb-3"><i class="bi bi-heart-pulse me-2"></i>\u05DE\u05D9\u05D3\u05E2 \u05E8\u05E4\u05D5\u05D0\u05D9</h6>';
+              // Allergies (red)
+              if (allergies.length) {
+                html += '<div class="alert alert-danger py-2 px-3 mb-2 d-flex align-items-start gap-2"><i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i><div><strong>\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA</strong><ul class="mb-0 mt-1">' +
+                  allergies.map(m => '<li>' + (m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']||m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||'') + '</li>').join('') +
+                  '</ul></div></div>';
+              }
+              // Medications (yellow)
+              if (medications.length) {
+                html += '<div class="alert alert-warning py-2 px-3 mb-2 d-flex align-items-start gap-2"><i class="bi bi-capsule fs-5 mt-1"></i><div><strong>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA</strong><ul class="mb-0 mt-1">' +
+                  medications.map(m => '<li>' + (m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']||m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||'') + (m['\u05DE\u05D9\u05E0\u05D5\u05DF']||m['\u05DE\u05D9\u05E0\u05D5\u05DF_\u05EA\u05E8\u05D5\u05E4\u05D4'] ? ' <small class="text-muted">(\u05DE\u05D9\u05E0\u05D5\u05DF: ' + (m['\u05DE\u05D9\u05E0\u05D5\u05DF']||m['\u05DE\u05D9\u05E0\u05D5\u05DF_\u05EA\u05E8\u05D5\u05E4\u05D4']||'') + ')</small>' : '') + '</li>').join('') +
+                  '</ul></div></div>';
+              }
+              // Other medical notes
+              if (otherMed.length) {
+                html += '<div class="alert alert-info py-2 px-3 mb-2 d-flex align-items-start gap-2"><i class="bi bi-clipboard2-pulse fs-5 mt-1"></i><div><strong>\u05DE\u05D9\u05D3\u05E2 \u05E0\u05D5\u05E1\u05E3</strong><div class="list-group list-group-flush mt-1">' +
+                  otherMed.map(m => '<div class="list-group-item px-0 py-1 border-0"><span class="fw-bold">' + (m['\u05E1\u05D5\u05D2']||m['\u05E0\u05D5\u05E9\u05D0']||'\u05DB\u05DC\u05DC\u05D9') + '</span>' + (m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA'] ? ' - <span class="text-muted">' + (m['\u05EA\u05D9\u05D0\u05D5\u05E8']||m['\u05D4\u05E2\u05E8\u05D5\u05EA']||'') + '</span>' : '') + '</div>').join('') +
+                  '</div></div></div>';
+              }
+              // Emergency contact
+              if (emergencyParent) {
+                html += '<div class="card border-dark bg-light p-2 mb-2"><div class="d-flex align-items-center gap-2"><i class="bi bi-telephone-fill text-danger"></i><div><strong>\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD:</strong> ' + emergencyName.trim() +
+                  (emergencyPhone ? ' <a href="tel:' + emergencyPhone + '" class="ms-2"><i class="bi bi-telephone me-1"></i>' + Utils.formatPhone(emergencyPhone) + '</a>' : '') +
+                  (emergencyParent['\u05E7\u05E8\u05D1\u05D4']||'' ? ' <span class="badge bg-secondary ms-1">' + emergencyParent['\u05E7\u05E8\u05D1\u05D4'] + '</span>' : '') +
+                  '</div></div></div>';
+              }
+              return html;
+            })()}
           </div>
         </div>
 

@@ -874,8 +874,27 @@ Object.assign(Pages, {
   staff_salaryInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let realData = [];
-    try { realData = _gc('שכר_צוות'); } catch (e) {}
-    this._salData = (realData && realData.length > 0) ? realData : [];
+    try { realData = _gc('\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA'); } catch (e) {}
+    // Resolve real staff names from צוות sheet
+    let staffList = [];
+    try { staffList = _gc('\u05E6\u05D5\u05D5\u05EA'); } catch (e) {}
+    const staffMap = {};
+    (staffList || []).forEach(st => {
+      const sid = String(Utils.rowId(st) || st['id'] || '');
+      if (sid) staffMap[sid] = st;
+    });
+    // Enrich salary rows with real staff names/roles
+    this._salData = ((realData && realData.length > 0) ? realData : []).map(r => {
+      const ref = String(r['\u05E6\u05D5\u05D5\u05EA_\u05DE\u05D6\u05D4\u05D4'] || r['\u05E6\u05D5\u05D5\u05EA'] || r['staff_id'] || '');
+      const staffRec = staffMap[ref];
+      if (staffRec && !r['\u05E9\u05DD']) {
+        r['\u05E9\u05DD'] = Utils.fullName ? Utils.fullName(staffRec) : (staffRec['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (staffRec['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '');
+      }
+      if (staffRec && !r['\u05EA\u05E4\u05E7\u05D9\u05D3']) {
+        r['\u05EA\u05E4\u05E7\u05D9\u05D3'] = staffRec['\u05EA\u05E4\u05E7\u05D9\u05D3'] || '';
+      }
+      return r;
+    });
     // Build monthly data from real salary records (grouped by חודש field)
     this._salMonthlyData = this._buildMonthlyFromData(this._salData);
     this._salPaymentFilter = 'all';
@@ -951,11 +970,13 @@ Object.assign(Pages, {
   /* ---------- Main render ---------- */
   renderSalary() {
     const search = (document.getElementById('sal-search')?.value || '').trim().toLowerCase();
+    const monthFilter = document.getElementById('sal-month')?.value || '';
     const payFilter = this._salPaymentFilter || 'all';
 
     let data = (this._salData || []).filter(r => {
-      if (search && !(r['שם'] || '').toLowerCase().includes(search) && !(r['תפקיד'] || '').toLowerCase().includes(search)) return false;
-      if (payFilter !== 'all' && (r['סטטוס_תשלום'] || 'ממתין') !== payFilter) return false;
+      if (search && !(r['\u05E9\u05DD'] || '').toLowerCase().includes(search) && !(r['\u05EA\u05E4\u05E7\u05D9\u05D3'] || '').toLowerCase().includes(search)) return false;
+      if (monthFilter && (r['\u05D7\u05D5\u05D3\u05E9'] || '').substring(0, 7) !== monthFilter) return false;
+      if (payFilter !== 'all' && (r['\u05E1\u05D8\u05D8\u05D5\u05E1_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '\u05DE\u05DE\u05EA\u05D9\u05DF') !== payFilter) return false;
       return true;
     });
 
