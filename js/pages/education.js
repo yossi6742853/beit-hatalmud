@@ -1429,14 +1429,50 @@ Object.assign(Pages, {
   async mivtzaInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._mvzActiveTab = 'active';
-    // Try loading from cache
+    // Try loading real data from cache
     const data = _gc('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
     if (data && data.length) {
       this._mvzData = data;
-      this._mvzCampaigns = data;
+      // Build campaigns from unique \u05E9\u05D1\u05D5\u05E2 values
+      const weekMap = {};
+      data.forEach(row => {
+        const week = row['\u05E9\u05D1\u05D5\u05E2'] || '';
+        if (!week) return;
+        if (!weekMap[week]) weekMap[week] = [];
+        weekMap[week].push(row);
+      });
+      const weekNames = Object.keys(weekMap);
+      // Build campaign objects — last week is active, rest are completed
+      this._mvzCampaigns = weekNames.map((wk, i) => ({
+        id: 'wk_' + i,
+        name: wk,
+        subject: '\u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3',
+        targetPages: 20,
+        startDate: '',
+        endDate: '',
+        prize: '\u05E4\u05E8\u05E1 \u05DC\u05DE\u05E9\u05DC\u05D9\u05DE\u05D9 \u05D4\u05D9\u05E2\u05D3',
+        status: i === weekNames.length - 1 ? '\u05E4\u05E2\u05D9\u05DC' : '\u05D4\u05D5\u05E9\u05DC\u05DD'
+      }));
+      // Build progress entries from raw rows
       this._mvzProgress = [];
-      const prog = _gc('\u05DE\u05D1\u05E6\u05E2_\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA');
-      if (prog && prog.length) this._mvzProgress = prog;
+      weekNames.forEach((wk, i) => {
+        weekMap[wk].forEach(row => {
+          const total = (parseInt(row['\u05E9\u05D7\u05E8\u05D9\u05EA']) || 0)
+            + (parseInt(row['\u05DE\u05E0\u05D7\u05D4']) || 0)
+            + (parseInt(row['\u05DE\u05E2\u05E8\u05D9\u05D1']) || 0)
+            + (parseInt(row['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']) || 0)
+            + (parseInt(row['\u05D7\u05D1\u05E8\u05D5\u05EA\u05D0']) || 0)
+            + (parseInt(row['\u05E2\u05D6\u05E8\u05D4_\u05D1\u05D1\u05D9\u05EA']) || 0);
+          this._mvzProgress.push({
+            id: row['\u05DE\u05D6\u05D4\u05D4'] || ('p_' + Date.now() + Math.random()),
+            campaignId: 'wk_' + i,
+            studentName: row['\u05E9\u05DD'] || '',
+            pages: total,
+            date: wk,
+            note: row['\u05D4\u05E2\u05E8\u05D5\u05EA'] || ''
+          });
+        });
+      });
       this.renderMvzStats();
       this.renderMvzActiveTab();
       return;

@@ -138,23 +138,70 @@ Object.assign(Pages, {
     this._notifFilter = 'all';
     this._notifDetailId = null;
 
-    // Try syncing from API
-    try {
-      const apiData = _gc('התראות');
-      if (apiData && apiData.length) {
-        const mapped = apiData.map(row => ({
-          id: row._id || row.id || Date.now(),
-          type: row['סוג'] || row.type || 'system',
-          title: row['כותרת'] || row.title || '',
-          desc: row['תיאור'] || row.desc || '',
-          ts: row['זמן'] ? new Date(row['זמן']).getTime() : (row.ts || Date.now()),
-          read: row['נקרא'] === 'כן' || row.read === true,
-          important: row['חשוב'] === 'כן' || row.important === true,
-          archived: row['ארכיון'] === 'כן' || row.archived === true
-        }));
-        this._saveNotifications(mapped);
-      }
-    } catch(e) { /* keep localStorage data */ }
+    // Build notifications from real DATA_CACHE sheets
+    const events = [];
+    let idCounter = 1;
+
+    // Attendance records
+    const att = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
+    att.forEach(row => {
+      const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      const ts = date ? new Date(date).getTime() : 0;
+      if (!ts) return;
+      const status = row['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
+      const name = row['\u05E9\u05DD'] || '';
+      const cls = row['\u05DB\u05D9\u05EA\u05D4'] || '';
+      const statusLabel = status === '\u05E0\u05D5\u05DB\u05D7' ? '\u05E0\u05D5\u05DB\u05D7' : status === '\u05D7\u05D9\u05E1\u05D5\u05E8' ? '\u05D7\u05D9\u05E1\u05D5\u05E8' : status;
+      events.push({
+        id: idCounter++, type: 'attendance',
+        title: statusLabel + ' \u2014 ' + name,
+        desc: '\u05DB\u05D9\u05EA\u05D4 ' + cls + (row['\u05D4\u05E2\u05E8\u05D4'] ? ' | ' + row['\u05D4\u05E2\u05E8\u05D4'] : ''),
+        ts, read: false, important: status !== '\u05E0\u05D5\u05DB\u05D7', archived: false
+      });
+    });
+
+    // Behavior records
+    const beh = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
+    beh.forEach(row => {
+      const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
+      const ts = date ? new Date(date).getTime() : 0;
+      const name = row['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      const kind = row['\u05E1\u05D5\u05D2'] || '';
+      const severity = row['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '';
+      events.push({
+        id: idCounter++, type: 'academic',
+        title: '\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: ' + name,
+        desc: kind + (severity ? ' (\u05D7\u05D5\u05DE\u05E8\u05D4 ' + severity + ')' : '') + (row['\u05EA\u05D9\u05D0\u05D5\u05E8'] ? ' \u2014 ' + row['\u05EA\u05D9\u05D0\u05D5\u05E8'] : ''),
+        ts: ts || Date.now() - idCounter * 60000, read: false,
+        important: kind !== '\u05D7\u05D9\u05D5\u05D1\u05D9', archived: false
+      });
+    });
+
+    // Finance / tuition records
+    const fin = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    fin.forEach(row => {
+      const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
+      const ts = date ? new Date(date).getTime() : 0;
+      const name = row['\u05E9\u05DD'] || '';
+      const amount = row['\u05E1\u05DB\u05D5\u05DD'] || '';
+      const status = row['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
+      const method = row['\u05D0\u05DE\u05E6\u05E2\u05D9_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
+      events.push({
+        id: idCounter++, type: 'finance',
+        title: '\u05EA\u05E9\u05DC\u05D5\u05DD: ' + name,
+        desc: amount + ' \u20AA' + (status ? ' | ' + status : '') + (method ? ' | ' + method : ''),
+        ts: ts || Date.now() - idCounter * 60000, read: false,
+        important: false, archived: false
+      });
+    });
+
+    // Sort by date desc, take last 20
+    events.sort((a, b) => b.ts - a.ts);
+    const top20 = events.slice(0, 20);
+
+    if (top20.length) {
+      this._saveNotifications(top20);
+    }
 
     this._renderNotifList();
   },
