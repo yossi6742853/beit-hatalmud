@@ -1241,8 +1241,8 @@ Object.assign(Pages, {
                 ${pAddress ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-geo-alt text-muted"></i><span>${pAddress}</span></div>` : ''}
                 ${pWork ? `<div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-briefcase text-muted"></i><span>${pWork}</span></div>` : ''}
                 <div class="d-flex gap-2 mt-2">
-                  ${pPhone ? `<a href="${waLink(pPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
-                  ${pPhone ? `<a href="tel:${pPhone}" class="btn btn-outline-primary btn-sm"><i class="bi bi-telephone me-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8</a>` : ''}
+                  ${pPhone ? `<a href="tel:${pPhone}" class="btn btn-primary btn-sm"><i class="bi bi-telephone me-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8</a>` : ''}
+                  ${pPhone ? `<a href="sms:${pPhone}" class="btn btn-outline-primary btn-sm"><i class="bi bi-chat-dots me-1"></i>SMS</a>` : ''}
                   ${pEmail ? `<a href="mailto:${pEmail}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-envelope me-1"></i>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</a>` : ''}
                 </div>
               </div></div>`;
