@@ -22,7 +22,8 @@ Object.assign(Pages, {
     { id: 'staff_salary',       name: '\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD', icon: 'bi-cash-coin',          color: 'info',     desc: '\u05E8\u05D9\u05DB\u05D5\u05D6 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9 \u2014 \u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1, \u05E0\u05E1\u05D9\u05E2\u05D5\u05EA, \u05E4\u05E0\u05E1\u05D9\u05D4' },
     { id: 'mivtza_report',     name: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3', icon: 'bi-trophy-fill',        color: 'warning',  desc: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 "\u05D9\u05EA\u05D2\u05D1\u05E8 \u05DB\u05D0\u05E8\u05D9" \u2014 \u05E9\u05D7\u05E8\u05D9\u05EA, \u05DE\u05E0\u05D7\u05D4, \u05DE\u05E2\u05E8\u05D9\u05D1, \u05D7\u05D1\u05E8\u05D5\u05EA\u05D0, \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA' },
     { id: 'staff_directory',   name: '\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05E6\u05D5\u05D5\u05EA', icon: 'bi-person-lines-fill',  color: 'teal',     desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05EA\u05E4\u05E7\u05D9\u05D3, \u05D5\u05EA\u05D7\u05D5\u05DD \u05D0\u05D7\u05E8\u05D9\u05D5\u05EA' },
-    { id: 'daily_summary',    name: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9',       icon: 'bi-calendar-day',       color: 'purple',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9 \u05DE\u05E8\u05D5\u05DB\u05D6 \u2014 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D5\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA' }
+    { id: 'daily_summary',    name: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9',       icon: 'bi-calendar-day',       color: 'purple',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9 \u05DE\u05E8\u05D5\u05DB\u05D6 \u2014 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D5\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA' },
+    { id: 'parent_directory', name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-people-fill',        color: 'primary',  desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05E7\u05E9\u05E8 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D5\u05E2\u05D9\u05E1\u05D5\u05E7' }
   ],
 
   /* ---------- demo data ---------- */
@@ -836,6 +837,7 @@ Object.assign(Pages, {
       case 'mivtza_report':      return this._pcBuildMivtzaReport(opts);
       case 'staff_directory':    return this._pcBuildStaffDirectory(opts);
       case 'daily_summary':      return this._pcBuildDailySummary(opts);
+      case 'parent_directory':   return this._pcBuildParentDirectory(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1947,6 +1949,47 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Parent Directory Template ---------- */
+  _pcBuildParentDirectory(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const today = new Date().toLocaleDateString('he-IL');
+    if (!parents.length) return '<div style="text-align:center;padding:40px;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD</div>';
+
+    const rows = parents.map((p, i) => {
+      const sid = p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '';
+      const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4']||'') === sid);
+      const sName = student ? ((student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'')+' '+(student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim() : '';
+      const cls = student ? (student['\u05DB\u05D9\u05EA\u05D4']||'') : '';
+      return `<tr>
+        <td>${i+1}</td>
+        <td style="font-weight:bold">${p['\u05E9\u05DD']||''}</td>
+        <td>${p['\u05E7\u05E9\u05E8']||''}</td>
+        <td dir="ltr">${p['\u05D8\u05DC\u05E4\u05D5\u05DF']||''}</td>
+        <td>${sName}</td>
+        <td>${cls}</td>
+        <td style="font-size:11px">${p['\u05E2\u05D9\u05E1\u05D5\u05E7']||''}</td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD</h2>
+          <h3 style="margin:5px 0;color:#2563eb">\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD</h3>
+          <p style="color:#666">${today} | ${parents.length} \u05D4\u05D5\u05E8\u05D9\u05DD</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="5">
+          <thead style="background:#dbeafe;font-weight:bold">
+            <tr><th>#</th><th>\u05E9\u05DD \u05D4\u05D5\u05E8\u05D4</th><th>\u05E7\u05E9\u05E8</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05E2\u05D9\u05E1\u05D5\u05E7</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">02-547-6989 | \u05E0\u05D4\u05E8 \u05D4\u05D9\u05E8\u05D3\u05DF 106, \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9</p>
+      </div>`;
   },
 
   /* ---------- Daily Summary Template ---------- */
