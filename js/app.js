@@ -815,7 +815,10 @@ const App = {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'dark' ? 'light' : 'dark';
     localStorage.setItem(this.THEME_KEY, next);
+    // Smooth transition
+    document.documentElement.style.transition = 'background-color .3s, color .3s';
     this.applyTheme();
+    setTimeout(() => { document.documentElement.style.transition = ''; }, 400);
   },
 
   /* ==============================
