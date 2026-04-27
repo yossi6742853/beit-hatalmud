@@ -4371,3 +4371,12 @@ h5, .h5 { font-size: 1.15rem; }
   #main-content { width: 100% !important; }
   body { font-size: 12pt; }
 }
+
+/* ===== Email Badge Pulse ===== */
+#sidebar-email-badge:not(:empty) {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
