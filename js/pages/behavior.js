@@ -127,7 +127,10 @@ Object.assign(Pages, {
           <i class="bi bi-dash-circle me-1"></i>שלילי
         </button>
         <button class="btn btn-outline-primary btn-sm" onclick="Pages.behExport()">
-          <i class="bi bi-download me-1"></i>ייצוא
+          <i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0
+        </button>
+        <button class="btn btn-outline-info btn-sm" onclick="Pages.behCopySummary()">
+          <i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7
         </button>
       </div>
     </div>
@@ -1050,6 +1053,23 @@ Object.assign(Pages, {
   /* ======================================================================
      EXPORT
      ====================================================================== */
+  behCopySummary() {
+    const rows = this._behFiltered();
+    if (!rows.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD', 'warning'); return; }
+    const positive = rows.filter(r => (r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||0) > 0).length;
+    const negative = rows.filter(r => (r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||0) < 0).length;
+    const neutral = rows.length - positive - negative;
+    // Top students
+    const studentPoints = {};
+    rows.forEach(r => { const n = r['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']||''; studentPoints[n] = (studentPoints[n]||0) + (r['\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA']||0); });
+    const sorted = Object.entries(studentPoints).sort((a,b) => b[1]-a[1]);
+    const top3 = sorted.slice(0,3).map(([n,p]) => `${n}: ${p}`).join(', ');
+    let text = `\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA (${rows.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA)\n`;
+    text += `\u05D7\u05D9\u05D5\u05D1\u05D9: ${positive} | \u05E9\u05DC\u05D9\u05DC\u05D9: ${negative} | \u05E0\u05D9\u05D8\u05E8\u05DC\u05D9: ${neutral}\n`;
+    if (top3) text += `\u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD: ${top3}\n`;
+    navigator.clipboard.writeText(text).then(() => Utils.toast('\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7', 'success'));
+  },
+
   behExport() {
     const rows = this._behFiltered();
     if (!rows.length) { Utils.toast('אין נתונים לייצוא', 'warning'); return; }
