@@ -21,7 +21,8 @@ Object.assign(Pages, {
     { id: 'pettycash_report',   name: '\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4',  icon: 'bi-wallet2',             color: 'success',  desc: '\u05D3\u05D5\u05D7 \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05DE\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D5\u05D7\u05D5\u05D3\u05E9' },
     { id: 'staff_salary',       name: '\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD', icon: 'bi-cash-coin',          color: 'info',     desc: '\u05E8\u05D9\u05DB\u05D5\u05D6 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9 \u2014 \u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1, \u05E0\u05E1\u05D9\u05E2\u05D5\u05EA, \u05E4\u05E0\u05E1\u05D9\u05D4' },
     { id: 'mivtza_report',     name: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3', icon: 'bi-trophy-fill',        color: 'warning',  desc: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 "\u05D9\u05EA\u05D2\u05D1\u05E8 \u05DB\u05D0\u05E8\u05D9" \u2014 \u05E9\u05D7\u05E8\u05D9\u05EA, \u05DE\u05E0\u05D7\u05D4, \u05DE\u05E2\u05E8\u05D9\u05D1, \u05D7\u05D1\u05E8\u05D5\u05EA\u05D0, \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA' },
-    { id: 'staff_directory',   name: '\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05E6\u05D5\u05D5\u05EA', icon: 'bi-person-lines-fill',  color: 'teal',     desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05EA\u05E4\u05E7\u05D9\u05D3, \u05D5\u05EA\u05D7\u05D5\u05DD \u05D0\u05D7\u05E8\u05D9\u05D5\u05EA' }
+    { id: 'staff_directory',   name: '\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05E6\u05D5\u05D5\u05EA', icon: 'bi-person-lines-fill',  color: 'teal',     desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05EA\u05E4\u05E7\u05D9\u05D3, \u05D5\u05EA\u05D7\u05D5\u05DD \u05D0\u05D7\u05E8\u05D9\u05D5\u05EA' },
+    { id: 'daily_summary',    name: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9',       icon: 'bi-calendar-day',       color: 'purple',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9 \u05DE\u05E8\u05D5\u05DB\u05D6 \u2014 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D5\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA' }
   ],
 
   /* ---------- demo data ---------- */
@@ -834,6 +835,7 @@ Object.assign(Pages, {
       case 'staff_salary':       return this._pcBuildStaffSalary(opts);
       case 'mivtza_report':      return this._pcBuildMivtzaReport(opts);
       case 'staff_directory':    return this._pcBuildStaffDirectory(opts);
+      case 'daily_summary':      return this._pcBuildDailySummary(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1945,6 +1947,63 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Daily Summary Template ---------- */
+  _pcBuildDailySummary(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const staff = _gc('\u05E6\u05D5\u05D5\u05EA');
+    const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+    const tasks = _gc('\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA');
+    const med = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+    const emails = (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE) ? EMAIL_CACHE.inbox || [] : [];
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('he-IL', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    const hebrewDate = (typeof Utils !== 'undefined' && Utils.hebrewDateFull) ? Utils.hebrewDateFull() : '';
+
+    const activeStudents = students.filter(s => (s['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05DC\u05D0_\u05E4\u05E2\u05D9\u05DC');
+    const medsCount = med.filter(r => (r['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']||'').length > 0 || (r['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'').length > 0).length;
+    const unreadEmails = emails.filter(e => e.unread).length;
+    const activeTasks = tasks.filter(t => (t['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') !== '\u05D4\u05D5\u05E9\u05DC\u05DD').length;
+    const recentEmails = emails.slice(0, 5).map(e => {
+      const sender = (e.from||'').replace(/<[^>]+>/g,'').replace(/"/g,'').trim().substring(0,30);
+      return `<li>${e.subject||'(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'} \u2014 <small>${sender}</small></li>`;
+    }).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px;max-width:700px;margin:0 auto">
+        <div style="text-align:center;margin-bottom:20px;border-bottom:3px double #333;padding-bottom:15px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD</h2>
+          <h3 style="margin:5px 0;color:#7c3aed">\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9</h3>
+          <p style="color:#666;margin:0">${todayStr}${hebrewDate ? ' | ' + hebrewDate : ''}</p>
+        </div>
+
+        <div style="display:flex;justify-content:space-around;margin-bottom:20px;text-align:center">
+          <div><div style="font-size:28px;font-weight:bold;color:#2563eb">${activeStudents.length}</div><small>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</small></div>
+          <div><div style="font-size:28px;font-weight:bold;color:#059669">${staff.length}</div><small>\u05E6\u05D5\u05D5\u05EA</small></div>
+          <div><div style="font-size:28px;font-weight:bold;color:#d97706">${parents.length}</div><small>\u05D4\u05D5\u05E8\u05D9\u05DD</small></div>
+          <div><div style="font-size:28px;font-weight:bold;color:#dc2626">${medsCount}</div><small>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA</small></div>
+        </div>
+
+        <div style="margin-bottom:15px;padding:10px;background:#ede9fe;border-radius:8px">
+          <strong>\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA \u05E4\u05EA\u05D5\u05D7\u05D5\u05EA:</strong> ${activeTasks || '\u05D0\u05D9\u05DF'}
+          ${activeTasks ? ' | <strong>\u05D3\u05D5\u05D0\u05E8 \u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0:</strong> ' + unreadEmails : ''}
+        </div>
+
+        ${recentEmails ? `<div style="margin-bottom:15px"><h5>\u05D3\u05D5\u05D0\u05E8 \u05D0\u05D7\u05E8\u05D5\u05DF:</h5><ol style="font-size:13px;padding-right:20px">${recentEmails}</ol></div>` : ''}
+
+        <div style="margin-bottom:15px;border:1px solid #e5e7eb;border-radius:8px;padding:10px">
+          <h5 style="margin:0 0 8px">\u05E4\u05EA\u05E7\u05D9\u05EA \u05D9\u05D5\u05DE\u05D9\u05EA:</h5>
+          <div style="min-height:60px;border:1px dashed #ccc;border-radius:4px;padding:8px;color:#999;font-size:13px">
+            ${localStorage.getItem('bht_quick_note') || '\u05D0\u05D9\u05DF \u05E4\u05EA\u05E7\u05D9\u05D5\u05EA'}
+          </div>
+        </div>
+
+        <div style="text-align:center;color:#999;font-size:11px;border-top:1px solid #e5e7eb;padding-top:10px">
+          \u05E0\u05D4\u05E8 \u05D4\u05D9\u05E8\u05D3\u05DF 106, \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9 | 02-547-6989 | \u05D4\u05D5\u05E4\u05E7 \u05DE\u05DE\u05E2\u05E8\u05DB\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3
+        </div>
+      </div>`;
   },
 
   /* ---------- Staff Directory Template ---------- */
