@@ -279,6 +279,8 @@ const App = {
     bar.style.width = '30%';
     setTimeout(() => { if (bar.style.opacity === '1') bar.style.width = '60%'; }, 300);
     setTimeout(() => { if (bar.style.opacity === '1') bar.style.width = '80%'; }, 800);
+    // Safety: auto-hide after 15s if stuck
+    setTimeout(() => { if (bar.style.opacity === '1') this._hideLoadingBar(); }, 15000);
   },
 
   _hideLoadingBar() {
