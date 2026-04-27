@@ -4589,3 +4589,11 @@ html { scroll-behavior: smooth; }
   92%, 96% { transform: translate(-50%, -2px) rotate(5deg); }
   94%, 98% { transform: translate(-50%, -2px) rotate(-5deg); }
 }
+
+/* ===== Avatar Hover Zoom ===== */
+.avatar { transition: transform .2s; }
+.avatar:hover { transform: scale(1.1); }
+
+/* ===== Page Header Gradient ===== */
+.page-header h1 i { transition: color .2s; }
+.page-header:hover h1 i { color: var(--bs-primary) !important; }
