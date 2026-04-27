@@ -4488,3 +4488,31 @@ html { scroll-behavior: smooth; }
 
 /* ===== Toast Enhancement ===== */
 .toast-container { z-index: 10000 !important; }
+
+/* ===== Mobile Notification Dropdown ===== */
+@media (max-width: 767.98px) {
+  #notif-dropdown { width: 280px !important; max-height: 350px; }
+  .page-header h1 { font-size: 1.2rem; }
+  .page-header p { font-size: .8rem; }
+}
+
+/* ===== Dark Mode Cards ===== */
+[data-theme="dark"] .card { border-color: #334155; }
+[data-theme="dark"] .card-header { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .list-group-item { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .modal-content { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .modal-header { border-color: #334155; }
+[data-theme="dark"] .modal-footer { border-color: #334155; }
+[data-theme="dark"] .dropdown-menu { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .dropdown-item { color: #e2e8f0; }
+[data-theme="dark"] .dropdown-item:hover { background: #334155; }
+[data-theme="dark"] .form-control { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .form-select { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .input-group-text { background: #1e293b; border-color: #334155; color: #94a3b8; }
+[data-theme="dark"] .alert { border-color: #334155; }
+[data-theme="dark"] .nav-tabs .nav-link { color: #94a3b8; }
+[data-theme="dark"] .nav-tabs .nav-link.active { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+[data-theme="dark"] .accordion-button { background: #1e293b; color: #e2e8f0; }
+[data-theme="dark"] .accordion-body { background: #0f172a; }
+[data-theme="dark"] .progress { background: #334155; }
+[data-theme="dark"] hr { border-color: #334155; }
