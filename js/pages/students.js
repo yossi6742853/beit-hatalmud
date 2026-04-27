@@ -84,7 +84,7 @@ Object.assign(Pages, {
       </div>
 
       <!-- Filters -->
-      <div class="card p-3 mb-3">
+      <div class="card border-0 shadow-sm p-3 mb-3">
         <div class="row g-2 align-items-center">
           <div class="col-md-5">
             <div class="search-box"><i class="bi bi-search"></i>
@@ -1088,10 +1088,10 @@ Object.assign(Pages, {
 
       <!-- Quick Stats -->
       <div class="row g-3 mb-3">
-        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${attPct >= 80 ? 'text-success' : attPct >= 60 ? 'text-warning' : 'text-danger'}">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small><div class="progress mt-2" style="height:4px"><div class="progress-bar ${attPct >= 80 ? 'bg-success' : 'bg-warning'}" style="width:${attPct}%"></div></div></div></div>
-        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold ${(posB-negB) >= 0 ? 'text-success' : 'text-danger'}">${posB-negB >= 0 ? '+' : ''}${posB-negB}</div><small class="text-muted">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div></div>
-        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold">${Utils.formatCurrency(sfDebt)}</div><small class="text-muted">${sfDebt > 0 ? '\u05D7\u05D5\u05D1' : '\u05DE\u05D0\u05D5\u05D6\u05DF'}</small></div></div>
-        <div class="col-md-3"><div class="card p-3 text-center"><div class="fs-4 fw-bold text-primary">${studentGrades.length > 0 ? Math.round(studentGrades.reduce((sm,g)=>sm+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length) : '--'}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm p-3 text-center h-100"><div class="fs-4 fw-bold ${attPct >= 80 ? 'text-success' : attPct >= 60 ? 'text-warning' : 'text-danger'}">${attPct}%</div><small class="text-muted">\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small><div class="progress mt-2" style="height:4px"><div class="progress-bar ${attPct >= 80 ? 'bg-success' : 'bg-warning'}" style="width:${attPct}%"></div></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm p-3 text-center h-100"><div class="fs-4 fw-bold ${(posB-negB) >= 0 ? 'text-success' : 'text-danger'}">${posB-negB >= 0 ? '+' : ''}${posB-negB}</div><small class="text-muted">\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm p-3 text-center h-100"><div class="fs-4 fw-bold">${Utils.formatCurrency(sfDebt)}</div><small class="text-muted">${sfDebt > 0 ? '\u05D7\u05D5\u05D1' : '\u05DE\u05D0\u05D5\u05D6\u05DF'}</small></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm p-3 text-center h-100"><div class="fs-4 fw-bold text-primary">${studentGrades.length > 0 ? Math.round(studentGrades.reduce((sm,g)=>sm+(Number(g['\u05E6\u05D9\u05D5\u05DF']||g['grade']||0)),0)/studentGrades.length) : '--'}</div><small class="text-muted">\u05DE\u05DE\u05D5\u05E6\u05E2 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</small></div></div>
       </div>
 
       <!-- Tabs -->

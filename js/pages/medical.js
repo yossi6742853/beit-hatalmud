@@ -690,10 +690,10 @@ Object.assign(Pages, {
     if (existingId) {
       const idx = data.findIndex(r => r.id === existingId);
       if (idx >= 0) data[idx] = record;
-      try { App.apiCall('update', 'מידע_רפואי', { id: existingId, row: record }); } catch(e) {}
+      App.apiCall('update', 'מידע_רפואי', { id: existingId, row: record }).catch(e => console.warn('medical update failed:', e));
     } else {
       data.push(record);
-      try { App.apiCall('add', 'מידע_רפואי', { row: record }); } catch(e) {}
+      App.apiCall('add', 'מידע_רפואי', { row: record }).catch(e => console.warn('medical add failed:', e));
       // Initialize vaccines for new student
       const vaccines = this._getMedVaccines();
       vaccines[record.id] = {};
@@ -715,7 +715,7 @@ Object.assign(Pages, {
     const idx = data.findIndex(r => r.id === id);
     if (idx >= 0) data.splice(idx, 1);
     this._saveMedData();
-    try { App.apiCall('delete', 'מידע_רפואי', { id }); } catch(e) {}
+    App.apiCall('delete', 'מידע_רפואי', { id }).catch(e => console.warn('medical delete failed:', e));
     // Remove vaccines
     const vaccines = this._getMedVaccines();
     delete vaccines[id];

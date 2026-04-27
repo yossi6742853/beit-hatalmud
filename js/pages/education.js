@@ -1383,11 +1383,11 @@ Object.assign(Pages, {
               </div>
               <div class="col-6">
                 <label class="form-label fw-bold">\u05E2\u05DE\u05D5\u05D3\u05D9\u05DD/\u05E4\u05E8\u05E7\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD</label>
-                <input type="number" class="form-control" id="mvf-log-pages" min="1" value="1">
+                <input type="number" class="form-control" id="mvf-log-pages" min="1" value="1" placeholder="\u05DB\u05DE\u05D5\u05EA">
               </div>
               <div class="col-6">
                 <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA</label>
-                <input type="date" class="form-control" id="mvf-log-date">
+                <input type="date" class="form-control" id="mvf-log-date" placeholder="\u05D1\u05D7\u05E8 \u05EA\u05D0\u05E8\u05D9\u05DA">
               </div>
               <div class="col-12">
                 <label class="form-label">\u05D4\u05E2\u05E8\u05D4</label>
@@ -1425,15 +1425,15 @@ Object.assign(Pages, {
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">\u05D9\u05E2\u05D3 \u05E2\u05DE\u05D5\u05D3\u05D9\u05DD/\u05E4\u05E8\u05E7\u05D9\u05DD</label>
-                <input type="number" class="form-control" id="mvf-c-target" min="1" value="100">
+                <input type="number" class="form-control" id="mvf-c-target" min="1" value="100" placeholder="\u05D9\u05E2\u05D3">
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05EA\u05D7\u05DC\u05D4</label>
-                <input type="date" class="form-control" id="mvf-c-start">
+                <input type="date" class="form-control" id="mvf-c-start" placeholder="\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05EA\u05D7\u05DC\u05D4">
               </div>
               <div class="col-md-4">
                 <label class="form-label fw-bold">\u05EA\u05D0\u05E8\u05D9\u05DA \u05E1\u05D9\u05D5\u05DD</label>
-                <input type="date" class="form-control" id="mvf-c-end">
+                <input type="date" class="form-control" id="mvf-c-end" placeholder="\u05EA\u05D0\u05E8\u05D9\u05DA \u05E1\u05D9\u05D5\u05DD">
               </div>
               <div class="col-12">
                 <label class="form-label fw-bold">\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05E4\u05E8\u05E1</label>

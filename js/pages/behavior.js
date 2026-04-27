@@ -261,7 +261,7 @@ Object.assign(Pages, {
               </div>
               <div class="col-6">
                 <label class="form-label">נקודות</label>
-                <input type="number" class="form-control" id="bf-points" value="3" min="-10" max="10">
+                <input type="number" class="form-control" id="bf-points" value="3" min="-10" max="10" placeholder="\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA">
               </div>
               <div class="col-6">
                 <label class="form-label">צוות</label>

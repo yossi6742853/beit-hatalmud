@@ -398,7 +398,7 @@ Object.assign(Pages, {
     // Sync grade to API
     if (val !== '') {
       const [studentId, examId] = key.split('_');
-      try { App.apiCall('update', 'ציונים', { id: key, row: { studentId, examId, grade: val } }); } catch(e2) {}
+      App.apiCall('update', 'ציונים', { id: key, row: { studentId, examId, grade: val } }).catch(e2 => console.warn('gradebook update failed:', e2));
     }
     this.renderGradebook();
   },
@@ -452,7 +452,7 @@ Object.assign(Pages, {
     this._gbExams.push(newExam);
 
     this._saveGbData();
-    try { App.apiCall('add', 'מבחנים', { row: newExam }); } catch(e) {}
+    App.apiCall('add', 'מבחנים', { row: newExam }).catch(e => console.warn('gradebook exam add failed:', e));
     this._populateGbFilters();
     this.renderGradebook();
     bootstrap.Modal.getInstance(document.getElementById('gb-exam-modal')).hide();

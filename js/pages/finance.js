@@ -1030,7 +1030,7 @@ Object.assign(Pages, {
               </div>
               <div class="col-md-6">
                 <label class="form-label">\u05E1\u05DB\u05D5\u05DD (\u20AA)</label>
-                <input type="number" class="form-control" id="pcf-amount" min="0" step="0.01">
+                <input type="number" class="form-control" id="pcf-amount" min="0" step="0.01" placeholder="\u05D4\u05D6\u05DF \u05E1\u05DB\u05D5\u05DD">
               </div>
               <div class="col-md-6" id="pcf-cat-wrap">
                 <label class="form-label">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label>
@@ -1710,7 +1710,7 @@ Object.assign(Pages, {
               </div>
               <div class="col-6">
                 <label class="form-label">\u05E1\u05DB\u05D5\u05DD (\u20AA)</label>
-                <input type="number" class="form-control" id="bgf-amount" min="0" step="0.01">
+                <input type="number" class="form-control" id="bgf-amount" min="0" step="0.01" placeholder="\u05D4\u05D6\u05DF \u05E1\u05DB\u05D5\u05DD">
               </div>
               <div class="col-6">
                 <label class="form-label">\u05DE\u05E1\u05E4\u05E8 \u05E7\u05D1\u05DC\u05D4</label>

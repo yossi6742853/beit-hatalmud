@@ -442,14 +442,14 @@ Object.assign(Pages, {
       const item = this._invData.find(i => i.id === this._invEditId);
       if (item) Object.assign(item, data);
       this._invSaveToStorage();
-      try { App.apiCall('update', 'רכוש', { id: this._invEditId, row: { ...item } }); } catch(e) {}
+      App.apiCall('update', 'רכוש', { id: this._invEditId, row: { ...item } }).catch(e => console.warn('inventory update failed:', e));
       Utils.toast('פריט עודכן בהצלחה');
     } else {
       data.id = this._invNextId++;
       data.checkouts = [];
       this._invData.push(data);
       this._invSaveToStorage();
-      try { App.apiCall('add', 'רכוש', { row: data }); } catch(e) {}
+      App.apiCall('add', 'רכוש', { row: data }).catch(e => console.warn('inventory add failed:', e));
       Utils.toast('פריט חדש נוסף בהצלחה');
     }
 
@@ -466,7 +466,7 @@ Object.assign(Pages, {
     if (!ok) return;
     this._invData = this._invData.filter(i => i.id !== id);
     this._invSaveToStorage();
-    try { App.apiCall('delete', 'רכוש', { id }); } catch(e) {}
+    App.apiCall('delete', 'רכוש', { id }).catch(e => console.warn('inventory delete failed:', e));
     Utils.toast('פריט נמחק', 'warning');
     this._invBuildLocationFilter();
     this.renderInventory();
@@ -501,7 +501,7 @@ Object.assign(Pages, {
     });
     item.quantity -= qty;
     this._invSaveToStorage();
-    try { App.apiCall('update', 'רכוש', { id: item.id, row: item }); } catch(e) {}
+    App.apiCall('update', 'רכוש', { id: item.id, row: item }).catch(e => console.warn('inventory checkout update failed:', e));
 
     bootstrap.Modal.getInstance(document.getElementById('inv-checkout-modal'))?.hide();
     Utils.toast(`${item.name} הושאל ל${who}`, 'info');
@@ -540,7 +540,7 @@ Object.assign(Pages, {
     item.quantity += co.qty;
     item.checkouts.splice(checkoutIdx, 1);
     this._invSaveToStorage();
-    try { App.apiCall('update', 'רכוש', { id: item.id, row: item }); } catch(e) {}
+    App.apiCall('update', 'רכוש', { id: item.id, row: item }).catch(e => console.warn('inventory checkin update failed:', e));
     Utils.toast(`${co.qty} יח׳ של ${item.name} הוחזרו מ${co.who}`);
     bootstrap.Modal.getInstance(document.getElementById('inv-checkout-modal'))?.hide();
     this.renderInventory();

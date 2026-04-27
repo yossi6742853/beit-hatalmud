@@ -411,14 +411,14 @@ Object.assign(Pages, {
 
     this._libBooks.push(newBook);
     this._libSaveToStorage();
-    try { App.apiCall('add', 'ספריה', { row: { ...newBook, type: 'book' } }); } catch(e) {}
+    App.apiCall('add', 'ספריה', { row: { ...newBook, type: 'book' } }).catch(e => console.warn('library add failed:', e));
     bootstrap.Modal.getInstance(document.getElementById('add-book-modal')).hide();
     Utils.toast(`\u05D4\u05E1\u05E4\u05E8 "${title}" \u05E0\u05D5\u05E1\u05E3 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4`);
     this.renderLibrary();
   },
 
   /* ---- Delete book ---- */
-  deleteBook(bookId) {
+  async deleteBook(bookId) {
     const book = this._libBooks.find(b => b.id === bookId);
     if (!book) return;
     const activeLoans = this._libLoans.filter(l => l.bookId === bookId && l.status !== 'returned');
@@ -426,10 +426,10 @@ Object.assign(Pages, {
       Utils.toast(`\u05DC\u05D0 \u05E0\u05D9\u05EA\u05DF \u05DC\u05DE\u05D7\u05D5\u05E7 - \u05D9\u05E9 ${activeLoans.length} \u05D4\u05E9\u05D0\u05DC\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA`, 'warning');
       return;
     }
-    if (!confirm(`\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "${book.title}"?`)) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E1\u05E4\u05E8', `\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "${book.title}"?`)) return;
     this._libBooks = this._libBooks.filter(b => b.id !== bookId);
     this._libSaveToStorage();
-    try { App.apiCall('delete', 'ספריה', { id: bookId }); } catch(e) {}
+    App.apiCall('delete', 'ספריה', { id: bookId }).catch(e => console.warn('library delete failed:', e));
     Utils.toast(`"${book.title}" \u05E0\u05DE\u05D7\u05E7`, 'info');
     this.renderLibrary();
   },
@@ -484,7 +484,7 @@ Object.assign(Pages, {
     this._libLoans.push(loan);
     book.borrowed++;
     this._libSaveToStorage();
-    try { App.apiCall('add', 'ספריה', { row: { ...loan, type: 'loan' } }); } catch(e) {}
+    App.apiCall('add', 'ספריה', { row: { ...loan, type: 'loan' } }).catch(e => console.warn('library loan add failed:', e));
     bootstrap.Modal.getInstance(document.getElementById('loan-modal')).hide();
     Utils.toast(`"${book.title}" \u05D4\u05D5\u05E9\u05D0\u05DC \u05DC${student}`);
     this.renderLibrary();
@@ -499,7 +499,7 @@ Object.assign(Pages, {
     const book = this._libBooks.find(b => b.id === loan.bookId);
     if (book) book.borrowed = Math.max(0, book.borrowed - 1);
     this._libSaveToStorage();
-    try { App.apiCall('update', 'ספריה', { id: loan.id, row: { ...loan, type: 'loan' } }); } catch(e) {}
+    App.apiCall('update', 'ספריה', { id: loan.id, row: { ...loan, type: 'loan' } }).catch(e => console.warn('library return update failed:', e));
 
     Utils.toast(`\u05D4\u05E1\u05E4\u05E8 \u05D4\u05D5\u05D7\u05D6\u05E8 \u05DE${loan.student}`);
     this.renderLibrary();

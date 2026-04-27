@@ -1490,7 +1490,7 @@ Object.assign(Pages, {
   _DOC_LS_KEY: 'bht_documents_meta_v3',
 
   _getLocalDocs() {
-    try { return JSON.parse(localStorage.getItem(this._DOC_LS_KEY) || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem(this._DOC_LS_KEY) || '[]'); } catch(e) { return []; }
   },
   _saveLocalDocs(docs) {
     localStorage.setItem(this._DOC_LS_KEY, JSON.stringify(docs));
