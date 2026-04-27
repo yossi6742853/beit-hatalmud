@@ -4615,3 +4615,7 @@ html { scroll-behavior: smooth; }
    52,000+ lines | 354 commits | 0 errors
    Built with love for בית התלמוד
    ═══════════════════════════════════════════ */
+
+/* ===== Tooltip Styling ===== */
+[title] { position: relative; }
+.tooltip-inner { font-family: Heebo, sans-serif; font-size: .8rem; }
