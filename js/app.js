@@ -865,8 +865,21 @@ const App = {
       // Ctrl+K or Cmd+K = focus search / command palette (always active)
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        const search = document.getElementById('global-search');
-        if (search) search.focus();
+        this.toggleCommandPalette();
+        return;
+      }
+
+      // Ctrl+D = open phone dialer
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        location.hash = 'phone';
+        return;
+      }
+
+      // Ctrl+E = open email
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        location.hash = 'email';
         return;
       }
 
