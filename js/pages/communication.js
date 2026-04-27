@@ -762,6 +762,7 @@ Object.assign(Pages, {
       <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="calllog" onclick="Pages._commTab='calllog';Pages.renderComm();return false"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA</a></li>
       <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="history" onclick="Pages._commTab='history';Pages.renderComm();return false"><i class="bi bi-clock-history me-1"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4</a></li>
       <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="contacts" onclick="Pages._commTab='contacts';Pages.renderComm();return false"><i class="bi bi-person-lines-fill me-1"></i>\u05E1\u05E4\u05E8 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-comm-tab="protocols" onclick="Pages._commTab='protocols';Pages.renderComm();return false"><i class="bi bi-journal-bookmark me-1"></i>\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E4\u05D2\u05D9\u05E9\u05D5\u05EA</a></li>
     </ul>
     <div id="comm-content">${Utils.skeleton(3)}</div>`;
   },
@@ -881,6 +882,88 @@ Object.assign(Pages, {
     else if (this._commTab === 'calllog') this._renderCommCallLog(el);
     else if (this._commTab === 'history') this._renderCommHistory(el);
     else if (this._commTab === 'contacts') this._renderCommContacts(el);
+    else if (this._commTab === 'protocols') this._renderCommProtocols(el);
+  },
+
+  /* --- PROTOCOLS TAB (meeting protocols) --- */
+  _commProtocols: null,
+  _PROTOCOLS_LS_KEY: 'bht_meeting_protocols',
+
+  _loadProtocols() {
+    if (this._commProtocols) return this._commProtocols;
+    try {
+      var stored = localStorage.getItem(this._PROTOCOLS_LS_KEY);
+      this._commProtocols = stored ? JSON.parse(stored) : [];
+    } catch(e) { this._commProtocols = []; }
+    return this._commProtocols;
+  },
+
+  _saveProtocols() {
+    localStorage.setItem(this._PROTOCOLS_LS_KEY, JSON.stringify(this._commProtocols || []));
+  },
+
+  _renderCommProtocols(el) {
+    var protocols = this._loadProtocols();
+    var rows = protocols.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); }).map(function(p, i){
+      return '<div class="card mb-2 p-3">' +
+        '<div class="d-flex justify-content-between align-items-start">' +
+          '<div>' +
+            '<h6 class="fw-bold mb-1"><i class="bi bi-journal-bookmark me-1 text-primary"></i>' + (p.date || '') + '</h6>' +
+            '<div class="small text-muted mb-1"><i class="bi bi-people me-1"></i>\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD: ' + (p.participants || '-') + '</div>' +
+            '<div class="small mb-1"><strong>\u05E0\u05D5\u05E9\u05D0\u05D9\u05DD:</strong> ' + (p.topics || '-') + '</div>' +
+            '<div class="small"><strong>\u05D4\u05D7\u05DC\u05D8\u05D5\u05EA:</strong> ' + (p.decisions || '-') + '</div>' +
+          '</div>' +
+          '<button class="btn btn-outline-danger btn-sm" onclick="Pages._deleteProtocol(' + i + ')" title="\u05DE\u05D7\u05E7"><i class="bi bi-trash"></i></button>' +
+        '</div></div>';
+    }).join('');
+
+    el.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-3">' +
+      '<h5 class="mb-0"><i class="bi bi-journal-bookmark me-2"></i>\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E4\u05D2\u05D9\u05E9\u05D5\u05EA (' + protocols.length + ')</h5>' +
+      '<button class="btn btn-primary btn-sm" onclick="Pages._showProtocolModal()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC</button>' +
+    '</div>' +
+    (rows || '<div class="text-center py-5 text-muted"><i class="bi bi-journal-bookmark fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</div>') +
+    '<!-- Protocol Modal -->' +
+    '<div class="modal fade" id="protocol-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">' +
+      '<div class="modal-header"><h5 class="modal-title"><i class="bi bi-journal-bookmark me-2"></i>\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05D7\u05D3\u05E9</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>' +
+      '<div class="modal-body"><div class="row g-3">' +
+        '<div class="col-12"><label class="form-label">\u05EA\u05D0\u05E8\u05D9\u05DA</label><input class="form-control" id="proto-date" type="date"></div>' +
+        '<div class="col-12"><label class="form-label">\u05DE\u05E9\u05EA\u05EA\u05E4\u05D9\u05DD</label><input class="form-control" id="proto-participants" placeholder="\u05E9\u05DE\u05D5\u05EA \u05DE\u05D5\u05E4\u05E8\u05D3\u05D9\u05DD \u05D1\u05E4\u05E1\u05D9\u05E7\u05D9\u05DD"></div>' +
+        '<div class="col-12"><label class="form-label">\u05E0\u05D5\u05E9\u05D0\u05D9\u05DD \u05E9\u05E0\u05D3\u05D5\u05E0\u05D5</label><textarea class="form-control" id="proto-topics" rows="3"></textarea></div>' +
+        '<div class="col-12"><label class="form-label">\u05D4\u05D7\u05DC\u05D8\u05D5\u05EA</label><textarea class="form-control" id="proto-decisions" rows="3"></textarea></div>' +
+      '</div></div>' +
+      '<div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._saveProtocol()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D9\u05E8\u05D4</button></div>' +
+    '</div></div></div>';
+  },
+
+  _showProtocolModal() {
+    var el = document.getElementById('proto-date');
+    if (el) el.value = new Date().toISOString().slice(0,10);
+    var p = document.getElementById('proto-participants'); if(p) p.value = '';
+    var t = document.getElementById('proto-topics'); if(t) t.value = '';
+    var d = document.getElementById('proto-decisions'); if(d) d.value = '';
+    new bootstrap.Modal(document.getElementById('protocol-modal')).show();
+  },
+
+  _saveProtocol() {
+    var date = (document.getElementById('proto-date') || {}).value || '';
+    var participants = (document.getElementById('proto-participants') || {}).value || '';
+    var topics = (document.getElementById('proto-topics') || {}).value || '';
+    var decisions = (document.getElementById('proto-decisions') || {}).value || '';
+    if (!date) { App.showToast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05EA\u05D0\u05E8\u05D9\u05DA', 'warning'); return; }
+    this._loadProtocols();
+    this._commProtocols.push({ date: date, participants: participants, topics: topics, decisions: decisions });
+    this._saveProtocols();
+    bootstrap.Modal.getInstance(document.getElementById('protocol-modal'))?.hide();
+    App.showToast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05E9\u05DE\u05E8', 'success');
+    this.renderComm();
+  },
+
+  _deleteProtocol(index) {
+    this._loadProtocols();
+    this._commProtocols.splice(index, 1);
+    this._saveProtocols();
+    App.showToast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05DE\u05D7\u05E7', 'success');
+    this.renderComm();
   },
 
   /* --- COMPOSE TAB --- */

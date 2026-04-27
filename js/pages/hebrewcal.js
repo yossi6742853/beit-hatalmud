@@ -480,6 +480,20 @@ Object.assign(Pages, {
       schoolEvents.push({ date: '2025-12-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
       schoolEvents.push({ date: '2026-02-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
       schoolEvents.push({ date: '2026-05-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      // \u05D0\u05E1\u05D9\u05E4\u05D5\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD (2 per year)
+      schoolEvents.push({ date: '2025-11-20', title: '\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD \u05D0\u05F3', color: '#7c3aed', type: 'event' });
+      schoolEvents.push({ date: '2026-03-19', title: '\u05D0\u05E1\u05D9\u05E4\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD \u05D1\u05F3', color: '#7c3aed', type: 'event' });
+      // \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA \u05E6\u05D5\u05D5\u05EA (monthly)
+      schoolEvents.push({ date: '2025-10-06', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2025-11-03', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-01-05', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-03-02', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-04-13', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-06-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-07-06', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      // \u05D9\u05DE\u05D9 \u05E2\u05D9\u05D5\u05DF
+      schoolEvents.push({ date: '2026-01-15', title: '\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF', color: '#2563eb', type: 'event' });
+      schoolEvents.push({ date: '2026-05-14', title: '\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF', color: '#2563eb', type: 'event' });
       this._hcEvents = schoolEvents;
     }
   },

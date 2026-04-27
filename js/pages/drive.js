@@ -179,6 +179,49 @@ Object.assign(Pages, {
           <ol class="breadcrumb mb-0 bg-light rounded p-2 px-3"></ol>
         </nav>
 
+        <!-- Folder Summary -->
+        <div class="row g-3 mb-3" id="zdrive-summary">
+          <div class="col-md-4">
+            <div class="card p-3 card-clickable h-100" onclick="Pages._zDriveNavigate('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD')">
+              <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px">
+                  <i class="bi bi-person-badge text-success fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">\u05EA\u05D9\u05E7\u05D9 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h6>
+                  <small class="text-muted">\u05E8\u05E9\u05D9\u05DE\u05D5\u05EA, \u05D3\u05D5\u05D7\u05D5\u05EA, \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-3 card-clickable h-100" onclick="Pages._zDriveNavigate('\u05DE\u05E0\u05D4\u05DC\u05D4')">
+              <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px">
+                  <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">\u05DE\u05E1\u05DE\u05DB\u05D9 \u05E6\u05D5\u05D5\u05EA</h6>
+                  <small class="text-muted">\u05E0\u05D4\u05DC\u05D9\u05DD, \u05EA\u05E7\u05E0\u05D5\u05DF, \u05D7\u05D5\u05D6\u05E8\u05D9\u05DD</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-3 card-clickable h-100" onclick="Pages._zDrivePath=['\u05DE\u05E0\u05D4\u05DC\u05D4','\u05D8\u05E4\u05E1\u05D9\u05DD'];Pages._zDriveRender()">
+              <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px">
+                  <i class="bi bi-clipboard-check text-warning fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-0">\u05D8\u05E4\u05E1\u05D9\u05DD</h6>
+                  <small class="text-muted">\u05D0\u05D9\u05E9\u05D5\u05E8\u05D9\u05DD, \u05D4\u05E8\u05E9\u05DE\u05D5\u05EA, \u05D8\u05E4\u05E1\u05D9 \u05D4\u05D5\u05E8\u05D9\u05DD</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="zdrive-content">${Utils.skeleton(3)}</div>
       </div><!-- /tab-pane zdrive -->
 
