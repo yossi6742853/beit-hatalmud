@@ -128,6 +128,9 @@ Object.assign(Pages, {
       <!-- Absent Students Alert -->
       <div id="dash-absent-alert" class="mb-4" style="display:none"></div>
 
+      <!-- Medication Alert -->
+      <div id="dash-med-alert" class="mb-4" style="display:none"></div>
+
       <!-- Recent Calls (Prominent) + Attendance Doughnut Row -->
       <div class="row g-3 mb-4">
         <div class="col-lg-6">
@@ -493,6 +496,35 @@ Object.assign(Pages, {
         </div>`;
       } else {
         absentAlertEl.style.display = 'none';
+      }
+    }
+
+    // === 5b2. Medication Alert ===
+    const medAlertEl = document.getElementById('dash-med-alert');
+    if (medAlertEl) {
+      const medData = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+      const withMeds = medData.filter(m => (m['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']||'').trim() || (m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'').trim());
+      if (withMeds.length > 0) {
+        const medList = withMeds.slice(0, 6).map(m => {
+          const sid = m['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '';
+          const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4']||'') === sid);
+          const name = student ? Utils.fullName(student) : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+          const meds = ((m['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']||'') + ', ' + (m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'')).replace(/^,\s*|,\s*$/g, '').trim();
+          return `<span class="badge bg-warning-subtle text-warning border" title="${meds}">${name}</span>`;
+        });
+        medAlertEl.style.display = '';
+        medAlertEl.innerHTML = `<div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-0">
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;background:#fef3c7">
+            <i class="bi bi-capsule text-warning fs-5"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="fw-bold mb-1"><i class="bi bi-capsule me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA (${withMeds.length})</h6>
+            <div class="d-flex flex-wrap gap-1">${medList.join('')}${withMeds.length > 6 ? '<span class="badge bg-secondary">\u05D5\u05E2\u05D5\u05D3 ' + (withMeds.length - 6) + '...</span>' : ''}</div>
+          </div>
+          <a href="#medical" class="btn btn-outline-warning btn-sm flex-shrink-0 align-self-center">\u05E6\u05E4\u05D4</a>
+        </div>`;
+      } else {
+        medAlertEl.style.display = 'none';
       }
     }
 
