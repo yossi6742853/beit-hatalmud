@@ -902,6 +902,13 @@ const App = {
         return;
       }
 
+      // Ctrl+H = go to dashboard (home)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+        e.preventDefault();
+        location.hash = 'dashboard';
+        return;
+      }
+
       // Ctrl+Shift+P = quick print current page
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
         e.preventDefault();
