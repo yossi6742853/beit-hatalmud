@@ -561,14 +561,11 @@ Object.assign(Pages, {
     const names = selected.map(s => s._fullName).join(', ');
     const msg = prompt(`\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC-${selected.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:\n${names}`);
     if (!msg) return;
-    // Open WhatsApp for each (limit to 5)
-    const toSend = phones.slice(0, 5);
-    toSend.forEach((ph, i) => {
-      const num = ph.replace(/\D/g, '').replace(/^0/, '972');
-      setTimeout(() => window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank'), i * 500);
-    });
-    if (phones.length > 5) Utils.toast(`\u05E0\u05E4\u05EA\u05D7\u05D5 5 \u05DE\u05EA\u05D5\u05DA ${phones.length}. \u05E9\u05DC\u05D7 \u05D1\u05E7\u05D1\u05D5\u05E6\u05D5\u05EA \u05E7\u05D8\u05E0\u05D5\u05EA \u05D9\u05D5\u05EA\u05E8.`, 'info');
-    else Utils.toast(`\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4 \u05DC-${toSend.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`);
+    // Copy message + phone list to clipboard for SMS sending
+    const phoneList = phones.map((ph, i) => `${selected[i]._fullName}: ${ph}`).join('\n');
+    const clipText = `\u05D4\u05D5\u05D3\u05E2\u05D4:\n${msg}\n\n\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD:\n${phoneList}`;
+    navigator.clipboard.writeText(clipText).catch(() => {});
+    Utils.toast(`\u05D4\u05D5\u05D3\u05E2\u05D4 + ${phones.length} \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7\u05D5 \u05DC\u05DC\u05D5\u05D7`, 'success');
   },
 
   bulkExport() {
@@ -1026,8 +1023,9 @@ Object.assign(Pages, {
     } catch(e) { /* localStorage unavailable */ }
     const studentActivity = (activityLog||[]).filter(match);
 
-    // WhatsApp helper
-    const waLink = (ph, text='') => { const num = (ph||'').replace(/\D/g,'').replace(/^0/,'972'); return num ? `https://wa.me/${num}${text?'?text='+encodeURIComponent(text):''}` : '#'; };
+    // Phone helper
+    const telLink = (ph) => { const num = (ph||'').replace(/\D/g,''); return num ? `tel:${num}` : '#'; };
+    const smsLink = (ph, text='') => { const num = (ph||'').replace(/\D/g,''); return num ? `sms:${num}${text?'?body='+encodeURIComponent(text):''}` : '#'; };
     const parentPhone = studentParents.length ? (studentParents[0]['\u05D8\u05DC\u05E4\u05D5\u05DF']||'') : '';
     const primaryPhone = phone || parentPhone;
 
@@ -1070,8 +1068,8 @@ Object.assign(Pages, {
         <div class="d-flex gap-2 flex-wrap">
           <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printStudentCard('${sId}')" title="\u05D4\u05D3\u05E4\u05E1\u05EA \u05DB\u05E8\u05D8\u05D9\u05E1 \u05EA\u05DC\u05DE\u05D9\u05D3"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
           <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._scStudent)" title="\u05E2\u05E8\u05D9\u05DB\u05EA \u05E4\u05E8\u05D8\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
-          ${primaryPhone ? `<a href="${waLink(primaryPhone)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
-          ${parentPhone && parentPhone !== phone ? `<a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-outline-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
+          ${primaryPhone ? `<a href="${telLink(primaryPhone)}" class="btn btn-success btn-sm"><i class="bi bi-telephone-fill me-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8</a>` : ''}
+          ${parentPhone && parentPhone !== phone ? `<a href="${telLink(parentPhone)}" class="btn btn-outline-success btn-sm"><i class="bi bi-telephone me-1"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
           <button class="btn btn-outline-danger btn-sm" onclick="Pages.deleteStudent('${sId}')" title="\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 \u05DC\u05E6\u05DE\u05D9\u05EA\u05D5\u05EA"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
         </div>
       </div>
@@ -1454,10 +1452,10 @@ Object.assign(Pages, {
         <div class="tab-pane fade" id="tab-comm"><div class="card p-3">
           <h6 class="fw-bold mb-3"><i class="bi bi-chat-dots me-2"></i>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h6>
           <div class="row g-3">
-            ${primaryPhone ? `<div class="col-sm-6"><a href="${waLink(primaryPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-success w-100 py-3"><i class="bi bi-whatsapp fs-4 d-block mb-1"></i>WhatsApp \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</a></div>` : ''}
-            ${parentPhone && parentPhone !== phone ? `<div class="col-sm-6"><a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-success w-100 py-3"><i class="bi bi-whatsapp fs-4 d-block mb-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a></div>` : ''}
-            ${primaryPhone ? `<div class="col-sm-6"><a href="tel:${primaryPhone}" class="btn btn-outline-primary w-100 py-3"><i class="bi bi-telephone fs-4 d-block mb-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</a></div>` : ''}
-            ${parentPhone && parentPhone !== phone ? `<div class="col-sm-6"><a href="tel:${parentPhone}" class="btn btn-outline-primary w-100 py-3"><i class="bi bi-telephone fs-4 d-block mb-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a></div>` : ''}
+            ${primaryPhone ? `<div class="col-sm-6"><a href="${telLink(primaryPhone)}" class="btn btn-success w-100 py-3"><i class="bi bi-telephone-fill fs-4 d-block mb-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</a></div>` : ''}
+            ${parentPhone && parentPhone !== phone ? `<div class="col-sm-6"><a href="${telLink(parentPhone)}" class="btn btn-primary w-100 py-3"><i class="bi bi-telephone fs-4 d-block mb-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a></div>` : ''}
+            ${primaryPhone ? `<div class="col-sm-6"><a href="${smsLink(primaryPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" class="btn btn-outline-info w-100 py-3"><i class="bi bi-chat-dots fs-4 d-block mb-1"></i>SMS \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3</a></div>` : ''}
+            ${parentPhone && parentPhone !== phone ? `<div class="col-sm-6"><a href="${smsLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" class="btn btn-outline-info w-100 py-3"><i class="bi bi-chat-dots fs-4 d-block mb-1"></i>SMS \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a></div>` : ''}
           </div>
           ${!primaryPhone && !parentPhone ? '<div class="text-muted text-center py-3">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05E4\u05E8\u05D8\u05D9 \u05D9\u05E6\u05D9\u05E8\u05EA \u05E7\u05E9\u05E8</div>' : ''}
           ${studentParents.length > 0 ? `<hr><h6 class="fw-bold mb-2">\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</h6><div class="list-group">${studentParents.map(p => {
@@ -1466,7 +1464,7 @@ Object.assign(Pages, {
             return `<div class="list-group-item d-flex align-items-center justify-content-between">
               <div><strong>${pName||'\u05D4\u05D5\u05E8\u05D4'}</strong> ${p['\u05E7\u05E8\u05D1\u05D4']||p['\u05E7\u05E9\u05E8']||''}<br><small class="text-muted" dir="ltr">${Utils.formatPhone(pPh)}</small></div>
               <div class="d-flex gap-2">
-                ${pPh ? `<a href="${waLink(pPh)}" target="_blank" class="btn btn-sm btn-success"><i class="bi bi-whatsapp"></i></a>` : ''}
+                ${pPh ? `<a href="${smsLink(pPh)}" class="btn btn-sm btn-info text-white"><i class="bi bi-chat-dots"></i></a>` : ''}
                 ${pPh ? `<a href="tel:${pPh}" class="btn btn-sm btn-outline-primary"><i class="bi bi-telephone"></i></a>` : ''}
               </div>
             </div>`;
