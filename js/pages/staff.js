@@ -183,7 +183,7 @@ Object.assign(Pages, {
           ${Utils.avatarHTML(name, 'lg')}
           <div class="flex-grow-1">
             <div class="fw-bold fs-6">${name}</div>
-            <div class="small"><span class="badge bg-${roleColor}"><i class="bi ${roleIcon} me-1"></i>${roleVal}</span></div>
+            <div><span class="badge bg-${roleColor} fs-6 px-3 py-2"><i class="bi ${roleIcon} me-1"></i>${roleVal}</span></div>
             ${phone ? `<div class="mt-1 small"><i class="bi bi-telephone me-1"></i>${Utils.formatPhone(phone)}</div>` : ''}
             ${email ? `<div class="small text-muted"><i class="bi bi-envelope me-1"></i>${email}</div>` : ''}
           </div>
@@ -577,6 +577,51 @@ Object.assign(Pages, {
       Utils.toast('עובד נמחק');
       this.staffInit();
     } catch (e) { Utils.toast('שגיאה', 'danger'); }
+  },
+
+  /* ======================================================================
+     PRINT PHONE DIRECTORY
+     ====================================================================== */
+  printStaffPhoneDirectory() {
+    const data = (this._staffData || []).filter(function(s) { return (s['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC'; });
+    if (!data.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E6\u05D5\u05D5\u05EA', 'warning'); return; }
+    var roleSections = {};
+    data.forEach(function(s) {
+      var role = s['\u05EA\u05E4\u05E7\u05D9\u05D3'] || '\u05D0\u05D7\u05E8';
+      if (!roleSections[role]) roleSections[role] = [];
+      roleSections[role].push(s);
+    });
+    var html = '<!DOCTYPE html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD - \u05E6\u05D5\u05D5\u05EA</title>';
+    html += '<style>body{font-family:Heebo,Arial,sans-serif;direction:rtl;padding:20px;max-width:800px;margin:0 auto}';
+    html += 'h1{text-align:center;border-bottom:3px solid #1a73e8;padding-bottom:10px;color:#1a73e8}';
+    html += 'h3{background:#f0f4ff;padding:8px 12px;border-radius:6px;margin-top:20px;color:#1a73e8}';
+    html += 'table{width:100%;border-collapse:collapse;margin-bottom:20px}';
+    html += 'th{background:#1a73e8;color:#fff;padding:8px 12px;text-align:right}';
+    html += 'td{padding:8px 12px;border-bottom:1px solid #e5e7eb}';
+    html += 'tr:nth-child(even){background:#f9fafb}';
+    html += '.date{text-align:center;color:#6b7280;margin-top:10px;font-size:0.85rem}';
+    html += '@media print{body{padding:10px}}</style></head><body>';
+    html += '<h1><span style="margin-left:8px">\u260E</span>\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD - \u05E6\u05D5\u05D5\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h1>';
+    Object.keys(roleSections).forEach(function(role) {
+      html += '<h3>' + role + ' (' + roleSections[role].length + ')</h3>';
+      html += '<table><thead><tr><th>\u05E9\u05DD</th><th>\u05D8\u05DC\u05E4\u05D5\u05DF</th><th>\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</th><th>\u05DB\u05D9\u05EA\u05D5\u05EA</th></tr></thead><tbody>';
+      roleSections[role].forEach(function(s) {
+        var name = (s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '');
+        if (!name.trim()) name = s['\u05E9\u05DD'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+        html += '<tr><td><strong>' + name.trim() + '</strong></td>';
+        html += '<td dir="ltr" style="text-align:right">' + (s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '-') + '</td>';
+        html += '<td>' + (s['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '-') + '</td>';
+        html += '<td>' + (s['\u05DB\u05D9\u05EA\u05D5\u05EA'] || '-') + '</td></tr>';
+      });
+      html += '</tbody></table>';
+    });
+    html += '<div class="date">\u05D4\u05D5\u05D3\u05E4\u05E1 \u05D1\u05EA\u05D0\u05E8\u05D9\u05DA: ' + new Date().toLocaleDateString('he-IL') + '</div>';
+    html += '</body></html>';
+    var printWin = window.open('', '_blank');
+    printWin.document.write(html);
+    printWin.document.close();
+    printWin.focus();
+    setTimeout(function() { printWin.print(); }, 500);
   },
 
   /* ======================================================================
