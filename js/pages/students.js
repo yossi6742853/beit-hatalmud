@@ -1815,7 +1815,7 @@ Object.assign(Pages, {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = e => {
-          preview.innerHTML = '<img src="' + e.target.result + '" class="img-fluid rounded" style="max-height:150px">';
+          preview.innerHTML = '<img src="' + e.target.result + '" class="img-fluid rounded" style="max-height:150px" alt="\u05EA\u05E6\u05D5\u05D2\u05D4 \u05DE\u05E7\u05D3\u05D9\u05DE\u05D4">';
           preview.classList.remove('d-none');
         };
         reader.readAsDataURL(file);
@@ -1885,7 +1885,7 @@ Object.assign(Pages, {
     // Open in new tab
     const win = window.open('', '_blank');
     if (doc.fileType && doc.fileType.startsWith('image/')) {
-      win.document.write('<html dir="rtl"><head><title>' + doc.name + '</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#222"><img src="' + doc.data + '" style="max-width:100%;max-height:100vh"></body></html>');
+      win.document.write('<html dir="rtl"><head><title>' + doc.name + '</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#222"><img src="' + doc.data + '" style="max-width:100%;max-height:100vh" alt="' + doc.name + '"></body></html>');
     } else if (doc.fileType === 'application/pdf') {
       win.document.write('<html><head><title>' + doc.name + '</title></head><body style="margin:0"><iframe src="' + doc.data + '" style="width:100%;height:100vh;border:none"></iframe></body></html>');
     } else {
