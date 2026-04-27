@@ -752,26 +752,14 @@ body {
   border-radius: var(--bht-radius);
   border: none;
   box-shadow: var(--bht-shadow-xl);
-  animation: toastSlideIn .35s ease-out;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-}
-@keyframes toastSlideIn {
-  from { opacity: 0; transform: translateX(-100%) translateY(20px); }
-  to { opacity: 1; transform: translateX(0) translateY(0); }
 }
 
 /* ===== Modal — backdrop blur ===== */
 .modal-backdrop {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-}
-.modal.show .modal-dialog {
-  animation: modalZoomIn .3s ease-out;
-}
-@keyframes modalZoomIn {
-  from { opacity: 0; transform: scale(.9) translateY(-20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 .modal-content {
   border-radius: 18px;
@@ -1031,34 +1019,7 @@ body {
   background: var(--bht-primary-light) !important;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 991.98px) {
-  .sidebar {
-    width: 280px;
-  }
-  .main-content {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 575.98px) {
-  .stat-card .stat-value { font-size: 1.5rem; }
-  .page-header h1 { font-size: 1.25rem; }
-  .main-content { padding: .75rem; }
-  .login-card { padding: 2rem 1.5rem; }
-  .login-logo { width: 72px; height: 72px; font-size: 2rem; }
-  .login-title { font-size: 1.6rem; }
-}
-
-/* ===== Scrollbar — premium ===== */
-::-webkit-scrollbar { width: 7px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--bht-border);
-  border-radius: 4px;
-  transition: background .2s;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--bht-text-muted); }
+/* ===== Scrollbar — see section 11 below ===== */
 
 /* ===== Misc utilities ===== */
 .clickable { cursor: pointer; }
@@ -1070,13 +1031,7 @@ body {
 }
 .gap-row { row-gap: 1rem; }
 
-/* Gradient text utility */
-.text-gradient {
-  background: var(--bht-gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* Gradient text utility — see v5.9 section below */
 
 /* Hover glow effect */
 .glow-hover {
@@ -1142,12 +1097,7 @@ body {
   animation: countUp .5s ease-out;
 }
 
-/* Print styles */
-@media print {
-  .sidebar, #main-navbar, .toast-container, #theme-toggle { display: none !important; }
-  .main-content { padding: 0; }
-  .card { box-shadow: none; border: 1px solid #ddd; }
-}
+/* Print styles — see comprehensive @media print in section 10 below */
 
 /* Custom Bootstrap overrides */
 .dropdown-menu {
@@ -2032,21 +1982,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* ===== Better modal animations ===== */
-.modal.show .modal-dialog {
-  animation: modalSlideIn .35s cubic-bezier(.4, 0, .2, 1);
-}
-@keyframes modalSlideIn {
-  from { opacity: 0; transform: translateY(-30px) scale(.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* ===== Gradient border on focused input ===== */
-.form-control:focus {
-  border-image: linear-gradient(135deg, #2563eb, #6366f1) 1;
-  border-image-slice: 1;
-}
-
 /* ===== Card shimmer on hover ===== */
 .card-clickable::after {
   content: '';
@@ -2066,76 +2001,6 @@ body {
 @keyframes shimmerSlide {
   from { background-position: 200% 200%; }
   to { background-position: -200% -200%; }
-}
-
-/* ===== Landing Page ===== */
-.landing-hero {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #312e81 50%, #1e1b4b 75%, #0f172a 100%);
-  color: #fff;
-  min-height: 60vh;
-  display: flex;
-  align-items: center;
-}
-.landing-logo {
-  width: 100px;
-  height: 100px;
-  background: var(--bht-gradient-primary);
-  border-radius: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3rem;
-  color: #fff;
-  margin: 0 auto;
-  box-shadow: 0 12px 40px rgba(37,99,235,.4);
-  animation: landingBounce .6s ease-out;
-}
-@keyframes landingBounce {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
-}
-.landing-title {
-  font-size: 3.5rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, #fff, #93c5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.landing-subtitle {
-  font-size: 1.3rem;
-  opacity: .9;
-}
-.landing-desc {
-  font-size: 1rem;
-  opacity: .7;
-  max-width: 600px;
-  margin: 0 auto;
-}
-#landing-page .card {
-  border: none;
-  border-radius: var(--bht-radius);
-  box-shadow: var(--bht-shadow);
-  transition: transform .25s ease, box-shadow .25s ease;
-}
-#landing-page .card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--bht-shadow-xl);
-}
-#landing-page .badge {
-  font-size: .85rem;
-  font-weight: 500;
-  letter-spacing: .5px;
-}
-@media (max-width: 768px) {
-  .landing-title { font-size: 2.2rem; }
-  .landing-subtitle { font-size: 1rem; }
-  .landing-hero { min-height: 50vh; }
-}
-
-@media print {
-  #fab-container, #scroll-top, #toast-container { display: none !important; }
 }
 
 /* ===== Accessibility ===== */
@@ -2168,19 +2033,6 @@ body {
    PROFESSIONAL POLISH ENHANCEMENTS — Appended
    ============================================================ */
 
-/* ===== 1. Card Hover Effects ===== */
-.card {
-  transition: box-shadow var(--bht-transition), transform var(--bht-transition);
-}
-.card:hover {
-  box-shadow: var(--bht-shadow-md);
-  transform: translateY(-2px);
-}
-/* Prevent double-lift on already-lifted variants */
-.card-clickable:hover,
-.card-hover-gradient:hover,
-.kanban-card:hover { /* these already define their own hover transforms */ }
-
 /* ===== 2. Table Improvements ===== */
 .table-bht tbody tr:nth-child(even) {
   background-color: rgba(0, 0, 0, .018);
@@ -2198,24 +2050,6 @@ body {
 }
 [data-theme="dark"] .table-bht thead th {
   background: rgba(13, 17, 23, .92);
-}
-
-/* ===== 3. Badge Pulse Animation for Danger/Important ===== */
-.badge.bg-danger,
-.badge.bg-warning,
-.badge-important {
-  animation: badgeAttention 2.5s ease-in-out infinite;
-}
-@keyframes badgeAttention {
-  0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  50% { box-shadow: 0 0 0 5px rgba(234, 67, 53, .2); }
-}
-.badge.bg-warning {
-  animation-name: badgeAttentionWarn;
-}
-@keyframes badgeAttentionWarn {
-  0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  50% { box-shadow: 0 0 0 5px rgba(249, 171, 0, .2); }
 }
 
 /* ===== 4. Stats Cards — Subtle Gradient Backgrounds ===== */
@@ -2246,37 +2080,6 @@ body {
 }
 .stat-number-anim {
   animation: numberRollUp .65s cubic-bezier(.23, 1, .32, 1) both;
-}
-
-/* ===== 5. Form Input Enhanced Focus ===== */
-.form-control,
-.form-select {
-  transition: border-color var(--bht-transition), box-shadow var(--bht-transition), background-color var(--bht-transition);
-}
-.form-control:focus,
-.form-select:focus {
-  border-color: var(--bht-primary);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, .12), 0 1px 3px rgba(37, 99, 235, .08);
-  background-color: var(--bht-card-bg);
-}
-.form-control:hover:not(:focus),
-.form-select:hover:not(:focus) {
-  border-color: rgba(37, 99, 235, .35);
-}
-/* Colored glow for validation states */
-.form-control.is-valid:focus {
-  border-color: var(--bht-success);
-  box-shadow: 0 0 0 4px rgba(15, 157, 88, .12);
-}
-.form-control.is-invalid:focus {
-  border-color: var(--bht-danger);
-  box-shadow: 0 0 0 4px rgba(234, 67, 53, .12);
-}
-
-/* Floating label enhancement */
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-select:focus ~ label {
-  color: var(--bht-primary);
 }
 
 /* ===== 6. Sidebar Active State — RTL Right Border Accent ===== */

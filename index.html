@@ -57,7 +57,7 @@
       .landing-hero-v2 {
         background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #1e3a5f, #0f172a);
         background-size: 400% 400%;
-        animation: landingGradientShift 12s ease infinite;
+        animation: landingGradientShift 8s ease infinite;
         color: #fff;
         min-height: 100vh;
         display: flex;
@@ -87,14 +87,11 @@
         height: 8px;
         border-radius: 50%;
         background: rgba(147,197,253,.3);
-        animation: landingParticle 6s linear infinite;
+        animation: landingParticle 4s linear infinite;
       }
-      .landing-particles span:nth-child(1) { right: 10%; animation-delay: 0s; animation-duration: 7s; }
-      .landing-particles span:nth-child(2) { right: 30%; animation-delay: 1.5s; animation-duration: 5s; width: 6px; height: 6px; }
-      .landing-particles span:nth-child(3) { right: 50%; animation-delay: 3s; animation-duration: 8s; width: 10px; height: 10px; }
-      .landing-particles span:nth-child(4) { right: 70%; animation-delay: .5s; animation-duration: 6s; }
-      .landing-particles span:nth-child(5) { right: 85%; animation-delay: 2s; animation-duration: 9s; width: 5px; height: 5px; }
-      .landing-particles span:nth-child(6) { right: 20%; animation-delay: 4s; animation-duration: 6.5s; width: 7px; height: 7px; }
+      .landing-particles span:nth-child(1) { right: 15%; animation-duration: 5s; }
+      .landing-particles span:nth-child(2) { right: 50%; animation-delay: 1s; animation-duration: 4s; width: 10px; height: 10px; }
+      .landing-particles span:nth-child(3) { right: 80%; animation-delay: 2s; animation-duration: 5s; width: 6px; height: 6px; }
       .landing-icon-v2 {
         width: 120px;
         height: 120px;
@@ -107,7 +104,7 @@
         color: #fff;
         margin: 0 auto 1.5rem;
         box-shadow: 0 16px 50px rgba(59,130,246,.4), 0 0 80px rgba(139,92,246,.2);
-        animation: landingFloat 4s ease-in-out infinite, landingBounce .6s ease-out;
+        animation: landingFloat 3s ease-in-out infinite;
       }
       .landing-title-v2 {
         font-size: 4rem;
@@ -116,7 +113,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        animation: landingGlow 3s ease-in-out infinite;
+        animation: landingGlow 2s ease-in-out infinite;
         margin-bottom: .5rem;
       }
       .landing-subtitle-v2 {
@@ -141,7 +138,7 @@
         color: #fff;
         cursor: pointer;
         transition: transform .25s ease, box-shadow .25s ease;
-        animation: landingPulseBtn 2.5s infinite;
+        animation: landingPulseBtn 2s infinite;
         position: relative;
         overflow: hidden;
       }
@@ -165,11 +162,8 @@
       }
       .landing-stat-item {
         text-align: center;
-        animation: landingCountUp .8s ease-out both;
+        animation: landingCountUp .5s ease-out both;
       }
-      .landing-stat-item:nth-child(2) { animation-delay: .15s; }
-      .landing-stat-item:nth-child(3) { animation-delay: .3s; }
-      .landing-stat-item:nth-child(4) { animation-delay: .45s; }
       .landing-stat-number {
         font-size: 2.8rem;
         font-weight: 900;
@@ -195,13 +189,11 @@
         text-align: center;
         box-shadow: 0 4px 24px rgba(0,0,0,.06);
         transition: transform .3s ease, box-shadow .3s ease;
-        animation: landingSlideUp .7s ease-out both;
+        animation: landingSlideUp .4s ease-out both;
         border: 1px solid rgba(0,0,0,.04);
         height: 100%;
       }
       [data-theme="dark"] .landing-feature-card { background: #1e293b; border-color: rgba(255,255,255,.05); }
-      .landing-feature-card:nth-child(2) { animation-delay: .1s; }
-      .landing-feature-card:nth-child(3) { animation-delay: .2s; }
       .landing-feature-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 16px 48px rgba(0,0,0,.12);
@@ -265,7 +257,7 @@
         display: flex;
         gap: 12px;
         width: max-content;
-        animation: landingScrollBadges 40s linear infinite;
+        animation: landingScrollBadges 30s linear infinite;
       }
       .landing-showcase-track:hover { animation-play-state: paused; }
       .landing-showcase .badge {
@@ -295,7 +287,7 @@
     <!-- HERO -->
     <div class="landing-hero-v2">
       <div class="landing-particles">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
       </div>
       <div class="container text-center position-relative" style="z-index:1">
         <div class="landing-icon-v2">
