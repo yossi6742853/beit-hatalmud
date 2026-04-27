@@ -124,6 +124,7 @@ Object.assign(Pages, {
           </div>
           <div class="d-flex gap-2">
             <button class="btn btn-light btn-sm" onclick="Pages.bulkMessage()"><i class="bi bi-chat-dots me-1"></i>\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4</button>
+            <button class="btn btn-info btn-sm text-white" onclick="Pages.bulkSMS()"><i class="bi bi-phone me-1"></i>SMS</button>
             <button class="btn btn-light btn-sm" onclick="Pages.bulkExport()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0</button>
             <button class="btn btn-danger btn-sm" onclick="Pages.bulkDelete()"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
             <button class="btn btn-outline-light btn-sm" onclick="Pages.clearSelection()"><i class="bi bi-x-lg"></i></button>
@@ -566,6 +567,31 @@ Object.assign(Pages, {
     const clipText = `\u05D4\u05D5\u05D3\u05E2\u05D4:\n${msg}\n\n\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD:\n${phoneList}`;
     navigator.clipboard.writeText(clipText).catch(() => {});
     Utils.toast(`\u05D4\u05D5\u05D3\u05E2\u05D4 + ${phones.length} \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7\u05D5 \u05DC\u05DC\u05D5\u05D7`, 'success');
+  },
+
+  bulkSMS() {
+    const selected = this._studentsData.filter(s => this._studentsSelected.has(s._id));
+    if (!selected.length) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', 'warning'); return; }
+    // Get parent phones from DATA_CACHE הורים
+    const parents = (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05D4\u05D5\u05E8\u05D9\u05DD']) ? DATA_CACHE['\u05D4\u05D5\u05E8\u05D9\u05DD'] : [];
+    const phones = selected.map(s => {
+      const ph = s['\u05D8\u05DC\u05E4\u05D5\u05DF'] || s['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D4\u05D5\u05E8\u05D9\u05DD'] || '';
+      if (ph) return ph;
+      const parent = parents.find(p => (p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === s._id);
+      return parent ? (parent['\u05D8\u05DC\u05E4\u05D5\u05DF']||'') : '';
+    }).filter(Boolean);
+    if (!phones.length) { Utils.toast('\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD', 'warning'); return; }
+    // Open SMS with first phone
+    const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05EA SMS:');
+    if (!msg) return;
+    window.open('sms:' + phones[0] + '?body=' + encodeURIComponent(msg));
+    if (phones.length > 1) {
+      const list = phones.slice(1).join(', ');
+      navigator.clipboard.writeText(list).catch(() => {});
+      Utils.toast(`SMS \u05E0\u05E4\u05EA\u05D7 \u05DC\u05E8\u05D0\u05E9\u05D5\u05DF. ${phones.length - 1} \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05E0\u05D5\u05E1\u05E4\u05D9\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7\u05D5 \u05DC\u05DC\u05D5\u05D7`, 'info');
+    } else {
+      Utils.toast('SMS \u05E0\u05E4\u05EA\u05D7', 'success');
+    }
   },
 
   bulkExport() {
