@@ -461,8 +461,26 @@ Object.assign(Pages, {
     if (this._hcUseDemo) {
       this._hcEvents = this._hcDemoEvents;
     } else {
-      // No data available — calendar still renders with holidays/parshiot, just no custom events
-      this._hcEvents = [];
+      // Auto-populate with basic school events derived from _hcHolidays
+      var schoolEvents = [];
+      var schoolMap = {
+        '\u05E8\u05D0\u05E9 \u05D4\u05E9\u05E0\u05D4 \u05D0\u05F3': { title: '\u05E8\u05D0\u05E9 \u05D4\u05E9\u05E0\u05D4', color: '#dc3545' },
+        '\u05D7\u05E0\u05D5\u05DB\u05D4': { title: '\u05D7\u05E0\u05D5\u05DB\u05D4', color: '#fd7e14' },
+        '\u05E4\u05D5\u05E8\u05D9\u05DD': { title: '\u05E4\u05D5\u05E8\u05D9\u05DD', color: '#6f42c1' },
+        '\u05E4\u05E1\u05D7 \u05D0\u05F3': { title: '\u05E4\u05E1\u05D7', color: '#dc3545' }
+      };
+      for (var hi = 0; hi < this._hcHolidays.length; hi++) {
+        var h = this._hcHolidays[hi];
+        if (schoolMap[h.name]) {
+          schoolEvents.push({ date: h.gDates[0], title: schoolMap[h.name].title, color: schoolMap[h.name].color, type: 'event' });
+        }
+      }
+      // Add institutional events at fixed dates in the school year
+      schoolEvents.push({ date: '2025-11-15', title: '\u05D9\u05D5\u05DD \u05E2\u05D9\u05D5\u05DF', color: '#2563eb', type: 'event' });
+      schoolEvents.push({ date: '2025-12-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-02-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      schoolEvents.push({ date: '2026-05-01', title: '\u05D9\u05E9\u05D9\u05D1\u05EA \u05E6\u05D5\u05D5\u05EA', color: '#16a34a', type: 'event' });
+      this._hcEvents = schoolEvents;
     }
   },
 

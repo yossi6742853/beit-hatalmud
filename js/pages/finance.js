@@ -735,7 +735,7 @@ Object.assign(Pages, {
       try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id, row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD','\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()}}); done++; } catch(e) {}
     }
     this._finSelectedIds = [];
-    Utils.toast(done + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5');
+    Utils.toast(done + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', 'success');
     this.financeInit();
   },
 
@@ -746,7 +746,7 @@ Object.assign(Pages, {
     if (!unpaid.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05DC\u05E9\u05DC\u05D9\u05D7\u05D4','info'); return; }
     if (!await Utils.confirm('\u05E9\u05DC\u05D9\u05D7\u05EA \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA', `\u05DC\u05E9\u05DC\u05D5\u05D7 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05DC-${unpaid.length} \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD?`)) return;
     // In real scenario this would call an API to send reminders
-    Utils.toast(`\u05E0\u05E9\u05DC\u05D7\u05D5 ${unpaid.length} \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA`);
+    Utils.toast(unpaid.length + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', 'success');
     this._finSelectedIds = [];
     this.renderFinList();
   },

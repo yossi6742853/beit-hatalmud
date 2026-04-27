@@ -1058,17 +1058,17 @@ Object.assign(Pages, {
       </div>
 
       <!-- Tabs -->
-      <ul class="nav nav-tabs-bht mb-3 flex-nowrap overflow-auto" role="tablist" style="white-space:nowrap">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-info"><i class="bi bi-info-circle me-1"></i>\u05DE\u05D9\u05D3\u05E2</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-att"><i class="bi bi-calendar-check me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-grades"><i class="bi bi-mortarboard me-1"></i>\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-beh"><i class="bi bi-emoji-smile me-1"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-fin"><i class="bi bi-cash-stack me-1"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-parents"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-docs"><i class="bi bi-folder me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-notes"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-comm"><i class="bi bi-chat-dots me-1"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-tala"><i class="bi bi-file-earmark-person me-1"></i>\u05EA\u05DC"\u05D0</a></li>
+      <ul class="nav nav-tabs-bht mb-3 flex-nowrap overflow-auto" id="sc-tabs" role="tablist" style="white-space:nowrap">
+        <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" aria-selected="true" tabindex="0" data-bs-toggle="tab" href="#tab-info"><i class="bi bi-info-circle me-1"></i>\u05DE\u05D9\u05D3\u05E2</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-att"><i class="bi bi-calendar-check me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-grades"><i class="bi bi-mortarboard me-1"></i>\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-beh"><i class="bi bi-emoji-smile me-1"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-fin"><i class="bi bi-cash-stack me-1"></i>\u05DB\u05E1\u05E4\u05D9\u05DD</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-parents"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E8\u05D9\u05DD</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-docs"><i class="bi bi-folder me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-notes"><i class="bi bi-journal-text me-1"></i>\u05D9\u05D5\u05DE\u05DF</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-comm"><i class="bi bi-chat-dots me-1"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</a></li>
+        <li class="nav-item" role="presentation"><a class="nav-link" role="tab" aria-selected="false" tabindex="-1" data-bs-toggle="tab" href="#tab-tala"><i class="bi bi-file-earmark-person me-1"></i>\u05EA\u05DC"\u05D0</a></li>
       </ul>
       <div class="tab-content">
 
@@ -1443,6 +1443,28 @@ Object.assign(Pages, {
 
       </div>
     `;
+
+    // ARIA keyboard arrow navigation for student card tabs
+    var scTabsEl = document.getElementById('sc-tabs');
+    if (scTabsEl) {
+      scTabsEl.addEventListener('keydown', function(e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        var tabs = Array.from(scTabsEl.querySelectorAll('[role="tab"]'));
+        var idx = tabs.indexOf(document.activeElement);
+        if (idx < 0) return;
+        e.preventDefault();
+        // RTL: ArrowRight = previous, ArrowLeft = next
+        var next = e.key === 'ArrowLeft' ? idx + 1 : idx - 1;
+        if (next >= tabs.length) next = 0;
+        if (next < 0) next = tabs.length - 1;
+        tabs.forEach(function(t) { t.setAttribute('tabindex', '-1'); t.setAttribute('aria-selected', 'false'); });
+        tabs[next].setAttribute('tabindex', '0');
+        tabs[next].setAttribute('aria-selected', 'true');
+        tabs[next].focus();
+        tabs[next].click();
+      });
+    }
+
     } catch(err) {
       console.error('studentInit error:', err);
       const el = document.getElementById('student-card-content');
