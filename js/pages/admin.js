@@ -1213,7 +1213,12 @@ Object.assign(Pages, {
       try {
         const _gc2 = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
         const staff = _gc2('\u05E6\u05D5\u05D5\u05EA');
-        contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''}));
+        const parents = _gc2('\u05D4\u05D5\u05E8\u05D9\u05DD');
+        contacts = staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).map(s=>({name:Utils.fullName(s),phone:s['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||'\u05E6\u05D5\u05D5\u05EA'}));
+        // Add parents with phones
+        parents.filter(p=>p['\u05D8\u05DC\u05E4\u05D5\u05DF']).slice(0,50).forEach(p => {
+          contacts.push({name:((p['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'')+' '+(p['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim()||'\u05D4\u05D5\u05E8\u05D4',phone:p['\u05D8\u05DC\u05E4\u05D5\u05DF'],role:'\u05D4\u05D5\u05E8\u05D4'});
+        });
       } catch(e) {
         contacts = [];
       }
