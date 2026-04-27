@@ -17,7 +17,8 @@ Object.assign(Pages, {
     { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' },
     { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' },
     { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' },
-    { id: 'medication_list',    name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA',   icon: 'bi-capsule',             color: 'danger',   desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA, \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD' }
+    { id: 'medication_list',    name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA',   icon: 'bi-capsule',             color: 'danger',   desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA, \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD' },
+    { id: 'pettycash_report',   name: '\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4',  icon: 'bi-wallet2',             color: 'success',  desc: '\u05D3\u05D5\u05D7 \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05DE\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D5\u05D7\u05D5\u05D3\u05E9' }
   ],
 
   /* ---------- demo data ---------- */
@@ -826,6 +827,7 @@ Object.assign(Pages, {
       case 'finance_summary':    return this._pcBuildFinanceSummary(opts);
       case 'student_attendance': return this._pcBuildStudentAttendance(opts);
       case 'medication_list':    return this._pcBuildMedicationList(opts);
+      case 'pettycash_report':   return this._pcBuildPettyCashReport(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1937,6 +1939,53 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Petty Cash Report Template ---------- */
+  _pcBuildPettyCashReport(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const pcData = _gc('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+    const today = new Date().toLocaleDateString('he-IL');
+
+    if (!pcData.length) return '<div style="text-align:center;padding:40px;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4</div>';
+
+    // Group by category
+    const cats = {};
+    let totalIn = 0, totalOut = 0;
+    pcData.forEach(r => {
+      const cat = r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '\u05D0\u05D7\u05E8';
+      const amount = Math.abs(Number(r['\u05E1\u05DB\u05D5\u05DD']) || 0);
+      const isIncome = (r['\u05E1\u05D5\u05D2'] || '').includes('\u05D4\u05DB\u05E0\u05E1\u05D4');
+      if (!cats[cat]) cats[cat] = { in: 0, out: 0, count: 0 };
+      if (isIncome) { cats[cat].in += amount; totalIn += amount; }
+      else { cats[cat].out += amount; totalOut += amount; }
+      cats[cat].count++;
+    });
+
+    const fmt = n => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(n);
+    const catRows = Object.entries(cats).sort((a, b) => b[1].out - a[1].out).map(([cat, d]) =>
+      `<tr><td style="font-weight:bold">${cat}</td><td>${d.count}</td><td style="color:green">${d.in ? fmt(d.in) : '\u2014'}</td><td style="color:red">${d.out ? fmt(d.out) : '\u2014'}</td></tr>`
+    ).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD</h2>
+          <h3 style="margin:5px 0;color:#059669">\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4</h3>
+          <p style="color:#666">\u05EA\u05D0\u05E8\u05D9\u05DA: ${today} | ${pcData.length} \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</p>
+        </div>
+        <div style="display:flex;justify-content:center;gap:30px;margin-bottom:20px">
+          <div style="text-align:center"><div style="font-size:24px;font-weight:bold;color:green">${fmt(totalIn)}</div><small>\u05E1\u05D4"\u05DB \u05D4\u05DB\u05E0\u05E1\u05D5\u05EA</small></div>
+          <div style="text-align:center"><div style="font-size:24px;font-weight:bold;color:red">${fmt(totalOut)}</div><small>\u05E1\u05D4"\u05DB \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</small></div>
+          <div style="text-align:center"><div style="font-size:24px;font-weight:bold;color:${totalIn - totalOut >= 0 ? 'green' : 'red'}">${fmt(totalIn - totalOut)}</div><small>\u05D9\u05EA\u05E8\u05D4</small></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px" border="1" cellpadding="6">
+          <thead style="background:#d1fae5;font-weight:bold"><tr><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05E8\u05E9\u05D5\u05DE\u05D5\u05EA</th><th>\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA</th><th>\u05D4\u05D5\u05E6\u05D0\u05D5\u05EA</th></tr></thead>
+          <tbody>${catRows}</tbody>
+          <tfoot style="background:#f0fdf4;font-weight:bold"><tr><td>\u05E1\u05D4"\u05DB</td><td>${pcData.length}</td><td style="color:green">${fmt(totalIn)}</td><td style="color:red">${fmt(totalOut)}</td></tr></tfoot>
+        </table>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">\u05D4\u05D5\u05E4\u05E7 \u05DE\u05DE\u05E2\u05E8\u05DB\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 | \u05E1\u05D5\u05D3\u05D9</p>
+      </div>`;
   },
 
   /* ---------- Medication List Template ---------- */
