@@ -19,7 +19,8 @@ Object.assign(Pages, {
     { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' },
     { id: 'medication_list',    name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA',   icon: 'bi-capsule',             color: 'danger',   desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA, \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD' },
     { id: 'pettycash_report',   name: '\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4',  icon: 'bi-wallet2',             color: 'success',  desc: '\u05D3\u05D5\u05D7 \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05DE\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D5\u05D7\u05D5\u05D3\u05E9' },
-    { id: 'staff_salary',       name: '\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD', icon: 'bi-cash-coin',          color: 'info',     desc: '\u05E8\u05D9\u05DB\u05D5\u05D6 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9 \u2014 \u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1, \u05E0\u05E1\u05D9\u05E2\u05D5\u05EA, \u05E4\u05E0\u05E1\u05D9\u05D4' }
+    { id: 'staff_salary',       name: '\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD', icon: 'bi-cash-coin',          color: 'info',     desc: '\u05E8\u05D9\u05DB\u05D5\u05D6 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9 \u2014 \u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1, \u05E0\u05E1\u05D9\u05E2\u05D5\u05EA, \u05E4\u05E0\u05E1\u05D9\u05D4' },
+    { id: 'mivtza_report',     name: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3', icon: 'bi-trophy-fill',        color: 'warning',  desc: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 "\u05D9\u05EA\u05D2\u05D1\u05E8 \u05DB\u05D0\u05E8\u05D9" \u2014 \u05E9\u05D7\u05E8\u05D9\u05EA, \u05DE\u05E0\u05D7\u05D4, \u05DE\u05E2\u05E8\u05D9\u05D1, \u05D7\u05D1\u05E8\u05D5\u05EA\u05D0, \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA' }
   ],
 
   /* ---------- demo data ---------- */
@@ -830,6 +831,7 @@ Object.assign(Pages, {
       case 'medication_list':    return this._pcBuildMedicationList(opts);
       case 'pettycash_report':   return this._pcBuildPettyCashReport(opts);
       case 'staff_salary':       return this._pcBuildStaffSalary(opts);
+      case 'mivtza_report':      return this._pcBuildMivtzaReport(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1941,6 +1943,56 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Mivtza Limud Report Template ---------- */
+  _pcBuildMivtzaReport(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const mvData = _gc('\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3');
+    const today = new Date().toLocaleDateString('he-IL');
+    if (!mvData.length) return '<div style="text-align:center;padding:40px;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05DE\u05D1\u05E6\u05E2</div>';
+
+    // Sort by total units desc
+    const sorted = [...mvData].sort((a, b) => (Number(b['\u05E1\u05D4_\u05DB_\u05D9\u05D7\u05D9\u05D3\u05D5\u05EA'])||0) - (Number(a['\u05E1\u05D4_\u05DB_\u05D9\u05D7\u05D9\u05D3\u05D5\u05EA'])||0));
+    const fmt = n => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(n);
+    let totalUnits = 0, totalShekel = 0;
+
+    const rows = sorted.map((r, i) => {
+      const units = Number(r['\u05E1\u05D4_\u05DB_\u05D9\u05D7\u05D9\u05D3\u05D5\u05EA']||0);
+      const shekel = Number(r['\u05E1\u05D4_\u05DB_\u05E9\u05E7\u05DC\u05D9\u05DD']||0);
+      totalUnits += units; totalShekel += shekel;
+      const medal = i === 0 ? '\u05E4\u05E8\u05E1 \u05E8\u05D0\u05E9\u05D5\u05DF' : i === 1 ? '\u05E4\u05E8\u05E1 \u05E9\u05E0\u05D9' : i === 2 ? '\u05E4\u05E8\u05E1 \u05E9\u05DC\u05D9\u05E9\u05D9' : '';
+      return `<tr${i < 3 ? ' style="background:#fef3c7"' : ''}>
+        <td>${i + 1}${medal ? ' \u2B50' : ''}</td>
+        <td style="font-weight:bold">${r['\u05E9\u05DD']||''}</td>
+        <td>${r['\u05E9\u05D7\u05E8\u05D9\u05EA']||0}</td>
+        <td>${r['\u05DE\u05E0\u05D7\u05D4']||0}</td>
+        <td>${r['\u05DE\u05E2\u05E8\u05D9\u05D1']||0}</td>
+        <td>${r['\u05D7\u05D1\u05E8\u05D5\u05EA\u05D0']||0}</td>
+        <td>${r['\u05DC\u05D9\u05DE\u05D5\u05D3_\u05E2\u05E6\u05DE\u05D9']||0}</td>
+        <td style="font-weight:bold">${units}</td>
+        <td style="color:green;font-weight:bold">${fmt(shekel)}</td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h2>
+          <h3 style="margin:5px 0;color:#d97706">\u05DE\u05D1\u05E6\u05E2 "\u05D9\u05EA\u05D2\u05D1\u05E8 \u05DB\u05D0\u05E8\u05D9" \u2014 \u05D3\u05D5\u05D7 \u05E1\u05D9\u05DB\u05D5\u05DD</h3>
+          <p style="color:#666">${today} | ${sorted.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD | ${totalUnits} \u05D9\u05D7\u05D9\u05D3\u05D5\u05EA | ${fmt(totalShekel)}</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="5">
+          <thead style="background:#fef3c7;font-weight:bold">
+            <tr><th>#</th><th>\u05E9\u05DD</th><th>\u05E9\u05D7\u05E8\u05D9\u05EA</th><th>\u05DE\u05E0\u05D7\u05D4</th><th>\u05DE\u05E2\u05E8\u05D9\u05D1</th><th>\u05D7\u05D1\u05E8\u05D5\u05EA\u05D0</th><th>\u05E2\u05E6\u05DE\u05D9</th><th>\u05D9\u05D7\u05D9\u05D3\u05D5\u05EA</th><th>\u05E1\u05DB\u05D5\u05DD</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot style="background:#fffbeb;font-weight:bold">
+            <tr><td colspan="7">\u05E1\u05D4"\u05DB</td><td>${totalUnits}</td><td style="color:green">${fmt(totalShekel)}</td></tr>
+          </tfoot>
+        </table>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">\u05E1\u05D5\u05D3\u05D9 | \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</p>
+      </div>`;
   },
 
   /* ---------- Staff Salary Report Template ---------- */
