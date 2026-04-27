@@ -1553,6 +1553,11 @@ Object.assign(Pages, {
         .filter(k => k !== '_lastUpdated' && Array.isArray(DATA_CACHE[k]))
         .map(k => `<div class="d-flex justify-content-between border-bottom py-1"><span>${k}</span><span class="badge bg-secondary">${DATA_CACHE[k].length}</span></div>`)
         .join('');
+      // Add email stats
+      if (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE) {
+        rows += `<div class="d-flex justify-content-between border-bottom py-1 text-info"><span><i class="bi bi-envelope me-1"></i>\u05D3\u05D5\u05D0\u05E8 \u05E0\u05DB\u05E0\u05E1</span><span class="badge bg-info">${(EMAIL_CACHE.inbox||[]).length}</span></div>`;
+        rows += `<div class="d-flex justify-content-between border-bottom py-1 text-info"><span><i class="bi bi-send me-1"></i>\u05D3\u05D5\u05D0\u05E8 \u05E0\u05E9\u05DC\u05D7</span><span class="badge bg-info">${(EMAIL_CACHE.sent||[]).length}</span></div>`;
+      }
       countsEl.innerHTML = rows || '<span class="text-muted">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</span>';
     }
   },
