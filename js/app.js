@@ -107,6 +107,11 @@ const App = {
     try { this.updateNotifBadgeFromStorage(); } catch(e) {}
     try { this.updateSyncStatus(); } catch(e) {}
     try { this._startPreload(); } catch(e) {}
+    // Hebrew date in topbar
+    try {
+      const hd = document.getElementById('topbar-hebrew-date');
+      if (hd && typeof Utils !== 'undefined' && Utils.hebrewDateFull) hd.textContent = Utils.hebrewDateFull();
+    } catch(e) {}
     // Email unread badge in sidebar
     try {
       const emailBadge = document.getElementById('sidebar-email-badge');
