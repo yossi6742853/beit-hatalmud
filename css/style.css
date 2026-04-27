@@ -4380,3 +4380,27 @@ h5, .h5 { font-size: 1.15rem; }
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
 }
+
+/* ===== Clickable Phone Numbers ===== */
+a[href^="tel:"] {
+  color: var(--bs-success);
+  text-decoration: none;
+  font-weight: 500;
+}
+a[href^="tel:"]:hover {
+  text-decoration: underline;
+  color: #059669;
+}
+a[href^="tel:"]::before {
+  content: "\F4C3"; /* bi-telephone */
+  font-family: "bootstrap-icons";
+  margin-left: 4px;
+  font-size: .8em;
+}
+a[href^="sms:"] {
+  color: var(--bs-info);
+  text-decoration: none;
+}
+a[href^="sms:"]:hover {
+  text-decoration: underline;
+}
