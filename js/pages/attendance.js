@@ -954,13 +954,8 @@ Object.assign(Pages, {
   },
 
   /* ======================================================================
-     PRINT (duplicate copyAttSummary removed — using the one at line 838)
+     PRINT
      ====================================================================== */
-    if (absentNames.length) text += `\u05D7\u05E1\u05E8\u05D9\u05DD: ${absentNames.join(', ')}\n`;
-    if (lateNames.length) text += `\u05D0\u05D9\u05D7\u05D5\u05E8: ${lateNames.join(', ')}\n`;
-    navigator.clipboard.writeText(text).then(() => Utils.toast('\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7', 'success')).catch(() => Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'));
-  },
-
   printAttendance() {
     const win = window.open('', '', 'width=800,height=600');
     const date = document.getElementById('att-date').value;
