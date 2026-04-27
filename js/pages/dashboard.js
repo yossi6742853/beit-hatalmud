@@ -591,9 +591,15 @@ Object.assign(Pages, {
 
   /* ---- System Health section ---- */
   _initSystemHealth() {
-    // Modules loaded
-    const moduleCount = Object.keys(Pages).filter(k => typeof Pages[k] === 'function' && !k.startsWith('_')).length;
-    this._setText('health-modules', Math.floor(moduleCount / 2) + ' \u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD');
+    // Modules loaded — count unique page functions (render+init pairs = 1 module)
+    const pageNames = new Set();
+    Object.keys(Pages).forEach(k => {
+      if (typeof Pages[k] === 'function' && !k.startsWith('_')) {
+        const base = k.replace(/Init$/, '');
+        pageNames.add(base);
+      }
+    });
+    this._setText('health-modules', pageNames.size + ' \u05DE\u05D5\u05D3\u05D5\u05DC\u05D9\u05DD');
 
     // localStorage usage
     let storageUsed = 0;
