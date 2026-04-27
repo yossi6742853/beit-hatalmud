@@ -16,7 +16,8 @@ Object.assign(Pages, {
     { id: 'behavior_report',    name: '\u05D3\u05D5\u05D7 \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-star-half',          color: 'danger',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05D7\u05D5\u05D3\u05E9\u05D9 \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9/\u05E9\u05DC\u05D9\u05DC\u05D9, \u05E0\u05D9\u05E7\u05D5\u05D3 \u05E0\u05D8\u05D5, \u05D0\u05D9\u05E8\u05D5\u05E2 \u05D0\u05D7\u05E8\u05D5\u05DF' },
     { id: 'finance_summary',   name: '\u05D3\u05D5\u05D7 \u05DB\u05E1\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9\u05D9', icon: 'bi-cash-stack',         color: 'success',  desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D7\u05D5\u05D3\u05E9\u05D9 \u2014 \u05D7\u05D9\u05D5\u05D1\u05D9\u05DD, \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD, \u05D9\u05EA\u05E8\u05D5\u05EA' },
     { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' },
-    { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' }
+    { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' },
+    { id: 'medication_list',    name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA',   icon: 'bi-capsule',             color: 'danger',   desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA, \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD' }
   ],
 
   /* ---------- demo data ---------- */
@@ -823,6 +824,7 @@ Object.assign(Pages, {
       case 'behavior_report':    return this._pcBuildBehaviorReport(opts);
       case 'finance_summary':    return this._pcBuildFinanceSummary(opts);
       case 'student_attendance': return this._pcBuildStudentAttendance(opts);
+      case 'medication_list':    return this._pcBuildMedicationList(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1930,6 +1932,65 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Medication List Template ---------- */
+  _pcBuildMedicationList(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const medData = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const today = new Date().toLocaleDateString('he-IL');
+
+    // Find students with medications
+    const withMeds = medData.filter(r => {
+      const meds = (r['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd'] || '') + ',' + (r['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA'] || '');
+      return meds.replace(/,/g, '').trim().length > 0;
+    }).map(r => {
+      const sid = r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || r['\u05DE\u05D6\u05D4\u05D4'] || '';
+      const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4'] || '') === sid);
+      const name = student ? ((student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim() : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
+      const cls = student ? (student['\u05DB\u05D9\u05EA\u05D4'] || '') : '';
+      const allMeds = ((r['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd'] || '') + ', ' + (r['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA'] || '')).split(/[,،;]\s*/).filter(Boolean).join(', ');
+      const allergies = r['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA'] || '';
+      const notes = r['\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA_\u05DE\u05D9\u05D5\u05D7\u05D3\u05D5\u05EA'] || r['\u05D4\u05E2\u05E8\u05D5\u05EA'] || '';
+      const emergency = r['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8_\u05D7\u05D9\u05E8\u05D5\u05DD'] || r['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8'] || '';
+      const emergencyPh = r['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D7\u05D9\u05E8\u05D5\u05DD'] || '';
+      return { name, cls, meds: allMeds, allergies, notes, emergency, emergencyPh };
+    });
+
+    if (!withMeds.length) {
+      return '<div style="text-align:center;padding:40px;color:#999">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA</div>';
+    }
+
+    const rows = withMeds.map((s, i) => `
+      <tr>
+        <td style="font-weight:bold">${i + 1}</td>
+        <td style="font-weight:bold">${s.name}</td>
+        <td>${s.cls}</td>
+        <td style="color:#c0392b;font-weight:bold">${s.meds}</td>
+        <td style="color:#e67e22">${s.allergies || '\u2014'}</td>
+        <td>${s.notes || '\u2014'}</td>
+        <td style="font-size:11px">${s.emergency}${s.emergencyPh ? '<br>' + s.emergencyPh : ''}</td>
+      </tr>`).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD</h2>
+          <h3 style="margin:5px 0;color:#c0392b">\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA</h3>
+          <p style="color:#666">\u05EA\u05D0\u05E8\u05D9\u05DA: ${today} | ${withMeds.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px" border="1" cellpadding="6">
+          <thead style="background:#f8d7da;font-weight:bold">
+            <tr><th>#</th><th>\u05E9\u05DD</th><th>\u05DB\u05D9\u05EA\u05D4</th><th>\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA</th><th>\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA</th><th>\u05D4\u05E2\u05E8\u05D5\u05EA</th><th>\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div style="margin-top:15px;padding:10px;background:#fff3cd;border:1px solid #ffc107;border-radius:5px;font-size:12px">
+          <strong>\u05D4\u05E2\u05E8\u05D4 \u05D7\u05E9\u05D5\u05D1\u05D4:</strong> \u05D9\u05E9 \u05DC\u05D5\u05D5\u05D3\u05D0 \u05E9\u05DC\u05D9\u05D7\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05DC\u05DB\u05DC \u05EA\u05DC\u05DE\u05D9\u05D3. \u05D1\u05DE\u05E7\u05E8\u05D4 \u05E9\u05E0\u05D2\u05DE\u05E8\u05D5 \u05D4\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u2014 \u05DC\u05D9\u05D9\u05D3\u05E2 \u05D0\u05EA \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD \u05DE\u05D9\u05D3!
+        </div>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">\u05D4\u05D5\u05E4\u05E7 \u05DE\u05DE\u05E2\u05E8\u05DB\u05EA \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 | \u05E1\u05D5\u05D3\u05D9</p>
+      </div>`;
   },
 
 });
