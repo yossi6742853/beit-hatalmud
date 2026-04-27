@@ -4437,3 +4437,6 @@ html { scroll-behavior: smooth; }
 /* ===== Selection Color ===== */
 ::selection { background: #3b82f6; color: #fff; }
 [data-theme="dark"] ::selection { background: #6366f1; }
+
+/* ===== Email Body Word Break ===== */
+.email-msg-body { word-break: break-word; overflow-wrap: break-word; }
