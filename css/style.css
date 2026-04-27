@@ -4597,3 +4597,14 @@ html { scroll-behavior: smooth; }
 /* ===== Page Header Gradient ===== */
 .page-header h1 i { transition: color .2s; }
 .page-header:hover h1 i { color: var(--bs-primary) !important; }
+
+/* ===== Loading Bar Glow ===== */
+#bht-loading-bar {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6) !important;
+  background-size: 200% 100%;
+  animation: loadingGlow 1.5s linear infinite;
+}
+@keyframes loadingGlow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
