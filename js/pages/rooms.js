@@ -407,7 +407,7 @@ Object.assign(Pages, {
   },
 
   async _roomCancel(id) {
-    if (!confirm('לבטל הזמנה זו?')) return;
+    if (!await Utils.confirm('\u05D1\u05D9\u05D8\u05D5\u05DC \u05D4\u05D6\u05DE\u05E0\u05D4', '\u05DC\u05D1\u05D8\u05DC \u05D4\u05D6\u05DE\u05E0\u05D4 \u05D6\u05D5?')) return;
     this._roomBookings = this._roomBookings.filter(b => b.id !== id);
     try { await App.apiCall('delete', '\u05D7\u05D3\u05E8\u05D9\u05DD', { id }); } catch (e) { /* localStorage fallback */ }
     this._roomSaveToStorage();

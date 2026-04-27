@@ -596,7 +596,7 @@ Object.assign(Pages, {
   async trDeleteRoute(routeId) {
     const route = this._transportRoutes.find(r => r.id === routeId);
     if (!route) return;
-    if (!confirm(`למחוק את "${route.name}"?`)) return;
+    if (!await Utils.confirm("מחיקה", `למחוק את "${route.name}"?`)) return;
 
     const idx = this._transportRoutes.indexOf(route);
     this._transportRoutes.splice(idx, 1);
@@ -674,7 +674,7 @@ Object.assign(Pages, {
   async trDeleteDriver(driverId) {
     const d = this._transportDrivers.find(x => x.id === driverId);
     if (!d) return;
-    if (!confirm(`למחוק את הנהג "${d.name}"?`)) return;
+    if (!await Utils.confirm("מחיקה", `למחוק את הנהג "${d.name}"?`)) return;
 
     const idx = this._transportDrivers.indexOf(d);
     this._transportDrivers.splice(idx, 1);

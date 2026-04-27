@@ -625,8 +625,8 @@ Object.assign(Pages, {
     if (typeof App !== 'undefined' && App.navigate) App.navigate('printcenter');
   },
 
-  _pcClearHistory() {
-    if (!confirm('למחוק את כל היסטוריית ההדפסות?')) return;
+  async _pcClearHistory() {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D4\u05D4\u05D3\u05E4\u05E1\u05D5\u05EA?')) return;
     localStorage.removeItem(this._pcHistoryLS);
     if (typeof App !== 'undefined' && App.navigate) App.navigate('printcenter');
   },

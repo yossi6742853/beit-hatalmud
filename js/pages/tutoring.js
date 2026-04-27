@@ -437,7 +437,7 @@ Object.assign(Pages, {
   },
 
   async _tutorDelete(id) {
-    if (!confirm('למחוק שיעור זה?')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D6\u05D4?')) return;
     this._tutorSessions = this._tutorSessions.filter(s => s.id !== id);
     try { await App.apiCall('delete', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8', { id }); } catch (e) { /* localStorage fallback */ }
     this._tutorSaveToStorage();

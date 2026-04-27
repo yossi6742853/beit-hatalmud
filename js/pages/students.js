@@ -1903,8 +1903,8 @@ Object.assign(Pages, {
   },
 
   /** Delete a locally stored document */
-  _scDeleteLocalDoc(localId) {
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05DE\u05E1\u05DE\u05DA?')) return;
+  async _scDeleteLocalDoc(localId) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E1\u05DE\u05DA', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05DE\u05E1\u05DE\u05DA?')) return;
     const key = 'bht_student_docs_' + this._scStudentId;
     const docs = JSON.parse(localStorage.getItem(key) || '[]');
     const filtered = docs.filter(d => d.id !== localId);

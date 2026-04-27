@@ -415,7 +415,7 @@ Object.assign(Pages, {
       const newOpts = prompt('אפשרויות (מופרד בפסיק):', (f.options || []).join(', '));
       if (newOpts !== null) f.options = newOpts.split(',').map(o => o.trim()).filter(Boolean);
     }
-    f.required = confirm('שדה חובה?');
+    f.required = true; // default to required; user can toggle in form builder
     this._formRenderFields();
   },
 
@@ -887,10 +887,10 @@ Object.assign(Pages, {
     new bootstrap.Modal(document.getElementById('frm-resp-detail-modal')).show();
   },
 
-  _formDeleteResponse(idx) {
+  async _formDeleteResponse(idx) {
     const form = this._formsData.find(f => f._id === this._formsViewId);
     if (!form || !form.responses) return;
-    if (!confirm('למחוק תשובה זו?')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05EA\u05E9\u05D5\u05D1\u05D4 \u05D6\u05D5?')) return;
     form.responses.splice(idx, 1);
     Utils.toast('התשובה נמחקה', 'success');
     this._formViewResponses(this._formsViewId);
@@ -1081,7 +1081,7 @@ Object.assign(Pages, {
 
   /* ========== Delete ========== */
   async _formDelete(id) {
-    if (!confirm('למחוק טופס זה? כל התשובות ימחקו גם כן.')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D8\u05D5\u05E4\u05E1', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D8\u05D5\u05E4\u05E1 \u05D6\u05D4? \u05DB\u05DC \u05D4\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05D9\u05DE\u05D7\u05E7\u05D5 \u05D2\u05DD \u05DB\u05DF.')) return;
     this._formsData = this._formsData.filter(f => f._id !== id);
 
     // Delete from API

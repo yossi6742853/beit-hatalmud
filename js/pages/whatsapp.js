@@ -562,10 +562,10 @@ Object.assign(Pages, {
     this.renderWa();
   },
 
-  waDeleteGroup(groupId) {
+  async waDeleteGroup(groupId) {
     const idx = this._waGroups.findIndex(g => g.id === groupId);
     if (idx === -1) return;
-    if (!confirm('\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4?')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E7\u05D1\u05D5\u05E6\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4?')) return;
     this._waGroups.splice(idx, 1);
     if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'success');
     this.renderWa();

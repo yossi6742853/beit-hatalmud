@@ -1180,8 +1180,8 @@ Object.assign(Pages, {
     this._renderCommCallLog(document.getElementById('comm-content'));
   },
 
-  _deleteCallLog(idx) {
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
+  async _deleteCallLog(idx) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E8\u05E9\u05D5\u05DE\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E8\u05E9\u05D5\u05DE\u05D4 \u05D6\u05D5?')) return;
     this._commCallLog.splice(idx, 1);
     Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'success');
     this._renderCommCallLog(document.getElementById('comm-content'));
