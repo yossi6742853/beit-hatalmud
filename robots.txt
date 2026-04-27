@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yossi6742853.github.io/beit-hatalmud/sitemap.xml
