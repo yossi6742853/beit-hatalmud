@@ -341,6 +341,19 @@ Object.assign(Pages, {
   },
 
   /* ---------- Overdue alerts ---------- */
+  _finCopyOverdue() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const overdue = (this._finData || []).filter(f => {
+      if ((f['\u05E1\u05D8\u05D8\u05D5\u05E1']||'') === '\u05E9\u05D5\u05DC\u05DD') return false;
+      const due = f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3'] ? new Date(f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E2\u05D3']) : null;
+      return due && due < today;
+    });
+    if (!overdue.length) { Utils.toast('\u05D0\u05D9\u05DF \u05D0\u05D9\u05D7\u05D5\u05E8\u05D9\u05DD', 'info'); return; }
+    const text = `\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8 (${overdue.length}):\n` +
+      overdue.map(f => `${f['\u05E9\u05DD']||''}: ${f['\u05E1\u05DB\u05D5\u05DD']||''} \u20AA`).join('\n');
+    navigator.clipboard.writeText(text).then(() => Utils.toast('\u05E8\u05E9\u05D9\u05DE\u05D4 \u05D4\u05D5\u05E2\u05EA\u05E7\u05D4', 'success'));
+  },
+
   _finRenderOverdue() {
     const section = document.getElementById('fin-overdue-section');
     if (!section) return;
@@ -363,6 +376,7 @@ Object.assign(Pages, {
         <div class="card-header bg-danger bg-opacity-10 d-flex align-items-center gap-2">
           <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
           <h6 class="fw-bold mb-0 text-danger">\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8 (${overdue.length})</h6>
+          <button class="btn btn-outline-danger btn-sm ms-auto" onclick="Pages._finCopyOverdue()"><i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7</button>
         </div>
         <div class="card-body p-0">
           <table class="table table-bht mb-0">
