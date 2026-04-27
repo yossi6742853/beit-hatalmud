@@ -229,43 +229,18 @@ Object.assign(Pages, {
 
   homeworkInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try API first
-    try {
-      const apiData = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
-      if (apiData && apiData.length > 0) {
-        this._hwData = apiData;
-      } else if (this._hwUseDemo) {
-        this._hwGenerateDemo();
-        this._hwData = this._hwDemoAssignments;
-      } else {
-        this._hwData = [];
-      }
-    } catch (e) {
-      if (this._hwUseDemo) {
-        this._hwGenerateDemo();
-        this._hwData = this._hwDemoAssignments;
-      } else {
-        this._hwData = [];
-      }
-    }
 
-    // If no data and not demo, show empty state
-    if (!this._hwData.length && !this._hwUseDemo) {
-      document.getElementById('hw-stats').innerHTML = '';
-      document.getElementById('hw-overdue-alerts').innerHTML = '';
-      document.getElementById('hw-content').innerHTML = '<div class="empty-state text-center py-5"><i class="bi bi-book fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D7\u05D3\u05E9" \u05DC\u05D4\u05EA\u05D7\u05DC\u05D4</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.hwLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>';
-      return;
-    }
-
+    // Load data: real cache first, then demo, then empty
     if (this._hwUseDemo) {
-    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
       this._hwGenerateDemo();
+      this._hwData = this._hwDemoAssignments;
       this._hwSubmissions = this._hwDemoSubmissions;
       this._hwStudents = this._hwDemoStudents;
     } else {
+      const apiData = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA');
+      this._hwData = (apiData && apiData.length) ? apiData : [];
       this._hwSubmissions = _gc('\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA_\u05D4\u05D2\u05E9\u05D5\u05EA') || [];
       this._hwStudents = [];
-      // Load real students and enrich with _fullName / _id
       try {
         const stuData = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
         if (stuData && stuData.length) {
@@ -276,6 +251,35 @@ Object.assign(Pages, {
           });
         }
       } catch(e) {}
+    }
+
+    // Empty state with nice UI and quick-add form
+    if (!this._hwData.length && !this._hwUseDemo) {
+      document.getElementById('hw-stats').innerHTML = '';
+      document.getElementById('hw-overdue-alerts').innerHTML = '';
+      document.getElementById('hw-content').innerHTML = `
+        <div class="text-center py-5">
+          <div class="mb-3"><i class="bi bi-journal-bookmark" style="font-size:4rem;color:#dee2e6"></i></div>
+          <h4 class="text-muted mb-2">\u05D0\u05D9\u05DF \u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA</h4>
+          <p class="text-muted mb-4">\u05D4\u05D5\u05E1\u05E3 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E8\u05D0\u05E9\u05D5\u05DF \u05D0\u05D5 \u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</p>
+          <div class="d-flex justify-content-center gap-2 mb-4">
+            <button class="btn btn-primary" onclick="Pages.hwShowAddModal()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA</button>
+            <button class="btn btn-outline-secondary" onclick="Pages.hwLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button>
+          </div>
+          <div class="card mx-auto" style="max-width:480px">
+            <div class="card-body">
+              <h6 class="card-title mb-3"><i class="bi bi-lightning me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4</h6>
+              <div class="row g-2">
+                <div class="col-6"><input class="form-control form-control-sm" id="hw-quick-subject" placeholder="\u05DE\u05E7\u05E6\u05D5\u05E2"></div>
+                <div class="col-6"><input class="form-control form-control-sm" id="hw-quick-class" placeholder="\u05DB\u05D9\u05EA\u05D4"></div>
+                <div class="col-12"><input class="form-control form-control-sm" id="hw-quick-desc" placeholder="\u05EA\u05D9\u05D0\u05D5\u05E8 \u05D4\u05E9\u05D9\u05E2\u05D5\u05E8"></div>
+                <div class="col-6"><input type="date" class="form-control form-control-sm" id="hw-quick-due" title="\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D2\u05E9\u05D4"></div>
+                <div class="col-6"><button class="btn btn-primary btn-sm w-100" onclick="Pages.hwQuickAdd()"><i class="bi bi-plus-lg me-1"></i>\u05D4\u05D5\u05E1\u05E3</button></div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      return;
     }
 
     // Populate filters
@@ -871,6 +875,33 @@ Object.assign(Pages, {
     document.getElementById('hf-given').value = Utils.todayISO();
     document.getElementById('hf-due').value = '';
     new bootstrap.Modal(document.getElementById('hw-modal')).show();
+  },
+
+  async hwQuickAdd() {
+    const subject = (document.getElementById('hw-quick-subject') || {}).value || '';
+    const cls = (document.getElementById('hw-quick-class') || {}).value || '';
+    const desc = (document.getElementById('hw-quick-desc') || {}).value || '';
+    const due = (document.getElementById('hw-quick-due') || {}).value || '';
+    if (!subject.trim() || !due) { Utils.toast('\u05DE\u05DC\u05D0 \u05DE\u05E7\u05E6\u05D5\u05E2 \u05D5\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D2\u05E9\u05D4', 'warning'); return; }
+    const row = {
+      '\u05DB\u05D5\u05EA\u05E8\u05EA': subject.trim() + (cls ? ' \u2014 ' + cls : ''),
+      '\u05DE\u05E7\u05E6\u05D5\u05E2': subject.trim(),
+      '\u05DB\u05D9\u05EA\u05D4': cls.trim(),
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DE\u05EA\u05DF': Utils.todayISO(),
+      '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4': due,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc.trim(),
+      '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC'
+    };
+    try {
+      await App.apiCall('add', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA', { row });
+      Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3');
+      this.homeworkInit();
+    } catch (e) {
+      row['\u05DE\u05D6\u05D4\u05D4'] = 'hw_' + Date.now();
+      this._hwData.push(row);
+      Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3 (\u05DE\u05E7\u05D5\u05DE\u05D9)');
+      this.homeworkInit();
+    }
   },
 
   async hwSave() {

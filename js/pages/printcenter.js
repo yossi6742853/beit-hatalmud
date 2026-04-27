@@ -828,14 +828,19 @@ Object.assign(Pages, {
   },
 
   _pcDocHeader(opts, title) {
+    const printDate = opts.date || new Date().toLocaleDateString('he-IL');
     return `
       <div class="pc-header">
-        ${opts.showLogo ? `<div style="text-align:center;margin-bottom:20px">
-          <img src="img/logo-bht.png" style="height:60px;margin-bottom:8px" alt="בית התלמוד">
-          <h2 style="margin:0;font-family:Heebo">בית התלמוד</h2>
-          <p style="margin:0;font-size:12px;color:#666">רח' נחל שורק, בית שמש | טל: 02-1234567</p>
-        </div>` : `<div class="pc-inst-name">בית התלמוד</div><div class="pc-inst-sub">מוסד חינוכי תורני</div>`}
+        ${opts.showLogo ? `<div style="text-align:center;margin-bottom:16px">
+          <div style="display:flex;justify-content:center;align-items:center;margin-bottom:8px">
+            <img src="img/logo-bht.png" style="height:64px" alt="\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3">
+          </div>
+          <h2 style="margin:0;font-family:Heebo;font-weight:800;letter-spacing:.5px">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h2>
+          <p style="margin:4px 0 0;font-size:12px;color:#666">\u05E8\u05D7\u05F3 \u05E0\u05D7\u05DC \u05E9\u05D5\u05E8\u05E7, \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9 | \u05D8\u05DC: 02-1234567</p>
+          <div style="font-size:10px;color:#999;margin-top:2px">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D3\u05E4\u05E1\u05D4: ${printDate}</div>
+        </div>` : `<div class="pc-inst-name" style="font-weight:800">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</div><div class="pc-inst-sub">\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D9\u05E0\u05D5\u05DB\u05D9 \u05EA\u05D5\u05E8\u05E0\u05D9</div><div style="font-size:10px;color:#999;margin-top:2px">\u05EA\u05D0\u05E8\u05D9\u05DA \u05D4\u05D3\u05E4\u05E1\u05D4: ${printDate}</div>`}
         ${opts.customHeader ? `<div style="margin-top:8px;font-weight:600;color:#333">${opts.customHeader}</div>` : ''}
+        <hr style="border:none;border-top:2px solid #333;margin:12px 0 8px">
       </div>
       <div class="pc-title">${title}</div>
     `;
