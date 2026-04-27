@@ -4290,3 +4290,76 @@ h5, .h5 { font-size: 1.15rem; }
 [data-theme="dark"] .stat-card { background: #1e293b; }
 [data-theme="dark"] .empty-state { color: #94a3b8; }
 [data-theme="dark"] .breadcrumb-nav { color: #94a3b8; }
+
+/* ===== Email Module Styles ===== */
+.email-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
+}
+.email-row.border-start {
+  border-color: var(--bs-primary) !important;
+}
+.email-msg-body {
+  font-family: 'Heebo', sans-serif;
+  color: var(--bht-text);
+}
+.email-collapsed .email-msg-body {
+  display: none;
+}
+.email-collapsed .card-body {
+  opacity: .65;
+  padding-top: .5rem !important;
+  padding-bottom: .5rem !important;
+}
+[data-theme="dark"] .email-row {
+  background: #1e293b;
+}
+[data-theme="dark"] .email-row:hover {
+  background: #253347;
+}
+
+/* ===== Improved Mobile Touch Targets ===== */
+@media (max-width: 767.98px) {
+  .btn-sm {
+    min-height: 36px;
+    padding: .375rem .625rem;
+  }
+  .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+  }
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+  .page-header .btn {
+    font-size: .8rem;
+  }
+  /* Email mobile: full width folders */
+  #email-folders .list-group-item {
+    padding: .6rem .75rem;
+  }
+}
+
+/* ===== Better Loading States ===== */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.skeleton-line {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+[data-theme="dark"] .skeleton-line {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200px 100%;
+}
+
+/* ===== Smooth Page Transitions ===== */
+.fade-in {
+  animation: fadeIn .2s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
