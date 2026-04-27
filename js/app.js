@@ -902,6 +902,13 @@ const App = {
         return;
       }
 
+      // Ctrl+Shift+P = quick print current page
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        window.print();
+        return;
+      }
+
       // Escape = close search dropdown, close modals, close command palette
       if (e.key === 'Escape') {
         const search = document.getElementById('global-search');
