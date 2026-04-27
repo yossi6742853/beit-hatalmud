@@ -38,6 +38,18 @@
       "short_name": "כספים",
       "url": "./#finance",
       "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "דואר אלקטרוני",
+      "short_name": "דואר",
+      "url": "./#email",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "הדפסות",
+      "short_name": "הדפסות",
+      "url": "./#printcenter",
+      "icons": [{"src": "icons/icon-192.png", "sizes": "192x192"}]
     }
   ]
 }
