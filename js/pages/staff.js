@@ -204,7 +204,7 @@ Object.assign(Pages, {
             <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();Pages.showStaffDocs('${sid}','${name}')"><i class="bi bi-file-earmark me-1"></i>מסמכים</button>
             <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();Pages.showAddStaff(Pages._staffData.find(z=>String(Utils.rowId(z))==='${sid}'))"><i class="bi bi-pencil me-1"></i>עריכה</button>
             <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation();Pages.deleteStaff('${sid}')"><i class="bi bi-trash me-1"></i>מחק</button>
-            ${phone ? `<a href="https://wa.me/972${phone.replace(/^0/, '')}" target="_blank" class="btn btn-sm btn-outline-success ms-auto" onclick="event.stopPropagation()"><i class="bi bi-whatsapp"></i></a>` : ''}
+            ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-success ms-auto" onclick="event.stopPropagation()"><i class="bi bi-telephone"></i></a>` : ''}
           </div>
         </div>
 
@@ -212,7 +212,7 @@ Object.assign(Pages, {
         <div class="d-flex gap-1 mt-2 border-top pt-2 ${expanded ? 'd-none' : ''}" id="staff-actions-${sid}">
           <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();Pages.showAddStaff(Pages._staffData.find(z=>String(Utils.rowId(z))==='${sid}'))"><i class="bi bi-pencil me-1"></i>ערוך</button>
           <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation();Pages.deleteStaff('${sid}')"><i class="bi bi-trash me-1"></i>מחק</button>
-          ${phone ? `<a href="https://wa.me/972${phone.replace(/^0/, '')}" target="_blank" class="btn btn-sm btn-outline-success ms-auto" onclick="event.stopPropagation()"><i class="bi bi-whatsapp"></i></a>` : ''}
+          ${phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-success ms-auto" onclick="event.stopPropagation()"><i class="bi bi-telephone"></i></a>` : ''}
         </div>
       </div></div>`;
     }).join('')}</div>`;
@@ -761,7 +761,7 @@ Object.assign(Pages, {
       <div class="d-flex gap-2">
         <button class="btn btn-primary" onclick="Pages.showAddStaff(Pages._staffData.find(z=>String(Utils.rowId(z))==='${id}'))"><i class="bi bi-pencil me-1"></i>ערוך</button>
         <button class="btn btn-outline-danger" onclick="Pages.deleteStaff('${id}')"><i class="bi bi-trash me-1"></i>מחק</button>
-        ${s['טלפון'] ? `<a href="https://wa.me/972${(s['טלפון'] || '').replace(/^0/, '')}" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
+        ${s['\u05D8\u05DC\u05E4\u05D5\u05DF'] ? `<a href="tel:${s['\u05D8\u05DC\u05E4\u05D5\u05DF']}" class="btn btn-success"><i class="bi bi-telephone me-1"></i>\u05D4\u05EA\u05E7\u05E9\u05E8</a>` : ''}
       </div>`;
   },
 
