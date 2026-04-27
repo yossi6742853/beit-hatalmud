@@ -4619,3 +4619,8 @@ html { scroll-behavior: smooth; }
 /* ===== Tooltip Styling ===== */
 [title] { position: relative; }
 .tooltip-inner { font-family: Heebo, sans-serif; font-size: .8rem; }
+
+/* ===== Dark Mode Loading Bar ===== */
+[data-theme="dark"] #bht-loading-bar {
+  background: linear-gradient(90deg, #6366f1, #a78bfa, #6366f1) !important;
+}
