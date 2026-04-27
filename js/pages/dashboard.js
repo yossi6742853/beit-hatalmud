@@ -343,6 +343,14 @@ Object.assign(Pages, {
       if (parts.length) dataDateEl.innerHTML = parts.join(' | ');
     }
 
+    // === 0b. Stale data warning ===
+    if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated) {
+      const age = Math.floor((Date.now() - new Date(DATA_CACHE._lastUpdated).getTime()) / 86400000);
+      if (age > 7 && dataDateEl) {
+        dataDateEl.innerHTML += ' <span class="badge bg-warning text-dark ms-2"><i class="bi bi-exclamation-triangle me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05D9\u05E9\u05E0\u05D9\u05DD (' + age + ' \u05D9\u05DE\u05D9\u05DD)</span>';
+      }
+    }
+
     // === 1. Stats Cards — REAL numbers only ===
     this._setText('stat-students', activeStudents.length);
     this._setText('stat-attendance', todayAtt.length > 0 ? attPct + '%' : '\u05DC\u05D0 \u05E0\u05E8\u05E9\u05DD');
