@@ -722,6 +722,18 @@ Object.assign(Pages, {
       storageBar.className = 'progress-bar ' + (storagePct > 80 ? 'bg-danger' : storagePct > 50 ? 'bg-warning' : 'bg-success');
     }
 
+    // Page load performance
+    try {
+      const perf = performance.getEntriesByType('navigation')[0];
+      if (perf) {
+        const loadTime = Math.round(perf.loadEventEnd - perf.startTime);
+        const backupEl = document.getElementById('health-backup');
+        if (backupEl) backupEl.parentElement.insertAdjacentHTML('afterend',
+          `<div class="col-md-4"><div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3"><i class="bi bi-speedometer2 text-info fs-4"></i><div class="flex-grow-1"><small class="text-muted d-block">\u05D6\u05DE\u05DF \u05D8\u05E2\u05D9\u05E0\u05D4</small><span class="fw-bold">${loadTime > 0 ? loadTime + 'ms' : '\u05DE\u05D4\u05D9\u05E8'}</span></div></div></div>`
+        );
+      }
+    } catch(e) {}
+
     // Last backup (use store timestamp)
     const lastSync = App.store && App.store._lastSync
       ? Utils.timeAgo(App.store._lastSync)
