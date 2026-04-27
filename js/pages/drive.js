@@ -715,7 +715,7 @@ Object.assign(Pages, {
     if (file.url && file.url !== '#') {
       window.open(file.url, '_blank');
     } else {
-      App.showToast('\u05EA\u05E6\u05D5\u05D2\u05D4 \u05DE\u05E7\u05D3\u05D9\u05DE\u05D4 \u05E9\u05DC ' + (file.name || '\u05E7\u05D5\u05D1\u05E5'), 'info');
+      Utils.toast('\u05EA\u05E6\u05D5\u05D2\u05D4 \u05DE\u05E7\u05D3\u05D9\u05DE\u05D4 \u05E9\u05DC ' + (file.name || '\u05E7\u05D5\u05D1\u05E5'), 'info');
     }
     this._updateRecent();
   },
@@ -729,7 +729,7 @@ Object.assign(Pages, {
       a.download = file.name || 'download';
       a.click();
     } else {
-      App.showToast('\u05D4\u05D5\u05E8\u05D3\u05EA ' + (file.name || '\u05E7\u05D5\u05D1\u05E5'), 'success');
+      Utils.toast('\u05D4\u05D5\u05E8\u05D3\u05EA ' + (file.name || '\u05E7\u05D5\u05D1\u05E5'), 'success');
     }
   },
 
@@ -739,10 +739,10 @@ Object.assign(Pages, {
     const shareUrl = file.url && file.url !== '#' ? file.url : window.location.href + '?file=' + fileId;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl).then(() => {
-        App.showToast('\u05E7\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7', 'success');
+        Utils.toast('\u05E7\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7', 'success');
       });
     } else {
-      App.showToast('\u05E7\u05D9\u05E9\u05D5\u05E8: ' + shareUrl, 'info');
+      Utils.toast('\u05E7\u05D9\u05E9\u05D5\u05E8: ' + shareUrl, 'info');
     }
   },
 
@@ -754,7 +754,7 @@ Object.assign(Pages, {
 
   createFolder() {
     const name = document.getElementById('drive-new-folder-name')?.value?.trim();
-    if (!name) { App.showToast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05EA\u05D9\u05E7\u05D9\u05D4', 'warning'); return; }
+    if (!name) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05EA\u05D9\u05E7\u05D9\u05D4', 'warning'); return; }
 
     const colors = ['primary', 'success', 'warning', 'info', 'danger', 'secondary'];
     const newFolder = {
@@ -767,7 +767,7 @@ Object.assign(Pages, {
     this._driveFolders.push(newFolder);
 
     bootstrap.Modal.getInstance(document.getElementById('drive-folder-modal'))?.hide();
-    App.showToast('\u05EA\u05D9\u05E7\u05D9\u05D4 "' + name + '" \u05E0\u05D5\u05E6\u05E8\u05D4', 'success');
+    Utils.toast('\u05EA\u05D9\u05E7\u05D9\u05D4 "' + name + '" \u05E0\u05D5\u05E6\u05E8\u05D4', 'success');
     this._updateStats();
     this.renderDriveContent();
   },
@@ -787,7 +787,7 @@ Object.assign(Pages, {
     findSubs(folderId);
     this._driveFolders = this._driveFolders.filter(f => !removeIds.includes(f.id));
 
-    App.showToast('\u05D4\u05EA\u05D9\u05E7\u05D9\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'success');
+    Utils.toast('\u05D4\u05EA\u05D9\u05E7\u05D9\u05D4 \u05E0\u05DE\u05D7\u05E7\u05D4', 'success');
     this._updateStats();
     this.renderDriveContent();
   },
@@ -805,7 +805,7 @@ Object.assign(Pages, {
     const id = document.getElementById('drive-rename-id').value;
     const type = document.getElementById('drive-rename-type').value;
     const newName = document.getElementById('drive-rename-value')?.value?.trim();
-    if (!newName) { App.showToast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD', 'warning'); return; }
+    if (!newName) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD', 'warning'); return; }
 
     if (type === 'folder') {
       const folder = this._driveFolders.find(f => f.id === id);
@@ -816,7 +816,7 @@ Object.assign(Pages, {
     }
 
     bootstrap.Modal.getInstance(document.getElementById('drive-rename-modal'))?.hide();
-    App.showToast('\u05D4\u05E9\u05DD \u05E9\u05D5\u05E0\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    Utils.toast('\u05D4\u05E9\u05DD \u05E9\u05D5\u05E0\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
     this.renderDriveContent();
   },
 
@@ -847,7 +847,7 @@ Object.assign(Pages, {
     if (file) {
       file.folder = folderId;
       const folderName = folderId ? (this._driveFolders.find(f => f.id === folderId)?.name || '') : '\u05E9\u05D5\u05E8\u05E9';
-      App.showToast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D4\u05D5\u05E2\u05D1\u05E8 \u05DC' + folderName, 'success');
+      Utils.toast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05D4\u05D5\u05E2\u05D1\u05E8 \u05DC' + folderName, 'success');
     }
     bootstrap.Modal.getInstance(document.getElementById('drive-move-modal'))?.hide();
     this.renderDriveContent();
@@ -866,7 +866,7 @@ Object.assign(Pages, {
     // Delete from API
     try { await App.apiCall('delete', 'קבצים_מצורפים', { id: fileId }); } catch(e) { /* ok */ }
 
-    App.showToast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05E0\u05DE\u05D7\u05E7', 'success');
+    Utils.toast('\u05D4\u05E7\u05D5\u05D1\u05E5 \u05E0\u05DE\u05D7\u05E7', 'success');
     this._updateStats();
     this.renderDriveContent();
   },
@@ -917,7 +917,7 @@ Object.assign(Pages, {
     if (progressDiv) progressDiv.style.display = 'none';
     if (barEl) barEl.style.width = '0%';
 
-    App.showToast(total + ' \u05E7\u05D1\u05E6\u05D9\u05DD \u05D4\u05D5\u05E2\u05DC\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    Utils.toast(total + ' \u05E7\u05D1\u05E6\u05D9\u05DD \u05D4\u05D5\u05E2\u05DC\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
     this._updateStats();
     this.renderDriveContent();
 
@@ -1245,6 +1245,6 @@ Object.assign(Pages, {
     try {
       window.open(filePath, '_blank');
     } catch(e) { /* blocked by browser */ }
-    App.showToast('\u05E4\u05D5\u05EA\u05D7: ' + (fileName || filePath), 'info');
+    Utils.toast('\u05E4\u05D5\u05EA\u05D7: ' + (fileName || filePath), 'info');
   }
 });
