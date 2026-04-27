@@ -475,10 +475,15 @@ const App = {
     try {
       localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
     } catch(e) {
-      // localStorage full — clear old caches
-      Object.keys(localStorage).forEach(k => {
-        if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
-      });
+      // QuotaExceededError — clear old caches and retry once
+      try {
+        Object.keys(localStorage).forEach(k => {
+          if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
+        });
+        localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+      } catch(e2) {
+        console.warn('localStorage quota exceeded even after cleanup');
+      }
     }
   },
 

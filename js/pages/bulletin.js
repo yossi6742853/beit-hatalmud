@@ -453,8 +453,8 @@ Object.assign(Pages, {
     this._bulletinRender();
   },
 
-  deleteBulletin(id) {
-    if (!confirm('למחוק את המודעה?')) return;
+  async deleteBulletin(id) {
+    if (!await Utils.confirm('מחיקת מודעה', 'למחוק את המודעה?')) return;
     this._bulletinData = this._bulletinData.filter(x => x.id !== id);
     this._blnSaveToStorage();
     try { App.apiCall('delete', 'לוח_מודעות', { id }); } catch(e) { console.error('Error:', e); }

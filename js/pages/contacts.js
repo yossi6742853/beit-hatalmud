@@ -393,9 +393,9 @@ Object.assign(Pages, {
     if (typeof App !== 'undefined' && App.toast) App.toast('\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05E0\u05E9\u05DE\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
   },
 
-  _ctDeleteContact() {
+  async _ctDeleteContact() {
     if (!this._contactsEditingId) return;
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D0\u05D9\u05E9 \u05D4\u05E7\u05E9\u05E8?')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D0\u05D9\u05E9 \u05D4\u05E7\u05E9\u05E8?')) return;
     this._contactsData = this._contactsData.filter(c => c.id !== this._contactsEditingId);
     // Remove from groups
     this._contactsGroups.forEach(g => {
@@ -447,8 +447,8 @@ Object.assign(Pages, {
     this._ctShowGroups();
   },
 
-  _ctDeleteGroup(gid) {
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4?')) return;
+  async _ctDeleteGroup(gid) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E7\u05D1\u05D5\u05E6\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4?')) return;
     this._contactsGroups = this._contactsGroups.filter(g => g.id !== gid);
     this._ctShowGroups();
   },
@@ -460,7 +460,7 @@ Object.assign(Pages, {
       const c = this._contactsData.find(x => x.id === mid);
       return c?.phone ? c.phone.replace(/[^0-9]/g, '').replace(/^0/, '972') : null;
     }).filter(Boolean);
-    if (!phones.length) { alert('\u05D0\u05D9\u05DF \u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4'); return; }
+    if (!phones.length) { Utils.toast('\u05D0\u05D9\u05DF \u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4', 'warning'); return; }
     // Open first contact's WhatsApp as starting point
     window.open('https://wa.me/' + phones[0], '_blank');
   },
@@ -472,7 +472,7 @@ Object.assign(Pages, {
       const c = this._contactsData.find(x => x.id === mid);
       return c?.email || null;
     }).filter(Boolean);
-    if (!emails.length) { alert('\u05D0\u05D9\u05DF \u05DB\u05EA\u05D5\u05D1\u05D5\u05EA \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4'); return; }
+    if (!emails.length) { Utils.toast('\u05D0\u05D9\u05DF \u05DB\u05EA\u05D5\u05D1\u05D5\u05EA \u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4', 'warning'); return; }
     window.location.href = 'mailto:' + emails.join(',');
   },
 
