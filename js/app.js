@@ -1231,13 +1231,61 @@ const App = {
 
     const input = document.getElementById('cmd-search');
     const results = document.getElementById('cmd-results');
+    // Build student list for search
+    const students = (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD']) ? DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'] : [];
+    // Build email list for search
+    const emails = (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && EMAIL_CACHE.inbox) ? EMAIL_CACHE.inbox : [];
+
     const render = (filter) => {
-      const filtered = filter ? pages.filter(p => p.label.includes(filter) || p.page.includes(filter)) : pages;
-      results.innerHTML = filtered.map(p => `
-        <div class="cmd-item" data-page="${p.page}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-primary-bg-subtle,#e7f1ff)'" onmouseout="this.style.background=''">
-          <i class="${p.icon}" style="font-size:1.2rem;width:24px;text-align:center"></i>
-          <span>${p.label}</span>
-        </div>`).join('');
+      let html = '';
+      const fLow = (filter || '').toLowerCase();
+
+      // Pages
+      const filteredPages = fLow ? pages.filter(p => p.label.includes(fLow) || p.page.includes(fLow)) : pages;
+      if (filteredPages.length) {
+        html += filteredPages.map(p => `
+          <div class="cmd-item" data-page="${p.page}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-primary-bg-subtle,#e7f1ff)'" onmouseout="this.style.background=''">
+            <i class="${p.icon}" style="font-size:1.2rem;width:24px;text-align:center"></i>
+            <span>${p.label}</span>
+          </div>`).join('');
+      }
+
+      // Students (only when searching)
+      if (fLow && fLow.length >= 2) {
+        const matchedStudents = students.filter(s => {
+          const name = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).toLowerCase();
+          return name.includes(fLow);
+        }).slice(0, 5);
+        if (matchedStudents.length) {
+          html += '<div style="padding:6px 16px;font-size:.75rem;color:var(--bs-secondary);border-top:1px solid var(--bs-border-color)">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</div>';
+          html += matchedStudents.map(s => {
+            const sid = s['\u05DE\u05D6\u05D4\u05D4'] || '';
+            const name = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
+            return `<div class="cmd-item" data-page="students/${sid}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-success-bg-subtle,#d1e7dd)'" onmouseout="this.style.background=''">
+              <i class="bi bi-person-fill" style="font-size:1.2rem;width:24px;text-align:center;color:var(--bs-success)"></i>
+              <span>${name} <small class="text-muted">${s['\u05DB\u05D9\u05EA\u05D4']||''}</small></span>
+            </div>`;
+          }).join('');
+        }
+
+        // Emails
+        const matchedEmails = emails.filter(e =>
+          (e.subject||'').toLowerCase().includes(fLow) || (e.from||'').toLowerCase().includes(fLow)
+        ).slice(0, 3);
+        if (matchedEmails.length) {
+          html += '<div style="padding:6px 16px;font-size:.75rem;color:var(--bs-secondary);border-top:1px solid var(--bs-border-color)">\u05D3\u05D5\u05D0\u05E8</div>';
+          html += matchedEmails.map(e => {
+            const sender = (e.from||'').replace(/<[^>]+>/g,'').replace(/"/g,'').trim().substring(0,25);
+            return `<div class="cmd-item" data-page="email" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-info-bg-subtle,#cff4fc)'" onmouseout="this.style.background=''">
+              <i class="bi bi-envelope" style="font-size:1.2rem;width:24px;text-align:center;color:var(--bs-info)"></i>
+              <span>${e.subject||'(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'} <small class="text-muted">\u05DE: ${sender}</small></span>
+            </div>`;
+          }).join('');
+        }
+      }
+
+      if (!html) html = '<div style="padding:20px;text-align:center;color:var(--bs-secondary)">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA</div>';
+      results.innerHTML = html;
       results.querySelectorAll('.cmd-item').forEach(item => {
         item.addEventListener('click', () => {
           location.hash = item.dataset.page;
