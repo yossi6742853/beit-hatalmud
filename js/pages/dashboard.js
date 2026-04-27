@@ -322,9 +322,17 @@ Object.assign(Pages, {
 
     // === 0. Data freshness badge ===
     const dataDateEl = document.getElementById('dash-data-date');
-    if (dataDateEl && typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated) {
-      const d = new Date(DATA_CACHE._lastUpdated);
-      dataDateEl.innerHTML = '<i class="bi bi-database me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05DE-' + d.toLocaleDateString('he-IL') + ' ' + d.toLocaleTimeString('he-IL', {hour:'2-digit',minute:'2-digit'});
+    if (dataDateEl) {
+      let parts = [];
+      if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated) {
+        const d = new Date(DATA_CACHE._lastUpdated);
+        parts.push('<i class="bi bi-database me-1"></i>\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD: ' + d.toLocaleDateString('he-IL'));
+      }
+      if (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && EMAIL_CACHE._lastUpdated) {
+        const e = new Date(EMAIL_CACHE._lastUpdated);
+        parts.push('<i class="bi bi-envelope me-1"></i>\u05D3\u05D5\u05D0\u05E8: ' + e.toLocaleDateString('he-IL'));
+      }
+      if (parts.length) dataDateEl.innerHTML = parts.join(' | ');
     }
 
     // === 1. Stats Cards — REAL numbers only ===
