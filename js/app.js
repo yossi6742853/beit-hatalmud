@@ -153,8 +153,9 @@ const App = {
       this.showLoginError('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 \u05DC\u05D4\u05DB\u05D9\u05DC 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA');
       return;
     }
-    // Store hashed PIN and enter
+    // Store hashed PIN, track login time, and enter
     localStorage.setItem(this.PIN_KEY, Utils.hashPin(pin));
+    localStorage.setItem('bht_last_login', new Date().toISOString());
     this.showApp();
     // Welcome toast with quick stats
     try {
