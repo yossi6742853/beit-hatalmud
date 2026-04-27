@@ -562,7 +562,7 @@ Object.assign(Pages, {
 
     bootstrap.Modal.getInstance(document.getElementById('certGeneratorModal'))?.hide();
 
-    if (typeof App !== 'undefined' && App.toast) App.toast('התעודה הופקה בהצלחה!', 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('התעודה הופקה בהצלחה!', 'success');
 
     // refresh history table
     const body = document.getElementById('cert-history-body');
@@ -608,7 +608,7 @@ Object.assign(Pages, {
 
     bootstrap.Modal.getInstance(document.getElementById('certBatchModal'))?.hide();
 
-    if (typeof App !== 'undefined' && App.toast) App.toast(`הופקו ${count} תעודות בהצלחה!`, 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast(`הופקו ${count} תעודות בהצלחה!`, 'success');
 
     const body = document.getElementById('cert-history-body');
     if (body) body.innerHTML = this._certRenderHistoryRows(this._certHistory);

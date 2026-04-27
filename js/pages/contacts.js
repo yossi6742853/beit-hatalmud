@@ -390,7 +390,7 @@ Object.assign(Pages, {
     bootstrap.Modal.getInstance(document.getElementById('ct-modal'))?.hide();
     this._ctRenderStats();
     this._ctRender();
-    if (typeof App !== 'undefined' && App.toast) App.toast('\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05E0\u05E9\u05DE\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05E0\u05E9\u05DE\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
   },
 
   async _ctDeleteContact() {
@@ -404,7 +404,7 @@ Object.assign(Pages, {
     bootstrap.Modal.getInstance(document.getElementById('ct-modal'))?.hide();
     this._ctRenderStats();
     this._ctRender();
-    if (typeof App !== 'undefined' && App.toast) App.toast('\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05E0\u05DE\u05D7\u05E7', 'warning');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05E0\u05DE\u05D7\u05E7', 'warning');
   },
 
   /* ======================================================================
@@ -496,7 +496,7 @@ Object.assign(Pages, {
     a.download = '\u05D0\u05E0\u05E9\u05D9_\u05E7\u05E9\u05E8_' + new Date().toISOString().slice(0,10) + '.csv';
     a.click();
     URL.revokeObjectURL(url);
-    if (typeof App !== 'undefined' && App.toast) App.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E7\u05D5\u05D1\u05E5 CSV \u05D9\u05D5\u05E6\u05D0 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
   },
 
   /* ======================================================================
@@ -576,7 +576,7 @@ Object.assign(Pages, {
     bootstrap.Modal.getInstance(document.getElementById('ct-import-modal'))?.hide();
     this._ctRenderStats();
     this._ctRender();
-    if (typeof App !== 'undefined' && App.toast) App.toast(this._ctImportParsed.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D9\u05D5\u05D1\u05D0\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast(this._ctImportParsed.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D9\u05D5\u05D1\u05D0\u05D5 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
     this._ctImportParsed = [];
   },
 
@@ -586,7 +586,7 @@ Object.assign(Pages, {
   _ctPrintDirectory() {
     const data = this._contactsData;
     if (!data.length) {
-      if (typeof App !== 'undefined' && App.toast) App.toast('\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05DC\u05D4\u05D3\u05E4\u05E1\u05D4', 'warning');
+      if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05DC\u05D4\u05D3\u05E4\u05E1\u05D4', 'warning');
       return;
     }
 

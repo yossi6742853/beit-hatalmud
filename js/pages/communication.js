@@ -948,12 +948,12 @@ Object.assign(Pages, {
     var participants = (document.getElementById('proto-participants') || {}).value || '';
     var topics = (document.getElementById('proto-topics') || {}).value || '';
     var decisions = (document.getElementById('proto-decisions') || {}).value || '';
-    if (!date) { App.showToast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05EA\u05D0\u05E8\u05D9\u05DA', 'warning'); return; }
+    if (!date) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05EA\u05D0\u05E8\u05D9\u05DA', 'warning'); return; }
     this._loadProtocols();
     this._commProtocols.push({ date: date, participants: participants, topics: topics, decisions: decisions });
     this._saveProtocols();
     bootstrap.Modal.getInstance(document.getElementById('protocol-modal'))?.hide();
-    App.showToast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05E9\u05DE\u05E8', 'success');
+    Utils.toast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05E9\u05DE\u05E8', 'success');
     this.renderComm();
   },
 
@@ -961,7 +961,7 @@ Object.assign(Pages, {
     this._loadProtocols();
     this._commProtocols.splice(index, 1);
     this._saveProtocols();
-    App.showToast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05DE\u05D7\u05E7', 'success');
+    Utils.toast('\u05E4\u05E8\u05D5\u05D8\u05D5\u05E7\u05D5\u05DC \u05E0\u05DE\u05D7\u05E7', 'success');
     this.renderComm();
   },
 

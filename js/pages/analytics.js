@@ -617,11 +617,11 @@ Object.assign(Pages, {
     const from = document.getElementById('an-date-from')?.value;
     const to = document.getElementById('an-date-to')?.value;
     if (!from || !to) {
-      if (typeof App !== 'undefined' && App.toast) App.toast('\u05d9\u05e9 \u05dc\u05d1\u05d7\u05d5\u05e8 \u05d8\u05d5\u05d5\u05d7 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd', 'warning');
+      if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05d9\u05e9 \u05dc\u05d1\u05d7\u05d5\u05e8 \u05d8\u05d5\u05d5\u05d7 \u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd', 'warning');
       return;
     }
     // In production this would re-query data; with demo data we refresh charts
-    if (typeof App !== 'undefined' && App.toast) App.toast(`\u05de\u05e1\u05d5\u05e0\u05df \u05dc\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd ${from} \u05e2\u05d3 ${to}`, 'success');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast(`\u05de\u05e1\u05d5\u05e0\u05df \u05dc\u05ea\u05d0\u05e8\u05d9\u05db\u05d9\u05dd ${from} \u05e2\u05d3 ${to}`, 'success');
     this.analyticsInit();
   },
 
