@@ -860,6 +860,7 @@ Object.assign(Pages, {
   startTimer() {
     if (this._timerInterval) return;
     this._timerInterval = setInterval(() => {
+      if (App.currentPage !== 'settings') { clearInterval(this._timerInterval); this._timerInterval = null; return; }
       this._timerSeconds--;
       if (this._timerSeconds <= 0) {
         clearInterval(this._timerInterval);
