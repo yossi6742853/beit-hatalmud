@@ -66,6 +66,14 @@ Object.assign(Pages, {
               </a>
             </div>
           </div>
+          <div class="row g-3 mt-1">
+            <div class="col-4 col-md-2"><a href="#email" class="btn btn-outline-info w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-envelope-fill fs-5"></i>\u05D3\u05D5\u05D0\u05E8</a></div>
+            <div class="col-4 col-md-2"><a href="#drive" class="btn btn-outline-success w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-folder2-open fs-5"></i>\u05E7\u05D1\u05E6\u05D9\u05DD</a></div>
+            <div class="col-4 col-md-2"><a href="#behavior" class="btn btn-outline-danger w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-star-half fs-5"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a></div>
+            <div class="col-4 col-md-2"><a href="#medical" class="btn btn-outline-warning w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-heart-pulse fs-5"></i>\u05E8\u05E4\u05D5\u05D0\u05D9</a></div>
+            <div class="col-4 col-md-2"><a href="#staff" class="btn btn-outline-secondary w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-person-badge fs-5"></i>\u05E6\u05D5\u05D5\u05EA</a></div>
+            <div class="col-4 col-md-2"><a href="#reports" class="btn btn-outline-dark w-100 py-2 d-flex flex-column align-items-center gap-1 small"><i class="bi bi-file-earmark-bar-graph fs-5"></i>\u05D3\u05D5\u05D7\u05D5\u05EA</a></div>
+          </div>
         </div>
       </div>
 
