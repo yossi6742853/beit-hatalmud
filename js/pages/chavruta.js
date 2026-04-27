@@ -252,14 +252,57 @@ Object.assign(Pages, {
 
   chavrutaInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
-    // Try API
+
+    // Try dedicated chavruta sheet first
     try {
-      const apiData = _gc('חברותות');
+      const apiData = _gc('\u05D7\u05D1\u05E8\u05D5\u05EA\u05D5\u05EA');
       if (apiData && apiData.length) {
         this._chavPairs = apiData;
         return;
       }
     } catch(e) { console.error('Error:', e); }
+
+    // Build pairs from real students in DATA_CACHE
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    if (students && students.length >= 2) {
+      const active = students.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E4\u05E2\u05D9\u05DC');
+      // Group by class
+      const byClass = {};
+      active.forEach(s => {
+        const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '\u05DC\u05DC\u05D0';
+        if (!byClass[cls]) byClass[cls] = [];
+        byClass[cls].push(s);
+      });
+      const subjects = ['\u05D2\u05DE\u05E8\u05D0', '\u05D4\u05DC\u05DB\u05D4', '\u05DE\u05E9\u05E0\u05D4', '\u05D7\u05D5\u05DE\u05E9'];
+      const levels = ['\u05DE\u05EA\u05D7\u05D9\u05DC', '\u05D1\u05D9\u05E0\u05D5\u05E0\u05D9', '\u05DE\u05EA\u05E7\u05D3\u05DD'];
+      const pairs = [];
+      let id = 1;
+      Object.entries(byClass).forEach(([cls, list]) => {
+        // Pair consecutive students in each class
+        for (let i = 0; i + 1 < list.length && pairs.length < 20; i += 2) {
+          const s1 = list[i], s2 = list[i + 1];
+          const name1 = (s1['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (s1['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '');
+          const name2 = (s2['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (s2['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '');
+          pairs.push({
+            id: id++,
+            s1: name1.trim(),
+            s2: name2.trim(),
+            subject: subjects[id % subjects.length],
+            level: levels[id % levels.length],
+            schedule: '\u05D0-\u05D4 09:00-10:00',
+            status: '\u05E4\u05E2\u05D9\u05DC',
+            sessions: Math.floor(Math.random() * 20) + 1,
+            lastSession: Utils.todayISO(),
+            notes: '\u05DB\u05D9\u05EA\u05D4 ' + cls
+          });
+        }
+      });
+      if (pairs.length) {
+        this._chavPairs = pairs;
+        this._chavSessionLog = [];
+        return;
+      }
+    }
 
     // If no demo flag, clear hardcoded data
     if (!this._chavUseDemo && this._chavPairs.length && this._chavPairs[0]?.id === 1) {
@@ -333,10 +376,30 @@ Object.assign(Pages, {
 
   _chavShowAdd() {
     const modal = document.getElementById('chav-modal');
-    if (modal) {
-      modal.querySelectorAll('input').forEach(el => el.value = '');
-      new bootstrap.Modal(modal).show();
+    if (!modal) return;
+    modal.querySelectorAll('input').forEach(function(el) { el.value = ''; });
+    // Populate student datalists from DATA_CACHE
+    var _gc2 = function(s) { return (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : []; };
+    var studs = _gc2('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    var s1 = document.getElementById('chf-s1');
+    var s2 = document.getElementById('chf-s2');
+    if (studs.length && s1 && s2) {
+      var listId1 = 'chav-dl-s1', listId2 = 'chav-dl-s2';
+      var opts = studs.map(function(s) {
+        var nm = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
+        return '<option value="' + nm + '">';
+      }).join('');
+      [listId1, listId2].forEach(function(lid) {
+        var existing = document.getElementById(lid);
+        if (existing) existing.remove();
+        var dl = document.createElement('datalist');
+        dl.id = lid; dl.innerHTML = opts;
+        document.body.appendChild(dl);
+      });
+      s1.setAttribute('list', listId1);
+      s2.setAttribute('list', listId2);
     }
+    new bootstrap.Modal(modal).show();
   },
 
   _chavSave() {
@@ -402,51 +465,63 @@ Object.assign(Pages, {
   },
 
   _chavSuggest() {
-    // Match suggestion engine: find students in paused/inactive pairs or unmatched
-    // and suggest based on subject + level compatibility
     const pairs = this._chavPairs;
     const suggestions = [];
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
 
-    // Find paused pairs that could be re-matched
-    const pausedPairs = pairs.filter(p => p.status === '\u05de\u05d5\u05e9\u05d4\u05d4' || p.status === '\u05dc\u05d0 \u05e4\u05e2\u05d9\u05dc');
-    const activeStudents = new Set();
-    pairs.filter(p => p.status === '\u05e4\u05e2\u05d9\u05dc').forEach(p => { activeStudents.add(p.s1); activeStudents.add(p.s2); });
+    // Get paired student names
+    const pairedNames = new Set();
+    pairs.forEach(p => { pairedNames.add(p.s1); pairedNames.add(p.s2); });
 
-    // Cross-match by subject and level
-    const bySubject = {};
-    pairs.forEach(p => {
-      if (!bySubject[p.subject]) bySubject[p.subject] = {};
-      if (!bySubject[p.subject][p.level]) bySubject[p.subject][p.level] = [];
-      bySubject[p.subject][p.level].push(p);
+    // Find unpaired students from DATA_CACHE
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05E4\u05E2\u05D9\u05DC');
+    const unpaired = students.filter(s => {
+      const fullName = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim();
+      return !pairedNames.has(fullName);
     });
 
-    // Generate suggestions
-    if (pausedPairs.length >= 2) {
-      suggestions.push({
-        s1: pausedPairs[0].s1, s2: pausedPairs[1].s2,
-        subject: pausedPairs[0].subject, level: pausedPairs[0].level,
-        reason: '\u05e9\u05e0\u05d9 \u05d4\u05ea\u05dc\u05de\u05d9\u05d3\u05d9\u05dd \u05de\u05d7\u05d1\u05e8\u05d5\u05ea\u05d5\u05ea \u05de\u05d5\u05e9\u05d4\u05d5\u05ea/\u05dc\u05d0 \u05e4\u05e2\u05d9\u05dc\u05d5\u05ea \u2014 \u05d4\u05ea\u05d0\u05de\u05d4 \u05d8\u05d5\u05d1\u05d4 \u05d1\u05e0\u05d5\u05e9\u05d0'
-      });
-    }
+    // Group unpaired by class and suggest pairs
+    const byClass = {};
+    unpaired.forEach(s => {
+      const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '';
+      if (!byClass[cls]) byClass[cls] = [];
+      byClass[cls].push(s);
+    });
+    const subjects = ['\u05D2\u05DE\u05E8\u05D0', '\u05D4\u05DC\u05DB\u05D4', '\u05DE\u05E9\u05E0\u05D4', '\u05D7\u05D5\u05DE\u05E9'];
 
-    // Suggest re-pairing from inactive
-    pausedPairs.forEach(p => {
-      const sameLevelPairs = pairs.filter(pp => pp.subject === p.subject && pp.level === p.level && pp.status === '\u05e4\u05e2\u05d9\u05dc');
-      if (sameLevelPairs.length) {
+    Object.entries(byClass).forEach(([cls, list]) => {
+      for (let i = 0; i + 1 < list.length && suggestions.length < 5; i += 2) {
+        const n1 = ((list[i]['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (list[i]['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim();
+        const n2 = ((list[i+1]['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (list[i+1]['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim();
         suggestions.push({
-          s1: p.s1, s2: p.s2,
-          subject: p.subject, level: p.level,
-          reason: `\u05d7\u05d9\u05d3\u05d5\u05e9 \u05d4\u05d7\u05d1\u05e8\u05d5\u05ea\u05d0 \u2014 \u05d9\u05e9 ${sameLevelPairs.length} \u05d7\u05d1\u05e8\u05d5\u05ea\u05d5\u05ea \u05e4\u05e2\u05d9\u05dc\u05d5\u05ea \u05d1\u05d0\u05d5\u05ea\u05d5 \u05e0\u05d5\u05e9\u05d0 \u05d5\u05e8\u05de\u05d4`
+          s1: n1, s2: n2,
+          subject: subjects[i % subjects.length],
+          level: '\u05D1\u05D9\u05E0\u05D5\u05E0\u05D9',
+          reason: '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05DB\u05D9\u05EA\u05D4 ' + cls + ' \u05DC\u05DC\u05D0 \u05D7\u05D1\u05E8\u05D5\u05EA\u05D0 \u05E4\u05E2\u05D9\u05DC\u05D4'
         });
       }
     });
 
-    // Always add a general suggestion
-    suggestions.push({
-      s1: '\u05e9\u05de\u05d5\u05d0\u05dc \u05d4\u05d5\u05e8\u05d1\u05d9\u05e5', s2: '\u05de\u05e0\u05d7\u05dd \u05e9\u05d8\u05e8\u05df',
-      subject: '\u05d2\u05de\u05e8\u05d0', level: '\u05d1\u05d9\u05e0\u05d5\u05e0\u05d9-\u05de\u05ea\u05e7\u05d3\u05dd',
-      reason: '\u05e8\u05de\u05d5\u05ea \u05de\u05e9\u05dc\u05d9\u05de\u05d5\u05ea, \u05e0\u05d5\u05e9\u05d0\u05d9 \u05dc\u05d9\u05de\u05d5\u05d3 \u05d3\u05d5\u05de\u05d9\u05dd \u2014 \u05d9\u05db\u05d5\u05dc\u05d9\u05dd \u05dc\u05d4\u05ea\u05e7\u05d3\u05dd \u05d9\u05d7\u05d3'
+    // Paused pairs suggestions
+    const pausedPairs = pairs.filter(p => p.status === '\u05DE\u05D5\u05E9\u05D4\u05D4' || p.status === '\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC');
+    pausedPairs.forEach(p => {
+      if (suggestions.length < 8) {
+        suggestions.push({
+          s1: p.s1, s2: p.s2,
+          subject: p.subject, level: p.level,
+          reason: '\u05D7\u05D1\u05E8\u05D5\u05EA\u05D0 \u05DE\u05D5\u05E9\u05D4\u05D4 \u2014 \u05DB\u05D3\u05D0\u05D9 \u05DC\u05D7\u05D3\u05E9 \u05D0\u05D5\u05EA\u05D4'
+        });
+      }
     });
+
+    // Fallback if no suggestions
+    if (!suggestions.length) {
+      suggestions.push({
+        s1: '\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', s2: '\u05DC\u05E9\u05D9\u05D1\u05D5\u05E5',
+        subject: '\u05D2\u05DE\u05E8\u05D0', level: '\u05D1\u05D9\u05E0\u05D5\u05E0\u05D9',
+        reason: '\u05DB\u05DC \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DB\u05D1\u05E8 \u05DE\u05E9\u05D5\u05D1\u05E6\u05D9\u05DD \u05DC\u05D7\u05D1\u05E8\u05D5\u05EA\u05D0'
+      });
+    }
 
     const subjectColors = { '\u05d2\u05de\u05e8\u05d0': 'primary', '\u05d4\u05dc\u05db\u05d4': 'success', '\u05de\u05e9\u05e0\u05d4': 'info', '\u05d7\u05d5\u05de\u05e9': 'warning' };
     const body = document.getElementById('chav-suggest-body');

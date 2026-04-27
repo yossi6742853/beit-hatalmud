@@ -263,13 +263,28 @@ Object.assign(Pages, {
     Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
   },
 
+  /* Map raw קופה_קטנה record to donation object */
+  _donMapRow(r) {
+    return {
+      id: r['\u05DE\u05D6\u05D4\u05D4'] || 'd' + Math.random().toString(36).slice(2,8),
+      donor: r['\u05E1\u05E4\u05E7'] || r['\u05E9\u05DD_\u05D4\u05DE\u05D5\u05D8\u05D1'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2',
+      amount: parseFloat(r['\u05E1\u05DB\u05D5\u05DD']) || 0,
+      method: r['\u05DE\u05E7\u05D5\u05E8'] || '',
+      purpose: r['\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4'] || '',
+      date: r['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
+      receipt: r['\u05D9\u05E9_\u05E7\u05D1\u05DC\u05D4'] === '\u05DB\u05DF' ? ('R-' + (r['\u05DE\u05E1\u05E4\u05E8_\u05E1\u05D9\u05D3\u05D5\u05E8\u05D9'] || '')) : '',
+      dedication: r['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '',
+      campaign: ''
+    };
+  },
+
   donationsInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let data;
     try {
-      const apiData = _gc('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
-      if (apiData && apiData.length) {
-        data = apiData;
+      const raw = _gc('\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4');
+      if (raw && raw.length) {
+        data = raw.map(r => this._donMapRow(r));
       } else if (this._donUseDemo) {
         data = this._donDemoData();
       } else {
