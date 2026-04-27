@@ -1031,11 +1031,11 @@ Object.assign(Pages, {
       <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
         <a href="#students" class="btn btn-link text-decoration-none"><i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4</a>
         <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printStudentCard('${sId}')"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
-          <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._scStudent)"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.printStudentCard('${sId}')" title="\u05D4\u05D3\u05E4\u05E1\u05EA \u05DB\u05E8\u05D8\u05D9\u05E1 \u05EA\u05DC\u05DE\u05D9\u05D3"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1\u05D4</button>
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.showStudentForm(Pages._scStudent)" title="\u05E2\u05E8\u05D9\u05DB\u05EA \u05E4\u05E8\u05D8\u05D9 \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           ${primaryPhone ? `<a href="${waLink(primaryPhone)}" target="_blank" class="btn btn-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
           ${parentPhone && parentPhone !== phone ? `<a href="${waLink(parentPhone, '\u05E9\u05DC\u05D5\u05DD, \u05D0\u05E0\u05D9 \u05E4\u05D5\u05E0\u05D4 \u05DE\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u05D1\u05E0\u05D5\u05D2\u05E2 \u05DC' + name)}" target="_blank" class="btn btn-outline-success btn-sm"><i class="bi bi-whatsapp me-1"></i>WhatsApp \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD</a>` : ''}
-          <button class="btn btn-outline-danger btn-sm" onclick="Pages.deleteStudent('${sId}')"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
+          <button class="btn btn-outline-danger btn-sm" onclick="Pages.deleteStudent('${sId}')" title="\u05DE\u05D7\u05D9\u05E7\u05EA \u05D4\u05EA\u05DC\u05DE\u05D9\u05D3 \u05DC\u05E6\u05DE\u05D9\u05EA\u05D5\u05EA"><i class="bi bi-trash me-1"></i>\u05DE\u05D7\u05D9\u05E7\u05D4</button>
         </div>
       </div>
 

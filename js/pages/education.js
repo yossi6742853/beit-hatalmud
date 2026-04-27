@@ -29,6 +29,9 @@ Object.assign(Pages, {
       <div class="col-6 col-md-3"><div class="card p-3 text-center"><div class="fs-3 fw-bold text-danger" id="aca-stat-failing">0</div><small class="text-muted">\u05E0\u05DB\u05E9\u05DC\u05D9\u05DD (< 55)</small></div></div>
     </div>
 
+    <!-- Class Averages -->
+    <div class="mb-3" id="aca-class-averages"></div>
+
     <!-- Subject Cards -->
     <div class="row g-3 mb-3" id="aca-subject-cards"></div>
 
@@ -202,6 +205,28 @@ Object.assign(Pages, {
     document.getElementById('aca-stat-avg').textContent = avg;
     document.getElementById('aca-stat-above80').textContent = above80;
     document.getElementById('aca-stat-failing').textContent = failing;
+
+    // Class averages
+    const classGrades = {};
+    grades.forEach(g => {
+      const cls = g['\u05DB\u05D9\u05EA\u05D4'] || '';
+      const score = parseFloat(g['\u05E6\u05D9\u05D5\u05DF']) || 0;
+      if (!cls || score <= 0) return;
+      if (!classGrades[cls]) classGrades[cls] = { sum: 0, count: 0 };
+      classGrades[cls].sum += score;
+      classGrades[cls].count++;
+    });
+    const classAvgEl = document.getElementById('aca-class-averages');
+    if (classAvgEl) {
+      const entries = Object.entries(classGrades).sort((a,b) => a[0].localeCompare(b[0]));
+      classAvgEl.innerHTML = entries.length
+        ? entries.map(([cls, d]) => {
+            const a = (d.sum / d.count).toFixed(1);
+            const color = a >= 80 ? 'success' : a >= 55 ? 'warning' : 'danger';
+            return `<span class="badge bg-${color} bg-opacity-10 text-${color} me-2 mb-1">\u05DE\u05DE\u05D5\u05E6\u05E2 ${cls}: ${a}</span>`;
+          }).join('')
+        : '';
+    }
 
     // Subject cards
     this._renderSubjectCards(exams, grades, gMap);

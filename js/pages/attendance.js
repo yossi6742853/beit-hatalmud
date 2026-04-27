@@ -127,6 +127,12 @@ Object.assign(Pages, {
             <small class="text-muted"><i class="bi bi-graph-up me-1"></i>\u05D0\u05D7\u05D5\u05D6 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</small>
           </div>
         </div>
+        <div class="col-6 col-md-3">
+          <div class="card p-3 text-center border-0 shadow-sm" style="border-right:4px solid var(--bs-info)!important">
+            <div class="fs-5 fw-bold text-info" id="att-stat-streak">--</div>
+            <small class="text-muted"><i class="bi bi-fire me-1"></i>\u05E9\u05D9\u05D0 \u05E8\u05E6\u05E3</small>
+          </div>
+        </div>
       </div>
 
       <!-- Daily Summary Bar -->
@@ -625,6 +631,17 @@ Object.assign(Pages, {
     if (el('att-stat-absent')) el('att-stat-absent').textContent = absent;
     if (el('att-stat-late')) el('att-stat-late').textContent = late;
     if (el('att-stat-rate')) el('att-stat-rate').textContent = rate + '%';
+
+    // Streak: find top student
+    if (this._attAllRecords.length && this._attStudents.length) {
+      let bestName = '', bestStreak = 0;
+      this._attStudents.forEach(s => {
+        const info = this._attGetStreak(s._id);
+        if (info.current > bestStreak) { bestStreak = info.current; bestName = s._fullName; }
+      });
+      const streakEl = document.getElementById('att-stat-streak');
+      if (streakEl) streakEl.textContent = bestStreak > 0 ? bestStreak + ' \u05D9\u05DE\u05D9\u05DD (' + bestName + ')' : '--';
+    }
   },
 
   /* ======================================================================
