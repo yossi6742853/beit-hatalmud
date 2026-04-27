@@ -233,6 +233,17 @@ Object.assign(Pages, {
         </div>
       </div>
 
+      <!-- Quick Notes -->
+      <div class="card border-0 shadow-sm mb-4 border-start border-warning border-3">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0"><i class="bi bi-sticky-fill me-2 text-warning"></i>\u05E4\u05EA\u05E7\u05D9\u05EA \u05DE\u05D4\u05D9\u05E8\u05D4</h6>
+            <button class="btn btn-outline-warning btn-sm" onclick="Pages._dashSaveNote()" title="\u05E9\u05DE\u05D5\u05E8"><i class="bi bi-check-lg"></i></button>
+          </div>
+          <textarea class="form-control form-control-sm" id="dash-quick-note" rows="2" placeholder="\u05E8\u05E9\u05D5\u05DD \u05DE\u05E9\u05D4\u05D5 \u05DE\u05D4\u05D9\u05E8... (\u05E0\u05E9\u05DE\u05E8 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA)" style="resize:none"></textarea>
+        </div>
+      </div>
+
       <!-- System Health -->
       <div class="card border-0 shadow-sm">
         <div class="card-body">
@@ -611,8 +622,25 @@ Object.assign(Pages, {
       }
     }
 
+    // === 6b. Quick Notes ===
+    const noteEl = document.getElementById('dash-quick-note');
+    if (noteEl) {
+      noteEl.value = localStorage.getItem('bht_quick_note') || '';
+      noteEl.addEventListener('input', Utils.debounce(() => {
+        localStorage.setItem('bht_quick_note', noteEl.value);
+      }, 500));
+    }
+
     // === 7. System Health ===
     this._initSystemHealth();
+  },
+
+  _dashSaveNote() {
+    const noteEl = document.getElementById('dash-quick-note');
+    if (noteEl) {
+      localStorage.setItem('bht_quick_note', noteEl.value);
+      Utils.toast('\u05E4\u05EA\u05E7\u05D9\u05EA \u05E0\u05E9\u05DE\u05E8\u05D4', 'success');
+    }
   },
 
   /* ---- Helper: safe setText ---- */
