@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>בית התלמוד - דף לא נמצא</title>
+  <script>
+    // SPA redirect: convert path to hash and redirect to index
+    var path = window.location.pathname;
+    var hash = path.replace('/beit-hatalmud/', '').replace(/\/$/, '');
+    if (hash) window.location.replace('/beit-hatalmud/#' + hash);
+    else window.location.replace('/beit-hatalmud/');
+  </script>
+</head>
+<body style="font-family:Heebo,sans-serif;text-align:center;padding:60px 20px;direction:rtl">
+  <h1>404</h1>
+  <p>הדף לא נמצא. מעביר לדף הראשי...</p>
+  <a href="/beit-hatalmud/">חזרה לדף הראשי</a>
+</body>
+</html>
