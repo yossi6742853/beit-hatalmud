@@ -1005,6 +1005,26 @@ Object.assign(Pages, {
       <button class="btn btn-sm btn-outline-info" onclick="Pages._helpRotateTip()"><i class="bi bi-arrow-repeat"></i></button>
     </div>
 
+    <!-- Institution Card -->
+    <div class="card border-0 shadow-sm mb-4 border-start border-primary border-3">
+      <div class="card-body py-3">
+        <div class="row align-items-center">
+          <div class="col-md-4 text-center mb-2 mb-md-0">
+            <h5 class="fw-bold mb-1"><i class="bi bi-building me-2"></i>\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h5>
+            <div class="text-muted small">\u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9</div>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex flex-wrap gap-3">
+              <div><i class="bi bi-geo-alt text-primary me-1"></i><small>\u05E0\u05D4\u05E8 \u05D4\u05D9\u05E8\u05D3\u05DF 106, \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9</small></div>
+              <div><a href="tel:02-5476989" class="text-decoration-none"><i class="bi bi-telephone text-success me-1"></i><small>02-547-6989</small></a></div>
+              <div><a href="mailto:6787012@gmail.com" class="text-decoration-none"><i class="bi bi-envelope text-info me-1"></i><small>6787012@gmail.com</small></a></div>
+              <div><i class="bi bi-person text-warning me-1"></i><small>\u05DE\u05E0\u05D4\u05DC: \u05D4\u05E8\u05D1 \u05D0\u05D4\u05D5\u05D3 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9 | \u05DE\u05D6\u05DB\u05D9\u05E8: \u05D9\u05D5\u05E1\u05E3 \u05E9\u05E0\u05D9\u05D9\u05D3\u05E8</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tabs -->
     <ul class="nav nav-pills mb-4 flex-wrap gap-1" id="help-tabs">
       <li class="nav-item"><a class="nav-link active" href="#" data-help-tab="wizard"><i class="bi bi-rocket-takeoff me-1"></i>\u05EA\u05D7\u05D9\u05DC\u05EA \u05E2\u05D1\u05D5\u05D3\u05D4</a></li>
