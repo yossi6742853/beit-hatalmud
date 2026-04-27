@@ -694,10 +694,10 @@ Object.assign(Pages, {
     this.renderDriveContent();
   },
 
-  deleteFolder(folderId) {
+  async deleteFolder(folderId) {
     const folder = this._driveFolders.find(f => f.id === folderId);
     if (!folder) return;
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05EA\u05D9\u05E7\u05D9\u05D4 "' + folder.name + '"?\n\u05E7\u05D1\u05E6\u05D9\u05DD \u05D1\u05EA\u05D5\u05DB\u05D4 \u05D9\u05D5\u05E2\u05D1\u05E8\u05D5 \u05DC\u05E9\u05D5\u05E8\u05E9.')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05EA\u05D9\u05E7\u05D9\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05EA\u05D9\u05E7\u05D9\u05D4 "' + folder.name + '"?\n\u05E7\u05D1\u05E6\u05D9\u05DD \u05D1\u05EA\u05D5\u05DB\u05D4 \u05D9\u05D5\u05E2\u05D1\u05E8\u05D5 \u05DC\u05E9\u05D5\u05E8\u05E9.')) return;
 
     // Move files to root
     (this._loadedFiles || []).forEach(f => { if (f.folder === folderId) f.folder = null; });
@@ -779,7 +779,7 @@ Object.assign(Pages, {
   async deleteFile(fileId) {
     const file = (this._loadedFiles || []).find(f => f.id === fileId);
     if (!file) return;
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "' + (file.name || '') + '"?')) return;
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05E7\u05D5\u05D1\u05E5', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA "' + (file.name || '') + '"?')) return;
 
     this._loadedFiles = (this._loadedFiles || []).filter(f => f.id !== fileId);
     this._driveStorageUsed -= (file.size || 0);

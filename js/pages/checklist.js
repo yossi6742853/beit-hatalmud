@@ -91,7 +91,7 @@ Object.assign(Pages, {
   _clSave(data) {
     localStorage.setItem(this._clKey, JSON.stringify(data));
     // Sync to API in background
-    try { App.apiCall('update', 'משימות', { id: 'checklists', row: data }); } catch(e) { console.error('Error:', e); }
+    App.apiCall('update', 'משימות', { id: 'checklists', row: data }).catch(e => console.warn('API error:', e));
   },
 
   /* ---- Generate demo data ---- */
@@ -607,8 +607,8 @@ Object.assign(Pages, {
   },
 
   /* -- Delete list -- */
-  _clDeleteList(listId) {
-    if (!confirm('למחוק את הצ\'קליסט?')) return;
+  async _clDeleteList(listId) {
+    if (!await Utils.confirm('מחיקה', 'למחוק את הצ\'קליסט?')) return;
     const data = this._clLoad();
     data.lists = data.lists.filter(l => l.id !== listId);
     if (data.activeListId === listId) {

@@ -2508,8 +2508,8 @@ Object.assign(Pages, {
     }
   },
 
-  deleteDoc(id) {
-    if (!confirm('\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E1\u05DE\u05DA \u05D6\u05D4?')) return;
+  async deleteDoc(id) {
+    if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E1\u05DE\u05DA \u05D6\u05D4?')) return;
     this._deleteLocalDoc(id);
     this._localDocs = this._getLocalDocs();
     Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05DE\u05D7\u05E7');
