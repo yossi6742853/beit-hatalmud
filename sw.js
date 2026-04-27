@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v6.6-0426';
+const CACHE_VERSION = 'bht-v6.7-0427';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -19,6 +19,7 @@ const ASSETS = [
   './js/data-cache.js',
   './js/app.js',
   './js/drive-catalog.js',
+  './js/email-cache.js',
   './js/pages.js',
   './js/utils.js',
   // Page modules (js/pages/*.js)

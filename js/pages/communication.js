@@ -426,10 +426,9 @@ Object.assign(Pages, {
     if (!body) return;
 
     const channelIcon = (ch) => {
-      if (ch === 'whatsapp' || ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
+      if (ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
       if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
       if (ch === 'sms') return '<i class="bi bi-chat-left-text text-primary"></i>';
-      if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
       return '<i class="bi bi-chat-dots text-secondary"></i>';
     };
 
@@ -635,10 +634,10 @@ Object.assign(Pages, {
       : '<span class="badge bg-secondary fs-6">\u05DC\u05D0 \u05E4\u05E2\u05D9\u05DC</span>';
 
     const channelIcon = (ch) => {
-      if (ch === 'whatsapp' || ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
+      if (ch === 'phone') return '<i class="bi bi-telephone text-success"></i>';
       if (ch === 'email') return '<i class="bi bi-envelope text-info"></i>';
-      if (ch === 'phone') return '<i class="bi bi-telephone text-warning"></i>';
-      return '<i class="bi bi-chat-left-text text-primary"></i>';
+      if (ch === 'sms') return '<i class="bi bi-chat-left-text text-primary"></i>';
+      return '<i class="bi bi-chat-dots text-secondary"></i>';
     };
 
     document.getElementById('parent-card-content').innerHTML = `
@@ -658,7 +657,7 @@ Object.assign(Pages, {
           </div>
           <div class="d-flex gap-2">
             ${phone ? `<a href="tel:${phone}" class="btn btn-outline-primary"><i class="bi bi-telephone me-1"></i>\u05D7\u05D9\u05D9\u05D2</a>` : ''}
-            ${phone ? `<button class="btn btn-success" onclick="(function(){var m=prompt('\\u05D4\\u05D5\\u05D3\\u05E2\\u05D4:');if(m)window.open('sms:${phone.replace(/[-\s]/g,'')}?body='+encodeURIComponent(m),'_blank');else if(m==='')window.open('sms:${phone.replace(/[-\s]/g,'')}','_blank')})()"><i class="bi bi-chat-left-text me-1"></i>SMS</button>` : ''}
+            ${phone ? `<a href="sms:${phone.replace(/[-\s]/g,'')}" class="btn btn-success"><i class="bi bi-chat-left-text me-1"></i>SMS</a>` : ''}
             <button class="btn btn-outline-primary" onclick="Pages.editParent('${id}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           </div>
         </div>
@@ -781,7 +780,7 @@ Object.assign(Pages, {
   _commHistorySearch: '',
 
   /* --- 7 Phone/SMS Templates --- */
-  _waTemplates: [
+  _phoneTemplates: [
     {title:'\u05D4\u05E2\u05D3\u05E8\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-exclamation-triangle', color:'danger',
      text:'\u05E9\u05DC\u05D5\u05DD {\u05E9\u05DD_\u05D4\u05D5\u05E8\u05D4},\n\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05E2\u05D3\u05DB\u05DF \u05E9\u05D1\u05E0\u05DB\u05DD {\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3} \u05DC\u05D0 \u05D4\u05D2\u05D9\u05E2 \u05D4\u05D9\u05D5\u05DD \u05DC\u05DE\u05D5\u05E1\u05D3.\n\u05E0\u05E9\u05DE\u05D7 \u05DC\u05D3\u05E2\u05EA \u05D0\u05DD \u05D4\u05DB\u05DC \u05D1\u05E1\u05D3\u05E8.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3'},
     {title:'\u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD', icon:'bi-cash-coin', color:'warning',
@@ -872,8 +871,8 @@ Object.assign(Pages, {
       a.classList.toggle('active', a.dataset.commTab === this._commTab);
     });
     const el = document.getElementById('comm-content');
-    // Show empty state if no data at all
-    if (!this._commData.length && !this._commParents.length) {
+    // Show empty state only when there are no parents at all to communicate with
+    if (!this._commParents.length) {
       el.innerHTML = '<div class="empty-state"><i class="bi bi-chat-dots"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05E8\u05D0\u05E9\u05D5\u05DF</h5></div>';
       return;
     }
@@ -1068,7 +1067,7 @@ Object.assign(Pages, {
         <div class="card p-3">
           <h6 class="fw-bold mb-3"><i class="bi bi-lightning me-1 text-warning"></i>\u05EA\u05D1\u05E0\u05D9\u05D5\u05EA \u05DE\u05D4\u05D9\u05E8\u05D5\u05EA</h6>
           <div class="d-grid gap-2">
-            ${this._waTemplates.map((t,i) => `
+            ${this._phoneTemplates.map((t,i) => `
               <button class="btn btn-outline-${t.color} btn-sm text-start" onclick="Pages._useCommTemplate(${i})">
                 <i class="bi ${t.icon} me-1"></i>${t.title}
               </button>`).join('')}
@@ -1080,7 +1079,7 @@ Object.assign(Pages, {
 
   /* --- TEMPLATES TAB --- */
   _renderCommTemplates(el) {
-    const cards = this._waTemplates.map((t, i) => {
+    const cards = this._phoneTemplates.map((t, i) => {
       const preview = t.text.replace(/\n/g, '<br>');
       return `<div class="col-md-6 col-lg-4">
         <div class="card h-100 border-0 shadow-sm border-top border-3 border-${t.color}">
@@ -1341,7 +1340,7 @@ Object.assign(Pages, {
     this._updateCommCharCount();
   },
   _useCommTemplate(idx) {
-    const tpl = this._waTemplates[idx];
+    const tpl = this._phoneTemplates[idx];
     if (!tpl) return;
     this._commTab = 'compose';
     this.renderComm();
@@ -1353,7 +1352,7 @@ Object.assign(Pages, {
     }, 50);
   },
   _copyCommTemplate(idx) {
-    const tpl = this._waTemplates[idx];
+    const tpl = this._phoneTemplates[idx];
     if (!tpl) return;
     navigator.clipboard.writeText(tpl.text).then(() => {
       Utils.toast('\u05EA\u05D1\u05E0\u05D9\u05EA \u05D4\u05D5\u05E2\u05EA\u05E7\u05D4');
