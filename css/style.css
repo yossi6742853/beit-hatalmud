@@ -4579,3 +4579,13 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] #command-palette > div { background: #1e293b !important; }
 [data-theme="dark"] #command-palette input { background: #0f172a; color: #e2e8f0; border: none; }
 [data-theme="dark"] .cmd-item:hover { background: #334155 !important; }
+
+/* ===== Notification Bell Shake ===== */
+#notif-count:not(.d-none) {
+  animation: bellShake 3s ease-in-out infinite;
+}
+@keyframes bellShake {
+  0%, 90%, 100% { transform: translate(-50%, 0); }
+  92%, 96% { transform: translate(-50%, -2px) rotate(5deg); }
+  94%, 98% { transform: translate(-50%, -2px) rotate(-5deg); }
+}
