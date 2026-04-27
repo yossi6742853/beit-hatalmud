@@ -195,6 +195,20 @@ Object.assign(Pages, {
       });
     });
 
+    // Email notifications from EMAIL_CACHE
+    if (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE.inbox) {
+      EMAIL_CACHE.inbox.filter(e => e.unread).slice(0, 5).forEach(e => {
+        const senderName = (e.from || '').replace(/<[^>]+>/g, '').replace(/"/g, '').trim();
+        events.push({
+          id: idCounter++, type: 'parent',
+          title: '\u05D3\u05D5\u05D0\u05E8: ' + (e.subject || '\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0'),
+          desc: '\u05DE\u05D0\u05EA: ' + senderName.substring(0, 30) + (e.snippet ? ' \u2014 ' + e.snippet.substring(0, 60) + '...' : ''),
+          ts: e.date ? new Date(e.date).getTime() : Date.now(),
+          read: false, important: true, archived: false
+        });
+      });
+    }
+
     // Sort by date desc, take last 20
     events.sort((a, b) => b.ts - a.ts);
     const top20 = events.slice(0, 20);
