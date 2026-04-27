@@ -23,7 +23,8 @@ Object.assign(Pages, {
     { id: 'mivtza_report',     name: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 \u05DC\u05D9\u05DE\u05D5\u05D3', icon: 'bi-trophy-fill',        color: 'warning',  desc: '\u05D3\u05D5\u05D7 \u05DE\u05D1\u05E6\u05E2 "\u05D9\u05EA\u05D2\u05D1\u05E8 \u05DB\u05D0\u05E8\u05D9" \u2014 \u05E9\u05D7\u05E8\u05D9\u05EA, \u05DE\u05E0\u05D7\u05D4, \u05DE\u05E2\u05E8\u05D9\u05D1, \u05D7\u05D1\u05E8\u05D5\u05EA\u05D0, \u05E0\u05E7\u05D5\u05D3\u05D5\u05EA' },
     { id: 'staff_directory',   name: '\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05E6\u05D5\u05D5\u05EA', icon: 'bi-person-lines-fill',  color: 'teal',     desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D0\u05E0\u05E9\u05D9 \u05D4\u05E6\u05D5\u05D5\u05EA \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05EA\u05E4\u05E7\u05D9\u05D3, \u05D5\u05EA\u05D7\u05D5\u05DD \u05D0\u05D7\u05E8\u05D9\u05D5\u05EA' },
     { id: 'daily_summary',    name: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9',       icon: 'bi-calendar-day',       color: 'purple',   desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05D9\u05D5\u05DE\u05D9 \u05DE\u05E8\u05D5\u05DB\u05D6 \u2014 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD, \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA, \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D5\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA' },
-    { id: 'parent_directory', name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-people-fill',        color: 'primary',  desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05E7\u05E9\u05E8 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D5\u05E2\u05D9\u05E1\u05D5\u05E7' }
+    { id: 'parent_directory', name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-people-fill',        color: 'primary',  desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD \u05E2\u05DD \u05D8\u05DC\u05E4\u05D5\u05DF, \u05E7\u05E9\u05E8 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u05D5\u05E2\u05D9\u05E1\u05D5\u05E7' },
+    { id: 'grade_report',     name: '\u05D3\u05D5\u05D7 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD',       icon: 'bi-mortarboard-fill',   color: 'indigo',   desc: '\u05D3\u05D5\u05D7 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DE\u05E7\u05E6\u05D5\u05E2 \u05D5\u05DB\u05D9\u05EA\u05D4 \u2014 \u05DE\u05DE\u05D5\u05E6\u05E2\u05D9\u05DD \u05D5\u05D4\u05E2\u05E8\u05D5\u05EA' }
   ],
 
   /* ---------- demo data ---------- */
@@ -838,6 +839,7 @@ Object.assign(Pages, {
       case 'staff_directory':    return this._pcBuildStaffDirectory(opts);
       case 'daily_summary':      return this._pcBuildDailySummary(opts);
       case 'parent_directory':   return this._pcBuildParentDirectory(opts);
+      case 'grade_report':       return this._pcBuildGradeReport(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1949,6 +1951,54 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Grade Report Template ---------- */
+  _pcBuildGradeReport(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const exams = _gc('\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD');
+    const grades = _gc('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
+    const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+    const today = new Date().toLocaleDateString('he-IL');
+    if (!grades.length) return '<div style="text-align:center;padding:40px;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD</div>';
+
+    // Group grades by subject (from exams)
+    const examMap = {};
+    exams.forEach(e => { examMap[e['\u05DE\u05D6\u05D4\u05D4']] = e; });
+    const subjects = {};
+    grades.forEach(g => {
+      const exam = examMap[g['\u05DE\u05D6\u05D4\u05D4_\u05DE\u05D1\u05D7\u05DF']] || {};
+      const subj = exam['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '\u05DB\u05DC\u05DC\u05D9';
+      if (!subjects[subj]) subjects[subj] = [];
+      const score = Number(g['\u05E6\u05D9\u05D5\u05DF'] || 0);
+      const sid = g['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '';
+      const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4']||'') === sid);
+      const name = student ? ((student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'')+' '+(student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim() : '';
+      if (score > 0) subjects[subj].push({ name, score });
+    });
+
+    const subjRows = Object.entries(subjects).map(([subj, gs]) => {
+      const avg = Math.round(gs.reduce((s,g) => s + g.score, 0) / gs.length);
+      const top = gs.sort((a,b) => b.score - a.score).slice(0,3).map(g => g.name + ' (' + g.score + ')').join(', ');
+      return `<tr><td style="font-weight:bold">${subj}</td><td>${gs.length}</td><td style="font-weight:bold;color:${avg >= 80 ? '#059669' : avg >= 60 ? '#d97706' : '#dc2626'}">${avg}</td><td style="font-size:11px">${top}</td></tr>`;
+    }).join('');
+
+    const allScores = grades.map(g => Number(g['\u05E6\u05D9\u05D5\u05DF']||0)).filter(n => n > 0);
+    const totalAvg = allScores.length ? Math.round(allScores.reduce((a,b)=>a+b,0)/allScores.length) : 0;
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</h2>
+          <h3 style="margin:5px 0;color:#4f46e5">\u05D3\u05D5\u05D7 \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05DC\u05E4\u05D9 \u05DE\u05E7\u05E6\u05D5\u05E2</h3>
+          <p style="color:#666">${today} | ${grades.length} \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD | \u05DE\u05DE\u05D5\u05E6\u05E2 \u05DB\u05DC\u05DC\u05D9: <strong>${totalAvg}</strong></p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px" border="1" cellpadding="6">
+          <thead style="background:#e0e7ff;font-weight:bold"><tr><th>\u05DE\u05E7\u05E6\u05D5\u05E2</th><th>\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</th><th>\u05DE\u05DE\u05D5\u05E6\u05E2</th><th>\u05DE\u05D5\u05D1\u05D9\u05DC\u05D9\u05DD</th></tr></thead>
+          <tbody>${subjRows}</tbody>
+        </table>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 | \u05E1\u05D5\u05D3\u05D9</p>
+      </div>`;
   },
 
   /* ---------- Parent Directory Template ---------- */
