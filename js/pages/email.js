@@ -1,39 +1,62 @@
-/* ===== BHT v6.0 — Email Module (Full Upgrade) ===== */
+/* ===== BHT v6.4 — Email Module (REAL Gmail via Apps Script Proxy) ===== */
 Object.assign(Pages, {
 
   /* ---- State ---- */
   _emailFolder: 'INBOX',
   _emailSelected: new Set(),
-  _emailStarred: new Set(['1','5','9']),
-  _emailRead: new Set(['2','4','6','7','8','s1','s2','s3','s4','s5','d1','d2']),
+  _emailStarred: new Set(),
+  _emailReadSet: new Set(),
   _loadedEmails: [],
   _emailSearchQuery: '',
+  _emailApiInbox: [],
+  _emailApiSent: [],
+  _emailLoading: false,
+  _emailThreadCache: {},
 
-  /* ---- Demo Data: 12 Inbox ---- */
-  _demoInbox: [
+  /* ---- Gmail Proxy Config ---- */
+  _GMAIL_PROXY: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  _GMAIL_TOKEN: 'BHT_AGENT_2026',
 
-    {id:'1', from:'\u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF', fromEmail:'yaakov@example.com', subject:'\u05E9\u05D0\u05DC\u05D4 \u05DC\u05D2\u05D1\u05D9 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D1\u05DF', snippet:'\u05E9\u05DC\u05D5\u05DD, \u05E8\u05E6\u05D9\u05EA\u05D9 \u05DC\u05D1\u05E8\u05E8 \u05DC\u05D2\u05D1\u05D9 \u05D7\u05D9\u05E1\u05D5\u05E8 \u05E9\u05DC \u05D4\u05D1\u05DF \u05E9\u05DC\u05D9 \u05D1\u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9...', date:'22/04/2026', body:'\u05E9\u05DC\u05D5\u05DD \u05D4\u05E8\u05D1,\n\u05E8\u05E6\u05D9\u05EA\u05D9 \u05DC\u05D1\u05E8\u05E8 \u05DC\u05D2\u05D1\u05D9 \u05D7\u05D9\u05E1\u05D5\u05E8 \u05E9\u05DC \u05D4\u05D1\u05DF \u05E9\u05DC\u05D9 \u05D9\u05D5\u05E1\u05E3 \u05D1\u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9 \u05D4\u05D0\u05D7\u05E8\u05D5\u05DF.\n\u05D4\u05D5\u05D0 \u05D4\u05D9\u05D4 \u05D7\u05D5\u05DC\u05D4 \u05D5\u05DC\u05D0 \u05D9\u05DB\u05D5\u05DC\u05EA\u05D9 \u05DC\u05D4\u05D5\u05D3\u05D9\u05E2 \u05DE\u05E8\u05D0\u05E9.\n\u05D0\u05E9\u05DE\u05D7 \u05DC\u05E7\u05D1\u05DC \u05D0\u05D9\u05E9\u05D5\u05E8 \u05E9\u05D4\u05D7\u05D9\u05E1\u05D5\u05E8 \u05E0\u05E8\u05E9\u05DD.\n\u05D1\u05EA\u05D5\u05D3\u05D4,\n\u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF'},
-    {id:'2', from:'\u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA', fromEmail:'education@gov.il', subject:'\u05E2\u05D3\u05DB\u05D5\u05DF \u05EA\u05E7\u05E0\u05D5\u05EA \u05D1\u05D8\u05D9\u05D7\u05D5\u05EA \u05EA\u05E9\u05E4"\u05D5', snippet:'\u05DE\u05E6"\u05D1 \u05E2\u05D3\u05DB\u05D5\u05DF \u05EA\u05E7\u05E0\u05D5\u05EA \u05D4\u05D1\u05D8\u05D9\u05D7\u05D5\u05EA \u05D4\u05D7\u05D3\u05E9\u05D5\u05EA...', date:'21/04/2026', body:'\u05E9\u05DC\u05D5\u05DD \u05E8\u05D1,\n\u05DE\u05E6\u05D5\u05E8\u05E3 \u05E2\u05D3\u05DB\u05D5\u05DF \u05EA\u05E7\u05E0\u05D5\u05EA \u05D4\u05D1\u05D8\u05D9\u05D7\u05D5\u05EA \u05DC\u05E9\u05E0\u05EA \u05EA\u05E9\u05E4"\u05D5.\n\u05E0\u05D0 \u05DC\u05E2\u05D9\u05D9\u05DF \u05D5\u05DC\u05D7\u05EA\u05D5\u05DD.\n\u05D1\u05D1\u05E8\u05DB\u05D4,\n\u05D0\u05D2\u05E3 \u05D1\u05DB\u05D9\u05E8 \u05DC\u05D1\u05D9\u05D8\u05D7\u05D5\u05DF \u05D5\u05D1\u05D8\u05D9\u05D7\u05D5\u05EA'},
-    {id:'3', from:'\u05E8\u05D7\u05DC \u05DC\u05D5\u05D9', fromEmail:'rachel@example.com', subject:'\u05D1\u05E7\u05E9\u05D4 \u05DC\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E2\u05DD \u05D4\u05DE\u05D7\u05E0\u05DA', snippet:'\u05D0\u05E9\u05DE\u05D7 \u05DC\u05EA\u05D0\u05DD \u05E4\u05D2\u05D9\u05E9\u05D4 \u05E2\u05DD \u05D4\u05E8\u05D1 \u05D1\u05E0\u05D5\u05E9\u05D0 \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05E9\u05DC \u05D3\u05D5\u05D3...', date:'21/04/2026', body:'\u05E9\u05DC\u05D5\u05DD,\n\u05D0\u05E9\u05DE\u05D7 \u05DC\u05EA\u05D0\u05DD \u05E4\u05D2\u05D9\u05E9\u05D4 \u05E2\u05DD \u05D4\u05E8\u05D1 \u05D1\u05E0\u05D5\u05E9\u05D0 \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05E9\u05DC \u05D3\u05D5\u05D3.\n\u05D4\u05D5\u05D0 \u05E2\u05D5\u05DE\u05D3 \u05DC\u05E2\u05D1\u05D5\u05E8 \u05DC\u05DB\u05D9\u05EA\u05D4 \u05D0 \u05D5\u05E8\u05E6\u05D9\u05E0\u05D5 \u05DC\u05D3\u05D1\u05E8 \u05E2\u05DC \u05D4\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD.\n\u05EA\u05D5\u05D3\u05D4,\n\u05E8\u05D7\u05DC \u05DC\u05D5\u05D9'}
-  ],
-
-  /* ---- Demo Data: 5 Sent ---- */
-  _demoSent: [
-    {id:'s1', from:'\u05D0\u05E0\u05D9', fromEmail:'me@beitha.org', to:'\u05D9\u05E2\u05E7\u05D1 \u05DB\u05D4\u05DF', subject:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05D7\u05D9\u05E1\u05D5\u05E8 \u05D9\u05D5\u05E1\u05E3', snippet:'\u05D4\u05D7\u05D9\u05E1\u05D5\u05E8 \u05D0\u05D5\u05E9\u05E8 \u05DC\u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9...', date:'22/04/2026', body:'\u05E9\u05DC\u05D5\u05DD \u05D9\u05E2\u05E7\u05D1,\n\u05D4\u05D7\u05D9\u05E1\u05D5\u05E8 \u05E9\u05DC \u05D9\u05D5\u05E1\u05E3 \u05D0\u05D5\u05E9\u05E8 \u05DC\u05D9\u05D5\u05DD \u05E9\u05DC\u05D9\u05E9\u05D9.\n\u05EA\u05D5\u05D3\u05D4 \u05E2\u05DC \u05D4\u05E2\u05D3\u05DB\u05D5\u05DF.\n\u05D1\u05D1\u05E8\u05DB\u05D4'},
-    {id:'s2', from:'\u05D0\u05E0\u05D9', fromEmail:'me@beitha.org', to:'\u05E8\u05D7\u05DC \u05DC\u05D5\u05D9', subject:'\u05D0\u05D9\u05E9\u05D5\u05E8 \u05E4\u05D2\u05D9\u05E9\u05D4 - \u05DE\u05D0\u05D5\u05E9\u05E8', snippet:'\u05D4\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4 \u05DC\u05D9\u05D5\u05DD \u05E8\u05D1\u05D9\u05E2\u05D9...', date:'21/04/2026', body:'\u05E9\u05DC\u05D5\u05DD \u05E8\u05D7\u05DC,\n\u05D4\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4 \u05DC\u05D9\u05D5\u05DD \u05E8\u05D1\u05D9\u05E2\u05D9 \u05D1\u05E9\u05E2\u05D4 10:00.\n\u05D1\u05D1\u05E8\u05DB\u05D4'},
-    {id:'s3', from:'\u05D0\u05E0\u05D9', fromEmail:'me@beitha.org', to:'\u05D4\u05E8\u05D1 \u05D9\u05E8\u05D5\u05E9\u05DC\u05DE\u05D9', subject:'\u05E1\u05D3\u05E8 \u05D9\u05D5\u05DD \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF', snippet:'\u05D4\u05E1\u05D3\u05E8 \u05D4\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF \u05D4\u05D5\u05E4\u05E5 \u05DC\u05E6\u05D5\u05D5\u05EA...', date:'19/04/2026', body:'\u05DB\u05D1\u05D5\u05D3 \u05D4\u05E8\u05D1,\n\u05D4\u05E1\u05D3\u05E8 \u05D4\u05DE\u05E2\u05D5\u05D3\u05DB\u05DF \u05D4\u05D5\u05E4\u05E5 \u05DC\u05E6\u05D5\u05D5\u05EA \u05D4\u05DE\u05D5\u05E1\u05D3.\n\u05D1\u05D1\u05E8\u05DB\u05D4'}
-  ],
-
-  /* ---- Demo Data: 2 Drafts ---- */
-  _demoDrafts: [
-    {id:'d1', from:'\u05D0\u05E0\u05D9', fromEmail:'me@beitha.org', to:'\u05D5\u05E2\u05D3 \u05D4\u05D5\u05E8\u05D9\u05DD', subject:'\u05D6\u05D9\u05DE\u05D5\u05DF \u05DC\u05D9\u05E9\u05D9\u05D1\u05EA \u05D5\u05E2\u05D3', snippet:'\u05D8\u05D9\u05D5\u05D8\u05D4 - \u05D4\u05D5\u05D3\u05E2\u05D4 \u05E2\u05DC \u05D9\u05E9\u05D9\u05D1\u05EA \u05D5\u05E2\u05D3 \u05D4\u05D5\u05E8\u05D9\u05DD...', date:'22/04/2026', body:'\u05D4\u05D5\u05E8\u05D9\u05DD \u05D9\u05E7\u05E8\u05D9\u05DD,\n\u05DE\u05D5\u05D3\u05D9\u05E2\u05D9\u05DD \u05DB\u05D9 \u05D9\u05E9\u05D9\u05D1\u05EA \u05D5\u05E2\u05D3 \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD \u05D4\u05E7\u05E8\u05D5\u05D1\u05D4 \u05EA\u05EA\u05E7\u05D9\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD...'},
-    {id:'d2', from:'\u05D0\u05E0\u05D9', fromEmail:'me@beitha.org', to:'\u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA', subject:'\u05D3\u05D5"\u05D7 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF', snippet:'\u05D8\u05D9\u05D5\u05D8\u05D4 - \u05D3\u05D5\u05D7 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E9\u05E0\u05D4...', date:'20/04/2026', body:'\u05DC\u05DB\u05D1\u05D5\u05D3 \u05DE\u05E9\u05E8\u05D3 \u05D4\u05D7\u05D9\u05E0\u05D5\u05DA,\n\u05DE\u05E6\u05D5\u05E8\u05E3 \u05D3\u05D5\u05D7 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E9\u05E0\u05EA \u05EA\u05E9\u05E4"\u05D5...'}
-  ],
+  /* ---- Helper: call Gmail proxy (via OAuth or static cache) ---- */
+  async _gmailProxy(action, params = {}) {
+    // First try static EMAIL_CACHE
+    if (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE) {
+      if (action === 'gmailList') {
+        const q = params.q || '';
+        if (q.includes('in:inbox')) return EMAIL_CACHE.inbox || [];
+        if (q.includes('in:sent')) return EMAIL_CACHE.sent || [];
+        // Search: filter inbox+sent
+        const all = [...(EMAIL_CACHE.inbox || []), ...(EMAIL_CACHE.sent || [])];
+        const qLow = q.toLowerCase();
+        return all.filter(e => (e.subject||'').toLowerCase().includes(qLow) || (e.from||'').toLowerCase().includes(qLow) || (e.snippet||'').toLowerCase().includes(qLow));
+      }
+      if (action === 'gmailRead' && params.id && EMAIL_CACHE.threads && EMAIL_CACHE.threads[params.id]) {
+        return EMAIL_CACHE.threads[params.id];
+      }
+    }
+    // Fallback: try direct API call (works if user is logged in to Google)
+    try {
+      const url = new URL(this._GMAIL_PROXY);
+      url.searchParams.set('agentToken', this._GMAIL_TOKEN);
+      url.searchParams.set('agentAction', action);
+      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      const resp = await fetch(url.toString(), { redirect: 'follow' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const text = await resp.text();
+      if (text.includes('<!doctype html>') || text.includes('accounts.google.com')) throw new Error('Auth required');
+      return JSON.parse(text);
+    } catch(e) {
+      console.warn('Gmail proxy unavailable:', e.message);
+      return [];
+    }
+  },
 
   /* ---- Get initials for avatar ---- */
   _emailInitials(name) {
     if (!name) return '??';
-    const parts = (name || '').trim().split(/\s+/);
+    // Strip email format: "Name" <email> -> Name
+    const clean = (name || '').replace(/<[^>]+>/g, '').replace(/"/g, '').trim();
+    const parts = clean.split(/\s+/);
     if (parts.length >= 2) return parts[0][0] + parts[1][0];
     return parts[0].substring(0, 2);
   },
@@ -46,46 +69,56 @@ Object.assign(Pages, {
     return colors[Math.abs(hash) % colors.length];
   },
 
+  /* ---- Format date nicely ---- */
+  _emailFormatDate(isoStr) {
+    if (!isoStr) return '';
+    try {
+      const d = new Date(isoStr);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      const isThisYear = d.getFullYear() === now.getFullYear();
+      if (isToday) return d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+      if (isThisYear) return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
+      return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch(e) { return isoStr; }
+  },
+
+  /* ---- Extract sender name ---- */
+  _emailSenderName(from) {
+    if (!from) return '';
+    const match = from.match(/"?([^"<]+)"?\s*</);
+    return match ? match[1].trim() : from.split('@')[0];
+  },
+
   /* ---- Get emails for current folder ---- */
   _getEmailsForFolder(folder) {
-    // Use API data if available, else demo if toggled, else empty
-    const hasApi = this._emailApiInbox.length > 0 || this._emailApiSent.length > 0;
-    const useDemo = !hasApi && this._emailUseDemo;
     switch(folder) {
-      case 'SENT': return hasApi ? this._emailApiSent : (useDemo ? this._demoSent : []);
-      case 'DRAFT': return hasApi ? this._emailApiDrafts : (useDemo ? this._demoDrafts : []);
-      case 'STARRED': {
-        const inbox = hasApi ? this._emailApiInbox : (useDemo ? this._demoInbox : []);
-        const sent = hasApi ? this._emailApiSent : (useDemo ? this._demoSent : []);
-        return [...inbox, ...sent].filter(e => this._emailStarred.has(e.id));
-      }
-      case 'TRASH': return [];
-      default: return hasApi ? this._emailApiInbox : (useDemo ? this._demoInbox : []);
+      case 'SENT': return this._emailApiSent;
+      case 'STARRED': return [...this._emailApiInbox, ...this._emailApiSent].filter(e => this._emailStarred.has(e.id));
+      default: return this._emailApiInbox;
     }
   },
 
   /* ---- Unread count ---- */
   _emailUnreadCount() {
-    const inbox = this._getEmailsForFolder('INBOX');
-    return inbox.filter(e => !this._emailRead.has(e.id)).length;
+    return this._emailApiInbox.filter(e => e.unread && !this._emailReadSet.has(e.id)).length;
   },
 
   /* ================================================================
      MAIN PAGE HTML
      ================================================================ */
   email() {
-    const unread = this._emailUnreadCount();
     return `
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
         <div>
           <h1><i class="bi bi-envelope-fill me-2"></i>\u05D3\u05D5\u05D0\u05E8 \u05D0\u05DC\u05E7\u05D8\u05E8\u05D5\u05E0\u05D9</h1>
-          <p class="text-muted mb-0">\u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8 \u05DE\u05E1\u05D5\u05E0\u05DB\u05E8\u05E0\u05EA \u05E2\u05DD Gmail</p>
+          <p class="text-muted mb-0">\u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8 6787012@gmail.com</p>
         </div>
         <div class="d-flex gap-2">
           <button class="btn btn-primary btn-sm" onclick="Pages.emailShowCompose()">
             <i class="bi bi-pencil-square me-1"></i>\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D7\u05D3\u05E9\u05D4
           </button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.emailRefresh()">
+          <button class="btn btn-outline-secondary btn-sm" onclick="Pages.emailRefresh()" id="email-refresh-btn">
             <i class="bi bi-arrow-clockwise me-1"></i>\u05E8\u05E2\u05E0\u05D5\u05DF
           </button>
         </div>
@@ -98,7 +131,7 @@ Object.assign(Pages, {
             <div class="card-body text-center py-3">
               <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
                 <i class="bi bi-envelope-fill text-primary fs-5"></i>
-                <span class="fs-3 fw-bold text-primary" id="stat-total">12</span>
+                <span class="fs-3 fw-bold text-primary" id="stat-total">--</span>
               </div>
               <small class="text-muted">\u05E1\u05D4"\u05DB \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA</small>
             </div>
@@ -109,7 +142,7 @@ Object.assign(Pages, {
             <div class="card-body text-center py-3">
               <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
                 <i class="bi bi-envelope-open-fill text-danger fs-5"></i>
-                <span class="fs-3 fw-bold text-danger" id="stat-unread">${unread}</span>
+                <span class="fs-3 fw-bold text-danger" id="stat-unread">--</span>
               </div>
               <small class="text-muted">\u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0\u05D5</small>
             </div>
@@ -120,9 +153,9 @@ Object.assign(Pages, {
             <div class="card-body text-center py-3">
               <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
                 <i class="bi bi-send-fill text-success fs-5"></i>
-                <span class="fs-3 fw-bold text-success" id="stat-sent">2</span>
+                <span class="fs-3 fw-bold text-success" id="stat-sent">--</span>
               </div>
-              <small class="text-muted">\u05E0\u05E9\u05DC\u05D7\u05D5 \u05D4\u05D9\u05D5\u05DD</small>
+              <small class="text-muted">\u05E0\u05E9\u05DC\u05D7\u05D5</small>
             </div>
           </div>
         </div>
@@ -130,10 +163,10 @@ Object.assign(Pages, {
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center py-3">
               <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
-                <i class="bi bi-file-earmark-fill text-warning fs-5"></i>
-                <span class="fs-3 fw-bold text-warning" id="stat-drafts">2</span>
+                <i class="bi bi-star-fill text-warning fs-5"></i>
+                <span class="fs-3 fw-bold text-warning" id="stat-starred">--</span>
               </div>
-              <small class="text-muted">\u05D8\u05D9\u05D5\u05D8\u05D5\u05EA</small>
+              <small class="text-muted">\u05DE\u05E1\u05D5\u05DE\u05E0\u05D9\u05DD</small>
             </div>
           </div>
         </div>
@@ -146,23 +179,15 @@ Object.assign(Pages, {
             <div class="list-group list-group-flush" id="email-folders">
               <a href="#" class="list-group-item list-group-item-action active d-flex justify-content-between align-items-center" data-folder="INBOX" onclick="Pages.emailLoadFolder('INBOX');return false">
                 <span><i class="bi bi-inbox-fill me-2"></i>\u05D3\u05D5\u05D0\u05E8 \u05E0\u05DB\u05E0\u05E1</span>
-                <span class="badge bg-danger rounded-pill" id="inbox-count">${unread || ''}</span>
+                <span class="badge bg-danger rounded-pill" id="inbox-count"></span>
               </a>
               <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-folder="SENT" onclick="Pages.emailLoadFolder('SENT');return false">
                 <span><i class="bi bi-send-fill me-2"></i>\u05E0\u05E9\u05DC\u05D7\u05D5</span>
-                <span class="badge bg-secondary rounded-pill">5</span>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-folder="DRAFT" onclick="Pages.emailLoadFolder('DRAFT');return false">
-                <span><i class="bi bi-file-earmark-text me-2"></i>\u05D8\u05D9\u05D5\u05D8\u05D5\u05EA</span>
-                <span class="badge bg-warning text-dark rounded-pill">2</span>
+                <span class="badge bg-secondary rounded-pill" id="sent-count"></span>
               </a>
               <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-folder="STARRED" onclick="Pages.emailLoadFolder('STARRED');return false">
                 <span><i class="bi bi-star-fill me-2 text-warning"></i>\u05DE\u05E1\u05D5\u05DE\u05E0\u05D9\u05DD</span>
-                <span class="badge bg-secondary rounded-pill" id="starred-count">${this._emailStarred.size}</span>
-              </a>
-              <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-folder="TRASH" onclick="Pages.emailLoadFolder('TRASH');return false">
-                <span><i class="bi bi-trash3-fill me-2 text-danger"></i>\u05D0\u05E9\u05E4\u05D4</span>
-                <span class="badge bg-secondary rounded-pill">0</span>
+                <span class="badge bg-secondary rounded-pill" id="starred-count"></span>
               </a>
             </div>
           </div>
@@ -170,15 +195,16 @@ Object.assign(Pages, {
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
               <input type="text" class="form-control border-start-0" id="email-search" placeholder="\u05D7\u05D9\u05E4\u05D5\u05E9 \u05DC\u05E4\u05D9 \u05E9\u05D5\u05DC\u05D7/\u05E0\u05D5\u05E9\u05D0..."
-                onkeydown="if(event.key==='Enter')Pages.emailSearch()" oninput="Pages.emailSearch()">
+                onkeydown="if(event.key==='Enter')Pages.emailSearchGmail()" oninput="Pages.emailFilterLocal()">
             </div>
+            <small class="text-muted mt-1 d-block">\u05D4\u05E7\u05E9 Enter \u05DC\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D1\u05E9\u05E8\u05EA</small>
           </div>
         </div>
 
         <!-- Main Content -->
         <div class="col-md-9">
           <!-- Bulk Actions Bar -->
-          <div class="card border-0 shadow-sm mb-2 d-none" id="email-bulk-bar">
+          <div class="card border-0 shadow-sm mb-2" id="email-bulk-bar">
             <div class="card-body py-2 d-flex align-items-center gap-2 flex-wrap">
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="email-select-all" onchange="Pages.emailToggleSelectAll()">
@@ -186,20 +212,6 @@ Object.assign(Pages, {
               </div>
               <div class="vr"></div>
               <span class="text-muted small" id="email-selected-count">0 \u05E0\u05D1\u05D7\u05E8\u05D5</span>
-              <div class="ms-auto d-flex gap-1">
-                <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailBulkMarkRead()" title="\u05E1\u05DE\u05DF \u05DB\u05E0\u05E7\u05E8\u05D0">
-                  <i class="bi bi-envelope-open"></i>
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick="Pages.emailBulkMarkUnread()" title="\u05E1\u05DE\u05DF \u05DB\u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0">
-                  <i class="bi bi-envelope-fill"></i>
-                </button>
-                <button class="btn btn-outline-warning btn-sm" onclick="Pages.emailBulkStar()" title="\u05D4\u05D5\u05E1\u05E3 \u05DB\u05D5\u05DB\u05D1">
-                  <i class="bi bi-star"></i>
-                </button>
-                <button class="btn btn-outline-danger btn-sm" onclick="Pages.emailBulkDelete()" title="\u05DE\u05D7\u05E7">
-                  <i class="bi bi-trash3"></i>
-                </button>
-              </div>
             </div>
           </div>
 
@@ -225,10 +237,6 @@ Object.assign(Pages, {
                 <input class="form-control" id="compose-to" placeholder="email@example.com" dir="ltr">
               </div>
               <div class="mb-2">
-                <label class="form-label small fw-semibold">\u05D4\u05E2\u05EA\u05E7:</label>
-                <input class="form-control" id="compose-cc" placeholder="\u05D4\u05E2\u05EA\u05E7 (\u05D0\u05D5\u05E4\u05E6\u05D9\u05D5\u05E0\u05DC\u05D9)" dir="ltr">
-              </div>
-              <div class="mb-2">
                 <label class="form-label small fw-semibold">\u05E0\u05D5\u05E9\u05D0:</label>
                 <input class="form-control" id="compose-subject" placeholder="\u05E0\u05D5\u05E9\u05D0 \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4">
               </div>
@@ -236,13 +244,14 @@ Object.assign(Pages, {
                 <label class="form-label small fw-semibold">\u05EA\u05D5\u05DB\u05DF:</label>
                 <textarea class="form-control" id="compose-body" rows="10" placeholder="\u05DB\u05EA\u05D1\u05D5 \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05D0\u05DF..."></textarea>
               </div>
+              <div class="mb-2">
+                <label class="form-label small fw-semibold">\u05D7\u05EA\u05D9\u05DE\u05D4:</label>
+                <div class="text-muted small">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 - \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD \u05D1\u05D9\u05EA \u05E9\u05DE\u05E9</div>
+              </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-outline-secondary" onclick="Pages.emailSaveDraft()">
-                <i class="bi bi-file-earmark me-1"></i>\u05E9\u05DE\u05D5\u05E8 \u05DB\u05D8\u05D9\u05D5\u05D8\u05D4
-              </button>
               <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
-              <button class="btn btn-primary" onclick="Pages.emailSend()">
+              <button class="btn btn-primary" onclick="Pages.emailSend()" id="email-send-btn">
                 <i class="bi bi-send-fill me-1"></i>\u05E9\u05DC\u05D7
               </button>
             </div>
@@ -251,38 +260,32 @@ Object.assign(Pages, {
       </div>`;
   },
 
-  _emailUseDemo: false,
-  _emailApiInbox: [],
-  _emailApiSent: [],
-  _emailApiDrafts: [],
-
-  emailLoadDemo() {
-    this._emailUseDemo = true;
-    this._emailRenderList();
-    this._emailUpdateStats();
-    Utils.toast('\u05E0\u05D8\u05E2\u05E0\u05D5 \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5', 'info');
-  },
-
   /* ================================================================
-     INIT
+     INIT — Load real emails
      ================================================================ */
-  emailInit() {
-    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+  async emailInit() {
     this._emailFolder = 'INBOX';
     this._emailSelected = new Set();
     this._emailSearchQuery = '';
+    this._emailLoading = true;
 
-    // Try loading real email data from API
+    // Load inbox + sent in parallel
     try {
-      const data = _gc('\u05D3\u05D5\u05D0\u05E8');
-      if (data && data.length) {
-        this._emailApiInbox = data.filter(e => !e.folder || e.folder === 'INBOX');
-        this._emailApiSent = data.filter(e => e.folder === 'SENT');
-        this._emailApiDrafts = data.filter(e => e.folder === 'DRAFT');
-      }
-    } catch(e) { /* no API data */ }
+      const [inbox, sent] = await Promise.all([
+        this._gmailProxy('gmailList', { q: 'in:inbox', max: '50' }).catch(() => []),
+        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' }).catch(() => [])
+      ]);
+      this._emailApiInbox = Array.isArray(inbox) ? inbox : [];
+      this._emailApiSent = Array.isArray(sent) ? sent : [];
+    } catch(e) {
+      console.error('Email load error:', e);
+      this._emailApiInbox = [];
+      this._emailApiSent = [];
+    }
 
-    this.emailLoadFolder('INBOX');
+    this._emailLoading = false;
+    this._emailRenderList();
+    this._emailUpdateStats();
   },
 
   /* ================================================================
@@ -295,35 +298,82 @@ Object.assign(Pages, {
     const searchEl = document.getElementById('email-search');
     if (searchEl) searchEl.value = '';
 
-    // Update active folder in sidebar
+    // Update active folder
     document.querySelectorAll('#email-folders .list-group-item').forEach(el => {
       el.classList.toggle('active', el.dataset.folder === folder);
     });
 
     // Show list, hide detail
-    document.getElementById('email-detail').classList.add('d-none');
-    document.getElementById('email-list').classList.remove('d-none');
-
-    // Show bulk bar for inbox
-    const bulkBar = document.getElementById('email-bulk-bar');
-    if (bulkBar) bulkBar.classList.toggle('d-none', folder === 'TRASH');
+    const detail = document.getElementById('email-detail');
+    const list = document.getElementById('email-list');
+    if (detail) detail.classList.add('d-none');
+    if (list) list.classList.remove('d-none');
 
     this._emailRenderList();
     this._emailUpdateStats();
   },
 
   /* ================================================================
-     REFRESH
+     REFRESH — Reload from Gmail
      ================================================================ */
-  emailRefresh() {
+  async emailRefresh() {
+    const btn = document.getElementById('email-refresh-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>\u05D8\u05D5\u05E2\u05DF...'; }
     const list = document.getElementById('email-list');
-    list.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">\u05D8\u05D5\u05E2\u05DF \u05D3\u05D5\u05D0\u05E8...</p></div>';
+    if (list) list.innerHTML = Utils.skeleton(5);
 
-    // Simulate API call then fallback to demo
-    setTimeout(() => {
-      this._emailRenderList();
-      Utils.toast('\u05D4\u05D3\u05D5\u05D0\u05E8 \u05E2\u05D5\u05D3\u05DB\u05DF', 'success');
-    }, 800);
+    try {
+      const [inbox, sent] = await Promise.all([
+        this._gmailProxy('gmailList', { q: 'in:inbox', max: '50' }),
+        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' })
+      ]);
+      this._emailApiInbox = Array.isArray(inbox) ? inbox : [];
+      this._emailApiSent = Array.isArray(sent) ? sent : [];
+      this._emailThreadCache = {};
+      Utils.toast('\u05D4\u05D3\u05D5\u05D0\u05E8 \u05E2\u05D5\u05D3\u05DB\u05DF \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4', 'success');
+    } catch(e) {
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E8\u05E2\u05E0\u05D5\u05DF: ' + e.message, 'danger');
+    }
+
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>\u05E8\u05E2\u05E0\u05D5\u05DF'; }
+    this._emailRenderList();
+    this._emailUpdateStats();
+  },
+
+  /* ================================================================
+     SEARCH — Server-side Gmail search
+     ================================================================ */
+  async emailSearchGmail() {
+    const q = (document.getElementById('email-search')?.value || '').trim();
+    if (!q) { this.emailLoadFolder(this._emailFolder); return; }
+
+    const list = document.getElementById('email-list');
+    if (list) list.innerHTML = Utils.skeleton(3);
+
+    try {
+      const results = await this._gmailProxy('gmailList', { q, max: '30' });
+      this._loadedEmails = Array.isArray(results) ? results : [];
+      this._emailRenderSearchResults(this._loadedEmails, q);
+    } catch(e) {
+      if (list) list.innerHTML = '<div class="text-center py-5 text-danger"><i class="bi bi-x-circle fs-1"></i><p>\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D7\u05D9\u05E4\u05D5\u05E9</p></div>';
+    }
+  },
+
+  emailFilterLocal() {
+    const q = (document.getElementById('email-search')?.value || '').trim();
+    this._emailSearchQuery = q;
+    this._emailRenderList();
+  },
+
+  _emailRenderSearchResults(emails, query) {
+    const list = document.getElementById('email-list');
+    if (!list) return;
+    if (!emails.length) {
+      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-search fs-1 d-block mb-2"></i><h6>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA \u05E2\u05D1\u05D5\u05E8 "${query}"</h6></div>`;
+      return;
+    }
+    list.innerHTML = `<div class="text-muted small mb-2"><i class="bi bi-search me-1"></i>${emails.length} \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA \u05E2\u05D1\u05D5\u05E8 "${query}"</div>` +
+      emails.map(e => this._emailRowHTML(e)).join('');
   },
 
   /* ================================================================
@@ -333,225 +383,213 @@ Object.assign(Pages, {
     let emails = this._getEmailsForFolder(this._emailFolder);
     const q = this._emailSearchQuery;
     if (q) {
+      const qLow = q.toLowerCase();
       emails = emails.filter(e =>
-        (e.from||'').includes(q) || (e.subject||'').includes(q) ||
-        (e.snippet||'').includes(q) || (e.to||'').includes(q)
+        (e.from||'').toLowerCase().includes(qLow) || (e.subject||'').toLowerCase().includes(qLow) ||
+        (e.snippet||'').toLowerCase().includes(qLow) || (e.to||'').toLowerCase().includes(qLow)
       );
     }
     this._loadedEmails = emails;
 
     const list = document.getElementById('email-list');
-    if (!emails.length) {
-      const emptyIcon = this._emailFolder === 'TRASH' ? 'bi-trash3' : 'bi-inbox';
-      const hasNoData = !this._emailApiInbox.length && !this._emailUseDemo;
-      let emptyText;
-      if (this._emailFolder === 'TRASH') emptyText = '\u05D0\u05E9\u05E4\u05D4 \u05E8\u05D9\u05E7\u05D4';
-      else if (q) emptyText = '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA';
-      else if (hasNoData) emptyText = '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D3\u05D5\u05D0\u05E8';
-      else emptyText = '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA';
-      let emptyActions = '';
-      if (hasNoData && this._emailFolder !== 'TRASH') {
-        emptyActions = '<br><a href="https://mail.google.com" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-envelope-open me-1"></i>\u05E4\u05EA\u05D7 Gmail</a>' +
-          '<br><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.emailLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a>';
-      }
-      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${emptyIcon} fs-1 d-block mb-2"></i><h6>${emptyText}</h6>${emptyActions}</div>`;
+    if (!list) return;
+
+    if (this._emailLoading) {
+      list.innerHTML = Utils.skeleton(5);
       return;
     }
 
-    list.innerHTML = emails.map(e => {
-      const isRead = this._emailRead.has(e.id);
-      const isStarred = this._emailStarred.has(e.id);
-      const isSelected = this._emailSelected.has(e.id);
-      const initials = this._emailInitials(e.from);
-      const color = this._emailAvatarColor(e.from);
-      const isSent = this._emailFolder === 'SENT';
-      const isDraft = this._emailFolder === 'DRAFT';
-      const displayName = isSent ? ('\u05D0\u05DC: ' + (e.to || '')) : e.from;
+    if (!emails.length) {
+      const icon = this._emailFolder === 'STARRED' ? 'bi-star' : 'bi-inbox';
+      const text = q ? '\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA' : '\u05D0\u05D9\u05DF \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA';
+      list.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi ${icon} fs-1 d-block mb-2"></i><h6>${text}</h6></div>`;
+      return;
+    }
 
-      return `
-        <div class="card mb-2 border-0 shadow-sm email-row ${isRead ? '' : 'border-start border-primary border-3'} ${isSelected ? 'bg-light' : ''}"
-             style="cursor:pointer;transition:all .15s">
-          <div class="card-body py-2 px-3">
-            <div class="d-flex align-items-center gap-2">
-              <!-- Checkbox -->
-              <div class="form-check mb-0" onclick="event.stopPropagation()">
-                <input class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''}
-                  onchange="Pages.emailToggleSelect('${e.id}')">
-              </div>
-
-              <!-- Star -->
-              <button class="btn btn-sm p-0 border-0" onclick="event.stopPropagation();Pages.emailToggleStar('${e.id}')"
-                title="${isStarred ? '\u05D4\u05E1\u05E8 \u05DB\u05D5\u05DB\u05D1' : '\u05D4\u05D5\u05E1\u05E3 \u05DB\u05D5\u05DB\u05D1'}">
-                <i class="bi ${isStarred ? 'bi-star-fill text-warning' : 'bi-star text-muted'} fs-6"></i>
-              </button>
-
-              <!-- Avatar -->
-              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                   style="width:38px;height:38px;background:${color};color:#fff;font-size:14px;font-weight:600"
-                   onclick="Pages.emailViewDetail('${e.id}')">
-                ${initials}
-              </div>
-
-              <!-- Content -->
-              <div class="flex-grow-1 min-width-0" onclick="Pages.emailViewDetail('${e.id}')">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="${isRead ? 'text-muted' : 'fw-bold'} text-truncate" style="max-width:55%">
-                    ${displayName || ''}
-                    ${isDraft ? '<span class="badge bg-warning text-dark ms-1" style="font-size:10px">\u05D8\u05D9\u05D5\u05D8\u05D4</span>' : ''}
-                  </span>
-                  <small class="text-muted flex-shrink-0 ms-2">${e.date || ''}</small>
-                </div>
-                <div class="${isRead ? '' : 'fw-semibold'} text-truncate small">${e.subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'}</div>
-                <div class="text-muted small text-truncate" style="opacity:.7">${e.snippet || ''}</div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    }).join('');
-
+    list.innerHTML = emails.map(e => this._emailRowHTML(e)).join('');
     this._emailUpdateBulkBar();
   },
 
+  _emailRowHTML(e) {
+    const isUnread = e.unread && !this._emailReadSet.has(e.id);
+    const isStarred = this._emailStarred.has(e.id);
+    const isSelected = this._emailSelected.has(e.id);
+    const senderName = this._emailSenderName(e.from);
+    const initials = this._emailInitials(senderName);
+    const color = this._emailAvatarColor(senderName);
+    const isSent = this._emailFolder === 'SENT';
+    const displayName = isSent ? ('\u05D0\u05DC: ' + this._emailSenderName(e.to)) : senderName;
+    const dateStr = this._emailFormatDate(e.date);
+    const msgCount = (e.count && e.count > 1) ? `<span class="badge bg-secondary ms-1" style="font-size:10px">${e.count}</span>` : '';
+    const escapedId = (e.id || '').replace(/'/g, "\\'");
+
+    return `
+      <div class="card mb-2 border-0 shadow-sm email-row ${isUnread ? 'border-start border-primary border-3' : ''} ${isSelected ? 'bg-light' : ''}"
+           style="cursor:pointer;transition:all .15s">
+        <div class="card-body py-2 px-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="form-check mb-0" onclick="event.stopPropagation()">
+              <input class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''}
+                onchange="Pages.emailToggleSelect('${escapedId}')">
+            </div>
+            <button class="btn btn-sm p-0 border-0" onclick="event.stopPropagation();Pages.emailToggleStar('${escapedId}')"
+              title="${isStarred ? '\u05D4\u05E1\u05E8 \u05DB\u05D5\u05DB\u05D1' : '\u05D4\u05D5\u05E1\u05E3 \u05DB\u05D5\u05DB\u05D1'}">
+              <i class="bi ${isStarred ? 'bi-star-fill text-warning' : 'bi-star text-muted'} fs-6"></i>
+            </button>
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:38px;height:38px;background:${color};color:#fff;font-size:14px;font-weight:600"
+                 onclick="Pages.emailViewDetail('${escapedId}')">
+              ${initials}
+            </div>
+            <div class="flex-grow-1 min-width-0" onclick="Pages.emailViewDetail('${escapedId}')">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="${isUnread ? 'fw-bold' : 'text-muted'} text-truncate" style="max-width:55%">
+                  ${displayName || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2'}${msgCount}
+                </span>
+                <small class="text-muted flex-shrink-0 ms-2">${dateStr}</small>
+              </div>
+              <div class="${isUnread ? 'fw-semibold' : ''} text-truncate small">${e.subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'}</div>
+              <div class="text-muted small text-truncate" style="opacity:.7">${(e.snippet || '').substring(0, 120)}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  },
+
   /* ================================================================
-     EMAIL DETAIL VIEW
+     EMAIL DETAIL VIEW — Load real thread
      ================================================================ */
-  emailViewDetail(id) {
-    // Mark as read
-    this._emailRead.add(id);
-    const allEmails = [...this._getEmailsForFolder('INBOX'), ...this._getEmailsForFolder('SENT'), ...this._getEmailsForFolder('DRAFT')];
-    const email = allEmails.find(e => e.id === id);
-    if (!email) return;
+  async emailViewDetail(id) {
+    this._emailReadSet.add(id);
 
     document.getElementById('email-list').classList.add('d-none');
     document.getElementById('email-bulk-bar')?.classList.add('d-none');
     const detail = document.getElementById('email-detail');
     detail.classList.remove('d-none');
+    detail.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">\u05D8\u05D5\u05E2\u05DF \u05E9\u05E8\u05E9\u05D5\u05E8...</p></div>';
 
-    const initials = this._emailInitials(email.from);
-    const color = this._emailAvatarColor(email.from);
-    const isStarred = this._emailStarred.has(email.id);
-    const isDraft = email.id.startsWith('d');
-    const fromSafe = (email.from||'').replace(/'/g, "\\'");
-    const fromEmailSafe = (email.fromEmail||'').replace(/'/g, "\\'");
-    const subjectSafe = (email.subject||'').replace(/'/g, "\\'");
+    // Find email metadata
+    const allEmails = [...this._emailApiInbox, ...this._emailApiSent, ...(this._loadedEmails || [])];
+    const emailMeta = allEmails.find(e => e.id === id);
+
+    // Load full thread from API (or use cache)
+    let messages = this._emailThreadCache[id];
+    if (!messages) {
+      try {
+        messages = await this._gmailProxy('gmailRead', { id });
+        if (Array.isArray(messages)) this._emailThreadCache[id] = messages;
+      } catch(e) {
+        detail.innerHTML = `<div class="text-center py-5 text-danger"><i class="bi bi-x-circle fs-1"></i><p>\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D8\u05E2\u05D9\u05E0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4</p>
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailBackToList()">\u05D7\u05D6\u05E8\u05D4</button></div>`;
+        return;
+      }
+    }
+
+    if (!Array.isArray(messages) || !messages.length) {
+      detail.innerHTML = `<div class="text-center py-5 text-muted"><i class="bi bi-envelope-x fs-1"></i><p>\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E8\u05D9\u05E7\u05D4</p>
+        <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailBackToList()">\u05D7\u05D6\u05E8\u05D4</button></div>`;
+      return;
+    }
+
+    const subject = emailMeta?.subject || messages[0]?.subject || '';
+    const isStarred = this._emailStarred.has(id);
+    const escapedId = id.replace(/'/g, "\\'");
+
+    // Render all messages in thread
+    const msgsHTML = messages.map((m, idx) => {
+      const senderName = this._emailSenderName(m.from);
+      const initials = this._emailInitials(senderName);
+      const color = this._emailAvatarColor(senderName);
+      const dateStr = this._emailFormatDate(m.date);
+      const isCollapsed = idx < messages.length - 1; // Collapse all except last
+      const bodyClean = (m.body || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      return `
+        <div class="card border-0 shadow-sm mb-2 ${isCollapsed ? 'email-collapsed' : ''}">
+          <div class="card-body py-3 px-3" style="cursor:pointer" onclick="this.parentElement.classList.toggle('email-collapsed')">
+            <div class="d-flex align-items-center gap-2">
+              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width:36px;height:36px;background:${color};color:#fff;font-size:13px;font-weight:600">
+                ${initials}
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                  <span class="fw-semibold small">${senderName}</span>
+                  <small class="text-muted">${dateStr}</small>
+                </div>
+                <div class="text-muted small">${(m.from || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                ${m.to ? '<div class="text-muted small">\u05D0\u05DC: ' + (m.to || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>' : ''}
+              </div>
+            </div>
+          </div>
+          <div class="email-msg-body px-3 pb-3" style="white-space:pre-wrap;line-height:1.8;font-size:14px;max-height:500px;overflow-y:auto">${bodyClean}</div>
+        </div>`;
+    }).join('');
+
+    const lastMsg = messages[messages.length - 1];
+    const lastFrom = (lastMsg.from || '').replace(/"/g, '').replace(/<[^>]+>/g, '').trim();
+    const lastEmail = ((lastMsg.from || '').match(/<([^>]+)>/) || [])[1] || lastMsg.from || '';
 
     detail.innerHTML = `
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <!-- Back Button -->
-          <button class="btn btn-link text-decoration-none p-0 mb-3" onclick="Pages.emailBackToList()">
-            <i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4
+      <div class="mb-3">
+        <button class="btn btn-link text-decoration-none p-0 mb-2" onclick="Pages.emailBackToList()">
+          <i class="bi bi-arrow-right me-1"></i>\u05D7\u05D6\u05E8\u05D4 \u05DC\u05E8\u05E9\u05D9\u05DE\u05D4
+        </button>
+        <div class="d-flex justify-content-between align-items-start">
+          <h4 class="fw-bold mb-0">${subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'}</h4>
+          <button class="btn btn-sm p-0 border-0" onclick="Pages.emailToggleStar('${escapedId}')">
+            <i class="bi ${isStarred ? 'bi-star-fill text-warning' : 'bi-star text-muted'} fs-4"></i>
           </button>
-
-          <!-- Header -->
-          <div class="d-flex align-items-start gap-3 mb-3">
-            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                 style="width:50px;height:50px;background:${color};color:#fff;font-size:18px;font-weight:600">
-              ${initials}
-            </div>
-            <div class="flex-grow-1">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h5 class="fw-bold mb-0">${email.subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'}</h5>
-                  ${isDraft ? '<span class="badge bg-warning text-dark">\u05D8\u05D9\u05D5\u05D8\u05D4</span>' : ''}
-                </div>
-                <button class="btn btn-sm p-0 border-0" onclick="Pages.emailToggleStar('${email.id}');Pages.emailViewDetail('${email.id}')">
-                  <i class="bi ${isStarred ? 'bi-star-fill text-warning' : 'bi-star text-muted'} fs-5"></i>
-                </button>
-              </div>
-              <div class="text-muted small mt-1">
-                <span>\u05DE\u05D0\u05EA: <strong>${email.from || ''}</strong></span>
-                <span class="text-muted mx-1">&lt;${email.fromEmail || ''}&gt;</span>
-              </div>
-              ${email.to ? '<div class="text-muted small">\u05D0\u05DC: <strong>' + email.to + '</strong></div>' : ''}
-              <div class="text-muted small"><i class="bi bi-clock me-1"></i>${email.date || ''}</div>
-            </div>
-          </div>
-
-          <hr>
-
-          <!-- Body -->
-          <div class="email-body py-3" style="white-space:pre-wrap;line-height:1.9;font-size:15px">${email.body || email.snippet || ''}</div>
-
-          <hr>
-
-          <!-- Actions -->
-          <div class="d-flex gap-2 mt-3 flex-wrap">
-            ${isDraft ? `
-              <button class="btn btn-primary btn-sm" onclick="Pages.emailEditDraft('${email.id}')">
-                <i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D5\u05DA \u05D8\u05D9\u05D5\u05D8\u05D4
-              </button>
-            ` : `
-              <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailReply('${fromEmailSafe}','${subjectSafe}')">
-                <i class="bi bi-reply-fill me-1"></i>\u05D4\u05E9\u05D1
-              </button>
-              <button class="btn btn-outline-info btn-sm" onclick="Pages.emailReplyAll('${fromEmailSafe}','${subjectSafe}')">
-                <i class="bi bi-reply-all-fill me-1"></i>\u05D4\u05E9\u05D1 \u05DC\u05DB\u05D5\u05DC\u05DD
-              </button>
-              <button class="btn btn-outline-success btn-sm" onclick="Pages.emailForward('${subjectSafe}','${email.id}')">
-                <i class="bi bi-forward-fill me-1"></i>\u05D4\u05E2\u05D1\u05E8
-              </button>
-            `}
-            <button class="btn btn-outline-danger btn-sm" onclick="Pages.emailDeleteSingle('${email.id}')">
-              <i class="bi bi-trash3 me-1"></i>\u05DE\u05D7\u05E7
-            </button>
-          </div>
         </div>
-      </div>`;
+        <span class="badge bg-light text-muted border">${messages.length} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D1\u05E9\u05E8\u05E9\u05D5\u05E8</span>
+      </div>
+
+      ${msgsHTML}
+
+      <div class="d-flex gap-2 mt-3 flex-wrap">
+        <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailReply('${lastEmail.replace(/'/g, "\\'")}','${subject.replace(/'/g, "\\'")}')">
+          <i class="bi bi-reply-fill me-1"></i>\u05D4\u05E9\u05D1
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="Pages.emailForward('${subject.replace(/'/g, "\\'")}','${escapedId}')">
+          <i class="bi bi-forward-fill me-1"></i>\u05D4\u05E2\u05D1\u05E8
+        </button>
+      </div>
+
+      <style>
+        .email-collapsed .email-msg-body { display: none; }
+        .email-collapsed .card-body { opacity: .7; }
+      </style>`;
 
     this._emailUpdateStats();
   },
 
-  /* ---- Back to list ---- */
   emailBackToList() {
     document.getElementById('email-detail').classList.add('d-none');
     document.getElementById('email-list').classList.remove('d-none');
-    const bulkBar = document.getElementById('email-bulk-bar');
-    if (bulkBar && this._emailFolder !== 'TRASH') bulkBar.classList.remove('d-none');
+    document.getElementById('email-bulk-bar')?.classList.remove('d-none');
     this._emailRenderList();
   },
 
   /* ================================================================
-     SEARCH
-     ================================================================ */
-  emailSearch() {
-    const q = (document.getElementById('email-search')?.value || '').trim();
-    this._emailSearchQuery = q;
-    this._emailRenderList();
-  },
-
-  /* ================================================================
-     STAR TOGGLE
+     STAR / SELECT
      ================================================================ */
   emailToggleStar(id) {
-    if (this._emailStarred.has(id)) {
-      this._emailStarred.delete(id);
-    } else {
-      this._emailStarred.add(id);
-    }
+    if (this._emailStarred.has(id)) this._emailStarred.delete(id);
+    else this._emailStarred.add(id);
     this._emailRenderList();
     this._emailUpdateStats();
   },
 
-  /* ================================================================
-     SELECTION
-     ================================================================ */
   emailToggleSelect(id) {
-    if (this._emailSelected.has(id)) {
-      this._emailSelected.delete(id);
-    } else {
-      this._emailSelected.add(id);
-    }
+    if (this._emailSelected.has(id)) this._emailSelected.delete(id);
+    else this._emailSelected.add(id);
     this._emailRenderList();
   },
 
   emailToggleSelectAll() {
     const allChecked = document.getElementById('email-select-all')?.checked;
-    if (allChecked) {
-      this._loadedEmails.forEach(e => this._emailSelected.add(e.id));
-    } else {
-      this._emailSelected.clear();
-    }
+    if (allChecked) this._loadedEmails.forEach(e => this._emailSelected.add(e.id));
+    else this._emailSelected.clear();
     this._emailRenderList();
   },
 
@@ -567,67 +605,10 @@ Object.assign(Pages, {
   },
 
   /* ================================================================
-     BULK ACTIONS
-     ================================================================ */
-  emailBulkMarkRead() {
-    if (!this._emailSelected.size) { Utils.toast('\u05D1\u05D7\u05E8 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05EA\u05D7\u05D9\u05DC\u05D4', 'warning'); return; }
-    this._emailSelected.forEach(id => this._emailRead.add(id));
-    Utils.toast(`${this._emailSelected.size} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05E0\u05E7\u05E8\u05D0\u05D5`, 'success');
-    this._emailSelected.clear();
-    this._emailRenderList();
-    this._emailUpdateStats();
-  },
-
-  emailBulkMarkUnread() {
-    if (!this._emailSelected.size) { Utils.toast('\u05D1\u05D7\u05E8 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05EA\u05D7\u05D9\u05DC\u05D4', 'warning'); return; }
-    this._emailSelected.forEach(id => this._emailRead.delete(id));
-    Utils.toast(`${this._emailSelected.size} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0\u05D5`, 'success');
-    this._emailSelected.clear();
-    this._emailRenderList();
-    this._emailUpdateStats();
-  },
-
-  emailBulkStar() {
-    if (!this._emailSelected.size) { Utils.toast('\u05D1\u05D7\u05E8 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05EA\u05D7\u05D9\u05DC\u05D4', 'warning'); return; }
-    this._emailSelected.forEach(id => this._emailStarred.add(id));
-    Utils.toast(`${this._emailSelected.size} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E1\u05D5\u05DE\u05E0\u05D5 \u05D1\u05DB\u05D5\u05DB\u05D1`, 'success');
-    this._emailSelected.clear();
-    this._emailRenderList();
-    this._emailUpdateStats();
-  },
-
-  emailBulkDelete() {
-    if (!this._emailSelected.size) { Utils.toast('\u05D1\u05D7\u05E8 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05EA\u05D7\u05D9\u05DC\u05D4', 'warning'); return; }
-    const count = this._emailSelected.size;
-    // Remove from respective arrays
-    this._emailSelected.forEach(id => {
-      const inboxIdx = this._demoInbox.findIndex(e => e.id === id);
-      if (inboxIdx >= 0) this._demoInbox.splice(inboxIdx, 1);
-      const sentIdx = this._demoSent.findIndex(e => e.id === id);
-      if (sentIdx >= 0) this._demoSent.splice(sentIdx, 1);
-      const draftIdx = this._demoDrafts.findIndex(e => e.id === id);
-      if (draftIdx >= 0) this._demoDrafts.splice(draftIdx, 1);
-      this._emailStarred.delete(id);
-      this._emailRead.delete(id);
-    });
-    this._emailSelected.clear();
-    Utils.toast(`${count} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05DE\u05D7\u05E7\u05D5`, 'success');
-    this._emailRenderList();
-    this._emailUpdateStats();
-  },
-
-  emailDeleteSingle(id) {
-    this._emailSelected = new Set([id]);
-    this.emailBulkDelete();
-    this.emailBackToList();
-  },
-
-  /* ================================================================
-     COMPOSE / REPLY / FORWARD
+     COMPOSE / REPLY / FORWARD / SEND
      ================================================================ */
   emailShowCompose() {
     document.getElementById('compose-to').value = '';
-    document.getElementById('compose-cc').value = '';
     document.getElementById('compose-subject').value = '';
     document.getElementById('compose-body').value = '';
     new bootstrap.Modal(document.getElementById('compose-modal')).show();
@@ -635,90 +616,42 @@ Object.assign(Pages, {
 
   emailReply(fromEmail, subject) {
     document.getElementById('compose-to').value = fromEmail || '';
-    document.getElementById('compose-cc').value = '';
-    document.getElementById('compose-subject').value = 'Re: ' + (subject || '');
-    document.getElementById('compose-body').value = '\n\n---\n';
-    new bootstrap.Modal(document.getElementById('compose-modal')).show();
-  },
-
-  emailReplyAll(fromEmail, subject) {
-    document.getElementById('compose-to').value = fromEmail || '';
-    document.getElementById('compose-cc').value = '';
     document.getElementById('compose-subject').value = 'Re: ' + (subject || '');
     document.getElementById('compose-body').value = '\n\n---\n';
     new bootstrap.Modal(document.getElementById('compose-modal')).show();
   },
 
   emailForward(subject, id) {
-    const allEmails = [...this._getEmailsForFolder('INBOX'), ...this._getEmailsForFolder('SENT'), ...this._getEmailsForFolder('DRAFT')];
-    const email = allEmails.find(e => e.id === id);
+    const msgs = this._emailThreadCache[id];
+    const lastMsg = msgs ? msgs[msgs.length - 1] : null;
     document.getElementById('compose-to').value = '';
-    document.getElementById('compose-cc').value = '';
     document.getElementById('compose-subject').value = 'Fwd: ' + (subject || '');
     document.getElementById('compose-body').value = '\n\n---------- \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DE\u05D5\u05E2\u05D1\u05E8\u05EA ----------\n' +
-      '\u05DE\u05D0\u05EA: ' + (email?.from || '') + '\n' +
-      '\u05EA\u05D0\u05E8\u05D9\u05DA: ' + (email?.date || '') + '\n' +
-      '\u05E0\u05D5\u05E9\u05D0: ' + (email?.subject || '') + '\n\n' +
-      (email?.body || email?.snippet || '');
-    new bootstrap.Modal(document.getElementById('compose-modal')).show();
-  },
-
-  emailEditDraft(id) {
-    const draft = this._demoDrafts.find(e => e.id === id);
-    if (!draft) return;
-    document.getElementById('compose-to').value = draft.to || '';
-    document.getElementById('compose-cc').value = '';
-    document.getElementById('compose-subject').value = draft.subject || '';
-    document.getElementById('compose-body').value = draft.body || '';
+      (lastMsg ? '\u05DE\u05D0\u05EA: ' + (lastMsg.from || '') + '\n\u05EA\u05D0\u05E8\u05D9\u05DA: ' + (lastMsg.date || '') + '\n\n' + (lastMsg.body || '') : '');
     new bootstrap.Modal(document.getElementById('compose-modal')).show();
   },
 
   async emailSend() {
     const to = document.getElementById('compose-to').value.trim();
-    const cc = document.getElementById('compose-cc').value.trim();
     const subject = document.getElementById('compose-subject').value.trim();
     const body = document.getElementById('compose-body').value.trim();
     if (!to || !subject) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05DE\u05E2\u05DF \u05D0\u05D5 \u05E0\u05D5\u05E9\u05D0', 'warning'); return; }
 
+    const btn = document.getElementById('email-send-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>\u05E9\u05D5\u05DC\u05D7...'; }
+
     try {
-      await App.apiCall('sendEmail', '', {to, cc, subject, body});
+      // Encode subject and body as base64 for Hebrew support
+      const subjB64 = btoa(unescape(encodeURIComponent(subject)));
+      const bodyB64 = btoa(unescape(encodeURIComponent(body)));
+      await this._gmailProxy('gmailSend', { to, subjB64, bodyB64 });
       bootstrap.Modal.getInstance(document.getElementById('compose-modal'))?.hide();
       Utils.toast('\u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!', 'success');
     } catch(e) {
-      // Demo mode: add to sent
-      const newSent = {
-        id: 's' + (this._demoSent.length + 1),
-        from: '\u05D0\u05E0\u05D9', fromEmail: 'me@beitha.org',
-        to, subject,
-        snippet: body.substring(0, 80),
-        date: new Date().toLocaleDateString('he-IL'),
-        body
-      };
-      this._demoSent.unshift(newSent);
-      this._emailRead.add(newSent.id);
-      bootstrap.Modal.getInstance(document.getElementById('compose-modal'))?.hide();
-      Utils.toast('\u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4!', 'success');
-      this._emailUpdateStats();
+      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DC\u05D9\u05D7\u05D4: ' + e.message, 'danger');
     }
-  },
 
-  emailSaveDraft() {
-    const to = document.getElementById('compose-to').value.trim();
-    const subject = document.getElementById('compose-subject').value.trim();
-    const body = document.getElementById('compose-body').value.trim();
-    const newDraft = {
-      id: 'd' + (this._demoDrafts.length + 1),
-      from: '\u05D0\u05E0\u05D9', fromEmail: 'me@beitha.org',
-      to, subject: subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)',
-      snippet: body.substring(0, 80),
-      date: new Date().toLocaleDateString('he-IL'),
-      body
-    };
-    this._demoDrafts.unshift(newDraft);
-    this._emailRead.add(newDraft.id);
-    bootstrap.Modal.getInstance(document.getElementById('compose-modal'))?.hide();
-    Utils.toast('\u05D4\u05D8\u05D9\u05D5\u05D8\u05D4 \u05E0\u05E9\u05DE\u05E8\u05D4', 'success');
-    this._emailUpdateStats();
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send-fill me-1"></i>\u05E9\u05DC\u05D7'; }
   },
 
   /* ================================================================
@@ -728,19 +661,18 @@ Object.assign(Pages, {
     const totalEl = document.getElementById('stat-total');
     const unreadEl = document.getElementById('stat-unread');
     const sentEl = document.getElementById('stat-sent');
-    const draftsEl = document.getElementById('stat-drafts');
+    const starredEl = document.getElementById('stat-starred');
     const inboxCountEl = document.getElementById('inbox-count');
+    const sentCountEl = document.getElementById('sent-count');
     const starredCountEl = document.getElementById('starred-count');
 
-    const inbox = this._getEmailsForFolder('INBOX');
-    const sent = this._getEmailsForFolder('SENT');
-    const drafts = this._getEmailsForFolder('DRAFT');
     const unread = this._emailUnreadCount();
-    if (totalEl) totalEl.textContent = inbox.length;
+    if (totalEl) totalEl.textContent = this._emailApiInbox.length;
     if (unreadEl) unreadEl.textContent = unread;
-    if (sentEl) sentEl.textContent = sent.filter(e => e.date === new Date().toLocaleDateString('he-IL') || e.date === '22/04/2026').length;
-    if (draftsEl) draftsEl.textContent = drafts.length;
+    if (sentEl) sentEl.textContent = this._emailApiSent.length;
+    if (starredEl) starredEl.textContent = this._emailStarred.size;
     if (inboxCountEl) inboxCountEl.textContent = unread || '';
-    if (starredCountEl) starredCountEl.textContent = this._emailStarred.size;
+    if (sentCountEl) sentCountEl.textContent = this._emailApiSent.length || '';
+    if (starredCountEl) starredCountEl.textContent = this._emailStarred.size || '';
   }
 });
