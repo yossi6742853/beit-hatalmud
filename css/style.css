@@ -4537,3 +4537,8 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .offcanvas { background: #0f172a; }
 [data-theme="dark"] .navbar { background: #0f172a !important; }
 [data-theme="dark"] body { background: #0f172a; color: #e2e8f0; }
+
+/* ===== Mobile Tap Highlight ===== */
+.btn, .sidebar-link, .card-clickable, .att-btn, .email-row {
+  -webkit-tap-highlight-color: rgba(59, 130, 246, .15);
+}
