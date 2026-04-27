@@ -217,7 +217,7 @@ Object.assign(Pages, {
 
     // Bind events
     const render = () => this.renderStudentsList();
-    document.getElementById('students-search')?.addEventListener('input', Utils.debounce(render, 200));
+    document.getElementById('students-search')?.addEventListener('input', Utils.debounce(render, 300));
     document.getElementById('students-class-filter')?.addEventListener('change', render);
     document.getElementById('students-status-filter')?.addEventListener('change', render);
 
@@ -578,7 +578,23 @@ Object.assign(Pages, {
     const id = document.getElementById('sf-id').value;
     const firstName = document.getElementById('sf-first-name').value.trim();
     const lastName = document.getElementById('sf-last-name').value.trim();
-    if (!firstName) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05E4\u05E8\u05D8\u05D9', 'warning'); return; }
+    const classVal = document.getElementById('sf-class').value.trim();
+
+    // Validation - mark invalid fields with red border
+    const fieldsValid = [];
+    [['sf-first-name', firstName], ['sf-last-name', lastName], ['sf-class', classVal]].forEach(([elId, val]) => {
+      const el = document.getElementById(elId);
+      if (!val) { el.classList.add('is-invalid'); fieldsValid.push(false); }
+      else { el.classList.remove('is-invalid'); fieldsValid.push(true); }
+    });
+    if (fieldsValid.includes(false)) {
+      const missing = [];
+      if (!firstName) missing.push('\u05E9\u05DD \u05E4\u05E8\u05D8\u05D9');
+      if (!lastName) missing.push('\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4');
+      if (!classVal) missing.push('\u05DB\u05D9\u05EA\u05D4');
+      Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0: ' + missing.join(', '), 'warning');
+      return;
+    }
 
     const phone = document.getElementById('sf-phone').value.trim();
     if (phone && !/^0\d{8,9}$/.test(phone.replace(/[-\s]/g, ''))) { Utils.toast('\u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF', 'warning'); return; }
@@ -586,7 +602,7 @@ Object.assign(Pages, {
     const row = {
       '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': firstName,
       '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': lastName,
-      '\u05DB\u05D9\u05EA\u05D4': document.getElementById('sf-class').value.trim(),
+      '\u05DB\u05D9\u05EA\u05D4': classVal,
       '\u05D8\u05DC\u05E4\u05D5\u05DF': phone,
       '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4': document.getElementById('sf-birthdate').value,
       '\u05E1\u05D8\u05D8\u05D5\u05E1': document.getElementById('sf-status').value,

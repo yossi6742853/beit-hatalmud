@@ -209,7 +209,7 @@ Object.assign(Pages, {
     if (projWrap) projWrap.innerHTML = this._renderFinProjection(this._finData);
 
     // Event listeners
-    document.getElementById('fin-search')?.addEventListener('input', Utils.debounce(() => this.renderFinList(), 200));
+    document.getElementById('fin-search')?.addEventListener('input', Utils.debounce(() => this.renderFinList(), 300));
     document.getElementById('fin-filter')?.addEventListener('change', () => this.renderFinList());
     document.getElementById('fin-method-filter')?.addEventListener('change', () => this.renderFinList());
     document.getElementById('fin-month-filter')?.addEventListener('change', () => this.renderFinList());

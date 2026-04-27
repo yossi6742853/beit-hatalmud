@@ -295,7 +295,7 @@ Object.assign(Pages, {
 
     if (!this._attListenersAdded) {
       this._attListenersAdded = true;
-      document.getElementById('att-search').addEventListener('input', Utils.debounce(() => this._attRenderCurrentView(), 200));
+      document.getElementById('att-search').addEventListener('input', Utils.debounce(() => this._attRenderCurrentView(), 300));
       document.getElementById('att-date').addEventListener('change', () => this.attendanceInit());
       document.getElementById('att-class-filter').addEventListener('change', () => this._attRenderCurrentView());
     }

@@ -12,6 +12,7 @@ const App = {
   SESSION_KEY: 'bht_session_start',
   FAVORITES_KEY: 'bht_favorite_pages',
   USE_API: true, // true = real data from Apps Script, false = demo fallback
+  _pageTimers: [],
 
   /* ---- Sheet name mapping ----
      Maps module sheet names that don't exist yet to existing sheets,
@@ -172,6 +173,10 @@ const App = {
      ROUTING
      ============================== */
   handleRoute() {
+    // Clear page-specific timers
+    if (this._pageTimers) this._pageTimers.forEach(t => clearInterval(t));
+    this._pageTimers = [];
+
     const hash = location.hash.slice(1) || 'dashboard';
     const parts = hash.split('/');
     const page = parts[0];
@@ -240,6 +245,8 @@ const App = {
       }
     });
   },
+
+  addPageTimer(id) { this._pageTimers.push(id); },
 
   /* ==============================
      DATA LAYER
