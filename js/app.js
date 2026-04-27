@@ -107,6 +107,15 @@ const App = {
     try { this.updateNotifBadgeFromStorage(); } catch(e) {}
     try { this.updateSyncStatus(); } catch(e) {}
     try { this._startPreload(); } catch(e) {}
+    // Email unread badge in sidebar
+    try {
+      const emailBadge = document.getElementById('sidebar-email-badge');
+      if (emailBadge && typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && EMAIL_CACHE.inbox) {
+        const unread = EMAIL_CACHE.inbox.filter(e => e.unread).length;
+        emailBadge.textContent = unread || '';
+        emailBadge.classList.toggle('d-none', !unread);
+      }
+    } catch(e) {}
   },
 
   startSessionTimer() {
