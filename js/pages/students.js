@@ -995,7 +995,14 @@ Object.assign(Pages, {
       const famName = s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'';
       const firstName = s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'';
       const fullName = firstName + ' ' + famName;
-      const entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byId[studentId] || null;
+      const fullNameRev = famName + ' ' + firstName;
+      // Try multiple lookup patterns: family, full, reversed, partial first name
+      let entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byName[fullNameRev] || DRIVE_CATALOG.byId[studentId] || null;
+      // Fuzzy: try matching any folder that contains the family name
+      if (!entry && famName.length >= 3) {
+        const match = DRIVE_CATALOG.folders.find(f => f.name.includes(famName) || famName.includes(f.name.split(' ')[0]));
+        if (match) entry = match;
+      }
       if (entry && (entry.docs || entry.documents)) {
         const driveDocs = (entry.docs || entry.documents).map(d => ({
           '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': d.name, name: d.name,
