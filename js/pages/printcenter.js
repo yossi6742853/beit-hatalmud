@@ -18,7 +18,8 @@ Object.assign(Pages, {
     { id: 'parent_letter',     name: '\u05DE\u05DB\u05EA\u05D1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD',    icon: 'bi-envelope-paper-fill', color: 'purple',   desc: '\u05DE\u05DB\u05EA\u05D1 \u05DE\u05D5\u05D3\u05E4\u05E1 \u05DC\u05D4\u05D5\u05E8\u05D9\u05DD \u2014 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA, \u05D0\u05D9\u05E9\u05D5\u05E8\u05D9 \u05D8\u05D9\u05D5\u05DC, \u05EA\u05D6\u05DB\u05D5\u05E8\u05D5\u05EA \u05EA\u05E9\u05DC\u05D5\u05DD \u05D5\u05D4\u05D6\u05DE\u05E0\u05D5\u05EA' },
     { id: 'student_attendance', name: '\u05D3\u05D5\u05D7 \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3', icon: 'bi-person-check-fill', color: 'info', desc: '\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D0\u05D9\u05E9\u05D9 \u05DC\u05EA\u05DC\u05DE\u05D9\u05D3 \u2014 \u05E4\u05D9\u05E8\u05D5\u05D8 \u05D7\u05D5\u05D3\u05E9\u05D9, \u05D0\u05D7\u05D5\u05D6\u05D9\u05DD \u05D5\u05D2\u05E8\u05E3' },
     { id: 'medication_list',    name: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA',   icon: 'bi-capsule',             color: 'danger',   desc: '\u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E2\u05DD \u05EA\u05E8\u05D5\u05E4\u05D5\u05EA \u05E7\u05D1\u05D5\u05E2\u05D5\u05EA, \u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA \u05D5\u05D0\u05D9\u05E9 \u05E7\u05E9\u05E8 \u05DC\u05D7\u05D9\u05E8\u05D5\u05DD' },
-    { id: 'pettycash_report',   name: '\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4',  icon: 'bi-wallet2',             color: 'success',  desc: '\u05D3\u05D5\u05D7 \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05DE\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D5\u05D7\u05D5\u05D3\u05E9' }
+    { id: 'pettycash_report',   name: '\u05D3\u05D5\u05D7 \u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4',  icon: 'bi-wallet2',             color: 'success',  desc: '\u05D3\u05D5\u05D7 \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05D4\u05DB\u05E0\u05E1\u05D5\u05EA \u05DE\u05E7\u05D5\u05E4\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05DC\u05E4\u05D9 \u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4 \u05D5\u05D7\u05D5\u05D3\u05E9' },
+    { id: 'staff_salary',       name: '\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD', icon: 'bi-cash-coin',          color: 'info',     desc: '\u05E8\u05D9\u05DB\u05D5\u05D6 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05DC\u05E4\u05D9 \u05D7\u05D5\u05D3\u05E9 \u2014 \u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1, \u05E0\u05E1\u05D9\u05E2\u05D5\u05EA, \u05E4\u05E0\u05E1\u05D9\u05D4' }
   ],
 
   /* ---------- demo data ---------- */
@@ -828,6 +829,7 @@ Object.assign(Pages, {
       case 'student_attendance': return this._pcBuildStudentAttendance(opts);
       case 'medication_list':    return this._pcBuildMedicationList(opts);
       case 'pettycash_report':   return this._pcBuildPettyCashReport(opts);
+      case 'staff_salary':       return this._pcBuildStaffSalary(opts);
       default: return '<p>\u05EA\u05D1\u05E0\u05D9\u05EA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D4</p>';
     }
   },
@@ -1939,6 +1941,56 @@ Object.assign(Pages, {
         ' + this._pcDocFooter(opts) + '\
       </div>\
     ';
+  },
+
+  /* ---------- Staff Salary Report Template ---------- */
+  _pcBuildStaffSalary(opts) {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const salData = _gc('\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA');
+    const today = new Date().toLocaleDateString('he-IL');
+    if (!salData.length) return '<div style="text-align:center;padding:40px;color:#999">\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05E9\u05DB\u05E8</div>';
+
+    // Get latest month
+    const months = [...new Set(salData.map(r => r['\u05D7\u05D5\u05D3\u05E9'] || ''))].sort().reverse();
+    const latestMonth = months[0] || '';
+    const monthData = salData.filter(r => (r['\u05D7\u05D5\u05D3\u05E9'] || '') === latestMonth);
+    const fmt = n => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(n);
+    let totalSalary = 0;
+
+    const rows = monthData.map((r, i) => {
+      const base = Number(r['\u05E9\u05DB\u05E8_\u05D1\u05E1\u05D9\u05E1'] || 0);
+      const travel = Number(r['\u05E0\u05E1\u05D9\u05E2\u05D5\u05EA'] || 0);
+      const total = Number(r['\u05E1\u05D4_\u05DB'] || base + travel);
+      totalSalary += total;
+      return `<tr>
+        <td>${i + 1}</td>
+        <td style="font-weight:bold">${r['\u05E9\u05DD'] || ''}</td>
+        <td>${fmt(base)}</td>
+        <td>${travel ? fmt(travel) : '\u2014'}</td>
+        <td>${r['\u05E4\u05E0\u05E1\u05D9\u05D4'] || '\u2014'}</td>
+        <td style="font-weight:bold">${fmt(total)}</td>
+        <td>${r['\u05E1\u05D8\u05D8\u05D5\u05E1'] || ''}</td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div style="font-family:Heebo,sans-serif;direction:rtl;padding:20px">
+        <div style="text-align:center;margin-bottom:20px">
+          <h2 style="margin:0">\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD</h2>
+          <h3 style="margin:5px 0;color:#0ea5e9">\u05D3\u05D5\u05D7 \u05E9\u05DB\u05E8 \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u2014 ${latestMonth}</h3>
+          <p style="color:#666">\u05EA\u05D0\u05E8\u05D9\u05DA: ${today} | ${monthData.length} \u05E2\u05D5\u05D1\u05D3\u05D9\u05DD</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px" border="1" cellpadding="5">
+          <thead style="background:#e0f2fe;font-weight:bold">
+            <tr><th>#</th><th>\u05E9\u05DD</th><th>\u05E9\u05DB\u05E8 \u05D1\u05E1\u05D9\u05E1</th><th>\u05E0\u05E1\u05D9\u05E2\u05D5\u05EA</th><th>\u05E4\u05E0\u05E1\u05D9\u05D4</th><th>\u05E1\u05D4"\u05DB</th><th>\u05E1\u05D8\u05D8\u05D5\u05E1</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+          <tfoot style="background:#f0f9ff;font-weight:bold">
+            <tr><td colspan="5">\u05E1\u05D4"\u05DB \u05DB\u05DC\u05DC\u05D9</td><td colspan="2">${fmt(totalSalary)}</td></tr>
+          </tfoot>
+        </table>
+        <p style="text-align:center;color:#999;font-size:11px;margin-top:10px">\u05E1\u05D5\u05D3\u05D9 | \u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3</p>
+      </div>`;
   },
 
   /* ---------- Petty Cash Report Template ---------- */
