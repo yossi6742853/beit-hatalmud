@@ -314,18 +314,31 @@ Object.assign(Pages, {
     this.renderStudentsList();
   },
 
-  /* ---- Render List ---- */
-  renderStudentsList() {
-    const search = (document.getElementById('students-search')?.value || '').trim().toLowerCase();
-    const classF = document.getElementById('students-class-filter')?.value || '';
-    const statusF = document.getElementById('students-status-filter')?.value || '';
+  /* ---- Filter helpers (cached DOM reads) ---- */
+  _getStudentFilters() {
+    const searchEl = document.getElementById('students-search');
+    const classEl = document.getElementById('students-class-filter');
+    const statusEl = document.getElementById('students-status-filter');
+    return {
+      search: (searchEl?.value || '').trim().toLowerCase(),
+      classF: classEl?.value || '',
+      statusF: statusEl?.value || ''
+    };
+  },
 
-    let filtered = this._studentsData.filter(s => {
+  _filterStudents() {
+    const { search, classF, statusF } = this._getStudentFilters();
+    return this._studentsData.filter(s => {
       if (search && !(s._fullName || '').toLowerCase().includes(search) && !(s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(search)) return false;
       if (classF && s['\u05DB\u05D9\u05EA\u05D4'] !== classF) return false;
       if (statusF && s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== statusF) return false;
       return true;
     });
+  },
+
+  /* ---- Render List ---- */
+  renderStudentsList() {
+    let filtered = this._filterStudents();
 
     // Sort for table view
     if (this._studentsView === 'table') {
@@ -348,27 +361,28 @@ Object.assign(Pages, {
       });
     }
 
+    const listEl = document.getElementById('students-list');
     document.getElementById('students-count').textContent = `${filtered.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD`;
 
     if (filtered.length === 0) {
       const isReallyEmpty = !this._studentsData.length && !this._studentsUseDemo;
-      document.getElementById('students-list').innerHTML = isReallyEmpty
+      listEl.innerHTML = isReallyEmpty
         ? '<div class="empty-state text-center py-5"><i class="bi bi-people fs-1 text-muted d-block mb-2"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05D4\u05D5\u05E1\u05E3 \u05EA\u05DC\u05DE\u05D9\u05D3 \u05E8\u05D0\u05E9\u05D5\u05DF</p><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.studentsLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</a></div>'
         : '<div class="empty-state"><i class="bi bi-search"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5></div>';
       return;
     }
 
     if (this._studentsView === 'table') {
-      this._renderStudentsTable(filtered);
+      this._renderStudentsTable(filtered, listEl);
     } else {
-      this._renderStudentsCards(filtered);
+      this._renderStudentsCards(filtered, listEl);
     }
     this._updateBulkBar();
   },
 
   /* ---- Cards View ---- */
-  _renderStudentsCards(filtered) {
-    document.getElementById('students-list').innerHTML = `<div class="row g-3">${filtered.map(s => {
+  _renderStudentsCards(filtered, listEl) {
+    listEl.innerHTML = `<div class="row g-3">${filtered.map(s => {
       const name = s._fullName || '';
       const cls = s['\u05DB\u05D9\u05EA\u05D4'] || '';
       const age = Utils.calcAge(s['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05DC\u05D9\u05D3\u05D4']);
@@ -403,7 +417,7 @@ Object.assign(Pages, {
   },
 
   /* ---- Table View ---- */
-  _renderStudentsTable(filtered) {
+  _renderStudentsTable(filtered, listEl) {
     const sortIcon = (col) => {
       if (this._studentsSort.col !== col) return '<i class="bi bi-arrow-down-up text-muted opacity-25 ms-1"></i>';
       return this._studentsSort.asc
@@ -411,7 +425,7 @@ Object.assign(Pages, {
         : '<i class="bi bi-sort-down text-primary ms-1"></i>';
     };
 
-    document.getElementById('students-list').innerHTML = `
+    listEl.innerHTML = `
       <div class="card">
         <div class="table-responsive">
           <table class="table table-bht table-hover mb-0">
@@ -481,16 +495,7 @@ Object.assign(Pages, {
   },
 
   toggleSelectAll(checked) {
-    const search = (document.getElementById('students-search')?.value || '').trim().toLowerCase();
-    const classF = document.getElementById('students-class-filter')?.value || '';
-    const statusF = document.getElementById('students-status-filter')?.value || '';
-
-    const filtered = this._studentsData.filter(s => {
-      if (search && !(s._fullName || '').toLowerCase().includes(search) && !(s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(search)) return false;
-      if (classF && s['\u05DB\u05D9\u05EA\u05D4'] !== classF) return false;
-      if (statusF && s['\u05E1\u05D8\u05D8\u05D5\u05E1'] !== statusF) return false;
-      return true;
-    });
+    const filtered = this._filterStudents();
 
     if (checked) {
       filtered.forEach(s => this._studentsSelected.add(s._id));
@@ -576,14 +581,16 @@ Object.assign(Pages, {
 
   async saveStudent() {
     const id = document.getElementById('sf-id').value;
-    const firstName = document.getElementById('sf-first-name').value.trim();
-    const lastName = document.getElementById('sf-last-name').value.trim();
-    const classVal = document.getElementById('sf-class').value.trim();
+    const firstNameEl = document.getElementById('sf-first-name');
+    const lastNameEl = document.getElementById('sf-last-name');
+    const classEl = document.getElementById('sf-class');
+    const firstName = firstNameEl.value.trim();
+    const lastName = lastNameEl.value.trim();
+    const classVal = classEl.value.trim();
 
     // Validation - mark invalid fields with red border
     const fieldsValid = [];
-    [['sf-first-name', firstName], ['sf-last-name', lastName], ['sf-class', classVal]].forEach(([elId, val]) => {
-      const el = document.getElementById(elId);
+    [[firstNameEl, firstName], [lastNameEl, lastName], [classEl, classVal]].forEach(([el, val]) => {
       if (!val) { el.classList.add('is-invalid'); fieldsValid.push(false); }
       else { el.classList.remove('is-invalid'); fieldsValid.push(true); }
     });

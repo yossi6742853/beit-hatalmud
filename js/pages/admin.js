@@ -181,7 +181,7 @@ Object.assign(Pages, {
         classEl.appendChild(opt);
       });
       if (this._rptClassFilter) classEl.value = this._rptClassFilter;
-    } catch(e) {}
+    } catch(e) { console.error('Error:', e); }
 
     // Quick-change on type select
     typeEl.addEventListener('change', () => this._rptApplyFiltersAndLoad());
@@ -866,7 +866,7 @@ Object.assign(Pages, {
         this._timerInterval = null;
         this._timerSeconds = 0;
         Utils.toast('\u23F0 \u05D4\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D4\u05E1\u05EA\u05D9\u05D9\u05DD!','warning');
-        try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAABBBAABACIWAAAiVgAEABAAAABkYXRhO28T/w==').play(); } catch(e){}
+        try { new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAABBBAABACIWAAAiVgAEABAAAABkYXRhO28T/w==').play(); } catch(e){ console.error('Error:', e); }
       }
       const m = Math.floor(this._timerSeconds/60);
       const s = this._timerSeconds%60;
@@ -1256,7 +1256,7 @@ Object.assign(Pages, {
         storageUsed += (localStorage.getItem(k) || '').length * 2; // ~2 bytes per char
         storageKeys++;
       }
-    } catch(e) {}
+    } catch(e) { console.error('Error:', e); }
     const storageMB = (storageUsed / 1024 / 1024).toFixed(2);
     const storageMax = 5; // localStorage ~5MB
     const storagePct = Math.min(100, Math.round((storageUsed / (storageMax * 1024 * 1024)) * 100));

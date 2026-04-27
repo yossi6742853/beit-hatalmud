@@ -217,7 +217,7 @@ Object.assign(Pages, {
   },
 
   _blnSaveToStorage() {
-    try { localStorage.setItem('bht_bulletin_data', JSON.stringify(this._bulletinData)); } catch(e) {}
+    try { localStorage.setItem('bht_bulletin_data', JSON.stringify(this._bulletinData)); } catch(e) { console.error('Error:', e); }
   },
 
   /* ---------- rendering ---------- */
@@ -383,7 +383,7 @@ Object.assign(Pages, {
     if (b) {
       b.pinned = !b.pinned;
       this._blnSaveToStorage();
-      try { App.apiCall('update', 'לוח_מודעות', { id, row: b }); } catch(e) {}
+      try { App.apiCall('update', 'לוח_מודעות', { id, row: b }); } catch(e) { console.error('Error:', e); }
       this._bulletinRender();
       Utils.toast(b.pinned ? 'המודעה נעוצה' : 'הנעיצה בוטלה');
     }
@@ -433,7 +433,7 @@ Object.assign(Pages, {
       const b = this._bulletinData.find(x => x.id === this._blnEditId);
       if (b) { Object.assign(b, { title, content, category, priority, expiry, pinned }); }
       this._blnSaveToStorage();
-      try { App.apiCall('update', 'לוח_מודעות', { id: this._blnEditId, row: b }); } catch(e) {}
+      try { App.apiCall('update', 'לוח_מודעות', { id: this._blnEditId, row: b }); } catch(e) { console.error('Error:', e); }
       Utils.toast('המודעה עודכנה');
     } else {
       const newItem = {
@@ -444,7 +444,7 @@ Object.assign(Pages, {
       };
       this._bulletinData.unshift(newItem);
       this._blnSaveToStorage();
-      try { App.apiCall('add', 'לוח_מודעות', { row: newItem }); } catch(e) {}
+      try { App.apiCall('add', 'לוח_מודעות', { row: newItem }); } catch(e) { console.error('Error:', e); }
       Utils.toast('מודעה חדשה נוספה');
     }
 
@@ -457,7 +457,7 @@ Object.assign(Pages, {
     if (!confirm('למחוק את המודעה?')) return;
     this._bulletinData = this._bulletinData.filter(x => x.id !== id);
     this._blnSaveToStorage();
-    try { App.apiCall('delete', 'לוח_מודעות', { id }); } catch(e) {}
+    try { App.apiCall('delete', 'לוח_מודעות', { id }); } catch(e) { console.error('Error:', e); }
     this._bulletinRender();
     Utils.toast('המודעה נמחקה');
   },

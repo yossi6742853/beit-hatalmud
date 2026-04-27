@@ -91,7 +91,7 @@ Object.assign(Pages, {
   _clSave(data) {
     localStorage.setItem(this._clKey, JSON.stringify(data));
     // Sync to API in background
-    try { App.apiCall('update', 'משימות', { id: 'checklists', row: data }); } catch(e) {}
+    try { App.apiCall('update', 'משימות', { id: 'checklists', row: data }); } catch(e) { console.error('Error:', e); }
   },
 
   /* ---- Generate demo data ---- */

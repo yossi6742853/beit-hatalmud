@@ -590,7 +590,7 @@
       .login-screen-v2 {
         background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #1e3a5f, #0f172a);
         background-size: 400% 400%;
-        animation: loginGradientShift 12s ease infinite;
+        animation: loginGradientShift 8s ease infinite;
         min-height: 100vh;
         display: flex;
         align-items: center;
@@ -621,14 +621,9 @@
         background: rgba(147,197,253,.3);
         animation: loginParticle 6s linear infinite;
       }
-      .login-particles span:nth-child(1) { right: 10%; animation-delay: 0s; animation-duration: 7s; }
-      .login-particles span:nth-child(2) { right: 25%; animation-delay: 1.5s; animation-duration: 5s; width: 6px; height: 6px; }
-      .login-particles span:nth-child(3) { right: 45%; animation-delay: 3s; animation-duration: 8s; width: 10px; height: 10px; }
-      .login-particles span:nth-child(4) { right: 65%; animation-delay: .5s; animation-duration: 6s; }
-      .login-particles span:nth-child(5) { right: 80%; animation-delay: 2s; animation-duration: 9s; width: 5px; height: 5px; }
-      .login-particles span:nth-child(6) { right: 40%; animation-delay: 4s; animation-duration: 6.5s; width: 7px; height: 7px; }
-      .login-particles span:nth-child(7) { right: 55%; animation-delay: 1s; animation-duration: 7.5s; width: 4px; height: 4px; }
-      .login-particles span:nth-child(8) { right: 90%; animation-delay: 3.5s; animation-duration: 5.5s; width: 9px; height: 9px; }
+      .login-particles span:nth-child(1) { right: 15%; animation-duration: 5s; }
+      .login-particles span:nth-child(2) { right: 50%; animation-delay: 1s; animation-duration: 4s; width: 10px; height: 10px; }
+      .login-particles span:nth-child(3) { right: 85%; animation-delay: 2s; animation-duration: 5s; width: 6px; height: 6px; }
       .login-glass-card {
         background: rgba(255,255,255,.06);
         backdrop-filter: blur(24px);
@@ -824,7 +819,7 @@
     </style>
     <div class="login-screen-v2">
       <div class="login-particles">
-        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span>
       </div>
       <div class="login-glass-card">
         <div class="login-icon-v2">

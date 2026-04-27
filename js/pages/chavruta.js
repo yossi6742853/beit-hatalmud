@@ -259,7 +259,7 @@ Object.assign(Pages, {
         this._chavPairs = apiData;
         return;
       }
-    } catch(e) {}
+    } catch(e) { console.error('Error:', e); }
 
     // If no demo flag, clear hardcoded data
     if (!this._chavUseDemo && this._chavPairs.length && this._chavPairs[0]?.id === 1) {
