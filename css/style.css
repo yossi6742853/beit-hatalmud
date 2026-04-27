@@ -4567,3 +4567,10 @@ html { scroll-behavior: smooth; }
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
 }
 .form-control::placeholder { opacity: .5; }
+
+/* ===== Sidebar Category Transition ===== */
+.sidebar-cat-body {
+  transition: max-height .25s ease;
+  overflow: hidden;
+}
+.sidebar-cat-body.collapsed { max-height: 0 !important; }
