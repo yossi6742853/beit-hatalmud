@@ -4429,3 +4429,7 @@ kbd {
   background: #334155;
   border-color: #64748b;
 }
+
+/* ===== Smooth Scrolling ===== */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
