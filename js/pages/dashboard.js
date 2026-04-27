@@ -125,9 +125,28 @@ Object.assign(Pages, {
         </div>
       </div>
 
-      <!-- Today's Summary Row: Attendance Doughnut + Recent Payments + Upcoming Events -->
+      <!-- Absent Students Alert -->
+      <div id="dash-absent-alert" class="mb-4" style="display:none"></div>
+
+      <!-- Recent Calls (Prominent) + Attendance Doughnut Row -->
       <div class="row g-3 mb-4">
-        <div class="col-lg-4">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100 border-start border-success border-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">
+                  <i class="bi bi-telephone-inbound-fill me-2 text-success"></i>\u05E9\u05D9\u05D7\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
+                </h6>
+                <div class="d-flex gap-2">
+                  <a href="#calls" class="btn btn-outline-secondary btn-sm">\u05DB\u05DC \u05D4\u05E9\u05D9\u05D7\u05D5\u05EA</a>
+                  <button class="btn btn-success btn-sm" onclick="Pages._openCallLogModal('','','')"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05D7\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
+                </div>
+              </div>
+              <div id="recent-calls"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
               <h6 class="fw-bold mb-3">
@@ -148,6 +167,10 @@ Object.assign(Pages, {
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Recent Payments + Upcoming Events + New Documents -->
+      <div class="row g-3 mb-4">
         <div class="col-lg-4">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
@@ -168,24 +191,21 @@ Object.assign(Pages, {
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Recent Calls + Activity Feed Row -->
-      <div class="row g-3 mb-4">
         <div class="col-lg-4">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold mb-0">
-                  <i class="bi bi-telephone-inbound-fill me-2 text-success"></i>\u05E9\u05D9\u05D7\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
-                </h6>
-                <button class="btn btn-outline-success btn-sm" onclick="Pages._openCallLogModal('','','')"><i class="bi bi-plus-lg"></i></button>
-              </div>
-              <div id="recent-calls"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+              <h6 class="fw-bold mb-3">
+                <i class="bi bi-file-earmark-plus-fill me-2 text-primary"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD
+              </h6>
+              <div id="recent-documents"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
             </div>
           </div>
         </div>
-        <div class="col-lg-8">
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="row g-3 mb-4">
+        <div class="col-12">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
               <h6 class="fw-bold mb-3">
@@ -431,6 +451,62 @@ Object.assign(Pages, {
         }).join('');
       } else {
         feedEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-clock-history fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>';
+      }
+    }
+
+    // === 5b. Absent Students Alert ===
+    const absentAlertEl = document.getElementById('dash-absent-alert');
+    if (absentAlertEl) {
+      const absentStudents = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
+      if (absentStudents.length > 0) {
+        const absentNames = absentStudents.slice(0, 8).map(a => {
+          const s = students.find(st => (st['\u05DE\u05D6\u05D4\u05D4'] || st._row) === (a['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || a['\u05DE\u05D6\u05D4\u05D4']));
+          return s ? Utils.fullName(s) : (a['\u05E9\u05DD'] || a['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2');
+        });
+        const moreCount = absentStudents.length > 8 ? absentStudents.length - 8 : 0;
+        absentAlertEl.style.display = '';
+        absentAlertEl.innerHTML = `<div class="alert alert-danger border-0 shadow-sm d-flex align-items-start gap-3 mb-0">
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;background:#fee2e2">
+            <i class="bi bi-person-x-fill text-danger fs-5"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD (${absentStudents.length})</h6>
+            <div class="d-flex flex-wrap gap-1">
+              ${absentNames.map(n => `<span class="badge bg-danger-subtle text-danger">${n}</span>`).join('')}
+              ${moreCount > 0 ? `<span class="badge bg-secondary">\u05D5\u05E2\u05D5\u05D3 ${moreCount}...</span>` : ''}
+            </div>
+          </div>
+          <a href="#attendance" class="btn btn-outline-danger btn-sm flex-shrink-0 align-self-center">\u05E6\u05E4\u05D4</a>
+        </div>`;
+      } else {
+        absentAlertEl.style.display = 'none';
+      }
+    }
+
+    // === 5c. Recent Documents (last 7 days) ===
+    const docsEl = document.getElementById('recent-documents');
+    if (docsEl) {
+      const docs = _gc('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD') || [];
+      const staffDocs = _gc('\u05DE\u05E1\u05DE\u05DB\u05D9_\u05E6\u05D5\u05D5\u05EA') || [];
+      const allDocs = [...docs, ...staffDocs];
+      const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekAgoISO = weekAgo.toISOString().slice(0, 10);
+      const recentDocs = allDocs.filter(d => (d['\u05EA\u05D0\u05E8\u05D9\u05DA'] || d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4'] || '') >= weekAgoISO)
+        .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA'] || b['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4'] || '').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA'] || a['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4'] || ''));
+      if (recentDocs.length > 0) {
+        docsEl.innerHTML = `<div class="d-flex align-items-center gap-2 mb-3"><span class="badge bg-primary fs-6">${recentDocs.length}</span><span class="small fw-bold">\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D1-7 \u05D9\u05DE\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</span></div>`
+          + recentDocs.slice(0, 5).map(d => {
+            const name = d['\u05E9\u05DD'] || d['\u05E0\u05D5\u05E9\u05D0'] || d['\u05E9\u05DD_\u05E7\u05D5\u05D1\u05E5'] || '\u05DE\u05E1\u05DE\u05DA';
+            const date = d['\u05EA\u05D0\u05E8\u05D9\u05DA'] || d['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05E2\u05DC\u05D0\u05D4'] || '';
+            return `<div class="d-flex align-items-center gap-2 py-2 border-bottom">
+              <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dbeafe">
+                <i class="bi bi-file-earmark-text text-primary"></i>
+              </div>
+              <div class="flex-grow-1"><div class="fw-semibold small">${name}</div><small class="text-muted">${Utils.formatDateShort(date)}</small></div>
+            </div>`;
+          }).join('');
+      } else {
+        docsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-file-earmark fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD</div>';
       }
     }
 

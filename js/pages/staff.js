@@ -28,7 +28,8 @@ Object.assign(Pages, {
         <button class="btn btn-outline-info btn-sm" onclick="Pages.toggleStaffView('schedule')"><i class="bi bi-calendar-week me-1"></i>מערכת שעות</button>
         <button class="btn btn-outline-success btn-sm" onclick="Pages.toggleStaffView('salary')"><i class="bi bi-cash-stack me-1"></i>שכר</button>
         <button class="btn btn-outline-warning btn-sm" onclick="Pages.toggleStaffView('attendance')"><i class="bi bi-calendar-check me-1"></i>נוכחות</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="Pages.exportStaffCSV()"><i class="bi bi-download me-1"></i>ייצוא CSV</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="Pages.exportStaffCSV()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 CSV</button>
+        <button class="btn btn-outline-dark btn-sm" onclick="Pages.printStaffPhoneDirectory()"><i class="bi bi-printer me-1"></i>\u05D4\u05D3\u05E4\u05E1 \u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD</button>
       </div>
     </div>
 

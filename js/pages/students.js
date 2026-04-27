@@ -79,6 +79,7 @@ Object.assign(Pages, {
           <button class="btn btn-outline-primary btn-sm" onclick="Pages.showBulkAddStudents()"><i class="bi bi-people me-1"></i>\u05D4\u05D5\u05E1\u05E4\u05D4 \u05DE\u05E8\u05D5\u05D1\u05D4</button>
           <button class="btn btn-outline-info btn-sm" onclick="Pages.showImportCSV()"><i class="bi bi-upload me-1"></i>\u05D9\u05D9\u05D1\u05D5\u05D0 CSV</button>
           <button class="btn btn-outline-success btn-sm" onclick="Pages.exportStudentsCSV()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 CSV</button>
+          <button class="btn btn-outline-dark btn-sm" onclick="Pages.exportVisibleStudentsCSV()" title="\u05D9\u05D9\u05E6\u05D5\u05D0 \u05E8\u05E9\u05D9\u05DE\u05D4 \u05DE\u05E1\u05D5\u05E0\u05E0\u05EA"><i class="bi bi-funnel me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05E8\u05E9\u05D9\u05DE\u05D4</button>
         </div>
       </div>
 
@@ -271,7 +272,10 @@ Object.assign(Pages, {
       <div class="col-md-5">
         <div class="card p-3">
           <div class="fw-bold mb-2"><i class="bi bi-bar-chart me-1"></i>\u05E4\u05D9\u05DC\u05D5\u05D7 \u05DC\u05E4\u05D9 \u05DB\u05D9\u05EA\u05D5\u05EA</div>
-          ${classStats || '<div class="text-muted small">\u05D0\u05D9\u05DF \u05DB\u05D9\u05EA\u05D5\u05EA</div>'}
+          <div class="row g-2">
+            <div class="col-7">${classStats || '<div class="text-muted small">\u05D0\u05D9\u05DF \u05DB\u05D9\u05EA\u05D5\u05EA</div>'}</div>
+            <div class="col-5"><canvas id="students-class-pie" style="max-height:120px"></canvas></div>
+          </div>
         </div>
       </div>
       <div class="col-md-4">
@@ -290,6 +294,33 @@ Object.assign(Pages, {
         </div>
       </div>
     `;
+
+    // Render class distribution mini pie chart
+    if (classes.length > 0 && typeof Chart !== 'undefined') {
+      setTimeout(() => {
+        const pieCtx = document.getElementById('students-class-pie');
+        if (!pieCtx) return;
+        if (App.charts && App.charts.studentClassPie) App.charts.studentClassPie.destroy();
+        const classCounts = classes.map(c => data.filter(s => s['\u05DB\u05D9\u05EA\u05D4'] === c).length);
+        const classColors = classes.map(c => this._getClassColor(c));
+        if (!App.charts) App.charts = {};
+        App.charts.studentClassPie = new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: classes,
+            datasets: [{ data: classCounts, backgroundColor: classColors, borderWidth: 1 }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + ctx.raw; } } }
+            }
+          }
+        });
+      }, 50);
+    }
   },
 
   /* ---- View Toggle ---- */
@@ -657,6 +688,12 @@ Object.assign(Pages, {
 
   exportStudentsCSV() {
     this._exportCSV(this._studentsData || [], 'students');
+  },
+
+  exportVisibleStudentsCSV() {
+    const filtered = this._filterStudents();
+    if (!filtered.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05DE\u05E1\u05D5\u05E0\u05E0\u05D9\u05DD', 'warning'); return; }
+    this._exportCSV(filtered, 'students_filtered');
   },
 
   /* ---- Bulk Add (paste) ---- */
