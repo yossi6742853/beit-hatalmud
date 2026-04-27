@@ -396,10 +396,10 @@ Object.assign(Pages, {
   vidToggleWatchedById(id) {
     if (this._vidWatched[id]) {
       delete this._vidWatched[id];
-      App.showToast?.('\u05D4\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05DC\u05D0 \u05E0\u05E6\u05E4\u05D4', 'info');
+      Utils.toast('\u05D4\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05DC\u05D0 \u05E0\u05E6\u05E4\u05D4', 'info');
     } else {
       this._vidWatched[id] = true;
-      App.showToast?.('\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05E0\u05E6\u05E4\u05D4!', 'success');
+      Utils.toast('\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05E0\u05E6\u05E4\u05D4!', 'success');
     }
     // persist to localStorage
     try { localStorage.setItem('bht_vid_watched', JSON.stringify(this._vidWatched)); } catch(e) {}
