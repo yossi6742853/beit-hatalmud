@@ -1,1 +1,4 @@
 __pycache__/
+.bht_oauth.json
+upload_tmp.gz
+drive_token.txt
