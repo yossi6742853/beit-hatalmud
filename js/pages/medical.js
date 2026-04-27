@@ -241,17 +241,43 @@ Object.assign(Pages, {
     App.navigate('medical');
   },
 
+  /* Map raw DATA_CACHE row to medical record format */
+  _mapMedicalRow(row, students) {
+    const sid = row['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || row['\u05DE\u05D6\u05D4\u05D4'] || '';
+    const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4'] || '') === sid);
+    const name = student ? ((student['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (student['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim() : (row['\u05E9\u05DD'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2');
+    const splitField = (v) => v ? String(v).split(/[,،;]\s*/).filter(Boolean) : [];
+    const allMeds = splitField(row['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']).concat(splitField(row['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']));
+    const allergies = splitField(row['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA']);
+    const conditions = splitField(row['\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA_\u05DE\u05D9\u05D5\u05D7\u05D3\u05D5\u05EA'] || row['\u05DE\u05E6\u05D1_\u05E8\u05E4\u05D5\u05D0\u05D9']);
+    const isCritical = allergies.length > 0 || allMeds.length > 0 || (row['\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA_\u05DE\u05D9\u05D5\u05D7\u05D3\u05D5\u05EA']||'').length > 0;
+    return {
+      id: row['\u05DE\u05D6\u05D4\u05D4'] || 'm' + Math.random().toString(36).slice(2,8),
+      studentName: name,
+      bloodType: row['\u05E1\u05D5\u05D2_\u05D3\u05DD'] || '',
+      allergies, medications: allMeds, conditions,
+      emergencyName: row['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8_\u05D7\u05D9\u05E8\u05D5\u05DD'] || row['\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8'] || '',
+      emergencyPhone: row['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D7\u05D9\u05E8\u05D5\u05DD'] || row['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05D0\u05D9\u05E9_\u05E7\u05E9\u05E8'] || '',
+      insurance: row['\u05E7\u05D5\u05E4\u05EA_\u05D7\u05D5\u05DC\u05D9\u05DD'] || '', policyNumber: row['\u05DE\u05E1\u05E4\u05E8_\u05E4\u05D5\u05DC\u05D9\u05E1\u05D4'] || '',
+      doctor: row['\u05E8\u05D5\u05E4\u05D0_\u05DE\u05D8\u05E4\u05DC'] || '', doctorPhone: row['\u05D8\u05DC\u05E4\u05D5\u05DF_\u05E8\u05D5\u05E4\u05D0'] || '',
+      notes: row['\u05D4\u05E2\u05E8\u05D5\u05EA'] || row['\u05D3\u05E8\u05D9\u05E9\u05D5\u05EA_\u05DE\u05D9\u05D5\u05D7\u05D3\u05D5\u05EA'] || '',
+      critical: isCritical,
+      updated: row['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E2\u05D3\u05DB\u05D5\u05DF'] || ''
+    };
+  },
+
   medicalInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     this._medData = null;
     this._medEvents = null;
     this._medVaccines = null;
 
-    // Try loading from API first
+    // Map real DATA_CACHE records to expected format
     try {
-      const apiData = _gc('מידע_רפואי');
-      if (apiData && apiData.length) {
-        this._medData = apiData;
+      const rawMed = _gc('\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9');
+      const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
+      if (rawMed && rawMed.length) {
+        this._medData = rawMed.map(r => this._mapMedicalRow(r, students));
         this._saveMedData();
       } else {
         this._getMedData();
