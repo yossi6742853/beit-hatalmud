@@ -261,7 +261,7 @@ Object.assign(Pages, {
                 <div class="form-text">\u05DE\u05E9\u05EA\u05E0\u05D9\u05DD: <code>{name}</code> \u05E9\u05DD \u05E0\u05DE\u05E2\u05DF, <code>{student}</code> \u05E9\u05DD \u05EA\u05DC\u05DE\u05D9\u05D3, <code>{class}</code> \u05DB\u05D9\u05EA\u05D4, <code>{date}</code> \u05EA\u05D0\u05E8\u05D9\u05DA</div>
               </div>
               <div class="d-flex gap-2 flex-wrap">
-                <button class="btn btn-success" onclick="Pages.waSendAll()"><i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D7 \u05DC\u05DB\u05D5\u05DC\u05DD</button>
+                <button class="btn btn-success" onclick="Pages.waSendAll()"><i class="bi bi-telephone-outbound me-1"></i>\u05E9\u05DC\u05D7 \u05DC\u05DB\u05D5\u05DC\u05DD</button>
                 <button class="btn btn-outline-success" onclick="Pages.waSendFirst()"><i class="bi bi-send me-1"></i>\u05E9\u05DC\u05D7 \u05DC\u05E8\u05D0\u05E9\u05D5\u05DF</button>
                 <button class="btn btn-outline-secondary" onclick="Pages.waClearCompose()"><i class="bi bi-x-lg me-1"></i>\u05E0\u05E7\u05D4</button>
               </div>
@@ -381,7 +381,7 @@ Object.assign(Pages, {
       const c = this._waContacts.find(x => x.phone === phone);
       const filledMsg = c ? this._waFillVars(msg, c) : msg;
       const intlPhone = '972' + phone.replace(/^0/, '');
-      window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(filledMsg)}`, '_blank');
+      window.open(`sms:${phone}?body=${encodeURIComponent(filledMsg)}`, '_blank');
       if (c) names.push(c.name);
       sent++;
     });
@@ -427,8 +427,8 @@ Object.assign(Pages, {
     const c = this._waContacts.find(x => x.phone === firstPhone);
     const filledMsg = c ? this._waFillVars(msg, c) : msg;
     const intlPhone = '972' + firstPhone.replace(/^0/, '');
-    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(filledMsg)}`, '_blank');
-    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E0\u05E4\u05EA\u05D7 \u05D7\u05DC\u05D5\u05DF \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4', 'success');
+    window.open(`sms:${firstPhone}?body=${encodeURIComponent(filledMsg)}`, '_blank');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E0\u05E4\u05EA\u05D7 \u05D7\u05DC\u05D5\u05DF SMS', 'success');
   },
 
   waClearCompose() {

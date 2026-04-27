@@ -270,7 +270,7 @@ Object.assign(Pages, {
     const actions = `
       <div class="d-flex gap-1 mt-2 flex-wrap">
         ${c.phone ? `<a href="tel:${phone}" class="btn btn-sm btn-outline-primary" title="\u05D4\u05EA\u05E7\u05E9\u05E8"><i class="bi bi-telephone"></i></a>` : ''}
-        ${c.phone ? `<a href="https://wa.me/${waPhone}" target="_blank" class="btn btn-sm btn-outline-success" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>` : ''}
+        ${c.phone ? `<a href="sms:${phone}" class="btn btn-sm btn-outline-info" title="SMS"><i class="bi bi-chat-dots"></i></a>` : ''}
         ${c.email ? `<a href="mailto:${c.email}" class="btn btn-sm btn-outline-info" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC"><i class="bi bi-envelope"></i></a>` : ''}
         <button class="btn btn-sm btn-outline-warning" onclick="Pages._ctToggleFav('${c.id}')" title="\u05DE\u05D5\u05E2\u05D3\u05E3"><i class="bi bi-star${c.favorite ? '-fill' : ''}"></i></button>
         <button class="btn btn-sm btn-outline-secondary" onclick="Pages._ctEdit('${c.id}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>
