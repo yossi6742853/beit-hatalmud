@@ -4556,3 +4556,14 @@ html { scroll-behavior: smooth; }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* ===== RTL Form Polish ===== */
+.form-label { font-weight: 500; font-size: .875rem; }
+.form-control:focus, .form-select:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+}
+[data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
+}
+.form-control::placeholder { opacity: .5; }
