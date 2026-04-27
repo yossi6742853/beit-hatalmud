@@ -5,8 +5,19 @@ Object.assign(Pages, {
   _clKey: 'bht_checklists_v2',
   _clUseDemo: false,
 
-  /* ---- Staff names for assignees ---- */
-  _clStaff: ['יוסף', 'משה', 'אהרן', 'דוד', 'שמעון', 'יצחק'],
+  /* ---- Staff names for assignees (real from DATA_CACHE) ---- */
+  _clStaff: (() => {
+    try {
+      if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05E6\u05D5\u05D5\u05EA'] && DATA_CACHE['\u05E6\u05D5\u05D5\u05EA'].length) {
+        return DATA_CACHE['\u05E6\u05D5\u05D5\u05EA'].slice(0, 20).map(s => {
+          const fn = (s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '').trim();
+          const ln = (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '').trim();
+          return (fn + ' ' + ln).trim();
+        }).filter(Boolean);
+      }
+    } catch(e) {}
+    return ['\u05D9\u05D5\u05E1\u05E3', '\u05DE\u05E9\u05D4', '\u05D0\u05D4\u05E8\u05DF', '\u05D3\u05D5\u05D3', '\u05E9\u05DE\u05E2\u05D5\u05DF', '\u05D9\u05E6\u05D7\u05E7'];
+  })(),
 
   /* ---- Priority config ---- */
   _clPriority: {
