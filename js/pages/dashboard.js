@@ -203,9 +203,22 @@ Object.assign(Pages, {
         </div>
       </div>
 
-      <!-- Activity Feed -->
+      <!-- Recent Emails + Activity Feed -->
       <div class="row g-3 mb-4">
-        <div class="col-12">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100 border-start border-info border-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">
+                  <i class="bi bi-envelope-fill me-2 text-info"></i>\u05D3\u05D5\u05D0\u05E8 \u05D0\u05D7\u05E8\u05D5\u05DF
+                </h6>
+                <a href="#email" class="btn btn-outline-info btn-sm">\u05E6\u05E4\u05D4 \u05D4\u05DB\u05DC</a>
+              </div>
+              <div id="recent-emails"><div class="text-muted text-center py-4">\u05D8\u05D5\u05E2\u05DF...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
           <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
               <h6 class="fw-bold mb-3">
@@ -507,6 +520,35 @@ Object.assign(Pages, {
           }).join('');
       } else {
         docsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-file-earmark fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD</div>';
+      }
+    }
+
+    // === 5d. Recent Emails from EMAIL_CACHE ===
+    const emailsEl = document.getElementById('recent-emails');
+    if (emailsEl) {
+      const emails = (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && EMAIL_CACHE.inbox) ? EMAIL_CACHE.inbox : [];
+      if (emails.length > 0) {
+        const unreadCount = emails.filter(e => e.unread).length;
+        emailsEl.innerHTML = (unreadCount > 0 ? `<div class="alert alert-info py-1 px-2 small mb-2"><i class="bi bi-envelope-exclamation me-1"></i>${unreadCount} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05D7\u05D3\u05E9\u05D5\u05EA</div>` : '')
+          + emails.slice(0, 5).map(e => {
+            const senderName = (e.from || '').replace(/<[^>]+>/g, '').replace(/"/g, '').trim();
+            const shortName = senderName.split(/\s+/).slice(0, 2).join(' ');
+            const initials = shortName.length >= 2 ? shortName[0] + (shortName.split(/\s+/)[1] || '')[0] : shortName.substring(0, 2);
+            const isUnread = e.unread;
+            const dateStr = e.date ? new Date(e.date).toLocaleDateString('he-IL', {day:'numeric',month:'short'}) : '';
+            return `<div class="d-flex align-items-center gap-2 py-2 border-bottom" style="cursor:pointer" onclick="location.hash='email'">
+              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:32px;height:32px;background:${isUnread ? '#dbeafe' : '#f3f4f6'};color:${isUnread ? '#2563eb' : '#6b7280'};font-size:11px;font-weight:600">
+                ${initials || '??'}
+              </div>
+              <div class="flex-grow-1 min-width-0">
+                <div class="${isUnread ? 'fw-bold' : ''} small text-truncate">${shortName}</div>
+                <div class="text-muted small text-truncate" style="max-width:250px">${e.subject || ''}</div>
+              </div>
+              <small class="text-muted flex-shrink-0">${dateStr}</small>
+            </div>`;
+          }).join('');
+      } else {
+        emailsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-envelope fs-3 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05D5\u05D0\u05E8</div>';
       }
     }
 
