@@ -4481,3 +4481,10 @@ html { scroll-behavior: smooth; }
 /* ===== Badge Improvements ===== */
 .badge { font-weight: 500; }
 .badge.bg-light { border: 1px solid var(--bs-border-color); }
+
+/* ===== Better Spinner ===== */
+.spinner-border { border-width: 2px; }
+.spinner-border-sm { width: 1rem; height: 1rem; border-width: 2px; }
+
+/* ===== Toast Enhancement ===== */
+.toast-container { z-index: 10000 !important; }
