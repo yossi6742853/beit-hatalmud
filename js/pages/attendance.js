@@ -363,7 +363,7 @@ Object.assign(Pages, {
       return `
         <div class="d-flex align-items-center gap-3 p-3 border-bottom att-row" data-id="${sid}" style="transition:background .15s">
           ${Utils.avatarHTML(name)}
-          <div class="flex-grow-1 att-name-click" onclick="Pages.attQuickCycle('${sid}')" style="cursor:pointer" title="\u05DC\u05D7\u05D9\u05E6\u05D4 \u05DC\u05E1\u05D9\u05D1\u05D5\u05D1 \u05E1\u05D8\u05D8\u05D5\u05E1">
+          <div class="flex-grow-1 att-name-click" onclick="Pages.attQuickCycle('${sid}')" ondblclick="location.hash='students/${sid}'" style="cursor:pointer" title="\u05DC\u05D7\u05D9\u05E6\u05D4=\u05E1\u05D9\u05D1\u05D5\u05D1 | \u05DC\u05D7\u05D9\u05E6\u05D4 \u05DB\u05E4\u05D5\u05DC\u05D4=\u05DB\u05E8\u05D8\u05D9\u05E1">
             <div class="fw-bold">${name}${streakBadge}${lateTime}</div>
             <small class="text-muted">\u05DB\u05D9\u05EA\u05D4 ${s['\u05DB\u05D9\u05EA\u05D4'] || '--'}</small>
           </div>
