@@ -4447,3 +4447,11 @@ html { scroll-behavior: smooth; }
   #scroll-top { bottom: calc(20px + env(safe-area-inset-bottom)); }
   .navbar { padding-top: env(safe-area-inset-top); }
 }
+
+/* ===== Table Row Hover ===== */
+.table-bht tbody tr:hover, .table tbody tr:hover {
+  background: rgba(59, 130, 246, .05) !important;
+}
+[data-theme="dark"] .table-bht tbody tr:hover, [data-theme="dark"] .table tbody tr:hover {
+  background: rgba(99, 102, 241, .1) !important;
+}
