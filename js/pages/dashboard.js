@@ -138,7 +138,7 @@ Object.assign(Pages, {
                   <i class="bi bi-telephone-inbound-fill me-2 text-success"></i>\u05E9\u05D9\u05D7\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA
                 </h6>
                 <div class="d-flex gap-2">
-                  <a href="#calls" class="btn btn-outline-secondary btn-sm">\u05DB\u05DC \u05D4\u05E9\u05D9\u05D7\u05D5\u05EA</a>
+                  <a href="#communications" class="btn btn-outline-secondary btn-sm">\u05DB\u05DC \u05D4\u05E9\u05D9\u05D7\u05D5\u05EA</a>
                   <button class="btn btn-success btn-sm" onclick="Pages._openCallLogModal('','','')"><i class="bi bi-plus-lg me-1"></i>\u05E9\u05D9\u05D7\u05D4 \u05D7\u05D3\u05E9\u05D4</button>
                 </div>
               </div>
