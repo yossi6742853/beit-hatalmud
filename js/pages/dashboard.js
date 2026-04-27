@@ -80,7 +80,7 @@ Object.assign(Pages, {
       <!-- Stats Cards Row -->
       <div class="row g-3 mb-4" id="dash-stats">
         <div class="col-6 col-lg-3">
-          <div class="card border-0 shadow-sm h-100">
+          <a href="#students" class="card border-0 shadow-sm h-100 text-decoration-none card-clickable">
             <div class="card-body d-flex align-items-center gap-3">
               <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
                 <i class="bi bi-people-fill text-white fs-5"></i>
@@ -90,7 +90,7 @@ Object.assign(Pages, {
                 <small class="text-muted">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD</small>
               </div>
             </div>
-          </div>
+          </a>
         </div>
         <div class="col-6 col-lg-3">
           <div class="card border-0 shadow-sm h-100">
