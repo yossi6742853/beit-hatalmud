@@ -4440,3 +4440,10 @@ html { scroll-behavior: smooth; }
 
 /* ===== Email Body Word Break ===== */
 .email-msg-body { word-break: break-word; overflow-wrap: break-word; }
+
+/* ===== Safe Area for Notched Phones ===== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  #fab-container { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  #scroll-top { bottom: calc(20px + env(safe-area-inset-bottom)); }
+  .navbar { padding-top: env(safe-area-inset-top); }
+}
