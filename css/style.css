@@ -4624,3 +4624,10 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] #bht-loading-bar {
   background: linear-gradient(90deg, #6366f1, #a78bfa, #6366f1) !important;
 }
+
+/* ===== Dark Mode Quick Notes ===== */
+[data-theme="dark"] #dash-quick-note {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
