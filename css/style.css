@@ -4574,3 +4574,8 @@ html { scroll-behavior: smooth; }
   overflow: hidden;
 }
 .sidebar-cat-body.collapsed { max-height: 0 !important; }
+
+/* ===== Command Palette Dark Mode ===== */
+[data-theme="dark"] #command-palette > div { background: #1e293b !important; }
+[data-theme="dark"] #command-palette input { background: #0f172a; color: #e2e8f0; border: none; }
+[data-theme="dark"] .cmd-item:hover { background: #334155 !important; }
