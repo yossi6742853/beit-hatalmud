@@ -156,6 +156,15 @@ const App = {
     // Store hashed PIN and enter
     localStorage.setItem(this.PIN_KEY, Utils.hashPin(pin));
     this.showApp();
+    // Welcome toast with quick stats
+    try {
+      const students = (typeof DATA_CACHE !== 'undefined' && DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD']) ? DATA_CACHE['\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD'].length : 0;
+      const emails = (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && EMAIL_CACHE.inbox) ? EMAIL_CACHE.inbox.filter(e=>e.unread).length : 0;
+      let msg = '\u05D1\u05E8\u05D5\u05DA \u05D4\u05D1\u05D0!';
+      if (students) msg += ` ${students} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.`;
+      if (emails) msg += ` ${emails} \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD.`;
+      Utils.toast(msg, 'success');
+    } catch(e) {}
   },
 
   logout() {
