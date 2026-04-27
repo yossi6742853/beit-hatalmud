@@ -171,6 +171,7 @@ Object.assign(Pages, {
             </select>
           </div>
           <div class="col-md-5 d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-secondary btn-sm" onclick="Pages.attCopyClassList()" title="\u05D4\u05E2\u05EA\u05E7 \u05E8\u05E9\u05D9\u05DE\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD"><i class="bi bi-clipboard"></i></button>
             <button class="btn btn-outline-success btn-sm" onclick="Pages.markAll('present')"><i class="bi bi-check-all me-1"></i>\u05D4\u05DB\u05DC \u05E0\u05D5\u05DB\u05D7\u05D9\u05DD</button>
             <button class="btn btn-outline-danger btn-sm" onclick="Pages.markAll('absent')"><i class="bi bi-x-circle me-1"></i>\u05D4\u05DB\u05DC \u05D7\u05E1\u05E8\u05D9\u05DD</button>
             <button class="btn btn-outline-info btn-sm" onclick="Pages.copyAttSummary()"><i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7</button>
@@ -943,24 +944,18 @@ Object.assign(Pages, {
   /* ======================================================================
      PRINT
      ====================================================================== */
-  copyAttSummary() {
-    const date = document.getElementById('att-date').value;
-    const statusMap = { present: '\u05E0\u05D5\u05DB\u05D7', absent: '\u05D7\u05E1\u05E8', late: '\u05D0\u05D9\u05D7\u05D5\u05E8', excused: '\u05E4\u05D8\u05D5\u05E8' };
-    const state = this._attState || {};
-    const students = this._attStudents || [];
-    let present = 0, absent = 0, late = 0;
-    const absentNames = [];
-    const lateNames = [];
-    students.forEach(s => {
-      const st = state[s._id];
-      if (st === 'present') present++;
-      else if (st === 'absent') { absent++; absentNames.push(s._fullName); }
-      else if (st === 'late') { late++; lateNames.push(s._fullName); }
-    });
-    const total = present + absent + late;
-    const pct = total ? Math.round(present / total * 100) : 0;
-    let text = `\u05E1\u05D9\u05DB\u05D5\u05DD \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u2014 ${date}\n`;
-    text += `\u05E0\u05D5\u05DB\u05D7\u05D9\u05DD: ${present} | \u05D7\u05E1\u05E8\u05D9\u05DD: ${absent} | \u05D0\u05D9\u05D7\u05D5\u05E8: ${late} | ${pct}%\n`;
+  attCopyClassList() {
+    const cls = document.getElementById('att-class-filter')?.value;
+    const students = (this._attStudents || []).filter(s => !cls || s['\u05DB\u05D9\u05EA\u05D4'] === cls);
+    if (!students.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', 'warning'); return; }
+    const title = cls || '\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA';
+    const list = students.map((s, i) => `${i+1}. ${s._fullName}`).join('\n');
+    navigator.clipboard.writeText(`${title} (${students.length}):\n${list}`).then(() => Utils.toast(`${students.length} \u05E9\u05DE\u05D5\u05EA \u05D4\u05D5\u05E2\u05EA\u05E7\u05D5`, 'success'));
+  },
+
+  /* ======================================================================
+     PRINT (duplicate copyAttSummary removed — using the one at line 838)
+     ====================================================================== */
     if (absentNames.length) text += `\u05D7\u05E1\u05E8\u05D9\u05DD: ${absentNames.join(', ')}\n`;
     if (lateNames.length) text += `\u05D0\u05D9\u05D7\u05D5\u05E8: ${lateNames.join(', ')}\n`;
     navigator.clipboard.writeText(text).then(() => Utils.toast('\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7', 'success')).catch(() => Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'));
