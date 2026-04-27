@@ -349,17 +349,52 @@ Object.assign(Pages, {
     const list = document.getElementById('drive-list');
     if (list) list.innerHTML = '<div class="text-center py-5"><div class="spinner-border"></div></div>';
 
+    // Load from DRIVE_CATALOG first (static student documents from Google Drive)
     try {
-      const apiData = _gc('קבצים_מצורפים');
+      if (typeof DRIVE_CATALOG !== 'undefined' && DRIVE_CATALOG.folders && DRIVE_CATALOG.folders.length) {
+        // Build folders from DRIVE_CATALOG
+        this._driveFolders = DRIVE_CATALOG.folders.map((f, i) => ({
+          id: f.folderId || 'df' + i,
+          name: f.name,
+          parent: null,
+          created: DRIVE_CATALOG.lastUpdated || '',
+          color: ['primary','success','warning','info','danger'][i % 5],
+          link: f.folderLink || ''
+        }));
+        // Flatten all docs from all folders
+        this._loadedFiles = [];
+        DRIVE_CATALOG.folders.forEach(f => {
+          (f.docs || []).forEach(doc => {
+            this._loadedFiles.push({
+              id: doc.id || 'd' + Math.random().toString(36).slice(2,8),
+              name: doc.name,
+              mimeType: doc.type === 'pdf' ? 'application/pdf' : doc.type === 'doc' ? 'application/document' : doc.type === 'sheet' ? 'application/spreadsheet' : doc.type === 'image' ? 'image/jpeg' : 'application/octet-stream',
+              modifiedTime: DRIVE_CATALOG.lastUpdated || '',
+              size: 0,
+              folder: f.folderId || null,
+              url: doc.link || '#'
+            });
+          });
+        });
+        this._driveStorageUsed = 0;
+        this._updateStats();
+        this._updateRecent();
+        this.renderDriveContent();
+        return;
+      }
+    } catch (e) { /* fallback */ }
+
+    try {
+      const apiData = _gc('\u05E7\u05D1\u05E6\u05D9\u05DD_\u05DE\u05E6\u05D5\u05E8\u05E4\u05D9\u05DD');
       if (apiData && apiData.length) {
         this._loadedFiles = apiData.map((row, i) => ({
           id: row._id || row.id || String(i + 1),
-          name: row['שם'] || row.name || '',
-          mimeType: row['סוג'] || row.mimeType || 'application/octet-stream',
-          modifiedTime: row['תאריך'] || row.modifiedTime || '',
-          size: parseInt(row['גודל'] || row.size) || 0,
-          folder: row['תיקיה'] || row.folder || null,
-          url: row['קישור'] || row.url || '#'
+          name: row['\u05E9\u05DD'] || row.name || '',
+          mimeType: row['\u05E1\u05D5\u05D2'] || row.mimeType || 'application/octet-stream',
+          modifiedTime: row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || row.modifiedTime || '',
+          size: parseInt(row['\u05D2\u05D5\u05D3\u05DC'] || row.size) || 0,
+          folder: row['\u05EA\u05D9\u05E7\u05D9\u05D4'] || row.folder || null,
+          url: row['\u05E7\u05D9\u05E9\u05D5\u05E8'] || row.url || '#'
         }));
         this._driveStorageUsed = this._loadedFiles.reduce((s, f) => s + (f.size || 0), 0);
         this._updateStats();
