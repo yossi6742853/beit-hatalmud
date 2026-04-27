@@ -1352,6 +1352,7 @@ Object.assign(Pages, {
             </div>
             <div id="backup-result" class="mt-2"></div>
             <div class="mt-2 small text-muted"><i class="bi bi-clock me-1"></i>\u05D2\u05D9\u05D1\u05D5\u05D9 \u05D0\u05D7\u05E8\u05D5\u05DF: ${lastBackup}</div>
+            <div class="alert alert-warning small mt-2 mb-0 py-2"><i class="bi bi-info-circle me-1"></i>\u05DE\u05D5\u05DE\u05DC\u05E5 \u05DC\u05D4\u05E8\u05D9\u05E5 <code dir="ltr">python refresh_data.py</code> \u05E4\u05E2\u05DD \u05D1\u05E9\u05D1\u05D5\u05E2 \u05DC\u05D2\u05D9\u05D1\u05D5\u05D9 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD</div>
           </div></div>
 
           <div class="col-md-6"><div class="card p-3">

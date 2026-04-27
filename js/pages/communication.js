@@ -658,7 +658,7 @@ Object.assign(Pages, {
           </div>
           <div class="d-flex gap-2">
             ${phone ? `<a href="tel:${phone}" class="btn btn-outline-primary"><i class="bi bi-telephone me-1"></i>\u05D7\u05D9\u05D9\u05D2</a>` : ''}
-            ${phone ? `<a href="sms:${phone}" class="btn btn-success"><i class="bi bi-chat-left-text me-1"></i>SMS</a>` : ''}
+            ${phone ? `<button class="btn btn-success" onclick="(function(){var m=prompt('\\u05D4\\u05D5\\u05D3\\u05E2\\u05D4:');if(m)window.open('sms:${phone.replace(/[-\s]/g,'')}?body='+encodeURIComponent(m),'_blank');else if(m==='')window.open('sms:${phone.replace(/[-\s]/g,'')}','_blank')})()"><i class="bi bi-chat-left-text me-1"></i>SMS</button>` : ''}
             <button class="btn btn-outline-primary" onclick="Pages.editParent('${id}')"><i class="bi bi-pencil me-1"></i>\u05E2\u05E8\u05D9\u05DB\u05D4</button>
           </div>
         </div>

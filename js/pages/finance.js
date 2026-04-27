@@ -368,7 +368,7 @@ Object.assign(Pages, {
           <table class="table table-bht mb-0">
             <thead><tr><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E1\u05DB\u05D5\u05DD</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA \u05D9\u05E2\u05D3</th><th>\u05D9\u05DE\u05D9 \u05D0\u05D9\u05D7\u05D5\u05E8</th><th>\u05E4\u05E2\u05D5\u05DC\u05D5\u05EA</th></tr></thead>
             <tbody>${overdue.map(f => {
-              const nm = f['\u05E9\u05DD'] || f['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+              const nm = f['\u05E9\u05DD'] || '';
               const amt = Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0;
               const fId = Utils.rowId(f);
               const urgency = f._daysOverdue > 30 ? 'danger' : f._daysOverdue > 14 ? 'warning' : 'info';
@@ -397,7 +397,7 @@ Object.assign(Pages, {
     (this._finData || []).forEach(f => {
       const plan = f['\u05EA\u05D5\u05DB\u05E0\u05D9\u05EA_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
       if (!plan) return;
-      const nm = f['\u05E9\u05DD'] || f['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      const nm = f['\u05E9\u05DD'] || '';
       if (!planStudents[nm]) planStudents[nm] = { payments: [], plan };
       planStudents[nm].payments.push(f);
     });
@@ -483,7 +483,7 @@ Object.assign(Pages, {
     const monthFilter = document.getElementById('fin-month-filter')?.value || '';
 
     let filtered = (this._finData || []).filter(f => {
-      const nm = (f['\u05E9\u05DD'] || f['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '').toLowerCase();
+      const nm = (f['\u05E9\u05DD'] || '').toLowerCase();
       if (search && !nm.includes(search)) return false;
       const st = f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
       if (filter && st !== filter) return false;
@@ -548,7 +548,7 @@ Object.assign(Pages, {
             <tbody>
               ${filtered.map(f => {
                 const fId = Utils.rowId(f);
-                const nm = f['\u05E9\u05DD'] || f['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+                const nm = f['\u05E9\u05DD'] || '';
                 const amt = Number(f['\u05E1\u05DB\u05D5\u05DD']) || 0;
                 const st = f['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
                 const chk = this._finSelectedIds.includes(fId) ? 'checked' : '';
@@ -793,7 +793,7 @@ Object.assign(Pages, {
     if (!studentName) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3','warning'); return; }
 
     const records = (this._finData || []).filter(f => {
-      const nm = f['\u05E9\u05DD'] || f['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      const nm = f['\u05E9\u05DD'] || '';
       if (nm !== studentName) return false;
       const m = f['\u05D7\u05D5\u05D3\u05E9'] || '';
       if (from && m < from) return false;
