@@ -1230,7 +1230,7 @@ Object.assign(Pages, {
   _dialNumber: '',
   phone() {
     const num = this._dialNumber || '';
-    return `<div class="page-header"><h1><i class="bi bi-telephone-fill me-2"></i>\u05D8\u05DC\u05E4\u05D5\u05DF</h1></div><div class="row g-4"><div class="col-md-5"><div class="card p-3"><div class="dialer-display" id="dial-display">${num}</div><div class="dialer-grid">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(d=>`<button class="dialer-btn" onclick="Pages.dialPress('${d}')">${d}</button>`).join('')}</div><div class="d-flex gap-2 justify-content-center mt-2"><button class="dialer-btn dialer-delete" onclick="Pages.dialBackspace()"><i class="bi bi-backspace"></i></button><button class="dialer-btn dialer-call" onclick="Pages.makeCall()"><i class="bi bi-telephone-fill"></i></button><button class="dialer-btn" onclick="Pages.dialClear()" style="color:var(--bht-danger,#dc3545)"><i class="bi bi-x-lg"></i></button></div></div></div><div class="col-md-7"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</h6><div id="phone-contacts">\u05D8\u05D5\u05E2\u05DF...</div></div></div></div>`;
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2"><div><h1><i class="bi bi-telephone-fill me-2"></i>\u05D8\u05DC\u05E4\u05D5\u05DF</h1></div><button class="btn btn-outline-primary btn-sm" onclick="Pages.exportContacts()"><i class="bi bi-download me-1"></i>\u05D9\u05D9\u05E6\u05D5\u05D0 \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</button></div><div class="row g-4"><div class="col-md-5"><div class="card p-3"><div class="dialer-display" id="dial-display">${num}</div><div class="dialer-grid">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(d=>`<button class="dialer-btn" onclick="Pages.dialPress('${d}')">${d}</button>`).join('')}</div><div class="d-flex gap-2 justify-content-center mt-2"><button class="dialer-btn dialer-delete" onclick="Pages.dialBackspace()"><i class="bi bi-backspace"></i></button><button class="dialer-btn dialer-call" onclick="Pages.makeCall()"><i class="bi bi-telephone-fill"></i></button><button class="dialer-btn" onclick="Pages.dialClear()" style="color:var(--bht-danger,#dc3545)"><i class="bi bi-x-lg"></i></button></div></div></div><div class="col-md-7"><div class="card p-3"><h6 class="fw-bold mb-3"><i class="bi bi-people me-2"></i>\u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8</h6><div id="phone-contacts">\u05D8\u05D5\u05E2\u05DF...</div></div></div></div>`;
   },
   async phoneInit() {
     let contacts;
@@ -1251,6 +1251,18 @@ Object.assign(Pages, {
       }
     }
     document.getElementById('phone-contacts').innerHTML = contacts.length ? contacts.map(c=>`<div class="d-flex align-items-center gap-3 py-2 border-bottom clickable" onclick="Pages.quickDial('${c.phone}')">${Utils.avatarHTML(c.name,'sm')}<div class="flex-grow-1"><div class="fw-bold small">${c.name}</div><small class="text-muted">${c.role}</small></div><small dir="ltr">${Utils.formatPhone(c.phone)}</small></div>`).join('') : '<div class="text-center text-muted py-4"><i class="bi bi-telephone fs-1 d-block mb-2"></i>\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8<br><button class="btn btn-outline-primary btn-sm mt-2" onclick="Pages.phoneLoadDemo()"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05D3\u05DE\u05D5</button></div>';
+  },
+  exportContacts() {
+    const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const staff = _gc('\u05E6\u05D5\u05D5\u05EA');
+    const parents = _gc('\u05D4\u05D5\u05E8\u05D9\u05DD');
+    const rows = ['\u05E9\u05DD,\u05D8\u05DC\u05E4\u05D5\u05DF,\u05EA\u05E4\u05E7\u05D9\u05D3'];
+    staff.filter(s=>s['\u05D8\u05DC\u05E4\u05D5\u05DF']).forEach(s => rows.push(`${Utils.fullName(s)},${s['\u05D8\u05DC\u05E4\u05D5\u05DF']},${s['\u05EA\u05E4\u05E7\u05D9\u05D3']||'\u05E6\u05D5\u05D5\u05EA'}`));
+    parents.filter(p=>p['\u05D8\u05DC\u05E4\u05D5\u05DF']).forEach(p => rows.push(`${p['\u05E9\u05DD']||''},${p['\u05D8\u05DC\u05E4\u05D5\u05DF']},\u05D4\u05D5\u05E8\u05D4`));
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], {type:'text/csv;charset=utf-8'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'contacts_bht_' + (Utils.todayISO ? Utils.todayISO() : '') + '.csv'; a.click();
+    Utils.toast(`${rows.length - 1} \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D9\u05D5\u05E6\u05D0\u05D5`, 'success');
   },
   dialPress(d) { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'')+d; },
   dialBackspace() { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'').slice(0,-1); },
