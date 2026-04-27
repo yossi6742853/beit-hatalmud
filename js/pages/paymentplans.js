@@ -476,8 +476,8 @@ Object.assign(Pages, {
       </div>
       ${s.overdueCount > 0 ? `
       <div class="mt-3">
-        <button class="btn btn-outline-success btn-sm" onclick="Pages.ppWhatsAppReminder('${plan.id}')">
-          <i class="bi bi-whatsapp me-1"></i>\u05E9\u05DC\u05D7 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4
+        <button class="btn btn-outline-primary btn-sm" onclick="Pages.ppPhoneReminder('${plan.id}')">
+          <i class="bi bi-telephone me-1"></i>\u05E9\u05DC\u05D7 \u05EA\u05D6\u05DB\u05D5\u05E8\u05EA \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05EA
         </button>
       </div>` : ''}
     `;
@@ -549,7 +549,7 @@ Object.assign(Pages, {
         <td><span class="badge bg-danger">${item.daysLate} \u05D9\u05DE\u05D9\u05DD</span></td>
         <td>
           <button class="btn btn-success btn-sm" onclick="Pages.ppTogglePayment('${item.plan.id}',${item.inst.num})"><i class="bi bi-check-lg"></i></button>
-          <button class="btn btn-outline-success btn-sm" onclick="Pages.ppWhatsAppReminder('${item.plan.id}')"><i class="bi bi-whatsapp"></i></button>
+          <button class="btn btn-outline-primary btn-sm" onclick="Pages.ppPhoneReminder('${item.plan.id}')"><i class="bi bi-telephone"></i></button>
         </td>
       </tr>`;
     }).join('');
@@ -561,28 +561,23 @@ Object.assign(Pages, {
     document.getElementById('pp-overdue-section')?.classList.add('d-none');
   },
 
-  /* ---------- WhatsApp reminder ---------- */
-  ppWhatsAppReminder(planId) {
+  /* ---------- Phone reminder ---------- */
+  ppPhoneReminder(planId) {
     const plan = this._ppPlans.find(p => p.id === planId);
     if (!plan) return;
-    const s = this._ppPlanStats(plan);
     const overdueInst = plan.installments.filter(i => i.status === 'overdue');
     if (!overdueInst.length) {
       Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8', 'info');
       return;
     }
-
     const totalOverdue = overdueInst.reduce((sum, i) => sum + i.amount, 0);
-    const msg = [
-
-      `\u05E9\u05DC\u05D5\u05DD \u05E8\u05D1,`,
-      ``
-  ].join('\n');
-
-    const phone = plan.phone.replace(/-/g, '').replace(/^0/, '972');
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
-    Utils.toast('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E0\u05E9\u05DC\u05D7\u05D4 \u05D1\u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4', 'success');
+    const phone = (plan.phone || '').replace(/-/g, '');
+    if (phone) {
+      window.open('tel:' + phone);
+      Utils.toast('\u05DE\u05D7\u05D9\u05D9\u05D2 \u05DC' + plan.studentName + '... \u05D7\u05D5\u05D1 ' + Utils.formatCurrency(totalOverdue), 'info');
+    } else {
+      Utils.toast('\u05D0\u05D9\u05DF \u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF', 'warning');
+    }
   },
 
   /* ---------- Charts ---------- */

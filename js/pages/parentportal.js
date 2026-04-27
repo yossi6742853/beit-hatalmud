@@ -114,8 +114,8 @@ Object.assign(Pages, {
             <button class="btn btn-primary btn-sm" onclick="Utils.copyText(document.getElementById('reg-link').value);Utils.toast('\u05D4\u05E7\u05D9\u05E9\u05D5\u05E8 \u05D4\u05D5\u05E2\u05EA\u05E7!')"><i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7</button>
           </div>
           <div class="d-flex gap-2 flex-wrap mb-3">
-            <button class="btn btn-success btn-sm" onclick="window.open('https://wa.me/?text='+encodeURIComponent('\\u05E9\\u05DC\\u05D5\\u05DD, \\u05D4\\u05E0\\u05D4 \\u05E7\\u05D9\\u05E9\\u05D5\\u05E8 \\u05DC\\u05D8\\u05D5\\u05E4\\u05E1 \\u05D4\\u05E8\\u05E9\\u05DE\\u05D4 \\u05DC\\u05D1\\u05D9\\u05EA \\u05D4\\u05EA\\u05DC\\u05DE\\u05D5\\u05D3: '+document.getElementById('reg-link').value))">
-              <i class="bi bi-whatsapp me-1"></i>WhatsApp
+            <button class="btn btn-primary btn-sm" onclick="Utils.copyText('\u05E9\u05DC\u05D5\u05DD, \u05D4\u05E0\u05D4 \u05E7\u05D9\u05E9\u05D5\u05E8 \u05DC\u05D8\u05D5\u05E4\u05E1 \u05D4\u05E8\u05E9\u05DE\u05D4 \u05DC\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3: '+document.getElementById('reg-link').value);Utils.toast('\u05D4\u05D5\u05E2\u05EA\u05E7!')">
+              <i class="bi bi-clipboard me-1"></i>\u05D4\u05E2\u05EA\u05E7
             </button>
             <button class="btn btn-outline-primary btn-sm" onclick="Utils.toast('\u05D4\u05E7\u05D9\u05E9\u05D5\u05E8 \u05E0\u05E9\u05DC\u05D7 \u05D1-SMS','info')">
               <i class="bi bi-phone me-1"></i>SMS
@@ -294,9 +294,9 @@ Object.assign(Pages, {
           <div class="col-6">
             <label class="form-label">\u05E9\u05DC\u05D7 \u05D3\u05E8\u05DA</label>
             <select class="form-select" id="inv-method">
-              <option value="whatsapp">WhatsApp</option>
               <option value="sms">SMS</option>
               <option value="email">\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC</option>
+              <option value="phone">\u05D8\u05DC\u05E4\u05D5\u05DF</option>
             </select>
           </div>
         </div>

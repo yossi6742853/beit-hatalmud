@@ -429,7 +429,7 @@ Object.assign(Pages, {
               <div class="mt-1">${memberNames.map(n => `<span class="badge bg-light text-dark me-1 mb-1">${n}</span>`).join('')}</div>
             </div>
             <div class="d-flex gap-1">
-              <button class="btn btn-sm btn-outline-success" onclick="Pages._ctGroupWhatsApp('${g.id}')" title="WhatsApp \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9"><i class="bi bi-whatsapp"></i></button>
+              <button class="btn btn-sm btn-outline-primary" onclick="Pages._ctGroupCall('${g.id}')" title="\u05D4\u05EA\u05E7\u05E9\u05E8 \u05DC\u05E7\u05D1\u05D5\u05E6\u05D4"><i class="bi bi-telephone"></i></button>
               <button class="btn btn-sm btn-outline-info" onclick="Pages._ctGroupEmail('${g.id}')" title="\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9"><i class="bi bi-envelope"></i></button>
               <button class="btn btn-sm btn-outline-danger" onclick="Pages._ctDeleteGroup('${g.id}')" title="\u05DE\u05D7\u05E7 \u05E7\u05D1\u05D5\u05E6\u05D4"><i class="bi bi-trash"></i></button>
             </div>
@@ -453,16 +453,15 @@ Object.assign(Pages, {
     this._ctShowGroups();
   },
 
-  _ctGroupWhatsApp(gid) {
+  _ctGroupCall(gid) {
     const g = this._contactsGroups.find(x => x.id === gid);
     if (!g) return;
-    const phones = g.members.map(mid => {
-      const c = this._contactsData.find(x => x.id === mid);
-      return c?.phone ? c.phone.replace(/[^0-9]/g, '').replace(/^0/, '972') : null;
-    }).filter(Boolean);
-    if (!phones.length) { Utils.toast('\u05D0\u05D9\u05DF \u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4', 'warning'); return; }
-    // Open first contact's WhatsApp as starting point
-    window.open('https://wa.me/' + phones[0], '_blank');
+    const contacts = g.members.map(mid => this._contactsData.find(x => x.id === mid)).filter(Boolean);
+    if (!contacts.length) { Utils.toast('\u05D0\u05D9\u05DF \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D1\u05E7\u05D1\u05D5\u05E6\u05D4', 'warning'); return; }
+    const list = contacts.map(c => `${c.name}: ${c.phone || '\u05D0\u05D9\u05DF \u05D8\u05DC\u05E4\u05D5\u05DF'}`).join('\n');
+    Utils.toast(`\u05E8\u05E9\u05D9\u05DE\u05EA \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7\u05D4 \u05DC\u05DC\u05D5\u05D7`, 'success');
+    // Copy phones to clipboard
+    navigator.clipboard.writeText(list).catch(() => {});
   },
 
   _ctGroupEmail(gid) {

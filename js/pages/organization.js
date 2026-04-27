@@ -2013,7 +2013,7 @@ Object.assign(Pages, {
       }
 
       return `<div class="col-md-6 col-lg-4">
-        <div class="card h-100 ${missingReq.length?'border-danger border-opacity-50':''}" style="cursor:pointer" onclick="Pages.openEntityFolder('student','${s.name.replace(/'/g,"\\'")}')">
+        <div class="card h-100 ${missingReq.length?'border-danger border-opacity-50':''}" style="cursor:pointer" onclick="Pages.openEntityFolder('student','${s.name.replace(/'/g,"&#39;")}')">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-2">
               ${Utils.avatarHTML ? Utils.avatarHTML(s.name) : `<div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;font-size:14px">${initials}</div>`}
@@ -2078,13 +2078,13 @@ Object.assign(Pages, {
       }).join('');
 
       return `<div class="col-md-6 col-lg-4">
-        <div class="card h-100" style="cursor:pointer" onclick="Pages.openEntityFolder('parent','${p.name.replace(/'/g,"\\'")}')">
+        <div class="card h-100" style="cursor:pointer" onclick="Pages.openEntityFolder('parent','${p.name.replace(/'/g,"&#39;")}')">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-2">
               ${Utils.avatarHTML ? Utils.avatarHTML(p.name) : `<div class="avatar bg-info text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;font-size:14px">${initials}</div>`}
               <div class="flex-grow-1">
                 <div class="fw-bold">${p.name}</div>
-                ${linkedArr.length ? `<div class="text-muted small"><i class="bi bi-link-45deg me-1"></i>${linkedArr.map(s => `<a href="#" onclick="event.stopPropagation();Pages._docActiveTab='students';Pages._renderDocs();setTimeout(()=>Pages.openEntityFolder('student','${s.replace(/'/g,"\\'")}'),200);return false" class="text-primary">${s}</a>`).join(', ')}</div>` : ''}
+                ${linkedArr.length ? `<div class="text-muted small"><i class="bi bi-link-45deg me-1"></i>${linkedArr.map(s => `<a href="#" onclick="event.stopPropagation();Pages._docActiveTab='students';Pages._renderDocs();setTimeout(()=>Pages.openEntityFolder('student','${s.replace(/'/g,"&#39;")}'),200);return false" class="text-primary">${s}</a>`).join(', ')}</div>` : ''}
               </div>
               <span class="badge bg-primary bg-opacity-10 text-primary">${p.docs.length}</span>
             </div>
@@ -2151,7 +2151,7 @@ Object.assign(Pages, {
       }).join('');
 
       return `<div class="col-md-6 col-lg-4">
-        <div class="card h-100" style="cursor:pointer" onclick="Pages.openEntityFolder('staff','${s.name.replace(/'/g,"\\'")}')">
+        <div class="card h-100" style="cursor:pointer" onclick="Pages.openEntityFolder('staff','${s.name.replace(/'/g,"&#39;")}')">
           <div class="card-body">
             <div class="d-flex align-items-center gap-3 mb-2">
               ${Utils.avatarHTML ? Utils.avatarHTML(s.name) : `<div class="avatar bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;font-size:14px">${initials}</div>`}
@@ -2210,7 +2210,7 @@ Object.assign(Pages, {
                   </div>
                   <small class="text-muted">${d.uploadDate ? Utils.formatDateShort(d.uploadDate) : ''}</small>
                   <div class="btn-group btn-group-sm">
-                    ${d.url ? `<button class="btn btn-outline-primary p-0 px-1" onclick="event.stopPropagation();Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"\\'")}')"><i class="bi bi-eye"></i></button>` : ''}
+                    ${d.url ? `<button class="btn btn-outline-primary p-0 px-1" onclick="event.stopPropagation();Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"&#39;")}')"><i class="bi bi-eye"></i></button>` : ''}
                     ${d.source==='local'?`<button class="btn btn-outline-danger p-0 px-1" onclick="event.stopPropagation();Pages.deleteDoc('${d.id}')"><i class="bi bi-trash"></i></button>`:''}
                   </div>
                 </div>`).join('')}
@@ -2257,7 +2257,7 @@ Object.assign(Pages, {
           <small class="text-${pctClass} fw-bold">${completePct}% \u05D4\u05E9\u05DC\u05DE\u05D4</small>
         </div>` : ''}
       </div>
-      <button class="btn btn-sm btn-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${name.replace(/'/g,"\\'")}','${entityType}'),300)"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
+      <button class="btn btn-sm btn-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${name.replace(/'/g,"&#39;")}','${entityType}'),300)"><i class="bi bi-cloud-upload me-1"></i>\u05D4\u05E2\u05DC\u05D0\u05D4</button>
     </div>`;
 
     // Cross-reference: if parent, show link to student folders
@@ -2270,7 +2270,7 @@ Object.assign(Pages, {
         const linkedStudent = parent['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || parent['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
         if (linkedStudent) {
           html += `<div class="alert alert-info small mb-3"><i class="bi bi-link-45deg me-1"></i>\u05DE\u05E7\u05D5\u05E9\u05E8 \u05DC\u05EA\u05D9\u05E7\u05D9\u05D9\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3:
-            <a href="#" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>{Pages._docActiveTab='students';Pages._renderDocs();Pages.openEntityFolder('student','${linkedStudent.replace(/'/g,"\\'")}')},300);return false" class="fw-bold">${linkedStudent}</a>
+            <a href="#" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>{Pages._docActiveTab='students';Pages._renderDocs();Pages.openEntityFolder('student','${linkedStudent.replace(/'/g,"&#39;")}')},300);return false" class="fw-bold">${linkedStudent}</a>
           </div>`;
         }
       }
@@ -2292,7 +2292,7 @@ Object.assign(Pages, {
           ${isReq ? '<span class="badge bg-danger bg-opacity-10 text-danger small">\u05E0\u05D3\u05E8\u05E9</span>' : ''}
           ${hasDocs ? `<span class="badge bg-success bg-opacity-10 text-success ms-auto"><i class="bi bi-check me-1"></i>${catDocs.length}</span>` :
             (isReq ? `<span class="badge bg-danger ms-auto">\u05D7\u05E1\u05E8</span>
-              <button class="btn btn-sm btn-outline-primary ms-1" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${name.replace(/'/g,"\\'")}','${entityType}','${key}'),300)"><i class="bi bi-cloud-upload"></i></button>` :
+              <button class="btn btn-sm btn-outline-primary ms-1" onclick="bootstrap.Modal.getInstance(document.getElementById('student-folder-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${name.replace(/'/g,"&#39;")}','${entityType}','${key}'),300)"><i class="bi bi-cloud-upload"></i></button>` :
               '<span class="badge bg-secondary bg-opacity-25 ms-auto">\u05E8\u05D9\u05E7</span>')}
         </div>
         ${catDocs.length ? `<div class="list-group">
@@ -2309,8 +2309,8 @@ Object.assign(Pages, {
                 </div>
               </div>
               <div class="btn-group btn-group-sm">
-                ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"\\'")}')"><i class="bi bi-eye"></i></button>` : ''}
-                ${d.source==='local'?`<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}');Pages.openEntityFolder('${entityType}','${name.replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>`:''}
+                ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"&#39;")}')"><i class="bi bi-eye"></i></button>` : ''}
+                ${d.source==='local'?`<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}');Pages.openEntityFolder('${entityType}','${name.replace(/'/g,"&#39;")}')"><i class="bi bi-trash"></i></button>`:''}
               </div>
             </div>`;
           }).join('')}
@@ -2337,8 +2337,8 @@ Object.assign(Pages, {
               <div class="text-muted" style="font-size:0.75rem">${d.description||''} ${d.uploadDate ? '&middot; '+Utils.formatDateShort(d.uploadDate) : ''}</div>
             </div>
             <div class="btn-group btn-group-sm">
-              ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"\\'")}')"><i class="bi bi-eye"></i></button>` : ''}
-              ${d.source==='local'?`<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}');Pages.openEntityFolder('${entityType}','${name.replace(/'/g,"\\'")}')"><i class="bi bi-trash"></i></button>`:''}
+              ${d.url ? `<button class="btn btn-outline-primary" onclick="Pages.viewDoc('${d.url}','${(d.fileName||'').replace(/'/g,"&#39;")}')"><i class="bi bi-eye"></i></button>` : ''}
+              ${d.source==='local'?`<button class="btn btn-outline-danger" onclick="Pages.deleteDoc('${d.id}');Pages.openEntityFolder('${entityType}','${name.replace(/'/g,"&#39;")}')"><i class="bi bi-trash"></i></button>`:''}
             </div>
           </div>`).join('')}
         </div>
@@ -2636,7 +2636,7 @@ Object.assign(Pages, {
               ${m.entityType === 'staff' ? ' <span class="badge bg-warning text-dark">\u05E6\u05D5\u05D5\u05EA</span>' : ''}
             </div>
             <div class="d-flex flex-wrap gap-1">${m.types.map(t => `<span class="badge bg-danger">${t}</span>`).join('')}</div>
-            <button class="btn btn-sm btn-outline-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('missing-docs-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${m.name.replace(/'/g,"\\'")}','${m.entityType}'),300)" title="\u05D4\u05E2\u05DC\u05D0\u05D4"><i class="bi bi-cloud-upload"></i></button>
+            <button class="btn btn-sm btn-outline-primary" onclick="bootstrap.Modal.getInstance(document.getElementById('missing-docs-modal'))?.hide();setTimeout(()=>Pages.showUploadDoc('${m.name.replace(/'/g,"&#39;")}','${m.entityType}'),300)" title="\u05D4\u05E2\u05DC\u05D0\u05D4"><i class="bi bi-cloud-upload"></i></button>
           </div>`).join('')}
         ` : '<div class="text-success text-center py-4"><i class="bi bi-check-circle fs-1 d-block mb-2"></i><h5>\u05DB\u05DC \u05D4\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD \u05D4\u05E0\u05D3\u05E8\u05E9\u05D9\u05DD \u05D4\u05EA\u05E7\u05D1\u05DC\u05D5!</h5></div>'}
       </div>
@@ -4633,10 +4633,10 @@ Object.assign(Pages, {
       : `\u05DE\u05E6\u05D9\u05D2 ${data.length} \u05DE\u05EA\u05D5\u05DA ${allData.length}`;
 
     if (!data.length) {
-      const isReallyEmpty = !allData.length && !this._instUseDemo;
-      document.getElementById('inst-list').innerHTML = isReallyEmpty
-        ? '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05D9\u05D9\u05DF \u2013 \u05D4\u05D5\u05E1\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05E8\u05D0\u05E9\u05D5\u05DF</h5><a href="#" class="btn btn-sm btn-outline-secondary mt-2" onclick="Pages.instLoadDemo();return false"><i class="bi bi-database me-1"></i>\u05D8\u05E2\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05D3\u05DE\u05D5</a></div>'
-        : '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9 \u05D0\u05D5 \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9</p></div>';
+      const hasActiveFilter = ((document.getElementById('inst-search')?.value || '').trim() || document.getElementById('inst-type-filter')?.value);
+      document.getElementById('inst-list').innerHTML = hasActiveFilter
+        ? '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA</h5><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E9\u05E0\u05D5\u05EA \u05D0\u05EA \u05D4\u05D7\u05D9\u05E4\u05D5\u05E9</p></div>'
+        : '<div class="empty-state"><i class="bi bi-building"></i><h5>\u05D0\u05D9\u05DF \u05DE\u05D5\u05E1\u05D3\u05D5\u05EA \u05E2\u05D3\u05D9\u05D9\u05DF</h5><p class="text-muted">\u05DC\u05D7\u05E5 "\u05DE\u05D5\u05E1\u05D3 \u05D7\u05D3\u05E9" \u05DC\u05D4\u05D5\u05E1\u05E4\u05D4</p></div>';
       return;
     }
 
