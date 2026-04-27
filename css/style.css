@@ -4363,3 +4363,11 @@ h5, .h5 { font-size: 1.15rem; }
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ===== Improved Print Styles ===== */
+@media print {
+  .sidebar, .navbar, #fab-container, #scroll-top, .btn, .modal { display: none !important; }
+  .main-content { margin: 0 !important; padding: 0 !important; }
+  #main-content { width: 100% !important; }
+  body { font-size: 12pt; }
+}
