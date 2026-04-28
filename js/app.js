@@ -944,11 +944,20 @@ const App = {
         });
         // Close command palette
         document.getElementById('command-palette')?.remove();
+        // Close shortcuts overlay
+        document.getElementById('shortcuts-overlay')?.remove();
         return;
       }
 
       // Skip navigation shortcuts when user is typing in a form field
       if (inInput) return;
+
+      // ? = open keyboard shortcuts overlay
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        this.toggleShortcutsOverlay();
+        return;
+      }
 
       // Ctrl+1..4 = quick page navigation
       if (e.ctrlKey || e.metaKey) {
@@ -959,6 +968,42 @@ const App = {
         }
       }
     });
+  },
+
+  toggleShortcutsOverlay() {
+    const existing = document.getElementById('shortcuts-overlay');
+    if (existing) { existing.remove(); return; }
+    const shortcuts = [
+      { keys: ['Ctrl', 'K'],            desc: 'חיפוש / Command Palette' },
+      { keys: ['Ctrl', 'H'],            desc: 'דף הבית (לוח בקרה)' },
+      { keys: ['Ctrl', '1'],            desc: 'לוח בקרה' },
+      { keys: ['Ctrl', '2'],            desc: 'תלמידים' },
+      { keys: ['Ctrl', '3'],            desc: 'נוכחות' },
+      { keys: ['Ctrl', '4'],            desc: 'תשלומים' },
+      { keys: ['Ctrl', 'D'],            desc: 'חייגן טלפון' },
+      { keys: ['Ctrl', 'E'],            desc: 'דואר' },
+      { keys: ['Ctrl', 'Shift', 'P'],   desc: 'הדפסת הדף הנוכחי' },
+      { keys: ['Esc'],                  desc: 'סגור מודל / חיפוש / Command Palette' },
+      { keys: ['?'],                    desc: 'הצג תפריט קיצורים זה' }
+    ];
+    const kbd = (k) => `<kbd style="background:#f3f4f6;border:1px solid #d1d5db;border-bottom-width:2px;border-radius:.3rem;padding:.15rem .45rem;font-size:.8rem;font-family:ui-monospace,monospace">${k}</kbd>`;
+    const html = `
+      <div id="shortcuts-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)this.remove()">
+        <div style="background:var(--bs-body-bg,#fff);color:var(--bs-body-color,#212529);border-radius:.75rem;max-width:520px;width:100%;max-height:85vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)" role="dialog" aria-label="קיצורי מקלדת">
+          <div class="d-flex justify-content-between align-items-center px-4 pt-3 pb-2 border-bottom">
+            <h5 class="mb-0"><i class="bi bi-keyboard me-2"></i>קיצורי מקלדת</h5>
+            <button class="btn-close" onclick="document.getElementById('shortcuts-overlay').remove()" aria-label="סגור"></button>
+          </div>
+          <div class="p-4">
+            ${shortcuts.map(s => `<div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color:rgba(0,0,0,.05) !important">
+              <span>${s.desc}</span>
+              <span class="d-flex gap-1">${s.keys.map(kbd).join('<span class="text-muted mx-1">+</span>')}</span>
+            </div>`).join('')}
+            <div class="text-muted small mt-3 text-center">לחץ <kbd>?</kbd> בכל זמן להחזיר את התפריט</div>
+          </div>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
   },
 
   /* ==============================
