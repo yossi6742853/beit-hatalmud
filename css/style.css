@@ -2,19 +2,14 @@
 
 :root {
   --bht-primary: #2563eb;
-  --bht-primary-dark: #1d4ed8;
   --bht-primary-light: #eff6ff;
   --bht-accent-orange: #f97316;
   --bht-accent-teal: #14b8a6;
   --bht-accent-pink: #ec4899;
-  --bht-secondary: #5f6368;
   --bht-success: #0f9d58;
   --bht-danger: #ea4335;
   --bht-warning: #f9ab00;
   --bht-info: #4285f4;
-  --bht-dark: #0d1117;
-  --bht-darker: #090c10;
-  --bht-light: #f8f9fa;
   --bht-card-bg: #ffffff;
   --bht-body-bg: #f0f2f5;
   --bht-text: #1f2937;
@@ -1732,7 +1727,7 @@ body {
   /* Schedule grid scroll */
   .schedule-grid-wrapper {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling deprecated */
   }
 }
 
@@ -1839,7 +1834,7 @@ body {
 .nav-tabs-bht {
   flex-wrap: nowrap;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  /* removed: -webkit-overflow-scrolling deprecated */
   scrollbar-width: none;
 }
 .nav-tabs-bht::-webkit-scrollbar { display: none; }
@@ -2455,53 +2450,19 @@ body {
 /* ===== 15. Dark Mode — Extended CSS Custom Properties ===== */
 :root {
   /* Surface levels for layered UIs */
-  --bht-surface-0: #ffffff;
   --bht-surface-1: #f8f9fa;
-  --bht-surface-2: #f0f2f5;
-  --bht-surface-3: #e5e7eb;
   /* Overlay colors */
-  --bht-overlay-light: rgba(255, 255, 255, .7);
-  --bht-overlay-medium: rgba(255, 255, 255, .85);
-  --bht-overlay-dark: rgba(0, 0, 0, .5);
   /* State colors */
-  --bht-hover-bg: rgba(37, 99, 235, .06);
-  --bht-active-bg: rgba(37, 99, 235, .12);
-  --bht-selected-bg: rgba(37, 99, 235, .08);
   /* Focus ring */
   --bht-focus-ring: 0 0 0 3px rgba(37, 99, 235, .2);
   /* Elevation tokens */
-  --bht-elevation-1: 0 1px 2px rgba(0, 0, 0, .05);
-  --bht-elevation-2: 0 2px 8px rgba(0, 0, 0, .08);
-  --bht-elevation-3: 0 8px 24px rgba(0, 0, 0, .12);
-  --bht-elevation-4: 0 16px 48px rgba(0, 0, 0, .16);
   /* Typography */
-  --bht-font-family: 'Heebo', sans-serif;
-  --bht-font-mono: 'Fira Code', 'Consolas', monospace;
   /* Spacing scale */
-  --bht-space-xs: .25rem;
-  --bht-space-sm: .5rem;
-  --bht-space-md: 1rem;
-  --bht-space-lg: 1.5rem;
-  --bht-space-xl: 2rem;
-  --bht-space-2xl: 3rem;
 }
 
 [data-theme="dark"] {
-  --bht-surface-0: #0d1117;
   --bht-surface-1: #161b22;
-  --bht-surface-2: #1c2128;
-  --bht-surface-3: #30363d;
-  --bht-overlay-light: rgba(22, 27, 34, .7);
-  --bht-overlay-medium: rgba(22, 27, 34, .85);
-  --bht-overlay-dark: rgba(0, 0, 0, .7);
-  --bht-hover-bg: rgba(37, 99, 235, .1);
-  --bht-active-bg: rgba(37, 99, 235, .18);
-  --bht-selected-bg: rgba(37, 99, 235, .14);
   --bht-focus-ring: 0 0 0 3px rgba(37, 99, 235, .35);
-  --bht-elevation-1: 0 1px 2px rgba(0, 0, 0, .2);
-  --bht-elevation-2: 0 2px 8px rgba(0, 0, 0, .3);
-  --bht-elevation-3: 0 8px 24px rgba(0, 0, 0, .4);
-  --bht-elevation-4: 0 16px 48px rgba(0, 0, 0, .5);
 }
 
 /* ===== Bonus: Micro-interactions ===== */
@@ -3966,10 +3927,10 @@ img.lazy-load.loaded {
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling deprecated */
   }
   .table-responsive, .bht-table-wrap {
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling deprecated */
   }
 }
 
@@ -4070,7 +4031,7 @@ img.lazy-load.loaded {
   /* Tables: horizontal scroll, smaller font */
   .table-responsive, .bht-table-wrap {
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling deprecated */
     margin: 0 -.5rem;
     padding: 0 .5rem;
   }
@@ -4208,7 +4169,7 @@ img.lazy-load.loaded {
   .nav-tabs, .nav-pills {
     flex-wrap: nowrap;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    /* removed: -webkit-overflow-scrolling deprecated */
     scrollbar-width: none;
   }
   .nav-tabs::-webkit-scrollbar,
