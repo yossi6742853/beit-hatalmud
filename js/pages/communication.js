@@ -1443,6 +1443,13 @@ Object.assign(Pages, {
     let sent = 0;
     const delivery = this._commDelivery;
 
+    // Shabbat / Yom Tov guard for SMS/email (phone calls are immediate, no message body)
+    const blockReason = Utils.shabbatBlock && Utils.shabbatBlock();
+    if (blockReason && delivery !== 'phone') {
+      const ok = await Utils.confirm('\u05D6\u05DE\u05DF \u05DC\u05D0 \u05E8\u05D2\u05D9\u05DC \u05DC\u05E9\u05DC\u05D9\u05D7\u05D4', `\u05DB\u05E2\u05EA ${blockReason}. \u05D4\u05D0\u05DD \u05D1\u05DB\u05DC \u05D6\u05D0\u05EA \u05DC\u05E9\u05DC\u05D5\u05D7 \u05E2\u05DB\u05E9\u05D9\u05D5?`);
+      if (!ok) { Utils.releaseLock('sendComm'); return; }
+    }
+
     if (delivery === 'phone') {
       // Phone call mode - open dialer for first recipient, log the call
       recipients.forEach(t => {

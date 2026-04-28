@@ -39,6 +39,32 @@ const Utils = {
   /* ---- Haptic feedback (mobile) ---- */
   haptic(ms = 10) { if ('vibrate' in navigator) try { navigator.vibrate(ms); } catch(e) { /* silent */ } },
 
+  /* ---- Shabbat / Yom Tov check — returns reason string if blocked, null otherwise ---- */
+  shabbatBlock() {
+    const now = new Date();
+    const day = now.getDay(); // 5=Fri, 6=Sat
+    if (day === 6) return 'שבת קודש';
+    // Friday afternoon: candle-lighting (default 60min before sunset)
+    if (day === 5) {
+      const hr = now.getHours();
+      const month = now.getMonth() + 1;
+      const z = (typeof Pages !== 'undefined' && Pages._hcZmanim && Pages._hcZmanim[month]) || null;
+      if (z && z.candleLighting) {
+        const [ch, cm] = String(z.candleLighting).split(':').map(Number);
+        const candleMin = ch * 60 + cm - 60; // 1h before
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        if (nowMin >= candleMin) return 'ערב שבת — אחר זמן הכנה';
+      } else if (hr >= 14) return 'ערב שבת'; // fallback
+    }
+    // Holidays: check Pages._hcHolidays
+    if (typeof Pages !== 'undefined' && Pages._hcHolidays) {
+      const iso = now.toISOString().slice(0, 10);
+      const chag = Pages._hcHolidays.find(h => h.gDates && h.gDates.includes(iso) && h.type === 'chag');
+      if (chag) return chag.name;
+    }
+    return null;
+  },
+
   /* ---- Friendly error toast — single source of error microcopy ---- */
   errorToast(action = 'save') {
     const msgs = {

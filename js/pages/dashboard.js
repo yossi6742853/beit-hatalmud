@@ -15,8 +15,20 @@ Object.assign(Pages, {
     const greeting = this._greeting();
     const hebrewDate = Utils.hebrewDateFull ? Utils.hebrewDateFull() : '';
     const todayFormatted = Utils.formatDate(new Date());
+    // Current parsha (for upcoming Shabbat) + zmanim
+    const today = new Date();
+    const sat = new Date(today); sat.setDate(today.getDate() + ((6 - today.getDay()) % 7));
+    const satISO = sat.toISOString().slice(0, 10);
+    const parsha = (this._hcParshiot && this._hcParshiot[satISO]) || '';
+    const month = today.getMonth() + 1;
+    const z = (this._hcZmanim && this._hcZmanim[month]) || null;
 
     return `
+      <!-- בס"ד strip + parsha -->
+      <div class="text-center text-muted small mb-2" style="letter-spacing:.2em">
+        בס"ד${parsha ? ' · פרשת ' + parsha : ''}
+      </div>
+
       <!-- Welcome Header -->
       <div class="page-header mb-4">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
@@ -186,6 +198,20 @@ Object.assign(Pages, {
       <!-- Action Items + Money Flow Snapshot -->
       <div id="dash-actions" class="mb-4"></div>
       <div class="row g-3 mb-4" id="money-flow"></div>
+
+      <!-- Zmanim card (Israel times) -->
+      ${z ? `<div class="card border-0 shadow-sm border-start border-warning border-3 mb-4">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-sunrise text-warning"></i><h6 class="fw-bold mb-0">זמני היום</h6></div>
+          <div class="row text-center small">
+            <div class="col"><div class="text-muted">הנץ</div><div class="fw-bold">${z.sunrise || '--'}</div></div>
+            <div class="col"><div class="text-muted">חצות</div><div class="fw-bold">${z.chatzot || '--'}</div></div>
+            <div class="col"><div class="text-muted">מנחה גדולה</div><div class="fw-bold">${z.minchaG || '--'}</div></div>
+            <div class="col"><div class="text-muted">שקיעה</div><div class="fw-bold">${z.sunset || '--'}</div></div>
+            <div class="col"><div class="text-muted">הדלקת נרות</div><div class="fw-bold text-warning">${z.candleLighting || '--'}</div></div>
+          </div>
+        </div>
+      </div>` : ''}
 
       <!-- Recent Payments + Upcoming Events + New Documents -->
       <div class="row g-3 mb-4">
