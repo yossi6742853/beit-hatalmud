@@ -1,4 +1,4 @@
-/* ===== BHT v6.8 — Utilities ===== */
+/* ===== BHT v6.9 — Utilities ===== */
 
 const Utils = {
   /* ---- Israeli ID (ת.ז.) validation — Luhn mod 10 ---- */
