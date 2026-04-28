@@ -4655,3 +4655,8 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .card.border-warning { border-color: #78350f !important; }
 [data-theme="dark"] .card.border-info { border-color: #164e63 !important; }
 [data-theme="dark"] .card.border-primary { border-color: #1e3a5f !important; }
+
+/* ===== Dark Mode Stat Card Icons ===== */
+[data-theme="dark"] .stat-card { background: #1e293b !important; border-color: #334155; }
+[data-theme="dark"] .stat-card .stat-value { color: #e2e8f0; }
+[data-theme="dark"] .stat-card .stat-label { color: #94a3b8; }
