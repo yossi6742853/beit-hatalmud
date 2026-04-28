@@ -183,6 +183,31 @@ const Utils = {
        </div>`);
   },
 
+  /* ---- Export helpers (Day 7-6) ---- */
+  exportJSON(rows, filename = 'data.json') {
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    this.toast('JSON יוצא');
+  },
+
+  exportMarkdown(rows, sheet = 'נתונים') {
+    if (!rows || !rows.length) { this.toast('אין נתונים', 'warning'); return; }
+    const cols = Object.keys(rows[0]);
+    const md = '# ' + sheet + '\n\n| ' + cols.join(' | ') + ' |\n|' + cols.map(() => '---').join('|') + '|\n' +
+      rows.map(r => '| ' + cols.map(c => String(r[c] ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ')).join(' | ') + ' |').join('\n');
+    const blob = new Blob(['﻿' + md], { type: 'text/markdown;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = sheet + '.md';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    this.toast('Markdown יוצא');
+  },
+
   /* ---- Allergy/medical alert banner — high-visibility, escapes content ---- */
   allergyBanner(allergies) {
     if (!allergies || (Array.isArray(allergies) && !allergies.length)) return '';
