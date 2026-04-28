@@ -95,6 +95,8 @@ const App = {
       this.initAutoSaveIndicator();
       this.initFormDrafts();
       this.initMobileEnhancements();
+      this.initModalFocusReturn();
+      this._enhanceA11yForms(document.body);
       this._initDriveCatalogIndex();
     } catch(e) {
       console.error('Init error (non-fatal):', e);
@@ -345,6 +347,30 @@ const App = {
       if (cls) el.setAttribute('aria-label', cls.replace(/^bi-/, '').replace(/-/g, ' '));
     });
     this._enhanceForms(root);
+  },
+
+  // Sync is-invalid CSS class with aria-invalid for screen readers
+  _enhanceA11yForms(root) {
+    if (!root) return;
+    // Watch for is-invalid additions and mirror to aria-invalid
+    const mo = new MutationObserver(records => {
+      records.forEach(r => {
+        if (r.type !== 'attributes' || r.attributeName !== 'class') return;
+        const el = r.target;
+        if (!el.matches?.('input, select, textarea')) return;
+        const invalid = el.classList.contains('is-invalid');
+        el.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+        if (invalid) {
+          // Link adjacent .invalid-feedback via aria-describedby
+          const fb = el.parentElement?.querySelector('.invalid-feedback');
+          if (fb && fb.textContent.trim()) {
+            if (!fb.id) fb.id = (el.id || 'fld') + '-err';
+            el.setAttribute('aria-describedby', fb.id);
+          }
+        }
+      });
+    });
+    mo.observe(root, { attributes: true, subtree: true, attributeFilter: ['class'] });
   },
 
   // Sane min/max + pattern defaults for inputs (data-quality guardrails)
@@ -1154,6 +1180,17 @@ const App = {
     });
   },
 
+  // Restore focus to triggering element when modal closes (a11y)
+  initModalFocusReturn() {
+    let lastTrigger = null;
+    document.addEventListener('show.bs.modal', () => { lastTrigger = document.activeElement; });
+    document.addEventListener('hidden.bs.modal', () => {
+      if (lastTrigger && document.body.contains(lastTrigger)) {
+        try { lastTrigger.focus(); } catch(e) { /* silent */ }
+      }
+    });
+  },
+
   // Mobile enhancements: keyboard-aware focus scroll + haptic on critical taps
   initMobileEnhancements() {
     // Scroll focused inputs into view (iOS keyboard hides field otherwise)
@@ -1421,9 +1458,9 @@ const App = {
         if (r.length) {
           results.innerHTML = `<div class="px-2 pt-2 pb-1 small text-muted">\u05D7\u05D9\u05E4\u05D5\u05E9\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</div><div class="px-2 pb-2">${r.map(t => `<a class="badge bg-light text-dark me-1 mb-1 search-chip" style="cursor:pointer" data-q="${Utils.escapeHTML(t)}">${Utils.escapeHTML(t)}</a>`).join('')}</div>`;
           results.querySelectorAll('.search-chip').forEach(c => c.onclick = () => { input.value = c.dataset.q; input.dispatchEvent(new Event('input')); });
-          results.classList.add('show');
+          results.classList.add('show'); input.setAttribute('aria-expanded', 'true');
         } else {
-          results.classList.remove('show');
+          results.classList.remove('show'); input.setAttribute('aria-expanded', 'false');
         }
         return;
       }
@@ -1492,19 +1529,19 @@ const App = {
         // Save the query as recent (if user actually clicks; we'll save here for safety)
         saveRecent(raw);
       }
-      results.classList.add('show');
+      results.classList.add('show'); input.setAttribute('aria-expanded', 'true');
       this._searchSelectedIdx = -1;
     }, 300));
 
     // Close on click outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('#global-search') && !e.target.closest('#search-results'))
-        results.classList.remove('show');
+        results.classList.remove('show'); input.setAttribute('aria-expanded', 'false');
     });
 
     // Keyboard navigation: arrow keys to highlight, Enter to navigate, Esc to close
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { results.classList.remove('show'); input.value = ''; this._searchSelectedIdx = -1; return; }
+      if (e.key === 'Escape') { results.classList.remove('show'); input.setAttribute('aria-expanded', 'false'); input.value = ''; this._searchSelectedIdx = -1; return; }
       const hits = results.querySelectorAll('.search-hit');
       if (!hits.length) return;
       if (e.key === 'ArrowDown') {
