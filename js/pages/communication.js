@@ -614,6 +614,7 @@ Object.assign(Pages, {
         await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row });
       }
       bootstrap.Modal.getInstance(document.getElementById('par-modal'))?.hide();
+      App.clearFormDraft('par-modal');
       Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3');
       this._parEditId = null;
       this.parentsInit();

@@ -701,6 +701,7 @@ Object.assign(Pages, {
         await App.apiCall('add', '\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3', { row });
       }
       bootstrap.Modal.getInstance(document.getElementById('fin-modal-dyn'))?.hide();
+      App.clearFormDraft('fin-modal-dyn');
       Utils.toast(editId ? '\u05EA\u05E9\u05DC\u05D5\u05DD \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05D5\u05E1\u05E3');
       this.financeInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
