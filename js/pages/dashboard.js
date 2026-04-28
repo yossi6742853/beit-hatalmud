@@ -427,7 +427,7 @@ Object.assign(Pages, {
                 <i class="bi bi-${statusIcon} text-${statusColor}"></i>
               </div>
               <div class="flex-grow-1">
-                <div class="fw-semibold small">${name}</div>
+                <div class="fw-semibold small">${Utils.escapeHTML(name||'')}</div>
                 <small class="text-muted">${Utils.formatDateShort(date)}</small>
               </div>
               <span class="badge bg-${statusColor}-subtle text-${statusColor}">${Utils.formatCurrency(amount)}</span>
@@ -525,7 +525,7 @@ Object.assign(Pages, {
           <div class="flex-grow-1">
             <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D7\u05E1\u05E8\u05D9\u05DD \u05D4\u05D9\u05D5\u05DD (${absentStudents.length})</h6>
             <div class="d-flex flex-wrap gap-1">
-              ${absentNames.map(n => `<span class="badge bg-danger-subtle text-danger">${n}</span>`).join('')}
+              ${absentNames.map(n => `<span class="badge bg-danger-subtle text-danger">${Utils.escapeHTML(n)}</span>`).join('')}
               ${moreCount > 0 ? `<span class="badge bg-secondary">\u05D5\u05E2\u05D5\u05D3 ${moreCount}...</span>` : ''}
             </div>
           </div>
@@ -547,7 +547,7 @@ Object.assign(Pages, {
           const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4']||'') === sid);
           const name = student ? Utils.fullName(student) : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
           const meds = ((m['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']||'') + ', ' + (m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'')).replace(/^,\s*|,\s*$/g, '').trim();
-          return `<span class="badge bg-warning-subtle text-warning border" title="${(meds||'').replace(/"/g,'&amp;quot;')}">${name}</span>`;
+          return `<span class="badge bg-warning-subtle text-warning border" title="${Utils.escapeHTML(meds||'')}">${Utils.escapeHTML(name||'')}</span>`;
         });
         medAlertEl.style.display = '';
         medAlertEl.innerHTML = `<div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-0">
@@ -601,7 +601,7 @@ Object.assign(Pages, {
               <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:#dbeafe">
                 <i class="bi bi-file-earmark-text text-primary"></i>
               </div>
-              <div class="flex-grow-1"><div class="fw-semibold small">${name}</div><small class="text-muted">${Utils.formatDateShort(date)}</small></div>
+              <div class="flex-grow-1"><div class="fw-semibold small">${Utils.escapeHTML(name||'')}</div><small class="text-muted">${Utils.formatDateShort(date)}</small></div>
             </div>`;
           }).join('');
       } else {
