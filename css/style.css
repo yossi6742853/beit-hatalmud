@@ -4660,3 +4660,9 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .stat-card { background: #1e293b !important; border-color: #334155; }
 [data-theme="dark"] .stat-card .stat-value { color: #e2e8f0; }
 [data-theme="dark"] .stat-card .stat-label { color: #94a3b8; }
+
+/* ===== Dark Mode Search Results ===== */
+[data-theme="dark"] #search-results { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] #search-results .dropdown-item { color: #e2e8f0; }
+[data-theme="dark"] #search-results .dropdown-item:hover { background: #334155; }
+[data-theme="dark"] #search-results .dropdown-item.active { background: #1e3a5f; }
