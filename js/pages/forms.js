@@ -221,7 +221,7 @@ Object.assign(Pages, {
           <div class="col-12"><label class="form-label fw-bold">שם הטופס</label><input class="form-control" id="ff-title" placeholder="למשל: טופס הרשמה תשפ&quot;ז"></div>
           <div class="col-12"><label class="form-label fw-bold">תיאור</label><textarea class="form-control" id="ff-desc" rows="2" placeholder="תיאור קצר של הטופס"></textarea></div>
           <div class="col-4"><label class="form-label fw-bold">סטטוס</label>
-            <select class="form-select" id="ff-status"><option value="פעיל">פעיל</option><option value="טיוטה">טיוטה</option><option value="סגור">סגור</option></select></div>
+            <select class="form-select" id="forms-ff-status"><option value="פעיל">פעיל</option><option value="טיוטה">טיוטה</option><option value="סגור">סגור</option></select></div>
           <div class="col-4"><label class="form-label fw-bold">צבע</label><input type="color" class="form-control form-control-color w-100" id="ff-color" value="#2563eb"></div>
           <div class="col-4"></div>
           <div class="col-12">
@@ -341,7 +341,7 @@ Object.assign(Pages, {
     this._formFields = [];
     document.getElementById('ff-title').value = '';
     document.getElementById('ff-desc').value = '';
-    document.getElementById('ff-status').value = 'פעיל';
+    document.getElementById('forms-ff-status').value = 'פעיל';
     document.getElementById('ff-color').value = '#2563eb';
     document.getElementById('frm-modal-title').innerHTML = '<i class="bi bi-plus-circle me-2"></i>טופס חדש';
     this._formRenderFields();
@@ -356,7 +356,7 @@ Object.assign(Pages, {
     this._formFields = (form.fields || []).map(f => ({ ...f }));
     document.getElementById('ff-title').value = form.name;
     document.getElementById('ff-desc').value = form.desc || '';
-    document.getElementById('ff-status').value = form.status || 'פעיל';
+    document.getElementById('forms-ff-status').value = form.status || 'פעיל';
     document.getElementById('ff-color').value = form.color || '#2563eb';
     document.getElementById('frm-modal-title').innerHTML = '<i class="bi bi-pencil me-2"></i>עריכת טופס';
     this._formRenderFields();
@@ -494,7 +494,7 @@ Object.assign(Pages, {
       if (form) {
         form.name = title;
         form.desc = document.getElementById('ff-desc').value.trim();
-        form.status = document.getElementById('ff-status').value;
+        form.status = document.getElementById('forms-ff-status').value;
         form.color = document.getElementById('ff-color').value;
         form.fields = [...this._formFields];
 
@@ -514,7 +514,7 @@ Object.assign(Pages, {
         _id: 'form_' + Date.now(),
         name: title,
         desc: document.getElementById('ff-desc').value.trim(),
-        status: document.getElementById('ff-status').value,
+        status: document.getElementById('forms-ff-status').value,
         color: document.getElementById('ff-color').value,
         date: Utils.todayISO(),
         fields: [...this._formFields],
@@ -657,7 +657,7 @@ Object.assign(Pages, {
       this._formFields = JSON.parse(JSON.stringify(t.fields));
       document.getElementById('ff-title').value = t.name;
       document.getElementById('ff-desc').value = t.desc;
-      document.getElementById('ff-status').value = 'פעיל';
+      document.getElementById('forms-ff-status').value = 'פעיל';
       document.getElementById('ff-color').value = t.color;
       document.getElementById('frm-modal-title').innerHTML = '<i class="bi bi-plus-circle me-2"></i>טופס חדש מתבנית';
       this._formRenderFields();

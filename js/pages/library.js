@@ -54,7 +54,7 @@ Object.assign(Pages, {
           </div>
           <div class="row g-3 mb-3">
             <div class="col-6"><label class="form-label">\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</label>
-              <select class="form-select" id="bf-category">
+              <select class="form-select" id="lib-bf-category">
                 <option value="\u05EA\u05D5\u05E8\u05D4">\u05EA\u05D5\u05E8\u05D4</option>
                 <option value="\u05D4\u05DC\u05DB\u05D4">\u05D4\u05DC\u05DB\u05D4</option>
                 <option value="\u05D2\u05DE\u05E8\u05D0">\u05D2\u05DE\u05E8\u05D0</option>
@@ -385,7 +385,7 @@ Object.assign(Pages, {
     document.getElementById('bf-title').value = '';
     document.getElementById('bf-author').value = '';
     document.getElementById('bf-isbn').value = '';
-    document.getElementById('bf-category').value = '\u05EA\u05D5\u05E8\u05D4';
+    document.getElementById('lib-bf-category').value = '\u05EA\u05D5\u05E8\u05D4';
     document.getElementById('bf-copies').value = '1';
     document.getElementById('bf-shelf').value = '';
     document.getElementById('bf-notes').value = '';
@@ -402,7 +402,7 @@ Object.assign(Pages, {
       title,
       author: document.getElementById('bf-author').value.trim(),
       isbn: document.getElementById('bf-isbn').value.trim(),
-      category: document.getElementById('bf-category').value,
+      category: document.getElementById('lib-bf-category').value,
       copies: parseInt(document.getElementById('bf-copies').value) || 1,
       borrowed: 0,
       shelf: document.getElementById('bf-shelf').value.trim(),
