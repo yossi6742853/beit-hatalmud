@@ -84,6 +84,56 @@ const Utils = {
     return n + ' ' + plural;
   },
 
+  /* ===== Component helpers (Day 1-4) — DRY templates ===== */
+
+  // Page header row (title + subtitle + action buttons)
+  pageHeader({ icon, title, subtitle, actions = [] }) {
+    const acts = actions.map(a => `<button class="btn btn-${a.variant || 'primary'} btn-sm" onclick="${a.onclick}"><i class="bi bi-${a.icon} me-1"></i>${this.escapeHTML(a.label)}</button>`).join('');
+    return `<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3"><div><h1><i class="bi bi-${icon} me-2"></i>${this.escapeHTML(title)}</h1>${subtitle ? `<p class="text-muted mb-0">${this.escapeHTML(subtitle)}</p>` : ''}</div><div class="d-flex gap-2 flex-wrap">${acts}</div></div>`;
+  },
+
+  // KPI stat card row
+  kpiRow(stats) {
+    const cols = Math.max(2, Math.floor(12 / stats.length));
+    return `<div class="row g-3 mb-4">${stats.map(s => `<div class="col-6 col-md-${cols}"><div class="card text-center p-3 border-start border-${s.variant} border-4"><div class="fs-2 fw-bold text-${s.variant}">${s.value}</div><small class="text-muted"><i class="bi bi-${s.icon} me-1"></i>${this.escapeHTML(s.label)}</small></div></div>`).join('')}</div>`;
+  },
+
+  // Empty-state v2 (with optional CTA)
+  emptyState(icon, title, hint = '', cta = null) {
+    const ctaHtml = cta ? `<a href="#" class="btn btn-sm btn-outline-${cta.variant || 'secondary'} mt-2" onclick="${cta.onclick};return false"><i class="bi bi-${cta.icon || 'plus'} me-1"></i>${this.escapeHTML(cta.label)}</a>` : '';
+    return `<div class="empty-state empty-state-v2 text-center py-5"><i class="bi bi-${icon} fs-1 text-muted opacity-50"></i><h5 class="mt-3 text-muted">${this.escapeHTML(title)}</h5>${hint ? `<p class="text-muted small">${this.escapeHTML(hint)}</p>` : ''}${ctaHtml}</div>`;
+  },
+
+  // Student-name-with-avatar linked
+  studentLink(row, size = 'sm', extra = '') {
+    const id = this.rowId(row), name = this.fullName(row);
+    return `<span class="d-inline-flex align-items-center gap-1">${this.avatarHTML ? this.avatarHTML(name, size) : ''}<a href="#student/${id}" class="text-decoration-none fw-medium">${this.escapeHTML(name)}</a>${extra ? ` <small class="text-muted">${this.escapeHTML(extra)}</small>` : ''}</span>`;
+  },
+
+  // Color-coded progress bar with auto threshold
+  progressBar(pct, { height = 18, label = true, invert = false } = {}) {
+    pct = Math.max(0, Math.min(100, +pct || 0));
+    const tiers = invert ? ['bg-danger', 'bg-warning', 'bg-success'] : ['bg-success', 'bg-warning', 'bg-danger'];
+    const v = pct >= 80 ? tiers[0] : pct >= 50 ? tiers[1] : tiers[2];
+    return `<div class="progress" style="height:${height}px;min-width:80px"><div class="progress-bar ${v}" style="width:${pct}%;transition:width .4s">${label ? pct + '%' : ''}</div></div>`;
+  },
+
+  // Phone action group (call + WhatsApp + optional SMS)
+  phoneActions(phone, { whatsapp = true, sms = false, label = false } = {}) {
+    if (!phone) return '<span class="text-muted">—</span>';
+    const p = this.normalizePhone(phone), waP = p.replace(/^0/, '972');
+    return `<span class="d-inline-flex gap-1"><a href="tel:${p}" class="btn btn-sm btn-outline-primary" title="חייג" aria-label="חייג"><i class="bi bi-telephone"></i>${label ? ' ' + this.formatPhone(p) : ''}</a>${whatsapp ? `<a href="https://wa.me/${waP}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success" title="ווטסאפ" aria-label="ווטסאפ"><i class="bi bi-whatsapp"></i></a>` : ''}${sms ? `<a href="sms:${p}" class="btn btn-sm btn-outline-info" title="SMS" aria-label="SMS"><i class="bi bi-chat-text"></i></a>` : ''}</span>`;
+  },
+
+  // Flash a "saved" pulse ring on an element
+  flashSaved(el) {
+    if (!el) return;
+    el.classList.remove('saved-pulse');
+    void el.offsetWidth;
+    el.classList.add('saved-pulse');
+    setTimeout(() => el.classList.remove('saved-pulse'), 750);
+  },
+
   /* ---- Chart helpers: shared RTL tooltip + empty-state placeholder + a11y table ---- */
   chartTooltip(mode = 'absolute') {
     return {

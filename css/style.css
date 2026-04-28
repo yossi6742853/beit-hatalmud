@@ -4883,8 +4883,302 @@ label .req-asterisk { color: #dc2626; margin-inline-start: 4px; font-weight: 700
   }
 }
 
-/* ===== Hebrew typography + RTL polish ===== */
-body { line-height: 1.65; font-feature-settings: "kern" 1, "liga" 1; }
+/* ===== Hebrew typography + RTL polish (v6.9 marathon Day 1) ===== */
+
+/* Typography tokens */
+:root {
+  --fs-base: 1rem;
+  --fs-ratio: 1.25;  /* Major Third modular scale */
+  --fw-body: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-display: 700;
+  --rhythm: 1.5rem;
+}
+
+/* Modular type scale — h1-h6 with predictable ratios */
+h6 { font-size: var(--fs-base); }
+h5 { font-size: 1.25rem; }
+h4 { font-size: 1.5rem; }
+h3 { font-size: 1.75rem; }
+h2 { font-size: 2rem; }
+h1, .page-header h1 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem); line-height: 1.15; }
+
+/* Font-weight tier strategy — semantic instead of magic numbers */
+body { font-weight: var(--fw-body); }
+.btn, .badge, .form-label, .nav-link, .chip { font-weight: var(--fw-medium); }
+.card-title, .stat-label, th, .modal-title, .table-bht thead th { font-weight: var(--fw-semibold); }
+h1, h2, .stat-value, .login-title, .page-header h1 { font-weight: var(--fw-display); }
+
+/* Optical letter-spacing — negative tracking on display, positive on caps/badges */
+h1, h2, .login-title, .stat-card .stat-value { letter-spacing: -0.015em; }
+h3, h4 { letter-spacing: -0.01em; }
+.badge, .chip, .table-bht thead th, .stat-label { letter-spacing: 0.03em; }
+
+/* Vertical rhythm — baseline-locked spacing */
+h1, h2, h3, h4, h5, h6 { margin-block-start: 0; line-height: 1.25; }
+.card-body > *:last-child, .modal-body > *:last-child { margin-block-end: 0; }
+
+/* Underline polish — avoids collision with Hebrew descenders (ק ך ן) */
+a, .breadcrumb-item a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-skip-ink: auto;
+}
+a:hover { text-decoration-thickness: 2px; text-decoration-color: currentColor; }
+.btn-link, .nav-link { text-decoration-thickness: from-font; }
+
+/* text-wrap balance — eliminates orphans in short Hebrew titles */
+h1, h2, h3, .page-header h1, .modal-title, .card-title, .login-title,
+.empty-state h5, .empty-state-v2 h5 { text-wrap: balance; }
+p, .toast-body, .alert, .stat-label { text-wrap: pretty; }
+.badge, .chip, .btn { white-space: nowrap; }
+
+body {
+  line-height: 1.65;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "ss01" 1, "locl" 1;
+  font-variant-ligatures: common-ligatures contextual;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== Day 1: Visual UI master + Color systems ===== */
+
+/* Surface elevation tiers (cards-on-cards, dropdown-on-modal) */
+:root {
+  --bht-surface-1: #f8f9fa;
+  --bht-surface-2: #ffffff;
+  --bht-surface-3: #fdfdfd;
+  --bht-info-soft: #eff6ff;
+  --bht-success-soft: #ecfdf5;
+  --bht-danger-soft: #fef2f2;
+  --bht-warning-soft: #fffbeb;
+  --bht-chag: #7c3aed;
+  --bht-chag-soft: #f3e8ff;
+  --bht-shabbat: #0891b2;
+  --bht-shabbat-soft: #cffafe;
+  --bht-yarzeit: #475569;
+  --bht-yarzeit-soft: #e2e8f0;
+  --bht-rosh-chodesh: #ca8a04;
+  --bht-rosh-chodesh-soft: #fef9c3;
+  --bht-primary-rgb: 37 99 235;
+}
+[data-theme="dark"] {
+  --bht-surface-1: #161b22;
+  --bht-surface-2: #1c2128;
+  --bht-surface-3: #22272e;
+  --bht-info-soft: #0c2340;
+  --bht-success-soft: #052e1f;
+  --bht-danger-soft: #3b0d0d;
+  --bht-warning-soft: #3a2806;
+  --bht-primary: #60a5fa;       /* lightened for AA on #0d1117 */
+  --bht-primary-light: #1e3a5f;
+}
+[data-palette="cb"] { --bht-primary-rgb: 0 114 178; }
+
+/* Hebrew calendar event tints */
+.event-chag { background: var(--bht-chag-soft); color: var(--bht-chag); border-inline-start: 3px solid var(--bht-chag); }
+.event-shabbat { background: var(--bht-shabbat-soft); color: var(--bht-shabbat); border-inline-start: 3px solid var(--bht-shabbat); }
+.event-yarzeit { background: var(--bht-yarzeit-soft); color: var(--bht-yarzeit); border-inline-start: 3px solid var(--bht-yarzeit); font-style: italic; }
+.event-rosh-chodesh { background: var(--bht-rosh-chodesh-soft); color: var(--bht-rosh-chodesh); border-inline-start: 3px solid var(--bht-rosh-chodesh); }
+
+/* Page-header underline accent */
+.page-header { padding-bottom: 1rem; border-bottom: 1px solid var(--bs-border-color, rgba(0,0,0,.1)); position: relative; margin-bottom: 1.5rem; }
+.page-header::after { content: ''; position: absolute; bottom: -1px; right: 0; width: 64px; height: 3px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 2px; }
+
+/* Card padding standard (premium feel) */
+.card-body { padding: 1.25rem 1.4rem; }
+.card-header { padding: .9rem 1.4rem; background: transparent; border-bottom: 1px solid rgba(0,0,0,.08); font-weight: 600; }
+@media (max-width: 575.98px) { .card-body { padding: 1rem; } }
+
+/* Premium hr with fade edges */
+hr, .hr-soft { border: 0; height: 1px; opacity: 1;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,.12) 15%, rgba(0,0,0,.12) 85%, transparent);
+  margin: 1.25rem 0; }
+[data-theme="dark"] hr, [data-theme="dark"] .hr-soft {
+  background: linear-gradient(90deg, transparent, #30363d 15%, #30363d 85%, transparent); }
+
+/* Alert with leading accent bar */
+.alert { position: relative; overflow: hidden; padding-inline-start: 1.1rem; }
+.alert::before { content: ''; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px; background: currentColor; opacity: .7; }
+
+/* List-group hover slide-indent */
+.list-group-item-action { transition: background .18s, padding-inline-start .18s; position: relative; }
+.list-group-item-action:hover { padding-inline-start: 1.4rem; }
+.list-group-item-action:hover::before { content: ''; position: absolute; inset-inline-start: 0; top: 10%; bottom: 10%; width: 3px; background: #2563eb; border-radius: 0 3px 3px 0; }
+
+/* Section-title eyebrow tier */
+.section-title { display: flex; align-items: center; gap: .6rem; margin: 1.75rem 0 .9rem;
+  font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--bs-secondary, #6c757d); }
+.section-title::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,.1); }
+.section-title i { color: #2563eb; font-size: 1rem; letter-spacing: 0; }
+
+/* Button-group seam consistency */
+.btn-group > .btn + .btn { margin-inline-start: -1px; }
+.btn-group .btn.active { z-index: 2; box-shadow: inset 0 0 0 1px color-mix(in srgb, #2563eb 40%, transparent); }
+
+/* Dark-mode badge/att-btn — fix visible bug where present/absent stay light-pink */
+[data-theme="dark"] .badge-active   { background: #052e1f; color: #86efac; border: 1px solid #064e3b; }
+[data-theme="dark"] .badge-inactive { background: #2a0a0a; color: #fda4af; border: 1px solid #7f1d1d; }
+[data-theme="dark"] .att-btn.present { background: #052e1f; border-color: #16a34a; color: #86efac; }
+[data-theme="dark"] .att-btn.absent  { background: #2a0a0a; border-color: #dc2626; color: #fca5a5; }
+[data-theme="dark"] .att-btn.late    { background: #3a2806; border-color: #d97706; color: #fcd34d; }
+[data-theme="dark"] a { color: #93c5fd; }
+[data-theme="dark"] a:hover { color: #bfdbfe; }
+
+/* Forced-colors mode (Windows High Contrast) — preserve semantic meaning */
+@media (forced-colors: active) {
+  .chip, .badge-active, .badge-inactive, .att-btn { border: 1px solid CanvasText !important; forced-color-adjust: none; }
+  .event-chag, .event-shabbat, .event-yarzeit { outline: 2px solid Highlight; outline-offset: -2px; }
+}
+
+/* ===== Animation polish ===== */
+
+/* Scroll-triggered reveal (paired with IntersectionObserver in utils.js) */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity .5s cubic-bezier(.2,.7,.2,1), transform .5s cubic-bezier(.2,.7,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* Button press depth */
+.btn { transition: transform .08s ease-out, box-shadow .15s, background-color .15s, filter .15s; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(1px) scale(.98); box-shadow: inset 0 2px 4px rgba(0,0,0,.12); filter: brightness(.93); }
+
+/* Success pulse (ring-burst) — apply class .saved-pulse for 700ms */
+.saved-pulse { position: relative; animation: savedTint .7s ease-out; }
+.saved-pulse::before { content: ''; position: absolute; inset: -4px; border-radius: inherit; border: 2px solid rgba(34,197,94,.85); animation: savedRing .7s cubic-bezier(.2,.7,.2,1) forwards; pointer-events: none; }
+@keyframes savedRing { 0% { opacity: 1; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.18); } }
+@keyframes savedTint { 0%, 100% { background-color: transparent; } 30% { background-color: rgba(34,197,94,.12); } }
+
+/* Modal backdrop blur */
+.modal-backdrop.show { backdrop-filter: blur(8px) saturate(1.1); -webkit-backdrop-filter: blur(8px) saturate(1.1); }
+
+/* Sticky-header shadow on scroll */
+.topbar { transition: box-shadow .25s, backdrop-filter .25s; }
+body.scrolled .topbar { box-shadow: 0 4px 14px rgba(15,23,42,.08); backdrop-filter: blur(14px) saturate(1.1); }
+
+/* ===== Tablet wins (768-1024px) ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Larger tap targets between phone-44 and desktop-32 */
+  .btn { min-height: 40px; }
+  .btn-sm { min-height: 36px; padding: .45rem .85rem; }
+  .table td, .table th { padding: .85rem .6rem; }
+  .nav-link, .dropdown-item, .list-group-item-action { min-height: 44px; }
+  /* Two-col form layout — use horizontal space */
+  .modal-body .row.g-3 > .col-md-4 { flex: 0 0 50%; max-width: 50%; }
+}
+
+/* Skip hover transforms on touch devices (iPad portrait reports any-hover:none) */
+@media (any-hover: none) {
+  .card:hover, .btn:hover, .list-group-item:hover, tr:hover {
+    transform: none !important;
+  }
+}
+
+/* ===== Native-feel tap states (mobile) ===== */
+@media (hover: none) {
+  .btn, .list-group-item, .card[role="button"], .sidebar-link, #mobile-bottom-nav a {
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .08s, background-color .12s, filter .12s;
+  }
+  .btn:active { transform: scale(.96); filter: brightness(.92); }
+  #mobile-bottom-nav a:active { transform: scale(.9); }
+  a, button { touch-action: manipulation; }
+}
+
+/* Sticky search-pill at top of list pages on mobile */
+@media (max-width: 991.98px) {
+  .search-box {
+    position: sticky;
+    top: calc(56px + env(safe-area-inset-top, 0));
+    z-index: 1025;
+    background: var(--bs-body-bg, #fff);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    border-radius: 0 0 999px 999px;
+  }
+}
+
+/* Pull-to-refresh spin */
+.spin-anim { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Auto-hide top navbar on scroll-down (mobile) */
+#main-navbar { transition: transform .25s ease; }
+
+/* ===== Dark mode polish (Day 1-9) ===== */
+
+/* Chart canvas dim — reduces glare on #0d1117 */
+[data-theme="dark"] .chart-container canvas,
+[data-theme="dark"] canvas { filter: brightness(.88) saturate(.92) contrast(1.05); }
+
+/* Focus ring glow on dark (cyan halo) */
+[data-theme="dark"] :focus-visible {
+  outline-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56,189,248,.25);
+}
+
+/* Gradient drift — primary too dim on dark */
+[data-theme="dark"] {
+  --bht-gradient-primary: linear-gradient(135deg, #60a5fa, #a78bfa);
+  --bht-gradient-info: linear-gradient(135deg, #38bdf8, #22d3ee);
+}
+
+/* Empty-state icons + illustration brightness */
+[data-theme="dark"] .empty-state i, [data-theme="dark"] .empty-state-v2 i { opacity: .65; color: #94a3b8; }
+[data-theme="dark"] img.illustration, [data-theme="dark"] .empty-state img { filter: brightness(.9) contrast(1.1); }
+
+/* Scrollbar corner + track */
+[data-theme="dark"] ::-webkit-scrollbar-corner { background: #0d1117; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: rgba(255,255,255,.02); }
+
+/* mark highlight (search live-filter) */
+[data-theme="dark"] mark, [data-theme="dark"] .mark {
+  background: rgba(250,204,21,.25);
+  color: #fde68a;
+  padding: 0 .2em;
+  border-radius: 3px;
+}
+
+/* blockquote + hr drift */
+[data-theme="dark"] blockquote {
+  border-right: 4px solid #38bdf8;
+  background: rgba(56,189,248,.06);
+  color: var(--bs-secondary-color, #adb5bd);
+  padding: .75rem 1rem;
+}
+[data-theme="dark"] hr {
+  background: linear-gradient(90deg, transparent, #475569 50%, transparent);
+}
+
+/* ===== Print quality (Day 1-10) ===== */
+@media print {
+  /* Paper-size switcher via body data-attr */
+  body[data-paper="letter"] { @page { size: Letter; margin: 0.75in; } }
+  body[data-paper="a4-landscape"] { @page { size: A4 landscape; margin: 1cm 1.5cm; } }
+
+  /* Diagonal watermark via data-watermark attr (טיוטה / מוסדי / סודי) */
+  body[data-watermark]::before {
+    content: attr(data-watermark);
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    font: 700 96pt Heebo, serif;
+    color: rgba(0,0,0,.07);
+    transform: rotate(-32deg);
+    z-index: 9999;
+    pointer-events: none;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+
+  /* Typographic polish */
+  p, li, dd { orphans: 3; widows: 3; }
+  h1 + p, h2 + p, h3 + p { page-break-before: avoid; break-before: avoid; }
+  table.pc-table, table.table-bht { table-layout: fixed; word-wrap: break-word; }
+  tr { page-break-inside: avoid; break-inside: avoid; }
+  caption { caption-side: top; font-weight: 700; color: #000; }
+}
 .table, .stat-value, .badge, td, th, .dialer-display, .chip {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;

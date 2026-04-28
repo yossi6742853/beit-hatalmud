@@ -96,6 +96,8 @@ const App = {
       this.initFormDrafts();
       this.initMobileEnhancements();
       this.initModalFocusReturn();
+      this.initScrollClass();
+      this.initAutoHideNavbar();
       this._enhanceA11yForms(document.body);
       this._initDriveCatalogIndex();
     } catch(e) {
@@ -1223,6 +1225,27 @@ const App = {
         try { lastTrigger.focus(); } catch(e) { /* silent */ }
       }
     });
+  },
+
+  // Sticky-header shadow on scroll
+  initScrollClass() {
+    addEventListener('scroll', () => {
+      document.body.classList.toggle('scrolled', scrollY > 4);
+    }, { passive: true });
+  },
+
+  // Auto-hide mobile navbar on scroll-down, reveal on scroll-up
+  initAutoHideNavbar() {
+    let lastY = 0;
+    const nav = document.getElementById('main-navbar');
+    if (!nav) return;
+    addEventListener('scroll', () => {
+      if (innerWidth >= 992) { nav.style.transform = ''; return; }
+      const y = scrollY;
+      if (y > 80 && y > lastY) nav.style.transform = 'translateY(-100%)';
+      else nav.style.transform = '';
+      lastY = y;
+    }, { passive: true });
   },
 
   // Mobile enhancements: keyboard-aware focus scroll + haptic on critical taps
