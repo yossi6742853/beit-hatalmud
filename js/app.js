@@ -267,9 +267,30 @@ const App = {
             if (result && result.catch) result.catch(e => console.error('Page init error:', page, e));
           } catch(e) { console.error('Page init error:', page, e); }
         }
+        this._enhanceA11y(content);
       } else {
         content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
       }
+    });
+  },
+
+  // Promote title -> aria-label on icon-only buttons/links so screen readers announce them
+  _enhanceA11y(root) {
+    if (!root) return;
+    root.querySelectorAll('button[title], a[title]').forEach(el => {
+      if (el.hasAttribute('aria-label')) return;
+      const txt = (el.textContent || '').replace(/\s+/g, '').trim();
+      if (txt) return;  // has visible text \u2014 title is supplementary
+      const t = el.getAttribute('title');
+      if (t) el.setAttribute('aria-label', t);
+    });
+    // Bare icon buttons with no title at all \u2014 fall back to icon class hint (very last resort)
+    root.querySelectorAll('button:not([aria-label]):not([title]), a.btn:not([aria-label]):not([title])').forEach(el => {
+      if ((el.textContent || '').trim()) return;
+      const icon = el.querySelector('i.bi');
+      if (!icon) return;
+      const cls = [...icon.classList].find(c => c.startsWith('bi-'));
+      if (cls) el.setAttribute('aria-label', cls.replace(/^bi-/, '').replace(/-/g, ' '));
     });
   },
 
