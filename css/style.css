@@ -4637,3 +4637,7 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .email-row:hover { background: #253347 !important; }
 [data-theme="dark"] #email-folders .list-group-item { background: #0f172a; border-color: #334155; color: #e2e8f0; }
 [data-theme="dark"] #email-folders .list-group-item.active { background: #1e3a5f; border-color: #3b82f6; }
+
+/* ===== Dark Mode Print Center ===== */
+[data-theme="dark"] .pc-template-card { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .pc-template-card:hover { background: #253347; }
