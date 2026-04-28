@@ -678,6 +678,7 @@ Object.assign(Pages, {
   },
 
   async savePayment(editId) {
+    if (!Utils.acquireLock('savePayment')) return;
     const sel = document.getElementById('ff-student');
     const status = document.getElementById('ff-status').value;
     const row = {
@@ -692,7 +693,7 @@ Object.assign(Pages, {
       '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('ff-notes').value.trim(),
       '\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD': status === '\u05E9\u05D5\u05DC\u05DD' ? Utils.todayISO() : ''
     };
-    if (!row['\u05E9\u05DD'] || !row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); return; }
+    if (!row['\u05E9\u05DD'] || !row['\u05E1\u05DB\u05D5\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E0\u05EA\u05D5\u05E0\u05D9\u05DD','warning'); Utils.releaseLock('savePayment'); return; }
     try {
       if (editId) {
         await App.apiCall('update', '\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3', { id: editId, row });
@@ -703,6 +704,7 @@ Object.assign(Pages, {
       Utils.toast(editId ? '\u05EA\u05E9\u05DC\u05D5\u05DD \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05D5\u05E1\u05E3');
       this.financeInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    finally { Utils.releaseLock('savePayment'); }
   },
 
   async deletePayment(id) {
