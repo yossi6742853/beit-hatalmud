@@ -372,7 +372,7 @@ Object.assign(Pages, {
         try {
           this._mealsDemoMenu = JSON.parse(saved);
           hasData = true;
-        } catch(e) {}
+        } catch(e) { /* silent */ }
       }
     }
 

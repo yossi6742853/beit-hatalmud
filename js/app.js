@@ -103,17 +103,17 @@ const App = {
     document.getElementById('landing-page').classList.add('d-none');
     document.getElementById('login-screen').classList.add('d-none');
     document.getElementById('app-shell').classList.remove('d-none');
-    try { this.startSessionTimer(); } catch(e) {}
+    try { this.startSessionTimer(); } catch(e) { /* silent */ }
     this.handleRoute();
-    try { this.loadNotifications(); } catch(e) {}
-    try { this.updateNotifBadgeFromStorage(); } catch(e) {}
-    try { this.updateSyncStatus(); } catch(e) {}
-    try { this._startPreload(); } catch(e) {}
+    try { this.loadNotifications(); } catch(e) { /* silent */ }
+    try { this.updateNotifBadgeFromStorage(); } catch(e) { /* silent */ }
+    try { this.updateSyncStatus(); } catch(e) { /* silent */ }
+    try { this._startPreload(); } catch(e) { /* silent */ }
     // Hebrew date in topbar
     try {
       const hd = document.getElementById('topbar-hebrew-date');
       if (hd && typeof Utils !== 'undefined' && Utils.hebrewDateFull) hd.textContent = Utils.hebrewDateFull();
-    } catch(e) {}
+    } catch(e) { /* silent */ }
     // Email unread badge in sidebar
     try {
       const emailBadge = document.getElementById('sidebar-email-badge');
@@ -122,7 +122,7 @@ const App = {
         emailBadge.textContent = unread || '';
         emailBadge.classList.toggle('d-none', !unread);
       }
-    } catch(e) {}
+    } catch(e) { /* silent */ }
   },
 
   startSessionTimer() {
@@ -146,7 +146,7 @@ const App = {
       const unread = notifs.filter(n => !n.read).length;
       if (unread > 0) { badge.textContent = unread; badge.classList.remove('d-none'); }
       else { badge.classList.add('d-none'); }
-    } catch(e) {}
+    } catch(e) { /* silent */ }
   },
 
   handleLogin() {
@@ -167,7 +167,7 @@ const App = {
       if (students) msg += ` ${students} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD.`;
       if (emails) msg += ` ${emails} \u05DE\u05D9\u05D9\u05DC\u05D9\u05DD \u05D7\u05D3\u05E9\u05D9\u05DD.`;
       Utils.toast(msg, 'success');
-    } catch(e) {}
+    } catch(e) { /* silent */ }
   },
 
   logout() {
@@ -224,7 +224,7 @@ const App = {
               const saved = JSON.parse(localStorage.getItem('bht_sidebar_cats') || '{}');
               saved[cat.dataset.cat] = true;
               localStorage.setItem('bht_sidebar_cats', JSON.stringify(saved));
-            } catch(e){}
+            } catch(e) { /* silent */ }
           }
         }
       }
@@ -241,13 +241,13 @@ const App = {
     });
 
     // Destroy old charts (App.charts + Pages._XXX chart instances)
-    Object.values(this.charts).forEach(c => { try { c.destroy(); } catch(e){} });
+    Object.values(this.charts).forEach(c => { try { c.destroy(); } catch(e) { /* silent */ } });
     this.charts = {};
     // Cleanup chart instances stored on Pages object
     const chartKeys = ['_donChartMonth','_donChartMethod','_rankChart','_mvzChartLine','_mvzChartBar',
       '_pcMonthlyChart','_pcCatChart','_ppChartCollection','_ppChartMonthly','_salChartInstance'];
-    chartKeys.forEach(k => { if (Pages[k]) { try { Pages[k].destroy(); } catch(e){} Pages[k] = null; } });
-    if (Pages._gbCharts) { Object.values(Pages._gbCharts).forEach(c => { try { c.destroy(); } catch(e){} }); Pages._gbCharts = {}; }
+    chartKeys.forEach(k => { if (Pages[k]) { try { Pages[k].destroy(); } catch(e) { /* silent */ } Pages[k] = null; } });
+    if (Pages._gbCharts) { Object.values(Pages._gbCharts).forEach(c => { try { c.destroy(); } catch(e) { /* silent */ } }); Pages._gbCharts = {}; }
 
     this.currentPage = page;
     this.trackRecentPage(page);
@@ -394,7 +394,7 @@ const App = {
       // Return cached even if expired
       const stale = localStorage.getItem(cacheKey);
       if (stale) {
-        try { return JSON.parse(stale).data; } catch(e) {}
+        try { return JSON.parse(stale).data; } catch(e) { /* silent */ }
       }
       return [];
     } finally {
@@ -966,7 +966,7 @@ const App = {
   initSidebarCategories() {
     const STORAGE_KEY = 'bht_sidebar_cats';
     let saved = {};
-    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { /* silent */ }
 
     document.querySelectorAll('.sidebar-category').forEach(cat => {
       const key = cat.dataset.cat;
@@ -1174,7 +1174,7 @@ const App = {
     if (['student','staff_card','parent_card'].includes(page)) return; // skip sub-pages
     const key = 'bht_recent_pages';
     let recent = [];
-    try { recent = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){}
+    try { recent = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { /* silent */ }
     recent = recent.filter(p => p !== page);
     recent.unshift(page);
     recent = recent.slice(0, 5);
@@ -1216,7 +1216,7 @@ const App = {
     let latest = 0;
     Object.keys(localStorage).forEach(k => {
       if (k.startsWith(this.CACHE_PREFIX)) {
-        try { const {ts} = JSON.parse(localStorage.getItem(k)); if (ts > latest) latest = ts; } catch(e){}
+        try { const {ts} = JSON.parse(localStorage.getItem(k)); if (ts > latest) latest = ts; } catch(e) { /* silent */ }
       }
     });
     if (latest) {

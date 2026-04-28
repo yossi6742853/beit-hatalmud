@@ -666,7 +666,7 @@ Object.assign(Pages, {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', `\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 ${count} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD?`)) return;
     let deleted = 0;
     for (const id of this._studentsSelected) {
-      try { await App.apiCall('delete', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { id }); deleted++; } catch (e) {}
+      try { await App.apiCall('delete', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { id }); deleted++; } catch(e) { /* silent */ }
     }
     this._studentsSelected.clear();
     Utils.toast(`${deleted} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05DE\u05D7\u05E7\u05D5`);
@@ -801,7 +801,7 @@ Object.assign(Pages, {
       const cls = (parts[1] || '').trim();
       const row = { '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': nameParts[0] || '', '\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4': nameParts.slice(1).join(' ') || '', '\u05DB\u05D9\u05EA\u05D4': cls, '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05E4\u05E2\u05D9\u05DC' };
       if (row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']) {
-        try { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); added++; } catch (e) {}
+        try { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); added++; } catch(e) { /* silent */ }
       }
     }
     bootstrap.Modal.getInstance(document.getElementById('bulk-student-modal'))?.hide();
@@ -885,7 +885,7 @@ Object.assign(Pages, {
         '\u05DB\u05EA\u05D5\u05D1\u05EA': r['\u05DB\u05EA\u05D5\u05D1\u05EA'] || '',
         '\u05DE\u05D2\u05D3\u05E8': r['\u05DE\u05D2\u05D3\u05E8'] || '',
       };
-      try { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); added++; } catch (e) {}
+      try { await App.apiCall('add', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { row }); added++; } catch(e) { /* silent */ }
     }
     bootstrap.Modal.getInstance(document.getElementById('import-csv-modal'))?.hide();
     Utils.toast(`${added} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05D9\u05D5\u05D1\u05D0\u05D5`);
@@ -2078,7 +2078,7 @@ Object.assign(Pages, {
           parentName = ((match['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (match['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
           if (!parentPhone) parentPhone = match['\u05D8\u05DC\u05E4\u05D5\u05DF'] || '';
         }
-      } catch(e) {}
+      } catch(e) { /* silent */ }
     }
 
     document.body.insertAdjacentHTML('beforeend', `

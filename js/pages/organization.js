@@ -374,7 +374,7 @@ Object.assign(Pages, {
     };
     if (!App.store) App.store = {};
     App.store.orgInfo = info;
-    try { localStorage.setItem('bht_org_info', JSON.stringify(info)); } catch(e) {}
+    try { localStorage.setItem('bht_org_info', JSON.stringify(info)); } catch(e) { /* silent */ }
 
     // Update display
     document.getElementById('org-name').textContent = info.name || this._orgDemoInfo.name;
@@ -3098,7 +3098,7 @@ Object.assign(Pages, {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D5\u05E2\u05D3\u05D4 \u05D6\u05D5?')) return;
     this._commtData = this._commtData.filter(c => c.id !== id);
     this._commMeetings = this._commMeetings.filter(m => m.committeeId !== id);
-    try { await App.apiCall('delete','\u05D5\u05E2\u05D3\u05D5\u05EA',{id}); } catch(e) {}
+    try { await App.apiCall('delete','\u05D5\u05E2\u05D3\u05D5\u05EA',{id}); } catch(e) { /* silent */ }
     Utils.toast('\u05E0\u05DE\u05D7\u05E7');
     this.renderCommittees();
   },

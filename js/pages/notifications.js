@@ -35,7 +35,7 @@ Object.assign(Pages, {
     try {
       const raw = localStorage.getItem(this._notifLS);
       if (raw) return JSON.parse(raw);
-    } catch(e) {}
+    } catch(e) { /* silent */ }
     if (this._notifUseDemo) {
       const data = JSON.parse(JSON.stringify(this._defaultNotifications));
       this._saveNotifications(data);
@@ -45,14 +45,14 @@ Object.assign(Pages, {
   },
 
   _saveNotifications(data) {
-    try { localStorage.setItem(this._notifLS, JSON.stringify(data)); } catch(e) {}
+    try { localStorage.setItem(this._notifLS, JSON.stringify(data)); } catch(e) { /* silent */ }
   },
 
   _getPrefs() {
     try {
       const raw = localStorage.getItem(this._notifPrefsLS);
       if (raw) return JSON.parse(raw);
-    } catch(e) {}
+    } catch(e) { /* silent */ }
     return {
       attendance: true, finance: true, academic: true,
       parent: true, system: true, task: true,
@@ -61,7 +61,7 @@ Object.assign(Pages, {
   },
 
   _savePrefs(prefs) {
-    try { localStorage.setItem(this._notifPrefsLS, JSON.stringify(prefs)); } catch(e) {}
+    try { localStorage.setItem(this._notifPrefsLS, JSON.stringify(prefs)); } catch(e) { /* silent */ }
   },
 
   _relativeTime(ts) {

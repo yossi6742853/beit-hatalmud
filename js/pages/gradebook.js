@@ -495,7 +495,7 @@ Object.assign(Pages, {
     document.getElementById('gb-sm-details').innerHTML = detailHtml;
 
     // Chart
-    if (this._gbCharts.student) { try { this._gbCharts.student.destroy(); } catch(e){} }
+    if (this._gbCharts.student) { try { this._gbCharts.student.destroy(); } catch(e) { /* silent */ } }
     const ctx = document.getElementById('gb-student-chart');
     if (ctx && typeof Chart !== 'undefined') {
       this._gbCharts.student = new Chart(ctx, {
@@ -526,7 +526,7 @@ Object.assign(Pages, {
 
   /* ---- Distribution Chart ---- */
   _renderGbDistChart(allGrades) {
-    if (this._gbCharts.dist) { try { this._gbCharts.dist.destroy(); } catch(e){} }
+    if (this._gbCharts.dist) { try { this._gbCharts.dist.destroy(); } catch(e) { /* silent */ } }
     const ctx = document.getElementById('gb-dist-chart');
     if (!ctx || typeof Chart === 'undefined') return;
 

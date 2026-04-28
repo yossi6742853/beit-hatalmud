@@ -1592,7 +1592,7 @@ Object.assign(Pages, {
       if (this._aiHistory.length) {
         this._aiRenderAll();
       }
-    } catch(e) {}
+    } catch(e) { /* silent */ }
   },
 
   _aiSimulateTyping(finalHtml) {
@@ -1948,7 +1948,7 @@ Object.assign(Pages, {
       const responseCount = f['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || 0;
       const created = f['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D9\u05E6\u05D9\u05E8\u05D4'] || '';
       let fieldsCount = 0;
-      try { const fields = JSON.parse(f['\u05E9\u05D3\u05D5\u05EA'] || '[]'); fieldsCount = fields.length; } catch(e) {}
+      try { const fields = JSON.parse(f['\u05E9\u05D3\u05D5\u05EA'] || '[]'); fieldsCount = fields.length; } catch(e) { /* silent */ }
       return `<div class="col-md-6 col-lg-4">
         <div class="card h-100" style="border-top:4px solid ${color}">
           <div class="card-body p-3">
@@ -2230,7 +2230,7 @@ Object.assign(Pages, {
     const form = this._formsData.find(f => Utils.rowId(f) === id);
     if (!form) return;
     let fields = [];
-    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) { /* silent */ }
     const color = form['\u05E6\u05D1\u05E2'] || '#4285f4';
     const title = form['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '';
     const desc = form['\u05EA\u05D9\u05D0\u05D5\u05E8'] || '';
@@ -2286,7 +2286,7 @@ Object.assign(Pages, {
 
     const form = this._formsData.find(f => Utils.rowId(f) === formId);
     let fields = [];
-    try { fields = JSON.parse((form || {})['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+    try { fields = JSON.parse((form || {})['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) { /* silent */ }
 
     badge.textContent = this._formResponses.length + ' \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA';
     badge.style.display = '';
@@ -2307,7 +2307,7 @@ Object.assign(Pages, {
           <thead><tr>${headerCols.map(h => `<th>${h}</th>`).join('')}</tr></thead>
           <tbody>${this._formResponses.map(resp => {
             let respData = {};
-            try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) {}
+            try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) { /* silent */ }
             const date = resp['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
             const name = resp['\u05E9\u05DD'] || '';
             const fieldValues = fields.map(f => {
@@ -2328,12 +2328,12 @@ Object.assign(Pages, {
     const form = this._formsData.find(f => Utils.rowId(f) === formId);
     if (!form || !this._formResponses.length) { Utils.toast('\u05D0\u05D9\u05DF \u05EA\u05E9\u05D5\u05D1\u05D5\u05EA \u05DC\u05D9\u05D9\u05E6\u05D5\u05D0', 'info'); return; }
     let fields = [];
-    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) {}
+    try { fields = JSON.parse(form['\u05E9\u05D3\u05D5\u05EA'] || '[]'); } catch(e) { /* silent */ }
 
     const headers = ['\u05EA\u05D0\u05E8\u05D9\u05DA', '\u05E9\u05DD \u05DE\u05DE\u05DC\u05D0', ...fields.map(f => f.label)];
     const rows = this._formResponses.map(resp => {
       let respData = {};
-      try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) {}
+      try { respData = JSON.parse(resp['\u05EA\u05E9\u05D5\u05D1\u05D5\u05EA'] || '{}'); } catch(e) { /* silent */ }
       return [
         resp['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '',
         resp['\u05E9\u05DD'] || '',

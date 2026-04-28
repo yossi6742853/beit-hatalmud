@@ -264,7 +264,7 @@ Object.assign(Pages, {
 
     // Load real schedule data from מערכת_שעות
     let scheduleData = [];
-    try { scheduleData = _gc('מערכת_שעות'); } catch (e) {}
+    try { scheduleData = _gc('מערכת_שעות'); } catch(e) { /* silent */ }
 
     const scheduleMap = {};
     if (scheduleData.length > 0) {
@@ -455,7 +455,7 @@ Object.assign(Pages, {
   showStaffDocs(sid, name) {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let staffDocs = [];
-    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch(e) { /* silent */ }
     const docs = staffDocs.filter(d => d['מזהה_עובד'] === sid || d['שם_עובד'] === name);
     const requiredDocs = ['תעודת זהות', 'תעודת משטרה', 'תלוש משכורת', 'אישור משטרה'];
     const hasDocTypes = docs.map(d => d['סוג_מסמך'] || '');
@@ -663,7 +663,7 @@ Object.assign(Pages, {
   staff_cardInit(id) {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let staff = [];
-    try { staff = _gc('צוות'); } catch(e) {}
+    try { staff = _gc('צוות'); } catch(e) { /* silent */ }
     if (!staff) staff = [];
     const s = staff.find(x => String(Utils.rowId(x)) === String(id) || String(x.id) === String(id));
     if (!s) {
@@ -680,7 +680,7 @@ Object.assign(Pages, {
 
     // Try to get attendance record
     let attData = [];
-    try { attData = _gc('נוכחות_צוות'); } catch (e) {}
+    try { attData = _gc('נוכחות_צוות'); } catch(e) { /* silent */ }
     const myAtt = attData.filter(a => a['שם_עובד'] === name || a['מזהה_עובד'] === String(id));
     const presentDays = myAtt.filter(a => a['סטטוס'] === 'נוכח').length;
     const totalDays = myAtt.length || 1;
@@ -688,7 +688,7 @@ Object.assign(Pages, {
 
     // Try to get documents
     let staffDocs = [];
-    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch(e) { /* silent */ }
     const docs = staffDocs.filter(d => d['מזהה_עובד'] === String(id) || d['שם_עובד'] === name);
 
     document.getElementById('staff-card-content').innerHTML = `
@@ -920,10 +920,10 @@ Object.assign(Pages, {
   staff_salaryInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     let realData = [];
-    try { realData = _gc('\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA'); } catch (e) {}
+    try { realData = _gc('\u05E9\u05DB\u05E8_\u05E6\u05D5\u05D5\u05EA'); } catch(e) { /* silent */ }
     // Resolve real staff names from צוות sheet
     let staffList = [];
-    try { staffList = _gc('\u05E6\u05D5\u05D5\u05EA'); } catch (e) {}
+    try { staffList = _gc('\u05E6\u05D5\u05D5\u05EA'); } catch(e) { /* silent */ }
     const staffMap = {};
     (staffList || []).forEach(st => {
       const sid = String(Utils.rowId(st) || st['id'] || '');
@@ -1473,7 +1473,7 @@ Object.assign(Pages, {
     // Quick missing docs check
     const staff = this._staffData || [];
     let staffDocs = [];
-    try { staffDocs = _gc('מסמכי_צוות'); } catch (e) {}
+    try { staffDocs = _gc('מסמכי_צוות'); } catch(e) { /* silent */ }
     const requiredDocs = ['תעודת זהות', 'תעודת משטרה', 'תלוש משכורת', 'אישור משטרה'];
     const missing = [];
     staff.forEach(s => {

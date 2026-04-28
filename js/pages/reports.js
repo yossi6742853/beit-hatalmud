@@ -290,7 +290,7 @@ Object.assign(Pages, {
     // Destroy old charts
     Object.keys(App.charts).forEach(k => {
       if (k.startsWith('rpt-')) {
-        try { App.charts[k].destroy(); } catch(e) {}
+        try { App.charts[k].destroy(); } catch(e) { /* silent */ }
         delete App.charts[k];
       }
     });

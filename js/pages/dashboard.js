@@ -732,7 +732,7 @@ Object.assign(Pages, {
           `<div class="col-md-4"><div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3"><i class="bi bi-speedometer2 text-info fs-4"></i><div class="flex-grow-1"><small class="text-muted d-block">\u05D6\u05DE\u05DF \u05D8\u05E2\u05D9\u05E0\u05D4</small><span class="fw-bold">${loadTime > 0 ? loadTime + 'ms' : '\u05DE\u05D4\u05D9\u05E8'}</span></div></div></div>`
         );
       }
-    } catch(e) {}
+    } catch(e) { /* silent */ }
 
     // Last backup (use store timestamp)
     const lastSync = App.store && App.store._lastSync

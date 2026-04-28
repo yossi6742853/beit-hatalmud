@@ -193,7 +193,7 @@ Object.assign(Pages, {
     if (this._medData !== null) return this._medData;
     const stored = localStorage.getItem(this._MED_STORAGE_KEY);
     if (stored) {
-      try { this._medData = JSON.parse(stored); return this._medData; } catch(e) {}
+      try { this._medData = JSON.parse(stored); return this._medData; } catch(e) { /* silent */ }
     }
     this._medData = this._medDemoData();
     this._saveMedData();
@@ -204,7 +204,7 @@ Object.assign(Pages, {
     if (this._medEvents !== null) return this._medEvents;
     const stored = localStorage.getItem(this._MED_EVENTS_KEY);
     if (stored) {
-      try { this._medEvents = JSON.parse(stored); return this._medEvents; } catch(e) {}
+      try { this._medEvents = JSON.parse(stored); return this._medEvents; } catch(e) { /* silent */ }
     }
     this._medEvents = this._medDemoEvents();
     this._saveMedEvents();
@@ -215,7 +215,7 @@ Object.assign(Pages, {
     if (this._medVaccines !== null) return this._medVaccines;
     const stored = localStorage.getItem(this._MED_VACCINES_KEY);
     if (stored) {
-      try { this._medVaccines = JSON.parse(stored); return this._medVaccines; } catch(e) {}
+      try { this._medVaccines = JSON.parse(stored); return this._medVaccines; } catch(e) { /* silent */ }
     }
     this._medVaccines = this._medDemoVaccines();
     this._saveMedVaccines();

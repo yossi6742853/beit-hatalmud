@@ -402,7 +402,7 @@ Object.assign(Pages, {
       Utils.toast('\u05E1\u05E8\u05D8\u05D5\u05DF \u05E1\u05D5\u05DE\u05DF \u05DB\u05E0\u05E6\u05E4\u05D4!', 'success');
     }
     // persist to localStorage
-    try { localStorage.setItem('bht_vid_watched', JSON.stringify(this._vidWatched)); } catch(e) {}
+    try { localStorage.setItem('bht_vid_watched', JSON.stringify(this._vidWatched)); } catch(e) { /* silent */ }
     App.store?.set?.('vid_watched', JSON.stringify(this._vidWatched));
     this._vidRender();
   },

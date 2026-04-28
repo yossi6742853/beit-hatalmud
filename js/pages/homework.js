@@ -250,7 +250,7 @@ Object.assign(Pages, {
             return s;
           });
         }
-      } catch(e) {}
+      } catch(e) { /* silent */ }
     }
 
     // Empty state with nice UI and quick-add form

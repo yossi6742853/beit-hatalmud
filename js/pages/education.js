@@ -507,7 +507,7 @@ Object.assign(Pages, {
       try {
         await this.saveGrade(examId, sid, name.replace(/'/g, ''), true);
         saved++;
-      } catch(e) {}
+      } catch(e) { /* silent */ }
     }
     Utils.toast(`${saved} \u05E6\u05D9\u05D5\u05E0\u05D9\u05DD \u05E0\u05E9\u05DE\u05E8\u05D5`);
     if (!this._acaUseDemo) {
@@ -598,7 +598,7 @@ Object.assign(Pages, {
     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     // Destroy old chart
-    if (App.charts.acaDist) { try { App.charts.acaDist.destroy(); } catch(e) {} }
+    if (App.charts.acaDist) { try { App.charts.acaDist.destroy(); } catch(e) { /* silent */ } }
 
     const ctx = document.getElementById('aca-dist-chart');
     if (ctx && typeof Chart !== 'undefined') {
@@ -726,7 +726,7 @@ Object.assign(Pages, {
     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     // Bar chart
-    if (App.charts.acaStudent) { try { App.charts.acaStudent.destroy(); } catch(e) {} }
+    if (App.charts.acaStudent) { try { App.charts.acaStudent.destroy(); } catch(e) { /* silent */ } }
     const ctx = document.getElementById('aca-student-chart');
     if (ctx && typeof Chart !== 'undefined' && gradeData.length) {
       App.charts.acaStudent = new Chart(ctx, {

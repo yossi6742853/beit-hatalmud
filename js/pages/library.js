@@ -199,7 +199,7 @@ Object.assign(Pages, {
   _libSaveToStorage() {
     try {
       localStorage.setItem('bht_library_data', JSON.stringify({ books: this._libBooks, loans: this._libLoans }));
-    } catch(e) {}
+    } catch(e) { /* silent */ }
   },
 
   /* ---- Auto-detect overdue based on today ---- */

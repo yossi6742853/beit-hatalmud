@@ -250,7 +250,7 @@ Object.assign(Pages, {
   },
 
   _invSaveToStorage() {
-    try { localStorage.setItem('bht_inventory_data', JSON.stringify(this._invData)); } catch(e) {}
+    try { localStorage.setItem('bht_inventory_data', JSON.stringify(this._invData)); } catch(e) { /* silent */ }
   },
 
   _invBuildLocationFilter() {
