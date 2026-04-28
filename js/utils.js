@@ -12,6 +12,26 @@ const Utils = {
     }, 0) % 10 === 0;
   },
 
+  /* ---- Israeli phone: strip non-digits, validate, format ---- */
+  normalizePhone(input) {
+    if (!input) return '';
+    const digits = String(input).replace(/\D/g, '');
+    // 972XXXXXXXXX -> 0XXXXXXXXX (e.g., from international form)
+    if (digits.startsWith('972') && digits.length >= 11) return '0' + digits.slice(3);
+    return digits;
+  },
+  isValidPhone(input) {
+    const d = this.normalizePhone(input);
+    return /^0[2-9]\d{7,8}$/.test(d);  // landline 02-09 or mobile 050-058
+  },
+  formatPhone(input) {
+    const d = this.normalizePhone(input);
+    if (!d) return '';
+    if (d.length === 10) return d.slice(0, 3) + '-' + d.slice(3);
+    if (d.length === 9) return d.slice(0, 2) + '-' + d.slice(2);
+    return d;
+  },
+
   /* ---- Double-submit guard: returns true if currently locked ---- */
   _saving: {},
   acquireLock(key, ms = 1500) {

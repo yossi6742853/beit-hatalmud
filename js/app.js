@@ -292,6 +292,25 @@ const App = {
       const cls = [...icon.classList].find(c => c.startsWith('bi-'));
       if (cls) el.setAttribute('aria-label', cls.replace(/^bi-/, '').replace(/-/g, ' '));
     });
+    this._enhanceForms(root);
+  },
+
+  // Sane min/max + pattern defaults for inputs (data-quality guardrails)
+  _enhanceForms(root) {
+    const today = new Date().toISOString().slice(0, 10);
+    root.querySelectorAll('input[type="date"]:not([min])').forEach(el => {
+      const id = (el.id || '').toLowerCase();
+      const isBirth = /birth|\u05dc\u05d9\u05d3\u05d4|leida/.test(id) || /\u05dc\u05d9\u05d3\u05d4/.test(el.previousElementSibling?.textContent || '');
+      el.min = '1900-01-01';
+      el.max = isBirth ? today : '2099-12-31';
+    });
+    root.querySelectorAll('input[type="tel"]:not([pattern])').forEach(el => {
+      el.pattern = '[\\d\\-\\s\\+\\(\\)]{7,20}';
+      el.title = el.title || '\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df: \u05e1\u05e4\u05e8\u05d5\u05ea, \u05e8\u05d5\u05d5\u05d7\u05d9\u05dd, \u05de\u05e7\u05e4\u05d9\u05dd, \u05e1\u05d5\u05d2\u05e8\u05d9\u05d9\u05dd, +';
+    });
+    root.querySelectorAll('input[type="number"]:not([inputmode])').forEach(el => {
+      el.inputMode = el.step && el.step !== 'any' && parseFloat(el.step) < 1 ? 'decimal' : 'numeric';
+    });
   },
 
   addPageTimer(id) { this._pageTimers.push(id); },
