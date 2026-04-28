@@ -176,20 +176,23 @@ const Utils = {
   toast(message, type = 'success') {
     const icons = { success: 'check-circle-fill', danger: 'exclamation-triangle-fill', warning: 'exclamation-circle-fill', info: 'info-circle-fill' };
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const id = 'toast-' + Date.now();
+    const live = (type === 'danger' || type === 'warning') ? 'assertive' : 'polite';
+    const role = (type === 'danger') ? 'alert' : 'status';
     const html = `
-      <div id="${id}" class="toast toast-bht align-items-center text-bg-${type}" role="alert">
+      <div id="${id}" class="toast toast-bht align-items-center text-bg-${type}" role="${role}" aria-live="${live}" aria-atomic="true">
         <div class="d-flex">
           <div class="toast-body d-flex align-items-center gap-2">
-            <i class="bi bi-${icons[type] || icons.info}"></i>
+            <i class="bi bi-${icons[type] || icons.info}" aria-hidden="true"></i>
             ${message}
           </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="סגור"></button>
         </div>
       </div>`;
     container.insertAdjacentHTML('beforeend', html);
     const el = document.getElementById(id);
-    const toast = new bootstrap.Toast(el, { delay: 3000 });
+    const toast = new bootstrap.Toast(el, { delay: type === 'danger' ? 5000 : 3000 });
     toast.show();
     el.addEventListener('hidden.bs.toast', () => el.remove());
   },

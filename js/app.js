@@ -227,6 +227,7 @@ const App = {
     document.querySelectorAll('.sidebar-link').forEach(el => {
       const isActive = el.dataset.page === page;
       el.classList.toggle('active', isActive);
+      if (isActive) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
       if (isActive) {
         const cat = el.closest('.sidebar-category');
         if (cat) {
@@ -266,6 +267,23 @@ const App = {
 
     this.currentPage = page;
     this.trackRecentPage(page, param);
+    // Update document title (WCAG 2.4.2) + announce to screen readers
+    const pageTitles = { dashboard:'לוח בקרה', students:'תלמידים', attendance:'נוכחות', staff:'צוות',
+      parents:'הורים', finance:'כספים', behavior:'התנהגות', homework:'שיעורי בית', academics:'מבחנים',
+      tasks:'משימות', calendar:'לוח שנה', communications:'תקשורת', reports:'דוחות', settings:'הגדרות',
+      pettycash:'קופה קטנה', budget:'תקציב', trips:'טיולים', mivtza:'מבצע לימוד', rankings:'דירוגים',
+      timetable:'מערכת שעות', documents:'מסמכים', medical:'רפואי', committees:'ועדות',
+      institutions:'מסגרות', forms:'טפסים', email:'דואר', drive:'קבצים', printcenter:'הדפסות',
+      notifications:'התראות', cameras:'מצלמות', phone:'טלפון', help:'עזרה', hub:'מרכז',
+      ai_assistant:'עוזר AI', user_management:'משתמשים', activity_log:'יומן', tala:'תל"א',
+      checklist:'צ\'קליסט', donations:'תרומות', analytics:'ניתוחים', hebrewcal:'לוח עברי',
+      emergency:'חירום', contacts:'אנשי קשר', bulletin:'לוח מודעות', library:'ספרייה',
+      inventory:'מלאי', rewards:'פרסים', gradebook:'גרדבוק', whatsapp:'תקשורת',
+      student:'כרטיס תלמיד', staff_card:'כרטיס איש צוות', parent_card:'כרטיס הורה' };
+    const title = pageTitles[page] || page;
+    document.title = title + ' · בית התלמוד';
+    const announcer = document.getElementById('sr-announcer');
+    if (announcer) announcer.textContent = 'נטען: ' + title;
     const content = document.getElementById('main-content');
 
     // Show skeleton loader while page renders
