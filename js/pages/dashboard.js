@@ -77,6 +77,9 @@ Object.assign(Pages, {
         </div>
       </div>
 
+      <!-- Recent Records (populated by dashboardInit if any) -->
+      <div id="dash-recent-records" class="mb-4" style="display:none"></div>
+
       <!-- Stats Cards Row -->
       <div class="row g-3 mb-4" id="dash-stats">
         <div class="col-6 col-lg-3">
@@ -674,6 +677,28 @@ Object.assign(Pages, {
       noteEl.addEventListener('input', Utils.debounce(() => {
         localStorage.setItem('bht_quick_note', noteEl.value);
       }, 500));
+    }
+
+    // === 6c. Recent Records (student/staff/parent cards visited recently) ===
+    const recentEl = document.getElementById('dash-recent-records');
+    if (recentEl && typeof App !== 'undefined' && App.getRecentRecords) {
+      const records = App.getRecentRecords(8);
+      if (records.length) {
+        const typeIcon = { student: 'bi-person-fill', staff_card: 'bi-person-badge-fill', parent_card: 'bi-house-heart-fill' };
+        const typeColor = { student: 'primary', staff_card: 'success', parent_card: 'warning' };
+        recentEl.style.display = '';
+        recentEl.innerHTML = `<div class="card border-0 shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="bi bi-clock-history text-info"></i>
+              <h6 class="fw-bold mb-0">נצפו לאחרונה</h6>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              ${records.map(r => `<a href="${r.link}" class="btn btn-outline-${typeColor[r.type]||'secondary'} btn-sm d-inline-flex align-items-center gap-2"><i class="bi ${typeIcon[r.type]||'bi-file'}"></i>${Utils.escapeHTML(r.name)}${r.sub ? ` <small class="opacity-75">${Utils.escapeHTML(r.sub)}</small>` : ''}</a>`).join('')}
+            </div>
+          </div>
+        </div>`;
+      }
     }
 
     // === 7. System Health ===
