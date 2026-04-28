@@ -421,11 +421,7 @@ Object.assign(Pages, {
             cutout: '70%',
             plugins: {
               legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: ctx => ctx.label + ': ' + ctx.raw
-                }
-              }
+              tooltip: Utils.chartTooltip('percent')
             }
           }
         });

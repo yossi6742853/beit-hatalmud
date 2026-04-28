@@ -304,9 +304,9 @@ Object.assign(Pages, {
             { label: '\u05E0\u05D2\u05D1\u05D4', data: mKeys.map(m => monthMap[m].collected), backgroundColor: 'rgba(22,163,74,0.7)', borderRadius: 6 }
           ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => '\u20AA' + v.toLocaleString() } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } }, tooltip: Utils.chartTooltip('currency') }, scales: { y: { beginAtZero: true, ticks: { callback: v => Utils.formatCurrency(v) } } } }
       });
-    }
+    } else if (ctxMonthly) Utils.chartEmpty(ctxMonthly, '\u05D0\u05D9\u05DF \u05E0\u05EA\u05D5\u05E0\u05D9 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD', 'cash-stack');
 
     // 2) Payment method pie chart
     const methodMap = {};
@@ -322,9 +322,9 @@ Object.assign(Pages, {
           labels: Object.keys(methodMap),
           datasets: [{ data: Object.values(methodMap), backgroundColor: ['#2563eb','#16a34a','#f59e0b','#dc2626','#8b5cf6','#06b6d4'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } }, tooltip: Utils.chartTooltip('currency') } }
       });
-    }
+    } else if (ctxMethods) Utils.chartEmpty(ctxMethods, 'אין נתוני אמצעי תשלום', 'credit-card');
 
     // 3) Collection rate line chart
     const ctxRate = document.getElementById('fin-chart-rate');
@@ -336,7 +336,7 @@ Object.assign(Pages, {
           labels: mKeys,
           datasets: [{ label: '\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D2\u05D1\u05D9\u05D9\u05D4 %', data: rates, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#16a34a' }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: Utils.chartTooltip('absolute') }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } } }
       });
     }
   },
