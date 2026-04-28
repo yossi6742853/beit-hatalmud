@@ -184,7 +184,7 @@ const App = {
     const el = document.getElementById('login-error');
     el.textContent = msg;
     el.classList.remove('d-none');
-    setTimeout(() => el.classList.add('d-none'), 3000);
+    // Error stays visible until next PIN attempt (Nielsen heuristic #9)
   },
 
   updatePinDots(len) {

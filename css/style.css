@@ -1458,7 +1458,7 @@ body {
 }
 .kanban-card {
   cursor: grab;
-  transition: all .2s ease;
+  transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease, opacity .2s ease;
   border-radius: var(--bht-radius-sm);
   padding: .75rem;
   margin-bottom: .5rem;
@@ -2020,6 +2020,19 @@ body {
 }
 .skip-link:focus { top: 0; }
 /* Reduced motion */
+
+/* Auto dark mode for OS-level preference (Verou recommendation) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bht-body-bg: #0d1117;
+    --bht-card-bg: #161b22;
+    --bht-text: #e6edf3;
+    --bht-text-muted: #8b949e;
+    --bht-border: #30363d;
+    --bht-sidebar-bg: #010409;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
@@ -2620,7 +2633,7 @@ img.lazy-load.loaded {
 .card {
   backdrop-filter: blur(8px);
   background: rgba(255,255,255,.92) !important;
-  transition: all .25s cubic-bezier(.4,0,.2,1);
+  transition: background-color .25s cubic, color .25s cubic, transform .25s cubic, box-shadow .25s cubic, opacity .25s cubic-bezier(.4,0,.2,1);
 }
 [data-theme="dark"] .card {
   background: rgba(30,41,59,.85) !important;
@@ -2837,7 +2850,7 @@ img.lazy-load.loaded {
 .sidebar-link .bi {
   position: relative;
   z-index: 1;
-  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  transition: background-color .3s cubic, color .3s cubic, transform .3s cubic, box-shadow .3s cubic, opacity .3s cubic-bezier(.4, 0, .2, 1);
 }
 .sidebar-link i::before,
 .sidebar-link .bi::before {
@@ -2855,7 +2868,7 @@ img.lazy-load.loaded {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  transition: background-color .3s cubic, color .3s cubic, transform .3s cubic, box-shadow .3s cubic, opacity .3s cubic-bezier(.4, 0, .2, 1);
   flex-shrink: 0;
 }
 .sidebar-link:hover .sidebar-icon-wrap,
@@ -2950,7 +2963,7 @@ img.lazy-load.loaded {
   border-radius: 20px;
   letter-spacing: .02em;
   border: 1px solid rgba(37, 99, 235, .15);
-  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  transition: background-color .3s cubic, color .3s cubic, transform .3s cubic, box-shadow .3s cubic, opacity .3s cubic-bezier(.4, 0, .2, 1);
 }
 .sidebar-cat-header:hover .sidebar-cat-badge {
   background: linear-gradient(135deg, #2563eb, #6366f1) !important;
@@ -4341,8 +4354,7 @@ h5, .h5 { font-size: 1.15rem; }
 }
 
 /* ===== Better Loading States ===== */
-@keyframes shimmer {
-  0% { background-position: -200px 0; }
+/* removed duplicate @keyframes shimmer */
   100% { background-position: calc(200px + 100%) 0; }
 }
 .skeleton-line {
@@ -4359,8 +4371,7 @@ h5, .h5 { font-size: 1.15rem; }
 .fade-in {
   animation: fadeIn .2s ease-out;
 }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+/* removed duplicate @keyframes fadeIn */
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -4376,8 +4387,7 @@ h5, .h5 { font-size: 1.15rem; }
 #sidebar-email-badge:not(:empty) {
   animation: badgePulse 2s ease-in-out infinite;
 }
-@keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
+/* removed duplicate @keyframes badgePulse */
   50% { transform: scale(1.15); }
 }
 
