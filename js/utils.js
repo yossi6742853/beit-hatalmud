@@ -376,7 +376,7 @@ const Utils = {
       </div>`;
     container.insertAdjacentHTML('beforeend', html);
     const el = document.getElementById(id);
-    const toast = new bootstrap.Toast(el, { delay: type === 'danger' ? 5000 : 3000 });
+    const toast = new bootstrap.Toast(el, { delay: type === 'danger' ? 10000 : type === 'warning' ? 7000 : 5000 });
     toast.show();
     el.addEventListener('hidden.bs.toast', () => el.remove());
   },

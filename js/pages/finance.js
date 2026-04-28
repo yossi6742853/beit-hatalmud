@@ -209,11 +209,14 @@ Object.assign(Pages, {
     const projWrap = document.getElementById('fin-projection-wrap');
     if (projWrap) projWrap.innerHTML = this._renderFinProjection(this._finData);
 
-    // Event listeners
-    document.getElementById('fin-search')?.addEventListener('input', Utils.debounce(() => this.renderFinList(), 300));
-    document.getElementById('fin-filter')?.addEventListener('change', () => this.renderFinList());
-    document.getElementById('fin-method-filter')?.addEventListener('change', () => this.renderFinList());
-    document.getElementById('fin-month-filter')?.addEventListener('change', () => this.renderFinList());
+    // Event listeners — bind ONCE to avoid accumulation across re-init (memory leak fix)
+    if (!this._finBound) {
+      this._finBound = true;
+      document.getElementById('fin-search')?.addEventListener('input', Utils.debounce(() => this.renderFinList(), 300));
+      document.getElementById('fin-filter')?.addEventListener('change', () => this.renderFinList());
+      document.getElementById('fin-method-filter')?.addEventListener('change', () => this.renderFinList());
+      document.getElementById('fin-month-filter')?.addEventListener('change', () => this.renderFinList());
+    }
   },
 
   /* ---------- Dashboard KPIs ---------- */

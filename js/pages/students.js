@@ -210,18 +210,25 @@ Object.assign(Pages, {
     const classes = [...new Set(data.map(s => s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
     const classFilter = document.getElementById('students-class-filter');
     if (classFilter) {
-      classes.forEach(c => { classFilter.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`); });
+      // Reset to avoid duplicate options on re-init (memory leak fix)
+      classFilter.innerHTML = '<option value="">\u05DB\u05DC \u05D4\u05DB\u05D9\u05EA\u05D5\u05EA</option>';
+      const frag = document.createDocumentFragment();
+      classes.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; frag.appendChild(o); });
+      classFilter.appendChild(frag);
     }
 
     // Assign class colors
     this._classColors = {};
     classes.forEach(c => this._getClassColor(c));
 
-    // Bind events
-    const render = () => this.renderStudentsList();
-    document.getElementById('students-search')?.addEventListener('input', Utils.debounce(render, 300));
-    document.getElementById('students-class-filter')?.addEventListener('change', render);
-    document.getElementById('students-status-filter')?.addEventListener('change', render);
+    // Bind events ONCE (was leaking listeners on every save/delete re-init)
+    if (!this._studentsBound) {
+      this._studentsBound = true;
+      const render = () => this.renderStudentsList();
+      document.getElementById('students-search')?.addEventListener('input', Utils.debounce(render, 300));
+      document.getElementById('students-class-filter')?.addEventListener('change', render);
+      document.getElementById('students-status-filter')?.addEventListener('change', render);
+    }
 
     // Render stats + list
     this.renderStudentsStats(data, classes);
