@@ -47,14 +47,27 @@ const App = {
     if (typeof Chart !== 'undefined') {
       Chart.defaults.font.family = 'Heebo';
     }
-    // Global error handler + logging
+    // Global error handler + logging + debounced user toast
+    let _errCount = 0, _errTimer = null;
+    const _notifyErr = (label) => {
+      _errCount++;
+      clearTimeout(_errTimer);
+      _errTimer = setTimeout(() => {
+        if (_errCount === 1 && Utils.toast) Utils.toast('שגיאה ' + label + ' — בדוק את הקונסול', 'warning');
+        else if (_errCount > 1 && Utils.toast) Utils.toast(`${_errCount} שגיאות בדף — רענן אם משהו לא עובד`, 'warning');
+        _errCount = 0;
+      }, 800);
+    };
     window.addEventListener('error', (e) => {
       console.error('Global error:', e.message, e.filename, e.lineno);
       App.logError('js', e.message, e.filename + ':' + e.lineno);
+      // Don't toast for resource load errors (img/script 404s) — only real JS exceptions
+      if (e.message) _notifyErr('בלתי צפויה');
     });
     window.addEventListener('unhandledrejection', (e) => {
       console.error('Unhandled promise:', e.reason);
       App.logError('promise', String(e.reason));
+      _notifyErr('בבקשה אסינכרונית');
     });
 
     try {
@@ -64,6 +77,7 @@ const App = {
       this.checkVersion();
       this.initCommandPalette();
       this.initAutoSaveIndicator();
+      this.initFormDrafts();
       this._initDriveCatalogIndex();
     } catch(e) {
       console.error('Init error (non-fatal):', e);
@@ -1008,6 +1022,53 @@ const App = {
         }
       }
     });
+  },
+
+  // Form draft auto-save: persist values of inputs inside an open modal every 2s,
+  // restore on next open. Cleared when modal is hidden via dismiss-data attr.
+  initFormDrafts() {
+    const DRAFT_PREFIX = 'bht_draft_';
+    let saveTimer = null;
+    const collectInputs = (modal) => modal.querySelectorAll('input:not([type="hidden"]):not([type="file"]), select, textarea');
+    const draftKey = (modal) => DRAFT_PREFIX + (modal.id || 'anon');
+
+    document.addEventListener('show.bs.modal', (e) => {
+      const modal = e.target;
+      if (!modal || !modal.id) return;
+      // Restore prior draft, if any (only when there are no values pre-filled by editor)
+      try {
+        const raw = localStorage.getItem(draftKey(modal));
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (Date.now() - draft.t > 7 * 86400000) { localStorage.removeItem(draftKey(modal)); return; }
+        // Only restore if the modal isn't being opened with editing data (heuristic: any non-empty input present)
+        const inputs = collectInputs(modal);
+        const hasValues = [...inputs].some(i => (i.value || '').trim());
+        if (hasValues) return;
+        inputs.forEach(i => { if (draft.v[i.id || i.name] !== undefined) i.value = draft.v[i.id || i.name]; });
+        if (Utils.toast) Utils.toast('שוחזרה טיוטה קודמת', 'info');
+      } catch(e) { /* silent */ }
+    });
+
+    document.addEventListener('input', (e) => {
+      const modal = e.target.closest('.modal.show');
+      if (!modal || !modal.id) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        const v = {};
+        collectInputs(modal).forEach(i => { const k = i.id || i.name; if (k && i.value) v[k] = i.value; });
+        if (Object.keys(v).length) Utils.safeSetItem(draftKey(modal), JSON.stringify({ t: Date.now(), v }));
+      }, 2000);
+    });
+
+    document.addEventListener('hidden.bs.modal', (e) => {
+      // Successful save handlers should clear the draft via App.clearFormDraft(modalId);
+      // Otherwise keep it for recovery. Nothing to do here.
+    });
+  },
+
+  clearFormDraft(modalId) {
+    try { localStorage.removeItem('bht_draft_' + modalId); } catch(e) { /* silent */ }
   },
 
   toggleShortcutsOverlay() {
