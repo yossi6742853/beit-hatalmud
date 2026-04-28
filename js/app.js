@@ -381,6 +381,17 @@ const App = {
       const isBirth = /birth|\u05dc\u05d9\u05d3\u05d4|leida/.test(id) || /\u05dc\u05d9\u05d3\u05d4/.test(el.previousElementSibling?.textContent || '');
       el.min = '1900-01-01';
       el.max = isBirth ? today : '2099-12-31';
+      // Add quick-date chips below non-birth date inputs (skip if already inside a chip group)
+      if (!isBirth && id && !el.parentElement?.querySelector('.qdate-chips') && !el.closest('.no-qdate')) {
+        const chips = document.createElement('div');
+        chips.className = 'qdate-chips btn-group btn-group-sm mt-1';
+        chips.innerHTML = `
+          <button type="button" class="btn btn-outline-secondary" onclick="App.setQuickDate('${el.id}', 0)">\u05d4\u05d9\u05d5\u05dd</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="App.setQuickDate('${el.id}', 1)">\u05de\u05d7\u05e8</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="App.setQuickDate('${el.id}', 7)">+\u05e9\u05d1\u05d5\u05e2</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="App.setQuickDate('${el.id}', 30)">+\u05d7\u05d5\u05d3\u05e9</button>`;
+        el.insertAdjacentElement('afterend', chips);
+      }
     });
     root.querySelectorAll('input[type="tel"]:not([pattern])').forEach(el => {
       el.pattern = '[\\d\\-\\s\\+\\(\\)]{7,20}';
@@ -1226,6 +1237,34 @@ const App = {
         setTimeout(() => d.remove(), 550);
       });
     }
+  },
+
+  // Save indicator helper — wraps a button with spinner + green flash on success
+  async withSaveIndicator(btn, asyncFn) {
+    if (!btn) return asyncFn();
+    const orig = btn.innerHTML;
+    const origCls = btn.className;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>שומר...';
+    try {
+      const result = await asyncFn();
+      btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>נשמר';
+      btn.className = origCls.replace(/btn-(primary|info|success|warning|danger|secondary)/, 'btn-success');
+      setTimeout(() => { btn.innerHTML = orig; btn.className = origCls; btn.disabled = false; }, 700);
+      return result;
+    } catch (e) {
+      btn.innerHTML = orig; btn.className = origCls; btn.disabled = false;
+      throw e;
+    }
+  },
+
+  // Quick-date helper — sets a date input N days from today and dispatches change
+  setQuickDate(inputId, daysFromNow) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    const d = new Date(); d.setDate(d.getDate() + daysFromNow);
+    el.value = d.toISOString().slice(0, 10);
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   },
 
   // Number counter roll-up (for stat cards). Respects prefers-reduced-motion.
