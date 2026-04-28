@@ -2370,15 +2370,19 @@ Object.assign(Pages, {
 
   // ── View Document ──
   viewDoc(url, title) {
-    document.getElementById('viewer-title').textContent = title || '\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA';
+    const titleEl = document.getElementById('viewer-title');
+    if (titleEl) titleEl.textContent = title || '\u05E6\u05E4\u05D9\u05D9\u05D4 \u05D1\u05DE\u05E1\u05DE\u05DA';
     const body = document.getElementById('viewer-body');
-    const ext = (url.split('.').pop()||'').toLowerCase().split('?')[0];
+    if (!body) return;
+    const safeUrl = encodeURI(url || '');
+    const safeTitle = Utils.escapeHTML(title || '');
+    const ext = ((url||'').split('.').pop()||'').toLowerCase().split('?')[0];
     if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
-      body.innerHTML = `<img src="${url}" style="width:100%;max-height:80vh;object-fit:contain" alt="${title}">`;
+      body.innerHTML = `<img src="${safeUrl}" style="width:100%;max-height:80vh;object-fit:contain" alt="${safeTitle}">`;
     } else if (ext === 'pdf') {
-      body.innerHTML = `<iframe src="${url}" style="width:100%;height:80vh;border:none"></iframe>`;
+      body.innerHTML = `<iframe src="${safeUrl}" style="width:100%;height:80vh;border:none"></iframe>`;
     } else {
-      body.innerHTML = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true" style="width:100%;height:80vh;border:none"></iframe>`;
+      body.innerHTML = `<iframe src="https://docs.google.com/gview?url=${encodeURIComponent(url||'')}&embedded=true" style="width:100%;height:80vh;border:none"></iframe>`;
     }
     new bootstrap.Modal(document.getElementById('doc-viewer-modal')).show();
   },
@@ -4597,8 +4601,15 @@ Object.assign(Pages, {
       data = this._instUseDemo ? this._instDemoData : [];
     }
     this._instData = data;
-    document.getElementById('inst-search').addEventListener('input', Utils.debounce(() => this.renderInst(), 200));
-    document.getElementById('inst-type-filter').addEventListener('change', () => this.renderInst());
+    const _rebind = (id, evt, fn) => {
+      const old = document.getElementById(id);
+      if (!old) return;
+      const fresh = old.cloneNode(true);
+      old.replaceWith(fresh);
+      fresh.addEventListener(evt, fn);
+    };
+    _rebind('inst-search', 'input', Utils.debounce(() => this.renderInst(), 200));
+    _rebind('inst-type-filter', 'change', () => this.renderInst());
     this.renderInst();
   },
   _instFiltered() {
@@ -4740,7 +4751,14 @@ Object.assign(Pages, {
       const med = medical.find(m => String(m['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']||'') === String(sid));
       return { name, id: sid, cls: s['\u05DB\u05D9\u05EA\u05D4']||'', med };
     });
-    document.getElementById('med-search').addEventListener('input', Utils.debounce(() => this.renderMedical(), 200));
+    {
+      const old = document.getElementById('med-search');
+      if (old) {
+        const fresh = old.cloneNode(true);
+        old.replaceWith(fresh);
+        fresh.addEventListener('input', Utils.debounce(() => this.renderMedical(), 200));
+      }
+    }
     this.renderMedical();
   },
   renderMedical() {

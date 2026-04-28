@@ -546,14 +546,17 @@ Object.assign(Pages, {
 
       ${msgsHTML}
 
-      <div class="d-flex gap-2 mt-3 flex-wrap">
-        <button class="btn btn-outline-primary btn-sm" onclick="Pages.emailReply('${lastEmail.replace(/'/g, "\\'")}','${subject.replace(/'/g, "\\'")}')">
+      ${(() => {
+        const _attr = (v) => JSON.stringify(String(v||'')).replace(/'/g, '&#39;');
+        return `<div class="d-flex gap-2 mt-3 flex-wrap">
+        <button class="btn btn-outline-primary btn-sm" onclick='Pages.emailReply(${_attr(lastEmail)},${_attr(subject)})'>
           <i class="bi bi-reply-fill me-1"></i>\u05D4\u05E9\u05D1
         </button>
-        <button class="btn btn-outline-success btn-sm" onclick="Pages.emailForward('${subject.replace(/'/g, "\\'")}','${escapedId}')">
+        <button class="btn btn-outline-success btn-sm" onclick='Pages.emailForward(${_attr(subject)},${_attr(escapedId)})'>
           <i class="bi bi-forward-fill me-1"></i>\u05D4\u05E2\u05D1\u05E8
         </button>
-      </div>
+      </div>`;
+      })()}
 
       <style>
         .email-collapsed .email-msg-body { display: none; }

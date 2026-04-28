@@ -1636,8 +1636,10 @@ Object.assign(Pages, {
 
     const totals = this._mvzGetStudentTotals(ac.id);
     const now = new Date();
-    const end = new Date(ac.endDate);
-    const start = new Date(ac.startDate);
+    let end = new Date(ac.endDate);
+    let start = new Date(ac.startDate);
+    if (isNaN(end.getTime())) end = new Date(now.getTime() + 86400000);
+    if (isNaN(start.getTime())) start = new Date(now.getTime() - 86400000);
     const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
     const totalDays = Math.max(1, Math.ceil((end - start) / 86400000));
     const daysPassed = totalDays - daysLeft;

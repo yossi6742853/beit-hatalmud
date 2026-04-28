@@ -665,9 +665,11 @@ Object.assign(Pages, {
       }
     }
 
-    // === 6b. Quick Notes ===
-    const noteEl = document.getElementById('dash-quick-note');
-    if (noteEl) {
+    // === 6b. Quick Notes (clone-replace to drop stale listeners across re-inits) ===
+    const oldNote = document.getElementById('dash-quick-note');
+    if (oldNote) {
+      const noteEl = oldNote.cloneNode(true);
+      oldNote.replaceWith(noteEl);
       noteEl.value = localStorage.getItem('bht_quick_note') || '';
       noteEl.addEventListener('input', Utils.debounce(() => {
         localStorage.setItem('bht_quick_note', noteEl.value);
