@@ -1845,13 +1845,14 @@ Object.assign(Pages, {
       const maskedPin = pin ? '\u2022'.repeat(Math.min(pin.length, 6)) : '--';
       const lastLogin = u['\u05DB\u05E0\u05D9\u05E1\u05D4_\u05D0\u05D7\u05E8\u05D5\u05E0\u05D4']||'--';
       const id = Utils.rowId(u);
+      const _esc = Utils.escapeHTML;
       return `<tr>
         <td>${Utils.avatarHTML ? Utils.avatarHTML(name,'sm') : ''}</td>
-        <td class="fw-bold">${name}</td>
-        <td class="small" dir="ltr">${u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||''}</td>
-        <td><span class="badge bg-${roleColors[role]||'secondary'}"><i class="bi ${roleIcons[role]||'bi-person'} me-1"></i>${roleLabels[role]||role}</span></td>
+        <td class="fw-bold">${_esc(name)}</td>
+        <td class="small" dir="ltr">${_esc(u['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC']||'')}</td>
+        <td><span class="badge bg-${roleColors[role]||'secondary'}"><i class="bi ${roleIcons[role]||'bi-person'} me-1"></i>${_esc(roleLabels[role]||role)}</span></td>
         <td><code class="user-select-none">${maskedPin}</code></td>
-        <td class="small text-muted">${lastLogin}</td>
+        <td class="small text-muted">${_esc(lastLogin)}</td>
         <td>
           <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-primary" onclick="Pages.editUser('${id}')" title="\u05E2\u05E8\u05D9\u05DB\u05D4"><i class="bi bi-pencil"></i></button>

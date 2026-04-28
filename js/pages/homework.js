@@ -412,7 +412,7 @@ Object.assign(Pages, {
             const days = Math.abs(this._hwDaysLeft(hw['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05D2\u05E9\u05D4']));
             const subs = this._hwGetSubmissions(hw['\u05DE\u05D6\u05D4\u05D4']);
             const pending = subs.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05DE\u05DE\u05EA\u05D9\u05DF').length;
-            return `<span class="badge bg-danger me-1 mb-1 cursor-pointer" onclick="Pages.hwShowSubmissions('${hw['\u05DE\u05D6\u05D4\u05D4']}')" style="cursor:pointer">${hw['\u05DB\u05D5\u05EA\u05E8\u05EA']} (${days} \u05D9\u05DE\u05D9\u05DD, ${pending} \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD)</span>`;
+            return `<span class="badge bg-danger me-1 mb-1 cursor-pointer" onclick="Pages.hwShowSubmissions('${hw['\u05DE\u05D6\u05D4\u05D4']}')" style="cursor:pointer">${Utils.escapeHTML(hw['\u05DB\u05D5\u05EA\u05E8\u05EA']||'')} (${days} \u05D9\u05DE\u05D9\u05DD, ${pending} \u05DE\u05DE\u05EA\u05D9\u05E0\u05D9\u05DD)</span>`;
           }).join('')}</div>
         </div>
       </div>
@@ -636,11 +636,11 @@ Object.assign(Pages, {
         const color = this._hwSubjectColor(hw['\u05DE\u05E7\u05E6\u05D5\u05E2']);
         const subs = this._hwGetSubmissions(hw['\u05DE\u05D6\u05D4\u05D4']);
         const submitted = subs.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D4\u05D5\u05D2\u05E9' || s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D1\u05D0\u05D9\u05D7\u05D5\u05E8').length;
-        html += `<div class="badge bg-${color} d-block mb-1 text-start text-truncate" style="cursor:pointer;max-width:100%" onclick="Pages.hwShowSubmissions('${hw['\u05DE\u05D6\u05D4\u05D4']}')" title="${hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}"><i class="bi bi-arrow-left-circle me-1"></i>${hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || hw['\u05DE\u05E7\u05E6\u05D5\u05E2']} <small>(${submitted}/${subs.length})</small></div>`;
+        html += `<div class="badge bg-${color} d-block mb-1 text-start text-truncate" style="cursor:pointer;max-width:100%" onclick="Pages.hwShowSubmissions('${hw['\u05DE\u05D6\u05D4\u05D4']}')" title="${Utils.escapeHTML(hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '')}"><i class="bi bi-arrow-left-circle me-1"></i>${Utils.escapeHTML(hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || hw['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '')} <small>(${submitted}/${subs.length})</small></div>`;
       });
 
       dayGiven.forEach(hw => {
-        html += `<div class="badge bg-outline-secondary border d-block mb-1 text-start text-truncate text-muted" style="max-width:100%" title="\u05E0\u05D9\u05EA\u05DF: ${hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || ''}"><i class="bi bi-arrow-right-circle me-1"></i>${hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || hw['\u05DE\u05E7\u05E6\u05D5\u05E2']}</div>`;
+        html += `<div class="badge bg-outline-secondary border d-block mb-1 text-start text-truncate text-muted" style="max-width:100%" title="\u05E0\u05D9\u05EA\u05DF: ${Utils.escapeHTML(hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || '')}"><i class="bi bi-arrow-right-circle me-1"></i>${Utils.escapeHTML(hw['\u05DB\u05D5\u05EA\u05E8\u05EA'] || hw['\u05DE\u05E7\u05E6\u05D5\u05E2'] || '')}</div>`;
       });
 
       if (!dayHW.length && !dayGiven.length) {

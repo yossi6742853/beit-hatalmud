@@ -267,10 +267,10 @@ Object.assign(Pages, {
               ${Utils.avatarHTML ? Utils.avatarHTML(p['\u05E9\u05DD'], 'md') : '<div class="avatar-md bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold">' + (p['\u05E9\u05DD']||'').substring(0,2) + '</div>'}
               <div class="flex-fill">
                 <h6 class="fw-bold mb-1">
-                  <a href="#parent_card/${pid}" class="text-decoration-none text-dark">${p['\u05E9\u05DD'] || ''}</a>
+                  <a href="#parent_card/${pid}" class="text-decoration-none text-dark">${Utils.escapeHTML(p['\u05E9\u05DD'] || '')}</a>
                 </h6>
                 <div class="d-flex align-items-center gap-2">
-                  <span class="badge bg-light text-dark border"><i class="bi ${relationIcon} me-1"></i>${p['\u05E7\u05E9\u05E8'] || ''}</span>
+                  <span class="badge bg-light text-dark border"><i class="bi ${relationIcon} me-1"></i>${Utils.escapeHTML(p['\u05E7\u05E9\u05E8'] || '')}</span>
                   ${statusBadge}
                 </div>
               </div>
@@ -280,7 +280,7 @@ Object.assign(Pages, {
             ${children.length ? `<div class="mb-2">
               <small class="text-muted d-block mb-1"><i class="bi bi-people me-1"></i>\u05D9\u05DC\u05D3\u05D9\u05DD:</small>
               <div class="d-flex flex-wrap gap-1">
-                ${children.map(c => `<span class="badge bg-primary bg-opacity-10 text-primary">${c['\u05E9\u05DD']} <small>(\u05DB\u05D9\u05EA\u05D4 ${c['\u05DB\u05D9\u05EA\u05D4'] || ''})</small></span>`).join('')}
+                ${children.map(c => `<span class="badge bg-primary bg-opacity-10 text-primary">${Utils.escapeHTML(c['\u05E9\u05DD']||'')} <small>(\u05DB\u05D9\u05EA\u05D4 ${Utils.escapeHTML(c['\u05DB\u05D9\u05EA\u05D4']||'')})</small></span>`).join('')}
               </div>
             </div>` : ''}
 
