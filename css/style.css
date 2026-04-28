@@ -4854,6 +4854,35 @@ label .req-asterisk { color: #dc2626; margin-inline-start: 4px; font-weight: 700
   .card, .btn, input, .form-control { border-width: 1.5px !important; }
 }
 
+/* ===== Print: B/W-safe status patterns (survives mono printers) ===== */
+@media print {
+  .pc-status, .badge.status-marker {
+    display: inline-flex; align-items: center; gap: 4px; font-weight: 600;
+  }
+  .pc-status::before, .badge.status-marker::before {
+    content: ''; width: 10px; height: 10px;
+    border: 1pt solid #000; display: inline-block;
+  }
+  .pc-status.ok::before, .badge.status-marker.ok::before { background: #000; }
+  .pc-status.absent::before, .badge.status-marker.absent::before {
+    background: repeating-linear-gradient(45deg, #000 0 2px, #fff 2px 4px);
+  }
+  .pc-status.late::before, .badge.status-marker.late::before {
+    background: repeating-linear-gradient(0deg, #000 0 1.5px, #fff 1.5px 4px);
+  }
+  .pc-status.excused::before { background: #fff; border-style: dashed; }
+  /* Tables: header dark, repeat across page breaks */
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  table, figure, .card, .chart-container { break-inside: avoid; page-break-inside: avoid; }
+  h1, h2, h3, h4, h5, h6 { page-break-after: avoid; }
+  /* Hint browsers to honor print colors for status patterns */
+  .pc-status, .pc-status::before, .badge.status-marker, .badge.status-marker::before {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
 /* ===== Hebrew typography + RTL polish ===== */
 body { line-height: 1.65; font-feature-settings: "kern" 1, "liga" 1; }
 .table, .stat-value, .badge, td, th, .dialer-display, .chip {

@@ -39,6 +39,25 @@ const Utils = {
   /* ---- Haptic feedback (mobile) ---- */
   haptic(ms = 10) { if ('vibrate' in navigator) try { navigator.vibrate(ms); } catch(e) { /* silent */ } },
 
+  /* ---- Friendly error toast — single source of error microcopy ---- */
+  errorToast(action = 'save') {
+    const msgs = {
+      save:   'השמירה לא הצליחה. בדוק את החיבור ונסה שוב',
+      delete: 'המחיקה לא בוצעה. נסה שוב בעוד רגע',
+      load:   'טעינת הנתונים נכשלה. נסה לרענן את הדף',
+      send:   'השליחה לא הצליחה. בדוק את החיבור',
+      upload: 'העלאת הקובץ נכשלה. נסה שוב',
+      generic: 'משהו לא עבד כצפוי. נסה שוב בעוד רגע'
+    };
+    this.toast(msgs[action] || msgs.generic, 'danger');
+  },
+
+  /* ---- Hebrew plural — agreement for counters ("1 תלמיד נמחק" vs "5 תלמידים נמחקו") ---- */
+  plural(n, singular, plural) {
+    if (n === 1) return '1 ' + singular;
+    return n + ' ' + plural;
+  },
+
   /* ---- Israeli phone: strip non-digits, validate, format ---- */
   normalizePhone(input) {
     if (!input) return '';
@@ -209,6 +228,8 @@ const Utils = {
     const icons = { success: 'check-circle-fill', danger: 'exclamation-triangle-fill', warning: 'exclamation-circle-fill', info: 'info-circle-fill' };
     const container = document.getElementById('toast-container');
     if (!container) return;
+    // Cap visible toasts at 4 — older ones get evicted (prevents avalanche on error storms)
+    while (container.children.length >= 4) container.firstElementChild?.remove();
     const id = 'toast-' + Date.now();
     const live = (type === 'danger' || type === 'warning') ? 'assertive' : 'polite';
     const role = (type === 'danger') ? 'alert' : 'status';

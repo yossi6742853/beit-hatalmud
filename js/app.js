@@ -343,6 +343,15 @@ const App = {
     root.querySelectorAll('input[type="tel"]:not([pattern])').forEach(el => {
       el.pattern = '[\\d\\-\\s\\+\\(\\)]{7,20}';
       el.title = el.title || '\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df: \u05e1\u05e4\u05e8\u05d5\u05ea, \u05e8\u05d5\u05d5\u05d7\u05d9\u05dd, \u05de\u05e7\u05e4\u05d9\u05dd, \u05e1\u05d5\u05d2\u05e8\u05d9\u05d9\u05dd, +';
+      // Auto-format as user types: 0501234567 -> 050-1234567
+      if (!el._fmtBound) {
+        el._fmtBound = true;
+        el.addEventListener('input', (e) => {
+          const sel = el.selectionStart;
+          let d = el.value.replace(/\D/g, '').slice(0, 11);
+          el.value = d.length > 3 ? d.slice(0, 3) + '-' + d.slice(3) : d;
+        });
+      }
     });
     root.querySelectorAll('input[type="number"]:not([inputmode])').forEach(el => {
       el.inputMode = el.step && el.step !== 'any' && parseFloat(el.step) < 1 ? 'decimal' : 'numeric';
@@ -1379,9 +1388,38 @@ const App = {
     const results = document.getElementById('search-results');
     if (!input || !results) return;
 
+    // Recent searches helper
+    const RECENT_KEY = 'bht_recent_searches';
+    const saveRecent = (q) => {
+      if (!q || q.length < 2) return;
+      let r = []; try { r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) { r = []; }
+      r = [q, ...r.filter(x => x !== q)].slice(0, 8);
+      Utils.safeSetItem(RECENT_KEY, JSON.stringify(r));
+    };
+
     input.addEventListener('input', Utils.debounce(async () => {
-      const q = input.value.trim().toLowerCase();
-      if (q.length < 2) { results.classList.remove('show'); return; }
+      const raw = input.value.trim();
+      if (raw.length < 2) {
+        // Empty state \u2014 show recent searches as chips
+        let r = []; try { r = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e) {}
+        if (r.length) {
+          results.innerHTML = `<div class="px-2 pt-2 pb-1 small text-muted">\u05D7\u05D9\u05E4\u05D5\u05E9\u05D9\u05DD \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD</div><div class="px-2 pb-2">${r.map(t => `<a class="badge bg-light text-dark me-1 mb-1 search-chip" style="cursor:pointer" data-q="${Utils.escapeHTML(t)}">${Utils.escapeHTML(t)}</a>`).join('')}</div>`;
+          results.querySelectorAll('.search-chip').forEach(c => c.onclick = () => { input.value = c.dataset.q; input.dispatchEvent(new Event('input')); });
+          results.classList.add('show');
+        } else {
+          results.classList.remove('show');
+        }
+        return;
+      }
+
+      const q = raw.toLowerCase();
+      const norm = Utils.hebNormalize ? Utils.hebNormalize.bind(Utils) : (x) => String(x||'').toLowerCase();
+      const qN = norm(raw);
+      const tokens = qN.split(/\s+/).filter(t => t.length >= 2);
+      const qDigits = q.replace(/\D/g, '');
+      const phoneMatch = (v) => qDigits && String(v||'').replace(/\D/g, '').includes(qDigits);
+      const blob = (...parts) => norm(parts.filter(Boolean).join(' '));
+      const matches = (text) => tokens.length ? tokens.every(t => text.includes(t)) : text.includes(qN);
 
       const [students, staff, parents] = await Promise.all([
         App.getData('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').catch(()=>[]),
@@ -1389,19 +1427,30 @@ const App = {
         App.getData('\u05D4\u05D5\u05E8\u05D9\u05DD').catch(()=>[])
       ]);
 
+      // Highlight helper
+      const hl = (txt) => {
+        const e = Utils.escapeHTML(txt || '');
+        if (!q) return e;
+        const i = e.toLowerCase().indexOf(q.toLowerCase());
+        return i < 0 ? e : e.slice(0, i) + '<mark class="p-0">' + e.slice(i, i + q.length) + '</mark>' + e.slice(i + q.length);
+      };
+
       let hits = [];
       students.forEach(s => {
         const name = Utils.fullName(s);
-        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q) || (s['\u05DB\u05D9\u05EA\u05D4']||'').toLowerCase().includes(q) || (s['\u05DB\u05EA\u05D5\u05D1\u05EA']||'').toLowerCase().includes(q))
+        const text = blob(name, s['\u05DB\u05D9\u05EA\u05D4'], s['\u05DB\u05EA\u05D5\u05D1\u05EA']);
+        if (matches(text) || phoneMatch(s['\u05D8\u05DC\u05E4\u05D5\u05DF']))
           hits.push({name, type:'\u05EA\u05DC\u05DE\u05D9\u05D3', icon:'bi-person-fill', color:'primary', link:'#student/'+Utils.rowId(s), sub:'\u05DB\u05D9\u05EA\u05D4 '+(s['\u05DB\u05D9\u05EA\u05D4']||'')});
       });
       staff.forEach(s => {
         const name = Utils.fullName(s);
-        if (name.toLowerCase().includes(q) || (s['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q) || (s['\u05EA\u05E4\u05E7\u05D9\u05D3']||'').toLowerCase().includes(q))
+        const text = blob(name, s['\u05EA\u05E4\u05E7\u05D9\u05D3']);
+        if (matches(text) || phoneMatch(s['\u05D8\u05DC\u05E4\u05D5\u05DF']))
           hits.push({name, type:'\u05E6\u05D5\u05D5\u05EA', icon:'bi-person-badge-fill', color:'success', link:'#staff_card/'+Utils.rowId(s), sub:s['\u05EA\u05E4\u05E7\u05D9\u05D3']||''});
       });
       parents.forEach(p => {
-        if ((p['\u05E9\u05DD']||'').toLowerCase().includes(q) || (p['\u05D8\u05DC\u05E4\u05D5\u05DF']||'').includes(q))
+        const text = blob(p['\u05E9\u05DD']);
+        if (matches(text) || phoneMatch(p['\u05D8\u05DC\u05E4\u05D5\u05DF']))
           hits.push({name:p['\u05E9\u05DD']||'', type:'\u05D4\u05D5\u05E8\u05D4', icon:'bi-house-heart-fill', color:'warning', link:'#parent_card/'+Utils.rowId(p), sub:p['\u05E7\u05E9\u05E8']||''});
       });
 
@@ -1414,12 +1463,18 @@ const App = {
           const score = (n) => n === q ? 3 : n.startsWith(q) ? 2 : 1;
           return score(bn) - score(an);
         });
-        results.innerHTML = hits.slice(0,10).map((h, i) =>
+        // Category counts header
+        const counts = hits.reduce((a, h) => (a[h.type] = (a[h.type] || 0) + 1, a), {});
+        const header = `<div class="px-2 py-1 small text-muted border-bottom">${Object.entries(counts).map(([t, n]) => `<span class="me-2">${n} ${t}</span>`).join('')}</div>`;
+        results.innerHTML = header + hits.slice(0,10).map((h, i) =>
           `<a href="${h.link}" class="dropdown-item d-flex align-items-center gap-2 py-2 search-hit" data-idx="${i}" onclick="document.getElementById('search-results').classList.remove('show');document.getElementById('global-search').value=''">
-            <i class="bi ${h.icon} text-${h.color}"></i>
-            <div><div class="fw-bold small">${Utils.escapeHTML(h.name)}</div><small class="text-muted">${Utils.escapeHTML(h.type)} ${h.sub?'| '+Utils.escapeHTML(h.sub):''}</small></div>
+            <i class="bi ${h.icon} text-${h.color}" aria-hidden="true"></i>
+            <div class="flex-grow-1"><div class="fw-bold small">${hl(h.name)}</div><small class="text-muted">${Utils.escapeHTML(h.type)} ${h.sub?'| '+hl(h.sub):''}</small></div>
+            ${i < 9 ? `<kbd class="small text-muted ms-auto">${i+1}</kbd>` : ''}
           </a>`
         ).join('');
+        // Save the query as recent (if user actually clicks; we'll save here for safety)
+        saveRecent(raw);
       }
       results.classList.add('show');
       this._searchSelectedIdx = -1;
