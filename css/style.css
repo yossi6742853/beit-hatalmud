@@ -4767,3 +4767,63 @@ input[type="tel"], input[type="number"], input[inputmode="numeric"], input[input
 
 /* Required-field asterisk: wrapped in aria-hidden span at template level; visual emphasis here */
 label .req-asterisk { color: #dc2626; margin-inline-start: 4px; font-weight: 700; }
+
+/* ===== Hebrew typography + RTL polish ===== */
+body { line-height: 1.65; font-feature-settings: "kern" 1, "liga" 1; }
+.table, .stat-value, .badge, td, th, .dialer-display, .chip {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* unicode-bidi:plaintext lets each container compute its own bidi paragraph —
+   handles "כיתה א-3", "WhatsApp 050-1234567" etc. without RLM hacks */
+.card-title, .stat-label, .badge, .toast-body, .alert, .form-label, .modal-title,
+.empty-state h5, .empty-state-v2 h5 { unicode-bidi: plaintext; }
+
+/* LTR-isolated atoms: codes, IDs, file names, emails, URLs */
+code, kbd, .file-name, .doc-id, .invoice-no, .email, .url, .ltr-iso {
+  direction: ltr; unicode-bidi: isolate; text-align: start;
+}
+
+/* Numeric columns in tables: right-align (end), tabular, LTR isolated */
+.table-bht td.num, .table-bht th.num,
+.table-bht td[data-type="number"], .table-bht td[data-type="currency"] {
+  text-align: end;
+  direction: ltr; unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* ===== Mobile UX additions ===== */
+
+/* Sticky table headers within table-responsive on small screens */
+@media (max-width: 991.98px) {
+  .table-responsive { max-height: calc(100vh - 200px); overflow: auto; -webkit-overflow-scrolling: touch; }
+  .table-bht thead th, .table thead th {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bs-card-bg, #fff);
+    box-shadow: 0 2px 4px rgba(0,0,0,.06);
+  }
+}
+
+/* iOS safe-area for floating UI */
+#fab-container { bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+#scroll-top { bottom: calc(20px + env(safe-area-inset-bottom)) !important; }
+.toast-container { bottom: calc(env(safe-area-inset-bottom)) !important; }
+
+/* Bottom-sheet modals on phones (slide up from bottom, rounded top corners) */
+@media (max-width: 575.98px) {
+  .modal-dialog:not(.modal-fullscreen):not(.modal-dialog-centered) {
+    margin: 0; position: fixed; left: 0; right: 0; bottom: 0; max-width: 100%;
+  }
+  .modal-content { border-radius: 18px 18px 0 0; max-height: 90vh; }
+  .modal.fade .modal-dialog:not(.modal-fullscreen) { transform: translateY(100%); transition: transform .3s ease; }
+  .modal.show .modal-dialog:not(.modal-fullscreen) { transform: translateY(0); }
+  /* Drag handle indicator at the top */
+  .modal-content::after {
+    content: ""; display: block;
+    width: 40px; height: 4px; background: rgba(0,0,0,.18);
+    border-radius: 2px; position: absolute; top: 8px;
+    left: 50%; transform: translateX(-50%);
+  }
+}

@@ -78,6 +78,7 @@ const App = {
       this.initCommandPalette();
       this.initAutoSaveIndicator();
       this.initFormDrafts();
+      this.initMobileEnhancements();
       this._initDriveCatalogIndex();
     } catch(e) {
       console.error('Init error (non-fatal):', e);
@@ -415,6 +416,16 @@ const App = {
       if (cached) return cached;
     }
 
+    // In-flight dedupe: if a request for this sheet is already pending, return the same promise
+    if (!this._inflight) this._inflight = new Map();
+    if (this._inflight.has(resolvedSheet)) return this._inflight.get(resolvedSheet);
+    const p = this._fetchSheetInner(sheet, resolvedSheet, cacheKey, forceRefresh)
+      .finally(() => this._inflight.delete(resolvedSheet));
+    this._inflight.set(resolvedSheet, p);
+    return p;
+  },
+
+  async _fetchSheetInner(sheet, resolvedSheet, cacheKey, forceRefresh) {
     this._showLoadingBar();
     try {
       const url = `${this.API_URL}?mode=api&action=list&sheet=${encodeURIComponent(resolvedSheet)}&token=${this.API_TOKEN}`;
@@ -1087,6 +1098,26 @@ const App = {
 
   clearFormDraft(modalId) {
     try { localStorage.removeItem('bht_draft_' + modalId); } catch(e) { /* silent */ }
+  },
+
+  // Mobile enhancements: keyboard-aware focus scroll + haptic on critical taps
+  initMobileEnhancements() {
+    // Scroll focused inputs into view (iOS keyboard hides field otherwise)
+    document.addEventListener('focusin', (e) => {
+      if (!e.target.matches('input, textarea, select')) return;
+      if (e.target.type === 'hidden') return;
+      // Only on touch devices (avoid jumpy desktop)
+      if (!('ontouchstart' in window)) return;
+      setTimeout(() => {
+        try { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch(_) { /* silent */ }
+      }, 300);
+    });
+
+    // Haptic on form submit + delete buttons
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[type="submit"], .btn-danger, [data-haptic]');
+      if (btn && Utils.haptic) Utils.haptic(8);
+    });
   },
 
   toggleShortcutsOverlay() {

@@ -12,6 +12,33 @@ const Utils = {
     }, 0) % 10 === 0;
   },
 
+  /* ---- Hebrew collator (cached: faster sort across many calls) ---- */
+  HEB_COLLATOR: null,
+  hebCompare(a, b) {
+    if (!this.HEB_COLLATOR) {
+      this.HEB_COLLATOR = new Intl.Collator('he', { sensitivity: 'base', ignorePunctuation: true, numeric: true });
+    }
+    return this.HEB_COLLATOR.compare(String(a||''), String(b||''));
+  },
+
+  /* ---- Bidi: wrap LTR atom (phone/id/email) so it reads correctly inside Hebrew text ---- */
+  ltrIsolate(s) {
+    return `<bdi dir="ltr" style="unicode-bidi:isolate">${this.escapeHTML(s||'')}</bdi>`;
+  },
+
+  /* ---- Hebrew search normalization: strip niqqud, normalize maqaf+quotes ---- */
+  hebNormalize(s) {
+    return String(s||'')
+      .replace(/[֑-ׇ]/g, '')
+      .replace(/[־‐-―]/g, '-')
+      .replace(/[׳']/g, '')
+      .replace(/[״""״]/g, '')
+      .toLowerCase().trim();
+  },
+
+  /* ---- Haptic feedback (mobile) ---- */
+  haptic(ms = 10) { if ('vibrate' in navigator) try { navigator.vibrate(ms); } catch(e) { /* silent */ } },
+
   /* ---- Israeli phone: strip non-digits, validate, format ---- */
   normalizePhone(input) {
     if (!input) return '';
@@ -151,10 +178,15 @@ const Utils = {
     return `<div class="${cls}" style="background:${color}">${initials}</div>`;
   },
 
-  /* ---- Currency ---- */
+  /* ---- Currency: Intl.NumberFormat handles negatives, RTL marks, and locale-correct symbol placement ---- */
+  _ILS_FMT: null,
   formatCurrency(n) {
     if (n == null || isNaN(n)) return '\u20AA0';
-    return '\u20AA' + Number(n).toLocaleString('he-IL');
+    if (!this._ILS_FMT) {
+      try { this._ILS_FMT = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }); }
+      catch(e) { return '\u20AA' + Number(n).toLocaleString('he-IL'); }
+    }
+    return this._ILS_FMT.format(Number(n));
   },
 
   /* ---- Percent ---- */
