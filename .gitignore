@@ -2,3 +2,9 @@ __pycache__/
 .bht_oauth.json
 upload_tmp.gz
 drive_token.txt
+student_docs_catalog.json
+student_folder_search_results.json
+_students.json
+*.key
+*.pem
+.env

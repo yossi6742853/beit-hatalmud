@@ -47,12 +47,14 @@ const App = {
     if (typeof Chart !== 'undefined') {
       Chart.defaults.font.family = 'Heebo';
     }
-    // Global error handler
+    // Global error handler + logging
     window.addEventListener('error', (e) => {
       console.error('Global error:', e.message, e.filename, e.lineno);
+      App.logError('js', e.message, e.filename + ':' + e.lineno);
     });
     window.addEventListener('unhandledrejection', (e) => {
       console.error('Unhandled promise:', e.reason);
+      App.logError('promise', String(e.reason));
     });
 
     try {
@@ -1357,6 +1359,32 @@ const App = {
     render('');
     input.addEventListener('input', () => render(input.value.trim()));
     setTimeout(() => input.focus(), 50);
+  },
+
+  /* ==============================
+     ERROR LOGGING
+     ============================== */
+  logError(type, message, source) {
+    try {
+      const key = 'bht_error_log';
+      const log = JSON.parse(localStorage.getItem(key) || '[]');
+      log.push({ t: new Date().toISOString(), type, msg: String(message).substring(0, 200), src: source || '' });
+      if (log.length > 50) log.splice(0, log.length - 50);
+      localStorage.setItem(key, JSON.stringify(log));
+      // Update error badge
+      const badge = document.getElementById('error-badge');
+      if (badge) { badge.textContent = log.length; badge.classList.remove('d-none'); }
+    } catch(e) { /* storage full or unavailable */ }
+  },
+
+  getErrorLog() {
+    try { return JSON.parse(localStorage.getItem('bht_error_log') || '[]'); } catch(e) { return []; }
+  },
+
+  clearErrorLog() {
+    localStorage.removeItem('bht_error_log');
+    const badge = document.getElementById('error-badge');
+    if (badge) badge.classList.add('d-none');
   },
 
   /* ==============================

@@ -1441,9 +1441,9 @@ Object.assign(Pages, {
                     ${d._localFile ? `<button class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4" onclick="Pages._scViewLocalDoc('${d._localId}')"><i class="bi bi-eye"></i></button>` : ''}
                     ${d._localFile ? `<button class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4" onclick="Pages._scDownloadLocalDoc('${d._localId}')"><i class="bi bi-download"></i></button>` : ''}
                     ${d._localFile ? `<button class="btn btn-sm btn-outline-danger" title="\u05DE\u05D7\u05D9\u05E7\u05D4" onclick="Pages._scDeleteLocalDoc('${d._localId}')"><i class="bi bi-trash"></i></button>` : ''}
-                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/file/d/${driveId}/preview" target="_blank" class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4"><i class="bi bi-eye"></i></a>` : ''}
-                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/uc?export=download&id=${driveId}" target="_blank" class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>`
-                      : (!d._localFile && docUrl ? `<a href="${docUrl}" target="_blank" class="btn btn-sm btn-outline-primary" title="\u05E4\u05EA\u05D7"><i class="bi bi-box-arrow-up-right"></i></a>` : '')}
+                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/file/d/${driveId}/preview" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info" title="\u05E6\u05E4\u05D9\u05D9\u05D4"><i class="bi bi-eye"></i></a>` : ''}
+                    ${!d._localFile && driveId ? `<a href="https://drive.google.com/uc?export=download&id=${driveId}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success" title="\u05D4\u05D5\u05E8\u05D3\u05D4"><i class="bi bi-download"></i></a>`
+                      : (!d._localFile && docUrl ? `<a href="${docUrl}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="\u05E4\u05EA\u05D7"><i class="bi bi-box-arrow-up-right"></i></a>` : '')}
                     ${d._localFile ? '<small class="badge bg-info ms-1">\u05DE\u05E7\u05D5\u05DE\u05D9</small>' : ''}
                   </div>
                 </div>`;
