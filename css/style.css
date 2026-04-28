@@ -4670,3 +4670,8 @@ html { scroll-behavior: smooth; }
 /* ===== Dark Mode Charts ===== */
 [data-theme="dark"] canvas { filter: brightness(.95); }
 [data-theme="dark"] .chart-container { background: #1e293b; border-radius: 8px; padding: 8px; }
+
+/* ===== Dark Mode Dialer Grid ===== */
+[data-theme="dark"] .dialer-grid { gap: 8px; }
+[data-theme="dark"] .dialer-call { background: #059669 !important; }
+[data-theme="dark"] .dialer-delete { background: #334155 !important; color: #94a3b8 !important; }
