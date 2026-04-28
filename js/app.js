@@ -288,6 +288,7 @@ const App = {
     this.currentPage = page;
     this.trackRecentPage(page, param);
     this._syncBottomNav(page);
+    this._renderBreadcrumbs(page, param);
     // Update document title (WCAG 2.4.2) + announce to screen readers
     const pageTitles = { dashboard:'לוח בקרה', students:'תלמידים', attendance:'נוכחות', staff:'צוות',
       parents:'הורים', finance:'כספים', behavior:'התנהגות', homework:'שיעורי בית', academics:'מבחנים',
@@ -1182,6 +1183,28 @@ const App = {
     if (!bar) return;
     bar.classList.add('done');
     setTimeout(() => bar.remove(), 350);
+  },
+
+  // Render breadcrumbs based on page hierarchy
+  _renderBreadcrumbs(page, param) {
+    const nav = document.getElementById('breadcrumbs');
+    if (!nav) return;
+    const parents = { student: 'students', staff_card: 'staff', parent_card: 'parents', attendance_monthly: 'attendance', staff_salary: 'staff', pettycash: 'finance', budget: 'finance', donations: 'finance', paymentplans: 'finance' };
+    const titles = { dashboard: 'לוח בקרה', students: 'תלמידים', staff: 'צוות', parents: 'הורים', attendance: 'נוכחות', finance: 'כספים', behavior: 'התנהגות', homework: 'שיעורי בית', tasks: 'משימות', calendar: 'לוח שנה', communications: 'תקשורת', reports: 'דוחות', settings: 'הגדרות', email: 'דואר', drive: 'קבצים', printcenter: 'הדפסות', medical: 'רפואי', student: 'כרטיס תלמיד', staff_card: 'כרטיס איש צוות', parent_card: 'כרטיס הורה' };
+    if (page === 'dashboard') { nav.classList.add('d-none'); return; }
+    const trail = [{ p: 'dashboard', t: 'לוח בקרה' }];
+    const stack = [];
+    let cur = page;
+    while (cur && cur !== 'dashboard') {
+      stack.unshift({ p: cur, t: titles[cur] || cur });
+      cur = parents[cur];
+    }
+    trail.push(...stack);
+    const ol = nav.querySelector('ol');
+    ol.innerHTML = trail.map((c, i) => i === trail.length - 1
+      ? `<li class="breadcrumb-item active" aria-current="page">${c.t}</li>`
+      : `<li class="breadcrumb-item"><a href="#${c.p}">${c.t}</a></li>`).join('');
+    nav.classList.remove('d-none');
   },
 
   // Sync mobile bottom-nav active state on route change
