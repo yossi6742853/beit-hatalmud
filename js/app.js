@@ -98,6 +98,7 @@ const App = {
       this.initModalFocusReturn();
       this.initScrollClass();
       this.initAutoHideNavbar();
+      this.initIdleLogout();
       this._enhanceA11yForms(document.body);
       this._initDriveCatalogIndex();
     } catch(e) {
@@ -191,9 +192,27 @@ const App = {
       this.showLoginError('\u05D4\u05E7\u05D5\u05D3 \u05D7\u05D9\u05D9\u05D1 \u05DC\u05D4\u05DB\u05D9\u05DC 4-6 \u05E1\u05E4\u05E8\u05D5\u05EA');
       return;
     }
-    // Store hashed PIN, track login time, and enter
-    localStorage.setItem(this.PIN_KEY, Utils.hashPin(pin));
+    // Lockout check: exponential backoff after 5 failures
+    const lock = JSON.parse(localStorage.getItem('bht_pin_fail') || '{"n":0,"until":0}');
+    if (Date.now() < lock.until) {
+      const secs = Math.ceil((lock.until - Date.now()) / 1000);
+      this.showLoginError(`\u05E0\u05E2\u05D5\u05DC \u05E2\u05D5\u05D3 ${secs} \u05E9\u05E0\u05D9\u05D5\u05EA \u05D1\u05E2\u05E7\u05D1\u05D5\u05EA \u05E0\u05D9\u05E1\u05D9\u05D5\u05E0\u05D5\u05EA \u05E9\u05D2\u05D5\u05D9\u05D9\u05DD`);
+      return;
+    }
+    const stored = localStorage.getItem(this.PIN_KEY);
+    const candidate = Utils.hashPin(pin);
+    if (stored && stored !== candidate) {
+      // Wrong PIN \u2014 record failure
+      lock.n = (lock.n || 0) + 1;
+      lock.until = lock.n >= 5 ? Date.now() + Math.min(60000 * Math.pow(2, lock.n - 5), 30 * 60000) : 0;
+      localStorage.setItem('bht_pin_fail', JSON.stringify(lock));
+      this.showLoginError(`PIN \u05E9\u05D2\u05D5\u05D9 (${lock.n})`);
+      return;
+    }
+    if (!stored) localStorage.setItem(this.PIN_KEY, candidate); // first-run only
+    localStorage.removeItem('bht_pin_fail'); // reset on success
     localStorage.setItem('bht_last_login', new Date().toISOString());
+    localStorage.setItem('bht_last_activity', String(Date.now()));
     this.showApp();
     // Welcome toast with quick stats
     try {
@@ -1225,6 +1244,30 @@ const App = {
         try { lastTrigger.focus(); } catch(e) { /* silent */ }
       }
     });
+  },
+
+  // Idle-timeout auto-logout (30 min sliding)
+  initIdleLogout() {
+    const IDLE_MS = 30 * 60000;
+    const bump = () => { if (this.isLoggedIn()) localStorage.setItem('bht_last_activity', String(Date.now())); };
+    ['click', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, bump, { passive: true }));
+    setInterval(() => {
+      if (!this.isLoggedIn()) return;
+      const last = parseInt(localStorage.getItem('bht_last_activity') || String(Date.now()), 10);
+      if (Date.now() - last > IDLE_MS) {
+        Utils.toast('יצא אוטומטית בגלל חוסר פעילות', 'info');
+        this.logout();
+      }
+    }, 30000);
+  },
+
+  // Audit log: who-did-what-when (capped at 500 entries in localStorage)
+  audit(action, target = '', meta = {}) {
+    try {
+      const log = JSON.parse(localStorage.getItem('bht_audit_log') || '[]');
+      log.unshift({ ts: Date.now(), action, target, meta });
+      Utils.safeSetItem('bht_audit_log', JSON.stringify(log.slice(0, 500)));
+    } catch (e) { /* silent */ }
   },
 
   // Sticky-header shadow on scroll
