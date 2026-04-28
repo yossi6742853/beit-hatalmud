@@ -183,6 +183,9 @@ Object.assign(Pages, {
         </div>
       </div>
 
+      <!-- Money Flow Snapshot -->
+      <div class="row g-3 mb-4" id="money-flow"></div>
+
       <!-- Recent Payments + Upcoming Events + New Documents -->
       <div class="row g-3 mb-4">
         <div class="col-lg-4">
@@ -699,6 +702,27 @@ Object.assign(Pages, {
           </div>
         </div>`;
       }
+    }
+
+    // === 6d. Money flow snapshot (paid this month / pending / overdue) ===
+    const mfEl = document.getElementById('money-flow');
+    if (mfEl) {
+      const thisMonth = todayISO.slice(0, 7);
+      const paid = finance.filter(f => (f['תאריך_תשלום'] || '').startsWith(thisMonth) && (f['סטטוס'] || '') === 'שולם').reduce((s, f) => s + (parseFloat(f['סכום']) || 0), 0);
+      const pending = unpaidFinance.reduce((s, f) => s + (parseFloat(f['סכום']) || 0), 0);
+      const overdue = unpaidFinance.filter(f => (f['תאריך_יעד'] || '') && (f['תאריך_יעד'] || '') < todayISO).reduce((s, f) => s + (parseFloat(f['סכום']) || 0), 0);
+      const cards = [
+        { label: 'שולם החודש',   val: paid,    color: 'success', icon: 'bi-check-circle-fill' },
+        { label: 'ממתין לתשלום',  val: pending, color: 'warning', icon: 'bi-hourglass-split' },
+        { label: 'חוב נוכחי',     val: overdue, color: 'danger',  icon: 'bi-exclamation-triangle-fill' }
+      ];
+      mfEl.innerHTML = cards.map(c => `<div class="col-md-4">
+        <div class="card border-0 shadow-sm border-start border-${c.color} border-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-1"><i class="bi ${c.icon} text-${c.color}"></i><small class="text-muted">${c.label}</small></div>
+            <div class="fs-4 fw-bold text-${c.color}">${Utils.formatCurrency(c.val)}</div>
+          </div>
+        </div></div>`).join('');
     }
 
     // === 7. System Health ===
