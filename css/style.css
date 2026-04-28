@@ -5174,6 +5174,51 @@ body.scrolled .topbar { box-shadow: 0 4px 14px rgba(15,23,42,.08); backdrop-filt
 
   /* Typographic polish */
   p, li, dd { orphans: 3; widows: 3; }
+}
+
+/* ===== Render perf: content-visibility:auto on long lists ===== */
+.student-card, .att-row, .fin-row, .behavior-row, .homework-card,
+.list-group-item, .table-bht tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 80px;
+}
+
+/* contain:layout/paint on offscreen-prone widgets */
+.card, .modal-body { contain: layout style; }
+
+/* ===== Mobile perf — kill backdrop-filter, infinite anims, multi-layer shadows ===== */
+@media (max-width: 991.98px), (hover: none) {
+  /* Backdrop blur forces compositor off-screen pass — kill on phones */
+  .login-card, .topbar, .glass, .bht-glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .modal-backdrop.show {
+    backdrop-filter: blur(2px) !important;
+    -webkit-backdrop-filter: blur(2px) !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  /* Disable always-on infinite animations (battery + GPU) */
+  .login-bg::before, .orb, .pulse-glow, .shimmer,
+  .badge-pulse, .bell-pulse, .progress-stripes, .rainbow-bar { animation: none !important; }
+
+  /* Simpler shadow tokens on mobile */
+  :root {
+    --bht-shadow: 0 1px 2px rgba(0,0,0,.08);
+    --bht-shadow-md: 0 2px 4px rgba(0,0,0,.08);
+    --bht-shadow-lg: 0 4px 8px rgba(0,0,0,.1);
+    --bht-shadow-xl: 0 6px 12px rgba(0,0,0,.12);
+  }
+}
+
+/* Wider touch-action coverage (kill 300ms delay on more elements) */
+a, button, [role="button"], .list-group-item, .nav-link, .card[role="button"],
+.search-box input, #mobile-bottom-nav a, .tab-pane { touch-action: manipulation; }
+.modal-body, .table-responsive { touch-action: pan-y; }
+
+@media print {
   h1 + p, h2 + p, h3 + p { page-break-before: avoid; break-before: avoid; }
   table.pc-table, table.table-bht { table-layout: fixed; word-wrap: break-word; }
   tr { page-break-inside: avoid; break-inside: avoid; }

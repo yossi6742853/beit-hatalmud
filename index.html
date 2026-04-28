@@ -8,7 +8,7 @@
   <meta name="author" content="\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3 \u2014 \u05DE\u05DB\u05D9\u05E0\u05D4 \u05DC\u05E6\u05E2\u05D9\u05E8\u05D9\u05DD">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="css/vendor/bootstrap.rtl.min.css" rel="stylesheet">
   <link href="css/vendor/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
@@ -1320,7 +1320,12 @@
   // SW cache managed by sw.js activate handler — not here
   </script>
   <script src="js/vendor/bootstrap.bundle.min.js" defer></script>
-  <script src="js/vendor/chart.umd.min.js" defer></script>
+  <script src="js/vendor/chart.umd.min.js" defer fetchpriority="low"></script>
+
+  <!-- Prefetch hot-path page modules during idle -->
+  <link rel="prefetch" href="js/pages/students.js" as="script">
+  <link rel="prefetch" href="js/pages/attendance.js" as="script">
+  <link rel="prefetch" href="js/pages/finance.js" as="script">
   <script src="js/utils.js?v=6.8" defer></script>
   <script src="js/data-cache.js?v=6.8" defer></script>
   <script src="js/app.js?v=6.8" defer></script>

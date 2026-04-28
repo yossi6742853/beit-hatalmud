@@ -673,6 +673,10 @@ Object.assign(Pages, {
     this.studentsInit();
   },
 
+  /* ---- Memoize streak computation (perf: was N×M each render) ---- */
+  _streakCache: null,
+  _streakInvalidate() { this._streakCache = null; },
+
   /* ---- Add/Edit Form ---- */
   showStudentForm(student = null) {
     document.getElementById('student-modal-title').textContent = student ? '\u05E2\u05E8\u05D9\u05DB\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3' : '\u05D4\u05D5\u05E1\u05E4\u05EA \u05EA\u05DC\u05DE\u05D9\u05D3';
