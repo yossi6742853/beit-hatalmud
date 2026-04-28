@@ -4651,3 +4651,51 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .login-pin-dot { border-color: #475569; background: #0f172a; }
 [data-theme="dark"] .login-pin-dot.filled { background: #3b82f6; border-color: #3b82f6; }
 [data-theme="dark"] .login-error-v2 { color: #fca5a5; }
+
+/* ===== Round 27: Mobile UX hardening (v6.8) ===== */
+/* Tables: horizontal-scroll wrapper with subtle shadow indicator on overflow */
+@media (max-width: 767.98px) {
+  .table-responsive,
+  .card > .table {
+    -webkit-overflow-scrolling: touch;
+    background:
+      linear-gradient(to left, var(--bs-body-bg) 30%, rgba(255,255,255,0)) left center,
+      linear-gradient(to right, var(--bs-body-bg) 30%, rgba(255,255,255,0)) right center,
+      radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.12), rgba(0,0,0,0)) left center,
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.12), rgba(0,0,0,0)) right center;
+    background-repeat: no-repeat;
+    background-size: 24px 100%, 24px 100%, 12px 100%, 12px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+  /* Touch targets: every interactive button/icon-link gets at least 40px hit area */
+  .btn-sm, .btn-group-sm > .btn { min-height: 40px; min-width: 40px; }
+  /* Modals: use full available width on small screens */
+  .modal-dialog { margin: .5rem; max-width: calc(100vw - 1rem); }
+  .modal-body { padding: 1rem; }
+  /* Form inputs: prevent iOS zoom-on-focus by ensuring 16px font-size */
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* RTL number inputs: keep digits LTR for readability of phone/amount fields */
+input[type="tel"], input[type="number"], input[inputmode="numeric"], input[inputmode="decimal"] {
+  direction: ltr;
+  text-align: right;
+}
+
+/* Focus ring: clearer keyboard-nav indicator (a11y) */
+.btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Print: hide noisy chrome */
+@media print {
+  .sidebar, .topbar, .modal-backdrop, .toast-container, #shortcuts-overlay, #command-palette,
+  .btn, .btn-group, .dropdown-toggle, .pagination, .floating-action, [data-bs-toggle="tooltip"] {
+    display: none !important;
+  }
+  body { background: #fff !important; color: #000 !important; }
+  .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+  a[href]:after { content: ''; }
+}
