@@ -1369,20 +1369,60 @@
   <script src="js/pages/tala.js" defer></script>
   <script>
   if('serviceWorker' in navigator) {
-    // Force update: unregister old SW, clear caches, then re-register
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      const needsUpdate = regs.some(r => r.waiting || r.installing);
-      regs.forEach(r => { if(r.waiting) r.waiting.postMessage({type:'SKIP_WAITING'}); });
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        reg.addEventListener('updatefound', () => {
-          const nw = reg.installing;
-          nw.addEventListener('statechange', () => {
-            if(nw.state === 'activated') location.reload();
-          });
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw.addEventListener('statechange', () => {
+          // Show banner instead of silent reload (so user doesn't lose form data)
+          if(nw.state === 'installed' && navigator.serviceWorker.controller) {
+            const b = document.createElement('div');
+            b.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:9999;background:#1d4ed8;color:#fff;padding:.6rem 1rem;border-radius:.5rem;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;gap:.5rem;align-items:center;direction:rtl';
+            b.innerHTML = '<i class="bi bi-arrow-clockwise"></i> גרסה חדשה זמינה ' +
+              '<button class="btn btn-sm btn-light" id="sw-up-now">רענן עכשיו</button>' +
+              '<button class="btn btn-sm btn-link text-white" onclick="this.parentElement.remove()">אחר כך</button>';
+            document.body.appendChild(b);
+            document.getElementById('sw-up-now').onclick = () => { nw.postMessage({type:'SKIP_WAITING'}); location.reload(); };
+          }
         });
       });
     });
+    // Reload once when new SW takes control
+    let _refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!_refreshing) { _refreshing = true; location.reload(); }
+    });
   }
+
+  // PWA install prompt (deferred — surface after 3 visits)
+  let _deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    _deferredInstall = e;
+    const visits = parseInt(localStorage.getItem('bht_visits') || '0', 10) + 1;
+    localStorage.setItem('bht_visits', String(visits));
+    if (visits >= 3 && !localStorage.getItem('bht_install_dismissed')) {
+      setTimeout(() => {
+        if (!_deferredInstall) return;
+        const b = document.createElement('div');
+        b.style.cssText = 'position:fixed;bottom:5rem;left:1rem;right:1rem;z-index:9998;background:#0f172a;color:#fff;padding:.75rem 1rem;border-radius:.75rem;box-shadow:0 12px 32px rgba(0,0,0,.3);display:flex;gap:.5rem;align-items:center;direction:rtl;max-width:520px;margin:0 auto';
+        b.innerHTML = '<i class="bi bi-download fs-3"></i><div class="flex-grow-1"><b>התקן את האפליקציה</b><div class="small opacity-75">גישה מהירה ועבודה ללא חיבור</div></div>' +
+          '<button class="btn btn-primary btn-sm" id="bht-install-yes">התקן</button>' +
+          '<button class="btn-close btn-close-white" id="bht-install-x" aria-label="סגור"></button>';
+        document.body.appendChild(b);
+        document.getElementById('bht-install-yes').onclick = async () => {
+          _deferredInstall.prompt();
+          await _deferredInstall.userChoice; _deferredInstall = null; b.remove();
+        };
+        document.getElementById('bht-install-x').onclick = () => {
+          localStorage.setItem('bht_install_dismissed', String(Date.now())); b.remove();
+        };
+      }, 8000);
+    }
+  });
+  window.addEventListener('appinstalled', () => {
+    localStorage.setItem('bht_installed', '1');
+    if (typeof Utils !== 'undefined') Utils.toast('האפליקציה הותקנה בהצלחה!', 'success');
+  });
   </script>
 </body>
 </html>
