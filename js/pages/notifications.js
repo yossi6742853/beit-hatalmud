@@ -210,9 +210,27 @@ Object.assign(Pages, {
       });
     }
 
+    // Group same-day same-type attendance/behavior events to reduce noise
+    const grouped = {};
+    const passthrough = [];
+    events.forEach(e => {
+      if (e.type !== 'attendance' && e.type !== 'academic') { passthrough.push(e); return; }
+      const day = new Date(e.ts).toISOString().slice(0, 10);
+      const head = (e.title || '').split('—')[0].trim();
+      const key = e.type + '|' + day + '|' + head;
+      if (!grouped[key]) grouped[key] = { ...e, _group: true, _children: [e] };
+      else grouped[key]._children.push(e);
+    });
+    const groupedArr = Object.values(grouped).map(g => {
+      if (g._children.length < 2) return g._children[0];
+      const names = g._children.map(c => (c.title || '').split('—')[1]?.trim()).filter(Boolean);
+      return { ...g, title: g._children.length + ' ' + (g.title.split('—')[0].trim()), desc: names.slice(0, 4).join(', ') + (names.length > 4 ? `, +${names.length - 4}` : '') };
+    });
+    const merged = passthrough.concat(groupedArr);
+
     // Sort by date desc, take last 20
-    events.sort((a, b) => b.ts - a.ts);
-    const top20 = events.slice(0, 20);
+    merged.sort((a, b) => b.ts - a.ts);
+    const top20 = merged.slice(0, 20);
 
     if (top20.length) {
       this._saveNotifications(top20);
