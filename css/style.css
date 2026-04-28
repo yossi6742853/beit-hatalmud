@@ -4641,3 +4641,10 @@ html { scroll-behavior: smooth; }
 /* ===== Dark Mode Print Center ===== */
 [data-theme="dark"] .pc-template-card { background: #1e293b; border-color: #334155; }
 [data-theme="dark"] .pc-template-card:hover { background: #253347; }
+
+/* ===== Dark Mode Attendance Buttons ===== */
+[data-theme="dark"] .att-btn { background: #1e293b; border-color: #475569; color: #94a3b8; }
+[data-theme="dark"] .att-btn:hover { background: #334155; }
+[data-theme="dark"] .att-btn.selected.present { background: #065f46; color: #6ee7b7; }
+[data-theme="dark"] .att-btn.selected.absent { background: #7f1d1d; color: #fca5a5; }
+[data-theme="dark"] .att-btn.selected.late { background: #78350f; color: #fcd34d; }
