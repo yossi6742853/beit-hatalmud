@@ -5208,6 +5208,17 @@ body.scrolled .topbar { box-shadow: 0 4px 14px rgba(15,23,42,.08); backdrop-filt
 .breadcrumb-item a { color: #1d4ed8 !important; }
 .breadcrumb-item.active { color: #52596a !important; }
 
+/* ===== Focus visibility upgrades (Day 4-7) ===== */
+.dropdown-item:hover, .dropdown-item:focus, .dropdown-item:focus-visible {
+  background: rgba(37,99,235,.1);
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
+}
+.form-control.is-invalid:focus-visible, .form-select.is-invalid:focus-visible {
+  box-shadow: 0 0 0 .25rem rgba(220,38,38,.35);
+  outline: none;
+}
+
 @media (max-width: 991.98px) {
   /* Disable always-on infinite animations (battery + GPU) */
   .login-bg::before, .orb, .pulse-glow, .shimmer,

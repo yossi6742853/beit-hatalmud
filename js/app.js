@@ -99,6 +99,10 @@ const App = {
       this.initScrollClass();
       this.initAutoHideNavbar();
       this.initIdleLogout();
+      // Universal: focus first .is-invalid field after native HTML5 validation
+      document.addEventListener('invalid', (e) => {
+        if (e.target?.focus) try { e.target.focus(); } catch(_) { /* silent */ }
+      }, true);
       this._enhanceA11yForms(document.body);
       this._initDriveCatalogIndex();
     } catch(e) {
