@@ -728,7 +728,7 @@ Object.assign(Pages, {
     }
     this._saveMedData();
 
-    bootstrap.Modal.getInstance(document.getElementById('med-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('med-modal'))?.hide();
     Utils.toast(existingId ? '\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4' : '\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4', 'success');
     this.renderMedAlerts();
     this.renderMedRecords();
@@ -831,7 +831,7 @@ Object.assign(Pages, {
     }
     this._saveMedEvents();
 
-    bootstrap.Modal.getInstance(document.getElementById('med-event-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('med-event-modal'))?.hide();
     Utils.toast(existingId ? '\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D0\u05D9\u05E8\u05D5\u05E2 \u05E0\u05D5\u05E1\u05E3', 'success');
     this.renderMedEvents();
   },

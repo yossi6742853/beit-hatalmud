@@ -448,7 +448,7 @@ Object.assign(Pages, {
       Utils.toast('מודעה חדשה נוספה');
     }
 
-    bootstrap.Modal.getInstance(document.getElementById('bln-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('bln-modal'))?.hide();
     this._blnEditId = null;
     this._bulletinRender();
   },

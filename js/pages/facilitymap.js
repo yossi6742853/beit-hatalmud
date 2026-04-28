@@ -374,7 +374,7 @@ Object.assign(Pages, {
     } catch(e) { /* localStorage fallback */ }
 
     Pages._facilityUpdateCard(id);
-    bootstrap.Modal.getInstance(document.getElementById('roomDetailModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('roomDetailModal'))?.hide();
     // Show toast
     Pages._facilityToast(`חדר "${r.name}" עודכן בהצלחה`);
   },

@@ -112,7 +112,7 @@ Object.assign(Pages, {
     const totalVotes = polls.reduce((s, p) => s + this._pollTotalVotes(p), 0);
     const avgVotes = totalPolls ? Math.round(totalVotes / totalPolls) : 0;
     const participation = totalPolls ? Math.round((Object.keys(st.voted).length / activePolls.length) * 100) || 0 : 0;
-    const mostActive = polls.reduce((best, p) => this._pollTotalVotes(p) > this._pollTotalVotes(best) ? p : best, polls[0]);
+    const mostActive = polls.length ? polls.reduce((best, p) => this._pollTotalVotes(p) > this._pollTotalVotes(best) ? p : best, polls[0]) : null;
 
     // Filter
     let filtered = polls.filter(p => st.tab === 'active' ? !p.closed : p.closed);

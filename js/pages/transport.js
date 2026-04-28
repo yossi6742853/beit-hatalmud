@@ -589,7 +589,7 @@ Object.assign(Pages, {
     }
 
     this._trSaveToStorage();
-    bootstrap.Modal.getInstance(document.getElementById('trRouteModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('trRouteModal'))?.hide();
     this._trRefresh();
   },
 
@@ -667,7 +667,7 @@ Object.assign(Pages, {
     }
 
     this._trSaveToStorage();
-    bootstrap.Modal.getInstance(document.getElementById('trDriverModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('trDriverModal'))?.hide();
     this._trRefresh();
   },
 
@@ -747,7 +747,7 @@ Object.assign(Pages, {
     try { await App.apiCall('update', '\u05D4\u05E1\u05E2\u05D5\u05EA', { id: routeId, row: route }); } catch (e) { /* localStorage fallback */ }
     this._trSaveToStorage();
     Utils.toast('התחנות עודכנו', 'success');
-    bootstrap.Modal.getInstance(document.getElementById('trStopsModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('trStopsModal'))?.hide();
     this._trRefresh();
   },
 
@@ -811,7 +811,7 @@ Object.assign(Pages, {
     // For demo purposes, just toast — in real app, this would persist to DB
     const assigned = checked.filter(c => c.checked).length;
     Utils.toast(`${assigned} תלמידים שויכו לקו`, 'success');
-    bootstrap.Modal.getInstance(document.getElementById('trAssignModal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('trAssignModal'))?.hide();
   },
 
   trShowRouteStudents(routeId) {

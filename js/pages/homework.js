@@ -927,7 +927,7 @@ Object.assign(Pages, {
 
     try {
       await App.apiCall('add', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05D1\u05D9\u05EA', { row });
-      bootstrap.Modal.getInstance(document.getElementById('hw-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('hw-modal'))?.hide();
       Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3');
       this.homeworkInit();
     } catch (e) {
@@ -949,7 +949,7 @@ Object.assign(Pages, {
         });
       });
 
-      bootstrap.Modal.getInstance(document.getElementById('hw-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('hw-modal'))?.hide();
       Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05D1\u05D9\u05EA \u05E0\u05D5\u05E1\u05E3 (\u05DE\u05E7\u05D5\u05DE\u05D9)');
       this.homeworkInit();
     }

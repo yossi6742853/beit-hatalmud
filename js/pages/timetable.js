@@ -391,7 +391,7 @@ Object.assign(Pages, {
      TEACHER GRID
      ====================================================================== */
   _ttRenderTeacherGrid() {
-    const tid = this._ttSelectedTeacher || this._ttTeachers[0].id;
+    const tid = this._ttSelectedTeacher || (this._ttTeachers[0]||{}).id||'';
     const teacher = this._ttGetTeacher(tid);
 
     let html = `<table class="table table-bordered table-sm text-center mb-0" style="table-layout:fixed">
@@ -478,7 +478,7 @@ Object.assign(Pages, {
   _ttToggleView() {
     if (this._ttViewMode === 'class') {
       this._ttViewMode = 'teacher';
-      this._ttSelectedTeacher = this._ttSelectedTeacher || this._ttTeachers[0].id;
+      this._ttSelectedTeacher = this._ttSelectedTeacher || (this._ttTeachers[0]||{}).id||'';
     } else {
       this._ttViewMode = 'class';
     }
@@ -499,8 +499,8 @@ Object.assign(Pages, {
       roomEl.value = lesson.room;
     } else {
       subEl.value = '';
-      tchEl.value = this._ttTeachers[0].id;
-      roomEl.value = this._ttRooms[0];
+      tchEl.value = (this._ttTeachers[0]||{}).id||'';
+      roomEl.value = this._ttRooms[0]||'';
     }
     document.getElementById('ttEditConflictWarn').classList.add('d-none');
     const modal = new bootstrap.Modal(document.getElementById('ttEditModal'));
@@ -573,7 +573,7 @@ Object.assign(Pages, {
      ====================================================================== */
   _ttPrint() {
     const title = this._ttViewMode === 'teacher'
-      ? (this._ttGetTeacher(this._ttSelectedTeacher || this._ttTeachers[0].id)?.name || 'מורה')
+      ? (this._ttGetTeacher(this._ttSelectedTeacher || (this._ttTeachers[0]||{}).id||'')?.name || 'מורה')
       : this._ttSelectedClass;
 
     const gridHtml = document.querySelector('#tt-grid-card .table-responsive')?.innerHTML || '';

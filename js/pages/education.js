@@ -374,7 +374,7 @@ Object.assign(Pages, {
       });
       this._acaApplyData();
       this._acaPopulateFilters();
-      bootstrap.Modal.getInstance(document.getElementById('aca-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('aca-modal'))?.hide();
       Utils.toast('\u05DE\u05D1\u05D7\u05DF \u05E0\u05D5\u05E1\u05E3 (\u05D3\u05DE\u05D5)');
       this.renderAca();
       return;
@@ -391,7 +391,7 @@ Object.assign(Pages, {
     };
     try {
       await App.apiCall('add', '\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD', { row });
-      bootstrap.Modal.getInstance(document.getElementById('aca-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('aca-modal'))?.hide();
       Utils.toast('\u05DE\u05D1\u05D7\u05DF \u05E0\u05E9\u05DE\u05E8');
       this.academicsInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
@@ -639,7 +639,7 @@ Object.assign(Pages, {
     list.innerHTML = students.map(s => {
       const name = Utils.fullName(s);
       const sid = Utils.rowId(s);
-      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.showStudentProfile('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal')).hide();">
+      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.showStudentProfile('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal'))?.hide();">
         ${Utils.avatarHTML(name,'sm')} <span>${name}</span> <small class="text-muted ms-auto">${s['\u05DB\u05D9\u05EA\u05D4']||''}</small>
       </div>`;
     }).join('');
@@ -656,7 +656,7 @@ Object.assign(Pages, {
     list.innerHTML = filtered.map(s => {
       const name = Utils.fullName(s);
       const sid = Utils.rowId(s);
-      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.showStudentProfile('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal')).hide();">
+      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.showStudentProfile('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal'))?.hide();">
         ${Utils.avatarHTML(name,'sm')} <span>${name}</span> <small class="text-muted ms-auto">${s['\u05DB\u05D9\u05EA\u05D4']||''}</small>
       </div>`;
     }).join('');
@@ -766,7 +766,7 @@ Object.assign(Pages, {
     list.innerHTML = students.map(s => {
       const name = Utils.fullName(s);
       const sid = Utils.rowId(s);
-      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.generateReportCard('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal')).hide();">
+      return `<div class="d-flex align-items-center gap-2 p-2 rounded hover-bg" style="cursor:pointer" onclick="Pages.generateReportCard('${sid}');bootstrap.Modal.getInstance(document.getElementById('aca-student-modal'))?.hide();">
         ${Utils.avatarHTML(name,'sm')} <span>${name}</span> <small class="text-muted ms-auto">${s['\u05DB\u05D9\u05EA\u05D4']||''}</small>
       </div>`;
     }).join('');
@@ -2067,7 +2067,7 @@ Object.assign(Pages, {
 
     // Add to local state
     this._mvzProgress.push(entry);
-    bootstrap.Modal.getInstance(document.getElementById('mvz-log-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('mvz-log-modal'))?.hide();
     Utils.toast('\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05E0\u05E9\u05DE\u05E8\u05D4 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
 
     // Refresh
@@ -2113,7 +2113,7 @@ Object.assign(Pages, {
     };
     this._mvzCampaigns.unshift(campaign);
 
-    bootstrap.Modal.getInstance(document.getElementById('mvz-create-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('mvz-create-modal'))?.hide();
     Utils.toast('\u05DE\u05D1\u05E6\u05E2 \u05D7\u05D3\u05E9 \u05E0\u05D5\u05E6\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4!');
 
     this.renderMvzStats();

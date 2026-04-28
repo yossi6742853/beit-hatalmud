@@ -524,7 +524,7 @@ Object.assign(Pages, {
       '\u05E1\u05D9\u05D1\u05D4': reason,
       '\u05E1\u05D8\u05D8\u05D5\u05E1': '\u05DE\u05EA\u05D5\u05DB\u05E0\u05DF'
     });
-    bootstrap.Modal.getInstance(document.getElementById('par-meeting-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('par-meeting-modal'))?.hide();
     Utils.toast('\u05E4\u05D2\u05D9\u05E9\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4');
     if (this._parTab === 'meetings') this.renderParents();
   },
@@ -612,7 +612,7 @@ Object.assign(Pages, {
         row.id = Date.now();
         await App.apiCall('add', '\u05D4\u05D5\u05E8\u05D9\u05DD', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('par-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('par-modal'))?.hide();
       Utils.toast(this._parEditId ? '\u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3');
       this._parEditId = null;
       this.parentsInit();
@@ -2009,7 +2009,7 @@ Object.assign(Pages, {
   showFormTemplates() {
     const html = `<div class="modal fade" id="form-templates-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5>\u05D1\u05D7\u05E8 \u05EA\u05D1\u05E0\u05D9\u05EA \u05D8\u05D5\u05E4\u05E1</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">
       <div class="row g-3">
-        <div class="col-md-4"><div class="card p-3 text-center card-clickable" onclick="bootstrap.Modal.getInstance(document.getElementById('form-templates-modal')).hide();Pages.showCreateForm()"><i class="bi bi-plus-circle fs-1 text-primary"></i><h6 class="mt-2 fw-bold">\u05D8\u05D5\u05E4\u05E1 \u05E8\u05D9\u05E7</h6><small class="text-muted">\u05D4\u05EA\u05D7\u05DC \u05DE\u05D0\u05E4\u05E1</small></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center card-clickable" onclick="bootstrap.Modal.getInstance(document.getElementById('form-templates-modal'))?.hide();Pages.showCreateForm()"><i class="bi bi-plus-circle fs-1 text-primary"></i><h6 class="mt-2 fw-bold">\u05D8\u05D5\u05E4\u05E1 \u05E8\u05D9\u05E7</h6><small class="text-muted">\u05D4\u05EA\u05D7\u05DC \u05DE\u05D0\u05E4\u05E1</small></div></div>
         ${this._builtInForms.map((f,i) => `<div class="col-md-4"><div class="card p-3 text-center card-clickable" style="border-top:3px solid ${f.color}" onclick="Pages.useFormTemplate(${i})"><i class="bi bi-file-earmark-text fs-1" style="color:${f.color}"></i><h6 class="mt-2 fw-bold">${f.title}</h6><small class="text-muted">${f.fields.length} \u05E9\u05D3\u05D5\u05EA</small></div></div>`).join('')}
       </div>
     </div></div></div></div>`;
@@ -2196,7 +2196,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', '\u05D8\u05E4\u05E1\u05D9\u05DD', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('form-builder-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('form-builder-modal'))?.hide();
       Utils.toast(id ? '\u05D8\u05D5\u05E4\u05E1 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D8\u05D5\u05E4\u05E1 \u05E0\u05D5\u05E6\u05E8');
       this.formsInit();
     } catch(e) {

@@ -412,7 +412,7 @@ Object.assign(Pages, {
     this._libBooks.push(newBook);
     this._libSaveToStorage();
     App.apiCall('add', 'ספריה', { row: { ...newBook, type: 'book' } }).catch(e => console.warn('library add failed:', e));
-    bootstrap.Modal.getInstance(document.getElementById('add-book-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('add-book-modal'))?.hide();
     Utils.toast(`\u05D4\u05E1\u05E4\u05E8 "${title}" \u05E0\u05D5\u05E1\u05E3 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4`);
     this.renderLibrary();
   },
@@ -485,7 +485,7 @@ Object.assign(Pages, {
     book.borrowed++;
     this._libSaveToStorage();
     App.apiCall('add', 'ספריה', { row: { ...loan, type: 'loan' } }).catch(e => console.warn('library loan add failed:', e));
-    bootstrap.Modal.getInstance(document.getElementById('loan-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('loan-modal'))?.hide();
     Utils.toast(`"${book.title}" \u05D4\u05D5\u05E9\u05D0\u05DC \u05DC${student}`);
     this.renderLibrary();
   },
