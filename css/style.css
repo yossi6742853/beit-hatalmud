@@ -4648,3 +4648,10 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .att-btn.selected.present { background: #065f46; color: #6ee7b7; }
 [data-theme="dark"] .att-btn.selected.absent { background: #7f1d1d; color: #fca5a5; }
 [data-theme="dark"] .att-btn.selected.late { background: #78350f; color: #fcd34d; }
+
+/* ===== Dark Mode Behavior Cards ===== */
+[data-theme="dark"] .card.border-success { border-color: #065f46 !important; }
+[data-theme="dark"] .card.border-danger { border-color: #7f1d1d !important; }
+[data-theme="dark"] .card.border-warning { border-color: #78350f !important; }
+[data-theme="dark"] .card.border-info { border-color: #164e63 !important; }
+[data-theme="dark"] .card.border-primary { border-color: #1e3a5f !important; }
