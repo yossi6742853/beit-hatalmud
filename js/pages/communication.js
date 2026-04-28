@@ -1553,7 +1553,7 @@ Object.assign(Pages, {
       <!-- Input bar -->
       <div class="border-top p-3" style="background:var(--bht-card-bg)">
         <div class="input-group input-group-lg">
-          <button class="btn btn-outline-secondary" disabled title="\u05DE\u05D9\u05E7\u05E8\u05D5\u05E4\u05D5\u05DF (\u05D1\u05E7\u05E8\u05D5\u05D1)"><i class="bi bi-mic"></i></button>
+          <button class="btn btn-outline-secondary" id="ai-mic-btn" onclick="Pages.toggleAiMic()" title="\u05D4\u05E7\u05DC\u05D3\u05D4 \u05E7\u05D5\u05DC\u05D9\u05EA" aria-label="\u05D4\u05E7\u05DC\u05D3\u05D4 \u05E7\u05D5\u05DC\u05D9\u05EA"><i class="bi bi-mic" id="ai-mic-icon"></i></button>
           <input type="text" class="form-control" id="ai-input" placeholder="\u05D4\u05E7\u05DC\u05D3 \u05E9\u05D0\u05DC\u05D4..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();Pages.sendAi()}" style="font-size:1rem">
           <button class="btn btn-primary px-4" onclick="Pages.sendAi()" id="ai-send-btn"><i class="bi bi-send-fill"></i> \u05E9\u05DC\u05D7</button>
         </div>
@@ -1638,6 +1638,25 @@ Object.assign(Pages, {
     const input = document.getElementById('ai-input');
     if (input) input.value = q;
     this.sendAi();
+  },
+
+  toggleAiMic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { Utils.toast('הדפדפן לא תומך בהקלטה קולית', 'warning'); return; }
+    if (this._aiRec && this._aiRec._on) { this._aiRec.stop(); return; }
+    const rec = new SR();
+    rec.lang = 'he-IL'; rec.interimResults = true; rec.continuous = false;
+    const input = document.getElementById('ai-input');
+    const icon = document.getElementById('ai-mic-icon');
+    rec.onstart = () => { rec._on = true; if (icon) { icon.classList.replace('bi-mic', 'bi-mic-fill'); icon.classList.add('text-danger'); } };
+    rec.onresult = (e) => {
+      let t = ''; for (const r of e.results) t += r[0].transcript;
+      if (input) input.value = t;
+      if (e.results[e.results.length - 1].isFinal) { rec.stop(); this.sendAi(); }
+    };
+    rec.onend = () => { rec._on = false; if (icon) { icon.classList.replace('bi-mic-fill', 'bi-mic'); icon.classList.remove('text-danger'); } };
+    rec.onerror = () => { rec._on = false; Utils.toast('שגיאת מיקרופון — בדוק הרשאות', 'danger'); };
+    this._aiRec = rec; rec.start();
   },
 
   clearAiChat() {
