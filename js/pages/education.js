@@ -394,7 +394,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('aca-modal'))?.hide();
       Utils.toast('\u05DE\u05D1\u05D7\u05DF \u05E0\u05E9\u05DE\u05E8');
       this.academicsInit();
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('generic'); }
   },
 
   async deleteExam(id) {
@@ -407,7 +407,7 @@ Object.assign(Pages, {
       this.renderAca();
       return;
     }
-    try { await App.apiCall('delete','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.academicsInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    try { await App.apiCall('delete','\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.academicsInit(); } catch(e) { Utils.errorToast('generic'); }
   },
 
   /* --- Grade entry (spreadsheet-style) --- */
@@ -562,7 +562,7 @@ Object.assign(Pages, {
       this._acaGrades = await App.getData('\u05E6\u05D9\u05D5\u05E0\u05D9\u05DD');
       this._acaApplyData();
       this.renderAca();
-    } catch(e) { if (!silent) Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    } catch(e) { if (!silent) Utils.errorToast('generic'); }
   },
 
   /* --- Grade Distribution (Histogram) --- */
@@ -2125,6 +2125,6 @@ Object.assign(Pages, {
   async deleteCampaign(id) { return this.deleteMvz(id); },
   async deleteMvz(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D3\u05D9\u05D5\u05D5\u05D7 \u05D6\u05D4?')) return;
-    try { await App.apiCall('delete', '\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3', { id }); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    try { await App.apiCall('delete', '\u05DE\u05D1\u05E6\u05E2_\u05DC\u05D9\u05DE\u05D5\u05D3', { id }); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.mivtzaInit(); } catch(e) { Utils.errorToast('generic'); }
   },
 });

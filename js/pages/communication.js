@@ -619,7 +619,7 @@ Object.assign(Pages, {
       this._parEditId = null;
       this.parentsInit();
     } catch (e) {
-      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger');
+      Utils.errorToast('save');
     } finally {
       Utils.releaseLock('saveParent');
     }
@@ -2206,7 +2206,7 @@ Object.assign(Pages, {
       Utils.toast(id ? '\u05D8\u05D5\u05E4\u05E1 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05D8\u05D5\u05E4\u05E1 \u05E0\u05D5\u05E6\u05E8');
       this.formsInit();
     } catch(e) {
-      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger');
+      Utils.errorToast('save');
     }
   },
 
@@ -2217,7 +2217,7 @@ Object.assign(Pages, {
       Utils.toast('\u05D8\u05D5\u05E4\u05E1 \u05E0\u05DE\u05D7\u05E7');
       this.formsInit();
     } catch(e) {
-      Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger');
+      Utils.errorToast('generic');
     }
   },
 

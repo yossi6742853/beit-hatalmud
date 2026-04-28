@@ -1916,9 +1916,9 @@ Object.assign(Pages, {
       }
       bootstrap.Modal.getInstance(document.getElementById('um-modal'))?.hide();
       this.user_managementInit();
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    } catch(e) { Utils.errorToast('generic'); }
   },
-  async removeUser(id) { if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05EA\u05DE\u05E9 \u05D6\u05D4?')) return; try { await App.apiCall('delete','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.user_managementInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); } },
+  async removeUser(id) { if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E9\u05EA\u05DE\u05E9','\u05D4\u05D0\u05DD \u05DC\u05DE\u05D7\u05D5\u05E7 \u05DE\u05E9\u05EA\u05DE\u05E9 \u05D6\u05D4?')) return; try { await App.apiCall('delete','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{id}); Utils.toast('\u05E0\u05DE\u05D7\u05E7'); this.user_managementInit(); } catch(e) { Utils.errorToast('generic'); } },
 
 
   /* ======================================================================

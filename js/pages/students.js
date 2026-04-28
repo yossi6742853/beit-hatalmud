@@ -745,7 +745,7 @@ Object.assign(Pages, {
       App.clearFormDraft('student-modal');
       Utils.toast(id ? '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentsInit();
-    } catch (e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch (e) { Utils.errorToast('save'); }
     finally { Utils.releaseLock('saveStudent'); }
   },
 
@@ -755,7 +755,7 @@ Object.assign(Pages, {
       await App.apiCall('delete', '\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD', { id });
       Utils.toast('\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05DE\u05D7\u05E7');
       this.studentsInit();
-    } catch (e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
+    } catch (e) { Utils.errorToast('generic'); }
   },
 
   /* ---- CSV Export ---- */
@@ -1647,7 +1647,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05E0\u05E8\u05E9\u05DE\u05D4', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /** Add grade for current student */
@@ -1692,7 +1692,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05E6\u05D9\u05D5\u05DF \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /** Add behavior record */
@@ -1735,7 +1735,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA \u05E0\u05E8\u05E9\u05DE\u05D4', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /** Add payment record */
@@ -1787,7 +1787,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05EA\u05E9\u05DC\u05D5\u05DD \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /** Add parent */
@@ -1846,7 +1846,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05D4\u05D5\u05E8\u05D4 \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /** Upload document */
@@ -2055,7 +2055,7 @@ Object.assign(Pages, {
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
       Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4', 'success');
       this.studentInit(this._scStudentId);
-    } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    } catch(e) { Utils.errorToast('save'); }
   },
 
   /* ======================================================================
