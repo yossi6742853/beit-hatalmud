@@ -745,12 +745,13 @@ Object.assign(Pages, {
   async bulkMarkPaid() {
     if (!this._finSelectedIds.length) { Utils.toast('\u05D1\u05D7\u05E8 \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD','warning'); return; }
     if (!await Utils.confirm('\u05E1\u05D9\u05DE\u05D5\u05DF \u05DB\u05E9\u05D5\u05DC\u05DD', this._finSelectedIds.length + ' \u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD \u05D9\u05E1\u05D5\u05DE\u05E0\u05D5 \u05DB\u05E9\u05D5\u05DC\u05DD?')) return;
-    let done = 0;
+    let done = 0, failed = 0;
     for (const id of this._finSelectedIds) {
-      try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id, row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD','\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()}}); done++; } catch(e) { /* silent */ }
+      try { await App.apiCall('update','\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3',{id, row:{'\u05E1\u05D8\u05D8\u05D5\u05E1':'\u05E9\u05D5\u05DC\u05DD','\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD':Utils.todayISO()}}); done++; } catch(e) { failed++; }
     }
     this._finSelectedIds = [];
-    Utils.toast(done + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', 'success');
+    if (failed > 0) Utils.toast(`${done} \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5, ${failed} \u05E0\u05DB\u05E9\u05DC\u05D5`, 'warning');
+    else Utils.toast(done + ' \u05E8\u05E9\u05D5\u05DE\u05D5\u05EA \u05E2\u05D5\u05D3\u05DB\u05E0\u05D5', 'success');
     this.financeInit();
   },
 

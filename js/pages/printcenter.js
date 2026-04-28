@@ -889,7 +889,7 @@ Object.assign(Pages, {
 
   /* --- Student Card --- */
   _pcBuildStudentCard(opts) {
-    const s = opts.student || this._pcStudents[0];
+    const s = opts.student || (this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""});
     return `
       <div class="pc-doc" style="max-width:450px">
         ${this._pcDocHeader(opts, 'כרטיס תלמיד')}
@@ -953,7 +953,7 @@ Object.assign(Pages, {
 
   /* --- Certificate --- */
   _pcBuildCertificate(opts) {
-    const s = opts.student || this._pcStudents[0];
+    const s = opts.student || (this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""});
     return `
       <div class="pc-cert-frame">
         ${opts.showLogo ? '<img src="img/logo-bht.png" style="height:60px;margin-bottom:8px" alt="בית התלמוד">' : ''}
@@ -985,7 +985,7 @@ Object.assign(Pages, {
 
   /* --- Invoice / Receipt --- */
   _pcBuildInvoice(opts) {
-    const s = opts.student || this._pcStudents[0];
+    const s = opts.student || (this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""});
     const amount = parseFloat(opts.invoiceAmount) || 0;
     const vat = Math.round(amount * 0.17);
     const total = amount + vat;
@@ -1045,7 +1045,7 @@ Object.assign(Pages, {
 
   /* --- Grade Report --- */
   _pcBuildGrades(opts) {
-    const s = opts.student || this._pcStudents[0];
+    const s = opts.student || (this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""});
     const subjects = [
       { name: 'גמרא', grade: 92 }, { name: 'חומש', grade: 88 },
       { name: 'הלכה', grade: 95 }, { name: 'נ"ך', grade: 85 },
@@ -1195,7 +1195,7 @@ Object.assign(Pages, {
       students = [opts.student];
     } else {
       var cls2 = opts.cls;
-      students = cls2 ? this._pcStudents.filter(function(s) { return s.cls === cls2; }) : [this._pcStudents[0]];
+      students = cls2 ? this._pcStudents.filter(function(s) { return s.cls === cls2; }) : [(this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""})];
     }
 
     var self = this;
@@ -1835,7 +1835,7 @@ Object.assign(Pages, {
 
   /* --- Student Attendance Report (individual) --- */
   _pcBuildStudentAttendance(opts) {
-    var s = opts.student || this._pcStudents[0];
+    var s = opts.student || (this._pcStudents[0] || {name:"לא נבחר",cls:"",phone:"",status:""});
     if (!s) return '<p style="text-align:center;color:#999">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</p>';
 
     var month = opts.month || new Date().toISOString().slice(0, 7);
