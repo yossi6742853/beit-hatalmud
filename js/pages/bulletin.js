@@ -269,7 +269,7 @@ Object.assign(Pages, {
     // sort: pinned first, then by date desc
     items.sort((a,b) => {
       if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-      return b.date.localeCompare(a.date);
+      return (b.date||'').localeCompare(a.date||'');
     });
 
     // split pinned vs unpinned

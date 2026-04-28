@@ -2937,7 +2937,7 @@ Object.assign(Pages, {
 
   // ── Meeting Log View ──
   _renderCommMeetingLog() {
-    const meetings = [...this._commMeetings].sort((a,b) => b.date.localeCompare(a.date));
+    const meetings = [...this._commMeetings].sort((a,b) => (b.date||'').localeCompare(a.date||''));
     if (!meetings.length) {
       document.getElementById('comm-list').innerHTML = '<div class="empty-state"><i class="bi bi-journal-text"></i><h5>\u05D0\u05D9\u05DF \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA</h5></div>';
       return;
@@ -2975,7 +2975,7 @@ Object.assign(Pages, {
   showCommDetail(commId) {
     const c = this._commtData.find(x => x.id === commId);
     if (!c) return;
-    const meetings = this._commMeetings.filter(m => m.committeeId === commId).sort((a,b) => b.date.localeCompare(a.date));
+    const meetings = this._commMeetings.filter(m => m.committeeId === commId).sort((a,b) => (b.date||'').localeCompare(a.date||''));
     const members = Array.isArray(c.members) ? c.members : [];
     const stColor = (c.status || '\u05E4\u05E2\u05D9\u05DC') === '\u05E4\u05E2\u05D9\u05DC' ? 'success' : 'secondary';
 
@@ -4252,7 +4252,7 @@ Object.assign(Pages, {
       // Find parent info
       const parent = parents.find(p => {
         const pName = (p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '');
-        return pName === name || String(p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '') === String(sid);
+        return pName === name || String(p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '') === String(sid);
       });
       const parentName = parent ? ((parent['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || '') + ' ' + (parent['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4'] || '')).trim() || parent['\u05E9\u05DD'] || '' : '';
       const parentPhone = parent ? (parent['\u05D8\u05DC\u05E4\u05D5\u05DF'] || parent['\u05E0\u05D9\u05D9\u05D3'] || '') : '';
@@ -4260,7 +4260,7 @@ Object.assign(Pages, {
       // Find medical info
       const med = medical.find(m => {
         const mName = m['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || m['\u05E9\u05DD'] || '';
-        return mName === name || String(m['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '') === String(sid);
+        return mName === name || String(m['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '') === String(sid);
       });
       const medNotes = med ? (med['\u05D4\u05E2\u05E8\u05D5\u05EA'] || med['\u05D0\u05DC\u05E8\u05D2\u05D9\u05D5\u05EA'] || med['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA'] || '') : '';
 

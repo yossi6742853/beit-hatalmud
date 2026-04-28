@@ -1388,7 +1388,7 @@ Object.assign(Pages, {
     this._commParents.forEach(p => {
       const phone = p['\u05D8\u05DC\u05E4\u05D5\u05DF'];
       if (!phone) return;
-      const studentRef = p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
+      const studentRef = p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
       if (studentIds.has(studentRef) || studentIds.has(p['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3']) || this._commSelectedClasses.has(p['\u05DB\u05D9\u05EA\u05D4'])) {
         recipients.push({ name: p['\u05E9\u05DD'] || '', phone, email: p['\u05D0\u05D9\u05DE\u05D9\u05D9\u05DC'] || '', studentName: studentNames[studentRef] || p['\u05EA\u05DC\u05DE\u05D9\u05D3'] || '' });
       }

@@ -332,7 +332,7 @@ Object.assign(Pages, {
       '\u05D7\u05D9\u05E8\u05D5\u05DD \u05E8\u05E4\u05D5\u05D0\u05D9': 'bi-heart-pulse text-info',
       '\u05E1\u05D2\u05E8': 'bi-lock-fill text-secondary'
     };
-    return [...drills].sort((a, b) => b.date.localeCompare(a.date)).map(d => `
+    return [...drills].sort((a, b) => (b.date||'').localeCompare(a.date||'')).map(d => `
       <tr>
         <td>${d.date}</td>
         <td><i class="bi ${typeIcon[d.type] || 'bi-question-circle'} me-1"></i>${d.type}</td>

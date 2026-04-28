@@ -94,7 +94,7 @@ Object.assign(Pages, {
     }
 
     // Sort by date descending
-    entries.sort((a, b) => b.תאריך.localeCompare(a.תאריך));
+    entries.sort((a, b) => (b.תאריך||'').localeCompare(a.תאריך||''));
     this._behDemoData = entries;
   },
 
@@ -779,7 +779,7 @@ Object.assign(Pages, {
     const student = this._behSelectedStudent;
     const rows = this._behData.filter(r =>
       r.תלמיד_מזהה === student.id || r.שם_תלמיד === student.name
-    ).sort((a, b) => b.תאריך.localeCompare(a.תאריך));
+    ).sort((a, b) => (b.תאריך||'').localeCompare(a.תאריך||''));
 
     const totalPts = rows.reduce((s, r) => s + (r.נקודות || 0), 0);
     const posCount = rows.filter(r => r.סוג === 'חיובי').length;

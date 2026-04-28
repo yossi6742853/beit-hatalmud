@@ -324,7 +324,7 @@ Object.assign(Pages, {
         '<table class="table table-bht mb-0">' +
           '<thead><tr><th>#</th><th>\u05EA\u05DC\u05DE\u05D9\u05D3</th><th>\u05E4\u05E8\u05E1</th><th>\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4</th><th>\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA</th><th>\u05EA\u05D0\u05E8\u05D9\u05DA</th></tr></thead>' +
           '<tbody id="rwd-hist-body">' +
-            this._redeemHist.slice().sort(function(a, b) { return b.date.localeCompare(a.date); }).map(function(r, i) {
+            this._redeemHist.slice().sort(function(a, b) { return (b.date||'').localeCompare(a.date||''); }).map(function(r, i) {
               return '<tr data-student="' + r.student + '" data-cat="' + r.category + '">' +
                 '<td class="text-muted">' + (i + 1) + '</td>' +
                 '<td><div class="d-flex align-items-center gap-2">' + Utils.avatarHTML(r.student, 'xs') + '<span class="fw-bold">' + r.student + '</span></div></td>' +

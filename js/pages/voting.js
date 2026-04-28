@@ -127,8 +127,8 @@ Object.assign(Pages, {
     // Sort
     filtered.sort((a, b) => {
       if (st.sortBy === 'votes') return this._pollTotalVotes(b) - this._pollTotalVotes(a);
-      if (st.sortBy === 'endDate') return new Date(a.endDate) - new Date(b.endDate);
-      return new Date(b.created) - new Date(a.created);
+      if (st.sortBy === 'endDate') return new Date(a.endDate || 0) - new Date(b.endDate || 0);
+      return new Date(b.created || 0) - new Date(a.created || 0);
     });
 
     const cats = this._pollCategories();
@@ -881,8 +881,8 @@ Object.assign(Pages, {
       Utils.toast('יש לבחור תאריך סיום', 'warning');
       return;
     }
-    if (new Date(endDate) <= new Date()) {
-      Utils.toast('תאריך הסיום חייב להיות בעתיד', 'warning');
+    if (String(endDate).slice(0,10) < Utils.todayISO()) {
+      Utils.toast('תאריך הסיום חייב להיות היום או בעתיד', 'warning');
       return;
     }
 

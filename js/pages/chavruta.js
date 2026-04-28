@@ -162,7 +162,7 @@ Object.assign(Pages, {
           <table class="table table-bht mb-0">
             <thead><tr><th>\u05ea\u05d0\u05e8\u05d9\u05da</th><th>\u05d7\u05d1\u05e8\u05d5\u05ea\u05d0</th><th>\u05e0\u05d5\u05e9\u05d0</th><th>\u05de\u05e9\u05da (\u05d3\u05e7')</th><th>\u05e0\u05d5\u05e9\u05d0 \u05e0\u05dc\u05de\u05d3</th><th>\u05d3\u05d9\u05e8\u05d5\u05d2</th></tr></thead>
             <tbody>
-              ${[...sessions].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).map(s => {
+              ${[...sessions].sort((a, b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id).map(s => {
                 const pair = pairs.find(p => p.id === s.pairId);
                 const stars = '\u2605'.repeat(s.rating) + '\u2606'.repeat(5 - s.rating);
                 return `<tr>

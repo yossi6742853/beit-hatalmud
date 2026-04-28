@@ -331,7 +331,10 @@ Object.assign(Pages, {
 
   _hwDaysLeft(dueDate) {
     if (!dueDate) return null;
-    return Math.ceil((new Date(dueDate) - new Date()) / 86400000);
+    const due = new Date(dueDate); due.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0,0,0,0);
+    if (isNaN(due.getTime())) return null;
+    return Math.round((due - today) / 86400000);
   },
 
   _hwIsOverdue(hw) {
@@ -339,7 +342,7 @@ Object.assign(Pages, {
     if (!due) return false;
     const subs = this._hwGetSubmissions(hw['\u05DE\u05D6\u05D4\u05D4']);
     const pending = subs.filter(s => s['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05DE\u05DE\u05EA\u05D9\u05DF').length;
-    return due < Utils.todayISO() && pending > 0;
+    return String(due).slice(0,10) < Utils.todayISO() && pending > 0;
   },
 
   /* ======================================================================

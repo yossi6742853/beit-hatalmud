@@ -372,7 +372,7 @@ Object.assign(Pages, {
     // Sort
     filtered.sort((a, b) => {
       if (sortBy === 'critical') return (b.critical ? 1 : 0) - (a.critical ? 1 : 0) || a.studentName.localeCompare(b.studentName, 'he');
-      if (sortBy === 'updated') return b.updated.localeCompare(a.updated);
+      if (sortBy === 'updated') return (b.updated||'').localeCompare(a.updated||'');
       return a.studentName.localeCompare(b.studentName, 'he');
     });
 
@@ -437,7 +437,7 @@ Object.assign(Pages, {
       return true;
     });
 
-    filtered.sort((a, b) => b.date.localeCompare(a.date));
+    filtered.sort((a, b) => (b.date||'').localeCompare(a.date||''));
 
     const container = document.getElementById('med-events-list');
     if (!container) return;

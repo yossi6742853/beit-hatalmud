@@ -1840,7 +1840,7 @@ Object.assign(Pages, {
     const el = document.getElementById('mvz-tab-progress');
     if (!ac) { el.innerHTML = '<div class="text-center text-muted py-4">\u05D0\u05D9\u05DF \u05DE\u05D1\u05E6\u05E2 \u05E4\u05E2\u05D9\u05DC</div>'; return; }
 
-    const logs = this._mvzProgress.filter(p => p.campaignId === ac.id).sort((a, b) => b.date.localeCompare(a.date));
+    const logs = this._mvzProgress.filter(p => p.campaignId === ac.id).sort((a, b) => (b.date||'').localeCompare(a.date||''));
     el.innerHTML = `
     <div class="card border-0 shadow-sm">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">

@@ -513,7 +513,7 @@ Object.assign(Pages, {
     const absentStudents = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
       if (absentStudents.length > 0) {
         const absentNames = absentStudents.slice(0, 8).map(a => {
-          const s = studentMap.get(a['מזהה_תלמיד'] || a['מזהה']) || students.find(st => (st['\u05DE\u05D6\u05D4\u05D4'] || st._row) === (a['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || a['\u05DE\u05D6\u05D4\u05D4']));
+          const s = studentMap.get(a['תלמיד_מזהה'] || a['מזהה']) || students.find(st => (st['\u05DE\u05D6\u05D4\u05D4'] || st._row) === (a['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || a['\u05DE\u05D6\u05D4\u05D4']));
           return s ? Utils.fullName(s) : (a['\u05E9\u05DD'] || a['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2');
         });
         const moreCount = absentStudents.length > 8 ? absentStudents.length - 8 : 0;

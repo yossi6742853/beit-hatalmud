@@ -86,7 +86,7 @@ Object.assign(Pages, {
     <!-- Cards View -->
     <div id="visit-cards-tab">
       <div class="row g-3" id="visit-cards-container">
-        ${[...visits].sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time)).map(v => {
+        ${[...visits].sort((a, b) => (b.date||'').localeCompare(a.date||'') || (b.time||'').localeCompare(a.time||'')).map(v => {
           const isUpcoming = v.status === '\u05de\u05ea\u05d5\u05db\u05e0\u05df';
           const isCheckedIn = v.checkIn && !v.checkOut;
           const borderClass = isUpcoming ? 'border-start border-primary border-3' : v.type === '\u05d7\u05d9\u05e8\u05d5\u05dd' ? 'border-start border-danger border-3' : '';
@@ -137,7 +137,7 @@ Object.assign(Pages, {
           <table class="table table-bht mb-0">
             <thead><tr><th>\u05ea\u05d0\u05e8\u05d9\u05da</th><th>\u05e9\u05e2\u05d4</th><th>\u05d4\u05d5\u05e8\u05d4</th><th>\u05ea\u05dc\u05de\u05d9\u05d3</th><th>\u05e1\u05d5\u05d2</th><th>\u05de\u05d8\u05e8\u05d4</th><th>\u05db\u05e0\u05d9\u05e1\u05d4</th><th>\u05d9\u05e6\u05d9\u05d0\u05d4</th><th>\u05de\u05e9\u05da</th><th>\u05e1\u05d8\u05d8\u05d5\u05e1</th></tr></thead>
             <tbody id="visit-tbody">
-              ${[...visits].sort((a, b) => b.date.localeCompare(a.date)).map(v => `
+              ${[...visits].sort((a, b) => (b.date||'').localeCompare(a.date||'')).map(v => `
               <tr class="visit-row" data-type="${v.type}" data-status="${v.status}" data-search="${v.parent} ${v.student} ${v.purpose}">
                 <td>${Utils.formatDateShort(v.date)}</td>
                 <td>${v.time}</td>
@@ -177,7 +177,7 @@ Object.assign(Pages, {
     <div class="card p-3 mt-3">
       <h6 class="mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>\u05d1\u05d9\u05e7\u05d5\u05e8\u05d9\u05dd \u05e7\u05e8\u05d5\u05d1\u05d9\u05dd</h6>
       <div class="list-group list-group-flush">
-        ${scheduled.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).map(v => `
+        ${scheduled.sort((a, b) => (a.date||'').localeCompare(b.date||'') || (a.time||'').localeCompare(b.time||'')).map(v => `
         <div class="list-group-item d-flex justify-content-between align-items-center px-0">
           <div class="d-flex align-items-center gap-2">
             ${Utils.avatarHTML(v.parent, 'xs')}

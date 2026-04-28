@@ -716,12 +716,14 @@ Object.assign(Pages, {
      STREAK TRACKING
      ====================================================================== */
   _attGetStreak(studentId) {
-    // Calculate current consecutive attendance streak
+    // Calculate current consecutive attendance streak (hoist student-name lookup out of inner loop)
+    const studentName = this._attStudents.find(s => s._id === studentId)?._fullName || '';
+    const sidStr = String(studentId);
     const records = this._attAllRecords
-      .filter(r => String(r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '') === String(studentId) ||
-                   (r['\u05E9\u05DD'] || '') === (this._attStudents.find(s => s._id === studentId)?._fullName || ''))
+      .filter(r => String(r['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4'] || '') === sidStr ||
+                   (r['\u05E9\u05DD'] || '') === studentName)
       .filter(r => r['\u05EA\u05D0\u05E8\u05D9\u05DA'])
-      .sort((a, b) => b['\u05EA\u05D0\u05E8\u05D9\u05DA'].localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA']));
+      .sort((a, b) => (b['\u05EA\u05D0\u05E8\u05D9\u05DA']||'').localeCompare(a['\u05EA\u05D0\u05E8\u05D9\u05DA']||''));
 
     let current = 0;
     let best = 0;

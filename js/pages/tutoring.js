@@ -276,7 +276,7 @@ Object.assign(Pages, {
         <table class="table table-sm table-hover align-middle mb-0">
           <thead class="table-light"><tr><th>תאריך</th><th>מתגבר</th><th>תלמיד</th><th>נושא</th><th>שעה</th><th>משך</th><th>עלות</th><th>דירוג</th><th>סטטוס</th><th>הערות</th><th></th></tr></thead>
           <tbody id="tutor-sessions-body">
-            ${[...sessions].filter(s => this._tutorViewMode === 'all' || s.status === this._tutorViewMode).sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time)).map(s => {
+            ${[...sessions].filter(s => this._tutorViewMode === 'all' || s.status === this._tutorViewMode).sort((a, b) => (b.date||'').localeCompare(a.date||'') || (b.time||'').localeCompare(a.time||'')).map(s => {
               const tutor = tutors.find(t => t.id === s.tutorId);
               const cost = s.duration * s.rate;
               const st = statusMap[s.status] || { label: s.status, color: 'secondary', icon: 'bi-question-circle' };
