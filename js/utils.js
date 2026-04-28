@@ -404,14 +404,7 @@ const Utils = {
     return Math.round(n) + '%';
   },
 
-  /* ---- Phone formatting ---- */
-  formatPhone(phone) {
-    if (!phone) return '';
-    const p = String(phone).replace(/\D/g, '');
-    if (p.length === 10) return p.slice(0,3) + '-' + p.slice(3,6) + '-' + p.slice(6);
-    if (p.length === 9) return p.slice(0,2) + '-' + p.slice(2,5) + '-' + p.slice(5);
-    return phone;
-  },
+  /* (formatPhone moved up to live with normalizePhone — duplicate removed for clarity) */
 
   /* ---- Toast notification ---- */
   toast(message, type = 'success') {
@@ -545,13 +538,6 @@ const Utils = {
     const label = labels[cls] || status || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
     const color = colors[cls] || 'secondary';
     return `<span class="badge bg-${color}">${label}</span>`;
-  },
-
-  /* ---- Data export: JSON ---- */
-  exportJSON(data, filename) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob);
-    link.download = filename || 'export.json'; link.click();
   },
 
   /* ---- Hebrew calendar date (Intl, no library) ---- */
@@ -864,27 +850,9 @@ const Utils = {
            d.getDate() === today.getDate();
   },
 
-  /* ---- Calculate age in years from date string ---- */
-  calculateAge(birthDate) {
-    return this.calcAge(birthDate);
-  },
-
-  /* ---- Sanitize HTML: basic XSS prevention ---- */
-  sanitizeHTML(str) {
-    if (!str) return '';
-    const map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;', '/':'&#x2F;' };
-    return String(str).replace(/[&<>"'/]/g, c => map[c]);
-  },
-
-  /* ---- Escape HTML (alias for sanitizeHTML) ---- */
+  /* ---- Escape HTML (canonical XSS prevention) ---- */
   escapeHTML(str) {
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-  },
-
-  /* ---- Hebrew month names ---- */
-  HEB_MONTHS: ['\u05D9\u05E0\u05D5\u05D0\u05E8','\u05E4\u05D1\u05E8\u05D5\u05D0\u05E8','\u05DE\u05E8\u05E5','\u05D0\u05E4\u05E8\u05D9\u05DC','\u05DE\u05D0\u05D9','\u05D9\u05D5\u05E0\u05D9','\u05D9\u05D5\u05DC\u05D9','\u05D0\u05D5\u05D2\u05D5\u05E1\u05D8','\u05E1\u05E4\u05D8\u05DE\u05D1\u05E8','\u05D0\u05D5\u05E7\u05D8\u05D5\u05D1\u05E8','\u05E0\u05D5\u05D1\u05DE\u05D1\u05E8','\u05D3\u05E6\u05DE\u05D1\u05E8'],
-
-  /* ---- Avatar color palette ---- */
-  AVATAR_COLORS: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b','#858796','#5a5c69','#6f42c1','#fd7e14','#20c997','#d63384','#0d6efd']
+  }
 };
