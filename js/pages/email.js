@@ -448,8 +448,8 @@ Object.assign(Pages, {
                 </span>
                 <small class="text-muted flex-shrink-0 ms-2">${dateStr}</small>
               </div>
-              <div class="${isUnread ? 'fw-semibold' : ''} text-truncate small">${e.subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)'}</div>
-              <div class="text-muted small text-truncate" style="opacity:.7">${(e.snippet || '').substring(0, 120)}</div>
+              <div class="${isUnread ? 'fw-semibold' : ''} text-truncate small">${Utils.escapeHTML(e.subject || '(\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0)')}</div>
+              <div class="text-muted small text-truncate" style="opacity:.7">${Utils.escapeHTML((e.snippet || '').substring(0, 120))}</div>
             </div>
           </div>
         </div>

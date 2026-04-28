@@ -602,7 +602,7 @@ Object.assign(Pages, {
       return bd && bd.slice(5) === todayMD;
     });
     if (birthdayStudents.length > 0) {
-      const names = birthdayStudents.map(s => Utils.fullName(s));
+      const names = birthdayStudents.map(s => Utils.escapeHTML(Utils.fullName(s)));
       const alertHTML = `<div class="alert alert-warning border-0 shadow-sm d-flex align-items-center gap-3 mb-3">
         <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:42px;height:42px;background:#fef3c7"><span style="font-size:24px">\u{1F382}</span></div>
         <div><h6 class="fw-bold mb-0">\u05D9\u05D5\u05DD \u05D4\u05D5\u05DC\u05D3\u05EA \u05D4\u05D9\u05D5\u05DD!</h6><span class="small">${names.join(', ')}</span></div>

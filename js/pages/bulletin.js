@@ -334,7 +334,7 @@ Object.assign(Pages, {
               <span class="badge bg-${cat.color||'secondary'}"><i class="bi ${cat.icon} me-1"></i>${cat.label}</span>
               ${priBadge}
               ${expBadge}
-              <strong class="ms-1">${b.title}</strong>
+              <strong class="ms-1">${Utils.escapeHTML(b.title || '')}</strong>
             </div>
             <div class="d-flex align-items-center gap-2">
               <small class="text-muted text-nowrap">${Utils.formatDateShort(b.date)}</small>
@@ -349,9 +349,9 @@ Object.assign(Pages, {
               </div>
             </div>
           </div>
-          <p class="mb-2 text-body-secondary">${preview}</p>
+          <p class="mb-2 text-body-secondary">${Utils.escapeHTML(preview || '')}</p>
           <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted"><i class="bi bi-person me-1"></i>${b.author}</small>
+            <small class="text-muted"><i class="bi bi-person me-1"></i>${Utils.escapeHTML(b.author || '')}</small>
             ${b.expiry ? `<small class="text-muted"><i class="bi bi-hourglass-split me-1"></i>תפוגה: ${Utils.formatDateShort(b.expiry)}</small>` : ''}
           </div>
         </div>

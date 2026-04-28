@@ -298,12 +298,12 @@ Object.assign(Pages, {
               <div class="d-flex justify-content-between align-items-start mb-1">
                 <div>
                   <span class="badge bg-${t.color} me-2">${t.label}</span>
-                  <strong class="${n.read ? '' : 'text-primary'}">${n.title}</strong>
+                  <strong class="${n.read ? '' : 'text-primary'}">${Utils.escapeHTML(n.title || '')}</strong>
                   ${importantStar}
                 </div>
                 <small class="text-muted text-nowrap me-2">${this._relativeTime(n.ts)}</small>
               </div>
-              <p class="mb-0 text-muted small text-truncate">${n.desc}</p>
+              <p class="mb-0 text-muted small text-truncate">${Utils.escapeHTML(n.desc || '')}</p>
             </div>
             <div class="d-flex gap-1 flex-shrink-0" onclick="event.stopPropagation()">
               <button class="btn btn-sm ${n.read ? 'btn-outline-secondary' : 'btn-outline-success'}" title="${n.read ? '\u05E1\u05DE\u05DF \u05DB\u05DC\u05D0 \u05E0\u05E7\u05E8\u05D0' : '\u05E1\u05DE\u05DF \u05DB\u05E0\u05E7\u05E8\u05D0'}" onclick="Pages.notifToggleRead(${n.id})">

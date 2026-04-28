@@ -4815,7 +4815,7 @@ Object.assign(Pages, {
     this._schData = _gc('\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA');
     const classes = [...new Set(this._schData.map(l=>l['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].sort();
     const sel = document.getElementById('sch-class');
-    classes.forEach(c => sel.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
+    classes.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; sel.appendChild(opt); });
     sel.addEventListener('change', () => this.renderSchedule());
     this.renderSchedule();
   },

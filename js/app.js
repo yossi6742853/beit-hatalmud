@@ -226,11 +226,15 @@ const App = {
   },
 
   logout() {
-    localStorage.removeItem(this.PIN_KEY);
-    // Clear cache
+    // Privacy: enumerate ALL bht_* keys (cache + drafts + call log + medical + AI history),
+    // preserving only true user prefs. Previously only bht_cache_* was cleared, leaving PII.
+    const PRESERVE = new Set(['bht_theme', 'bht_font_size', 'bht_install_dismissed', 'bht_visits', 'bht_lang']);
     Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(this.CACHE_PREFIX)) localStorage.removeItem(k);
+      if ((k.startsWith('bht_') || k.startsWith('bht.')) && !PRESERVE.has(k)) {
+        localStorage.removeItem(k);
+      }
     });
+    try { sessionStorage.clear(); } catch (e) { /* silent */ }
     this.showLanding();
   },
 

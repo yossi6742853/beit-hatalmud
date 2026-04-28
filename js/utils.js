@@ -167,6 +167,28 @@ const Utils = {
        </div>`);
   },
 
+  /* ---- Mask Israeli ID — display last 4 only ---- */
+  maskTeudat(tz) {
+    const d = String(tz || '').replace(/\D/g, '');
+    if (d.length < 4) return '';
+    return '•••••' + d.slice(-4);
+  },
+
+  /* ---- Mask phone — display first 3 + last 2 ---- */
+  maskPhone(phone) {
+    const d = String(phone || '').replace(/\D/g, '');
+    if (d.length < 7) return d;
+    return d.slice(0, 3) + '-•••' + d.slice(-2);
+  },
+
+  /* ---- Validation: amount within bounds ---- */
+  validAmount(v, { min = 0, max = 1_000_000, allowZero = false } = {}) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return false;
+    if (!allowZero && n <= 0) return false;
+    return n >= min && n <= max;
+  },
+
   /* ---- Israeli phone: strip non-digits, validate, format ---- */
   normalizePhone(input) {
     if (!input) return '';

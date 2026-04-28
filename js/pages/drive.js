@@ -624,7 +624,7 @@ Object.assign(Pages, {
           <div class="text-center mb-2">
             <i class="bi ${icon} fs-1"></i>
           </div>
-          <div class="fw-bold small text-center text-truncate" title="${f.name || ''}">${f.name || ''}</div>
+          <div class="fw-bold small text-center text-truncate" title="${Utils.escapeHTML(f.name || '')}">${Utils.escapeHTML(f.name || '')}</div>
           <div class="text-center">
             <small class="text-muted">${this._driveTypeLabel(type)}</small>
             <small class="text-muted mx-1">|</small>
