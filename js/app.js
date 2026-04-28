@@ -131,7 +131,7 @@ const App = {
     this._sessionStart = Date.now();
     const el = document.getElementById('session-timer');
     if (!el) return;
-    this._sessionTimerInterval = this._autoRefreshId = setInterval(() => {
+    this._sessionTimerInterval = setInterval(() => {
       const diff = Math.floor((Date.now() - this._sessionStart) / 1000);
       const h = Math.floor(diff / 3600);
       const m = Math.floor((diff % 3600) / 60);
@@ -1005,7 +1005,7 @@ const App = {
   initAutoRefresh() {
     if (this._autoRefreshId) clearInterval(this._autoRefreshId);
     // Refresh data every 2 minutes
-    setInterval(() => {
+    this._autoRefreshId = setInterval(() => {
       if (this.isLoggedIn() && document.visibilityState === 'visible') {
         // Clear expired cache entries
         Object.keys(localStorage).forEach(k => {

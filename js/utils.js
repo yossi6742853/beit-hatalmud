@@ -421,13 +421,23 @@ const Utils = {
 
   paginationHTML(current, total, onClickFn) {
     if (total <= 1) return '';
+    const cur = Math.max(1, Math.min(current, total));
+    const start = Math.max(1, cur - 3);
+    const end = Math.min(total, cur + 3);
     let html = '<nav class="mt-3"><ul class="pagination pagination-sm justify-content-center">';
-    html += `<li class="page-item ${current <= 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${current-1});return false"><i class="bi bi-chevron-right"></i></a></li>`;
-    for (let i = 1; i <= Math.min(total, 7); i++) {
-      html += `<li class="page-item ${i === current ? 'active' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${i});return false">${i}</a></li>`;
+    html += `<li class="page-item ${cur <= 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${cur-1});return false"><i class="bi bi-chevron-right"></i></a></li>`;
+    if (start > 1) {
+      html += `<li class="page-item"><a class="page-link" href="#" onclick="${onClickFn}(1);return false">1</a></li>`;
+      if (start > 2) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
     }
-    if (total > 7) html += `<li class="page-item disabled"><span class="page-link">...${total}</span></li>`;
-    html += `<li class="page-item ${current >= total ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${current+1});return false"><i class="bi bi-chevron-left"></i></a></li>`;
+    for (let i = start; i <= end; i++) {
+      html += `<li class="page-item ${i === cur ? 'active' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${i});return false">${i}</a></li>`;
+    }
+    if (end < total) {
+      if (end < total - 1) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+      html += `<li class="page-item"><a class="page-link" href="#" onclick="${onClickFn}(${total});return false">${total}</a></li>`;
+    }
+    html += `<li class="page-item ${cur >= total ? 'disabled' : ''}"><a class="page-link" href="#" onclick="${onClickFn}(${cur+1});return false"><i class="bi bi-chevron-left"></i></a></li>`;
     html += '</ul></nav>';
     return html;
   },

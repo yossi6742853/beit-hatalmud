@@ -223,15 +223,15 @@ Object.assign(Pages, {
   },
 
   _saveMedData() {
-    localStorage.setItem(this._MED_STORAGE_KEY, JSON.stringify(this._medData));
+    Utils.safeSetItem(this._MED_STORAGE_KEY, JSON.stringify(this._medData));
   },
 
   _saveMedEvents() {
-    localStorage.setItem(this._MED_EVENTS_KEY, JSON.stringify(this._medEvents));
+    Utils.safeSetItem(this._MED_EVENTS_KEY, JSON.stringify(this._medEvents));
   },
 
   _saveMedVaccines() {
-    localStorage.setItem(this._MED_VACCINES_KEY, JSON.stringify(this._medVaccines));
+    Utils.safeSetItem(this._MED_VACCINES_KEY, JSON.stringify(this._medVaccines));
   },
 
   _medUseDemo: false,

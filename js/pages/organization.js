@@ -1503,7 +1503,7 @@ Object.assign(Pages, {
     try { return (() => { try { return JSON.parse(localStorage.getItem(this._DOC_LS_KEY) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })(); } catch(e) { return []; }
   },
   _saveLocalDocs(docs) {
-    localStorage.setItem(this._DOC_LS_KEY, JSON.stringify(docs));
+    Utils.safeSetItem(this._DOC_LS_KEY, JSON.stringify(docs));
   },
   _addLocalDoc(doc) {
     const docs = this._getLocalDocs();

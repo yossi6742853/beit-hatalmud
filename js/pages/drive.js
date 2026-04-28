@@ -1037,7 +1037,7 @@ Object.assign(Pages, {
     } catch(e) { /* ignore */ }
     if (!this._zDriveCatalog) {
       this._zDriveCatalog = this._zDriveDefaultCatalog();
-      localStorage.setItem(this._ZDRIVE_LS_KEY, JSON.stringify(this._zDriveCatalog));
+      Utils.safeSetItem(this._ZDRIVE_LS_KEY, JSON.stringify(this._zDriveCatalog));
     }
     this._zDrivePath = [];
     this._zDriveSearch = '';

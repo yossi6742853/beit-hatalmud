@@ -943,7 +943,7 @@ Object.assign(Pages, {
   },
 
   _saveProtocols() {
-    localStorage.setItem(this._PROTOCOLS_LS_KEY, JSON.stringify(this._commProtocols || []));
+    Utils.safeSetItem(this._PROTOCOLS_LS_KEY, JSON.stringify(this._commProtocols || []));
   },
 
   _renderCommProtocols(el) {
