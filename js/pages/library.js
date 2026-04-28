@@ -348,7 +348,11 @@ Object.assign(Pages, {
     };
 
     const daysLeft = (due) => {
-      const diff = Math.ceil((new Date(due) - new Date()) / 86400000);
+      if (!due) return '';
+      const d = new Date(due); d.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0,0,0,0);
+      if (isNaN(d.getTime())) return '';
+      const diff = Math.round((d - today) / 86400000);
       if (diff < 0) return `<span class="text-danger fw-bold">${Math.abs(diff)} \u05D9\u05DE\u05D9\u05DD \u05D1\u05D0\u05D9\u05D7\u05D5\u05E8</span>`;
       if (diff === 0) return '<span class="text-warning fw-bold">\u05D4\u05D9\u05D5\u05DD</span>';
       return `<span class="text-muted">${diff} \u05D9\u05DE\u05D9\u05DD</span>`;

@@ -396,7 +396,12 @@ Object.assign(Pages, {
     const html = `<div class="row g-3">${campaigns.map(c => {
       const raised = data.filter(d => d.campaign === c.id).reduce((s, d) => s + d.amount, 0);
       const pct = Math.min(100, Math.round((raised / c.goal) * 100));
-      const daysLeft = Math.max(0, Math.ceil((new Date(c.deadline) - new Date()) / 86400000));
+      const daysLeft = (() => {
+        if (!c.deadline) return 0;
+        const dl = new Date(c.deadline); dl.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        return isNaN(dl.getTime()) ? 0 : Math.max(0, Math.round((dl - today) / 86400000));
+      })();
       const donorCount = new Set(data.filter(d => d.campaign === c.id).map(d => d.donor)).size;
       const barColor = pct >= 100 ? 'bg-success' : pct >= 60 ? 'bg-primary' : pct >= 30 ? 'bg-warning' : 'bg-danger';
 

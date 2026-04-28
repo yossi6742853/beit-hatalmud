@@ -3605,7 +3605,12 @@ Object.assign(Pages, {
       const permPct = parts > 0 ? Math.round((approved / parts) * 100) : 0;
       const startDate = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05D4\u05EA\u05D7\u05DC\u05D4'] || '';
       const endDate = t['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05E1\u05D9\u05D5\u05DD'] || '';
-      const daysUntil = startDate ? Math.ceil((new Date(startDate) - new Date()) / 86400000) : null;
+      const daysUntil = (() => {
+        if (!startDate) return null;
+        const d = new Date(startDate); d.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0,0,0,0);
+        return isNaN(d.getTime()) ? null : Math.round((d - today) / 86400000);
+      })();
       const daysLabel = daysUntil !== null && daysUntil > 0 ? `<span class="badge bg-warning text-dark">\u05D1\u05E2\u05D5\u05D3 ${daysUntil} \u05D9\u05DE\u05D9\u05DD</span>` : '';
 
       return `<div class="col-md-6">
