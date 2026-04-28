@@ -1266,9 +1266,9 @@ Object.assign(Pages, {
     a.download = 'contacts_bht_' + (Utils.todayISO ? Utils.todayISO() : '') + '.csv'; a.click();
     Utils.toast(`${rows.length - 1} \u05D0\u05E0\u05E9\u05D9 \u05E7\u05E9\u05E8 \u05D9\u05D5\u05E6\u05D0\u05D5`, 'success');
   },
-  dialPress(d) { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'')+d; },
-  dialBackspace() { const el=document.getElementById('dial-display'); el.textContent=(el.textContent||'').slice(0,-1); },
-  dialClear() { document.getElementById('dial-display').textContent=''; },
+  dialPress(d) { const el=document.getElementById('dial-display'); if(el) el.textContent=(el.textContent||'')+d; },
+  dialBackspace() { const el=document.getElementById('dial-display'); if(el) el.textContent=(el.textContent||'').slice(0,-1); },
+  dialClear() { const el=document.getElementById('dial-display'); if(el) el.textContent=''; },
   quickDial(phone) { document.getElementById('dial-display').textContent=phone.replace(/\D/g,''); this.makeCall(); },
   async makeCall() { const number=(document.getElementById('dial-display').textContent||'').replace(/\D/g,''); if (!number||number.length<9) { Utils.toast('\u05DE\u05E1\u05E4\u05E8 \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF','warning'); return; } try { const resp = await fetch(`http://192.168.1.100:5053/api/call?number=${number}`); if (resp.ok) { Utils.toast(`\u05DE\u05D7\u05D9\u05D9\u05D2 \u05DC${Utils.formatPhone(number)}...`); } else throw new Error(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05D7\u05D9\u05D5\u05D2','danger'); } },
 
@@ -1662,7 +1662,7 @@ Object.assign(Pages, {
         Utils.toast('\u05E7\u05D5\u05D1\u05E5 JSON \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF','danger');
       }
     };
-    reader.readAsText(fileInput.files[0]);
+    if (fileInput.files.length) reader.readAsText(fileInput.files[0]); else Utils.toast("לא נבחר קובץ","warning");
   },
 
   // --- Clear All Data ---
