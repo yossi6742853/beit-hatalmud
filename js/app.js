@@ -64,6 +64,7 @@ const App = {
       this.checkVersion();
       this.initCommandPalette();
       this.initAutoSaveIndicator();
+      this._initDriveCatalogIndex();
     } catch(e) {
       console.error('Init error (non-fatal):', e);
     }
@@ -1359,6 +1360,22 @@ const App = {
     render('');
     input.addEventListener('input', () => render(input.value.trim()));
     setTimeout(() => input.focus(), 50);
+  },
+
+  /* ==============================
+     DRIVE CATALOG INDEX (built at runtime to save file size)
+     ============================== */
+  _initDriveCatalogIndex() {
+    if (typeof DRIVE_CATALOG === 'undefined' || !DRIVE_CATALOG.folders) return;
+    if (DRIVE_CATALOG.byName) return; // already built
+    DRIVE_CATALOG.byName = {};
+    DRIVE_CATALOG.byId = {};
+    DRIVE_CATALOG.folders.forEach(f => {
+      DRIVE_CATALOG.byId[f.folderId] = f;
+      const parts = f.name.split(/\s+/);
+      [f.name, ...parts].forEach(p => { if (p.length >= 2) DRIVE_CATALOG.byName[p] = f; });
+      if (parts.length >= 2) DRIVE_CATALOG.byName[parts.slice(1).join(' ') + ' ' + parts[0]] = f;
+    });
   },
 
   /* ==============================
