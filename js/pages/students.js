@@ -1171,6 +1171,16 @@ Object.assign(Pages, {
         </div>
       </div>
 
+      <!-- Cross-link strip \u2014 jumps to filtered views in other modules -->
+      <div class="d-flex gap-2 mb-3 flex-wrap" style="font-size:.85rem">
+        <a href="#attendance" class="btn btn-sm btn-outline-info"><i class="bi bi-calendar-check me-1"></i>\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA</a>
+        <a href="#finance" class="btn btn-sm btn-outline-success"><i class="bi bi-cash-stack me-1"></i>\u05E9\u05DB\u05E8 \u05DC\u05D9\u05DE\u05D5\u05D3</a>
+        <a href="#behavior" class="btn btn-sm btn-outline-warning"><i class="bi bi-emoji-smile me-1"></i>\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA</a>
+        <a href="#academics" class="btn btn-sm btn-outline-primary"><i class="bi bi-mortarboard me-1"></i>\u05DE\u05D1\u05D7\u05E0\u05D9\u05DD</a>
+        <a href="#communications" class="btn btn-sm btn-outline-secondary"><i class="bi bi-chat-dots me-1"></i>\u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u05D4\u05D5\u05E8\u05D9\u05DD</a>
+        <a href="#documents" class="btn btn-sm btn-outline-dark"><i class="bi bi-folder me-1"></i>\u05DE\u05E1\u05DE\u05DB\u05D9\u05DD</a>
+      </div>
+
       <!-- Profile Header -->
       <div class="card overflow-hidden mb-3">
         <div class="student-header" style="border-top:4px solid ${classColor}">
