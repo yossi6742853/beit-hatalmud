@@ -183,7 +183,8 @@ Object.assign(Pages, {
         </div>
       </div>
 
-      <!-- Money Flow Snapshot -->
+      <!-- Action Items + Money Flow Snapshot -->
+      <div id="dash-actions" class="mb-4"></div>
       <div class="row g-3 mb-4" id="money-flow"></div>
 
       <!-- Recent Payments + Upcoming Events + New Documents -->
@@ -701,6 +702,27 @@ Object.assign(Pages, {
             </div>
           </div>
         </div>`;
+      }
+    }
+
+    // === 6c2. Action Items panel (pending decisions) ===
+    const actEl = document.getElementById('dash-actions');
+    if (actEl) {
+      const items = [];
+      if (unpaidFinance.length) items.push({ n: unpaidFinance.length, t: 'תשלומים ממתינים', h: '#finance', c: 'warning', i: 'cash-stack' });
+      if (activeTasks) items.push({ n: activeTasks, t: 'משימות פעילות', h: '#tasks', c: 'info', i: 'list-check' });
+      const homework = _gc('שיעורי_בית').filter(h => (h['סטטוס'] || '') === 'ממתין');
+      if (homework.length) items.push({ n: homework.length, t: 'שיעורי בית ממתינים', h: '#homework', c: 'primary', i: 'journal-check' });
+      if (items.length) {
+        actEl.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body py-3">
+          <h6 class="fw-bold mb-3"><i class="bi bi-bell-fill text-warning me-2"></i>מחכה לטיפול</h6>
+          <div class="row g-2">
+            ${items.map(x => `<div class="col-md-4"><a href="${x.h}" class="d-flex align-items-center gap-2 p-2 rounded bg-${x.c}-subtle text-${x.c} text-decoration-none">
+              <i class="bi bi-${x.i} fs-4"></i>
+              <div><div class="fw-bold fs-5">${x.n}</div><small>${x.t}</small></div>
+            </a></div>`).join('')}
+          </div>
+        </div></div>`;
       }
     }
 
