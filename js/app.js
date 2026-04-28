@@ -1550,9 +1550,9 @@ const App = {
           html += matchedStudents.map(s => {
             const sid = s['\u05DE\u05D6\u05D4\u05D4'] || '';
             const name = ((s['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9']||'') + ' ' + (s['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']||'')).trim();
-            return `<div class="cmd-item" data-page="students/${sid}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-success-bg-subtle,#d1e7dd)'" onmouseout="this.style.background=''">
+            return `<div class="cmd-item" data-page="student/${sid}" style="padding:10px 16px;cursor:pointer;border-radius:8px;display:flex;align-items:center;gap:12px;transition:background .15s" onmouseover="this.style.background='var(--bs-success-bg-subtle,#d1e7dd)'" onmouseout="this.style.background=''">
               <i class="bi bi-person-fill" style="font-size:1.2rem;width:24px;text-align:center;color:var(--bs-success)"></i>
-              <span>${name} <small class="text-muted">${s['\u05DB\u05D9\u05EA\u05D4']||''}</small></span>
+              <span>${Utils.escapeHTML(name)} <small class="text-muted">${Utils.escapeHTML(s['\u05DB\u05D9\u05EA\u05D4']||'')}</small></span>
             </div>`;
           }).join('');
         }
