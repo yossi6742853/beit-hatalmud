@@ -1291,16 +1291,23 @@ const App = {
       });
 
       if (!hits.length) {
-        results.innerHTML = '<div class="p-3 text-muted text-center small">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA</div>';
+        results.innerHTML = `<div class="p-3 text-muted text-center small">\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05EA\u05D5\u05E6\u05D0\u05D5\u05EA. \u05E0\u05E1\u05D4 <kbd>Ctrl+K</kbd> \u05DC\u05D7\u05D9\u05E4\u05D5\u05E9 \u05DE\u05EA\u05E7\u05D3\u05DD</div>`;
       } else {
-        results.innerHTML = hits.slice(0,10).map(h =>
-          `<a href="${h.link}" class="dropdown-item d-flex align-items-center gap-2 py-2" onclick="document.getElementById('search-results').classList.remove('show');document.getElementById('global-search').value=''">
+        // Rank: exact name match first, then name-starts-with, then anywhere-includes
+        hits.sort((a, b) => {
+          const an = (a.name||'').toLowerCase(), bn = (b.name||'').toLowerCase();
+          const score = (n) => n === q ? 3 : n.startsWith(q) ? 2 : 1;
+          return score(bn) - score(an);
+        });
+        results.innerHTML = hits.slice(0,10).map((h, i) =>
+          `<a href="${h.link}" class="dropdown-item d-flex align-items-center gap-2 py-2 search-hit" data-idx="${i}" onclick="document.getElementById('search-results').classList.remove('show');document.getElementById('global-search').value=''">
             <i class="bi ${h.icon} text-${h.color}"></i>
-            <div><div class="fw-bold small">${h.name}</div><small class="text-muted">${h.type} ${h.sub?'| '+h.sub:''}</small></div>
+            <div><div class="fw-bold small">${Utils.escapeHTML(h.name)}</div><small class="text-muted">${Utils.escapeHTML(h.type)} ${h.sub?'| '+Utils.escapeHTML(h.sub):''}</small></div>
           </a>`
         ).join('');
       }
       results.classList.add('show');
+      this._searchSelectedIdx = -1;
     }, 300));
 
     // Close on click outside
@@ -1309,9 +1316,26 @@ const App = {
         results.classList.remove('show');
     });
 
-    // Close on Escape
+    // Keyboard navigation: arrow keys to highlight, Enter to navigate, Esc to close
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { results.classList.remove('show'); input.value = ''; }
+      if (e.key === 'Escape') { results.classList.remove('show'); input.value = ''; this._searchSelectedIdx = -1; return; }
+      const hits = results.querySelectorAll('.search-hit');
+      if (!hits.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        this._searchSelectedIdx = Math.min((this._searchSelectedIdx ?? -1) + 1, hits.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        this._searchSelectedIdx = Math.max((this._searchSelectedIdx ?? 0) - 1, 0);
+      } else if (e.key === 'Enter') {
+        if (this._searchSelectedIdx >= 0 && hits[this._searchSelectedIdx]) {
+          e.preventDefault();
+          hits[this._searchSelectedIdx].click();
+        }
+        return;
+      } else { return; }
+      hits.forEach((h, i) => h.classList.toggle('active', i === this._searchSelectedIdx));
+      hits[this._searchSelectedIdx]?.scrollIntoView({ block: 'nearest' });
     });
   },
 
@@ -1326,7 +1350,7 @@ const App = {
     recent = recent.filter(p => p !== page);
     recent.unshift(page);
     recent = recent.slice(0, 5);
-    localStorage.setItem(key, JSON.stringify(recent));
+    Utils.safeSetItem(key, JSON.stringify(recent));
     this.renderRecentPages(recent);
   },
 
