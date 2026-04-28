@@ -18,7 +18,7 @@
   --bht-card-bg: #ffffff;
   --bht-body-bg: #f0f2f5;
   --bht-text: #1f2937;
-  --bht-text-muted: #6b7280;
+  --bht-text-muted: #5f6776;
   --bht-border: #e5e7eb;
   --bht-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
   --bht-shadow-md: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -1px rgba(0,0,0,.05);
@@ -321,7 +321,7 @@ body {
   transform: scale(1.15);
 }
 
-.login-footer { opacity: .5; }
+.login-footer { opacity: .65; }
 
 #login-btn {
   background: var(--bht-gradient-primary);
@@ -1186,7 +1186,7 @@ body {
 .sidebar-cat-arrow {
   font-size: .7rem;
   transition: transform var(--bht-transition);
-  opacity: .5;
+  opacity: .65;
 }
 
 .sidebar-cat-header[aria-expanded="false"] .sidebar-cat-arrow {
@@ -1477,7 +1477,7 @@ body {
   box-shadow: var(--bht-shadow-lg);
 }
 .kanban-card.dragging {
-  opacity: .5;
+  opacity: .65;
   transform: rotate(3deg);
 }
 .kanban-column.drag-over {
@@ -4576,7 +4576,7 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, .2);
 }
-.form-control::placeholder { opacity: .5; }
+.form-control::placeholder { opacity: .65; }
 
 /* ===== Sidebar Category Transition ===== */
 .sidebar-cat-body {
