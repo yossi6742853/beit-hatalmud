@@ -1,6 +1,30 @@
-/* ===== BHT v5.0 — Utilities ===== */
+/* ===== BHT v6.8 — Utilities ===== */
 
 const Utils = {
+  /* ---- Israeli ID (ת.ז.) validation — Luhn mod 10 ---- */
+  validateIsraeliId(id) {
+    if (!id) return false;
+    const s = String(id).replace(/\D/g, '').padStart(9, '0');
+    if (s.length !== 9) return false;
+    return [...s].reduce((sum, d, i) => {
+      let n = +d * (i % 2 === 0 ? 1 : 2);
+      return sum + (n > 9 ? n - 9 : n);
+    }, 0) % 10 === 0;
+  },
+
+  /* ---- Safe localStorage write with quota handling ---- */
+  safeSetItem(key, value) {
+    try { localStorage.setItem(key, value); return true; }
+    catch(e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn('localStorage full, clearing old caches');
+        Object.keys(localStorage).filter(k => k.startsWith('bht_cache_')).forEach(k => localStorage.removeItem(k));
+        try { localStorage.setItem(key, value); return true; } catch(e2) { /* truly full */ }
+      }
+      return false;
+    }
+  },
+
   /* ---- Full name from שם_פרטי + שם_משפחה or fallback to שם ---- */
   fullName(row) {
     if (row['\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9'] || row['\u05E9\u05DD_\u05DE\u05E9\u05E4\u05D7\u05D4']) {

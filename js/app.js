@@ -131,7 +131,7 @@ const App = {
     this._sessionStart = Date.now();
     const el = document.getElementById('session-timer');
     if (!el) return;
-    this._sessionTimerInterval = setInterval(() => {
+    this._sessionTimerInterval = this._autoRefreshId = setInterval(() => {
       const diff = Math.floor((Date.now() - this._sessionStart) / 1000);
       const h = Math.floor(diff / 3600);
       const m = Math.floor((diff % 3600) / 60);
@@ -1003,6 +1003,7 @@ const App = {
      GLOBAL SEARCH
      ============================== */
   initAutoRefresh() {
+    if (this._autoRefreshId) clearInterval(this._autoRefreshId);
     // Refresh data every 2 minutes
     setInterval(() => {
       if (this.isLoggedIn() && document.visibilityState === 'visible') {
