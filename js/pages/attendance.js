@@ -272,6 +272,19 @@ Object.assign(Pages, {
     this._attAllRecords = attendance || [];
     const today = document.getElementById('att-date').value;
 
+    // Auto-detect Shabbat / Yom Tov / Chol HaMoed for the chosen date
+    if (today && Pages._hcHolidays) {
+      const chag = Pages._hcHolidays.find(h => h.gDates && h.gDates.includes(today) && (h.type === 'chag' || h.type === 'chol_hamoed'));
+      const dow = new Date(today).getDay();
+      const isShabbat = dow === 6;
+      if (chag || isShabbat) {
+        const banner = isShabbat ? 'שבת קודש — אין לימודים' : `${chag.name} — מוסד סגור`;
+        const cls = isShabbat ? 'alert-primary' : (chag.type === 'chag' ? 'alert-warning' : 'alert-info');
+        const contentEl = document.getElementById('att-content');
+        if (contentEl) contentEl.insertAdjacentHTML('afterbegin', `<div class="alert ${cls} text-center fs-5 mb-3"><i class="bi bi-stars me-2"></i>${banner}</div>`);
+      }
+    }
+
     // Build state from existing records
     this._attState = {};
     this._attLateLog = {};
