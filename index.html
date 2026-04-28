@@ -22,7 +22,7 @@
 <body>
   <a href="#main-content" class="skip-link">דלג לתוכן</a>
   <!-- Landing Page -->
-  <div id="landing-page" class="d-none">
+  <div id="landing-page">
     <style>
       @keyframes landingGradientShift {
         0% { background-position: 0% 50%; }
@@ -61,7 +61,7 @@
       .landing-hero-v2 {
         background: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81, #1e3a5f, #0f172a);
         background-size: 400% 400%;
-        animation: landingGradientShift 8s ease infinite;
+        animation: landingGradientShift 20s ease infinite;
         color: #fff;
         min-height: 100vh;
         display: flex;
@@ -117,7 +117,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        animation: landingGlow 2s ease-in-out infinite;
+        /* animation removed — let text breathe */
         margin-bottom: .5rem;
       }
       .landing-subtitle-v2 {
@@ -142,7 +142,7 @@
         color: #fff;
         cursor: pointer;
         transition: transform .25s ease, box-shadow .25s ease;
-        animation: landingPulseBtn 2s infinite;
+        /* removed — professional, not flashy */
         position: relative;
         overflow: hidden;
       }
@@ -1287,18 +1287,16 @@
   </div>
 
   <script>
-  // Force clear ALL caches and unregister old SW
-  if('caches' in window) caches.keys().then(k => k.forEach(n => caches.delete(n)));
-  if('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(r => r.forEach(w => w.unregister()));
+  // SW cache managed by sw.js activate handler — not here
   </script>
-  <script src="js/vendor/bootstrap.bundle.min.js"></script>
-  <script src="js/vendor/chart.umd.min.js"></script>
-  <script src="js/utils.js?v=6.7"></script>
-  <script src="js/data-cache.js?v=6.7"></script>
-  <script src="js/app.js?v=6.7"></script>
-  <script src="js/drive-catalog.js"></script>
-  <script src="js/email-cache.js"></script>
-  <script src="js/pages.js"></script>
+  <script src="js/vendor/bootstrap.bundle.min.js" defer></script>
+  <script src="js/vendor/chart.umd.min.js" defer></script>
+  <script src="js/utils.js?v=6.8" defer></script>
+  <script src="js/data-cache.js?v=6.8" defer></script>
+  <script src="js/app.js?v=6.8" defer></script>
+  <script src="js/drive-catalog.js" defer></script>
+  <script src="js/email-cache.js" defer></script>
+  <script src="js/pages.js" defer></script>
   <script src="js/pages/dashboard.js" defer></script>
   <script src="js/pages/students.js" defer></script>
   <script src="js/pages/attendance.js" defer></script>
