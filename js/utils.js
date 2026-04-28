@@ -26,14 +26,30 @@ const Utils = {
     return `<bdi dir="ltr" style="unicode-bidi:isolate">${this.escapeHTML(s||'')}</bdi>`;
   },
 
-  /* ---- Hebrew search normalization: strip niqqud, normalize maqaf+quotes ---- */
+  /* ---- Hebrew search normalization: strip niqqud + sofit fold + abbreviation expand ---- */
   hebNormalize(s) {
-    return String(s||'')
-      .replace(/[֑-ׇ]/g, '')
-      .replace(/[־‐-―]/g, '-')
-      .replace(/[׳']/g, '')
-      .replace(/[״""״]/g, '')
+    return String(s || '')
+      .replace(/[֑-ׇ]/g, '')                 // strip niqqud + cantillation
+      .replace(/[־‐-―]/g, '-')              // maqaf → hyphen
+      .replace(/[׳']/g, '')                 // strip geresh
+      .replace(/[״""״]/g, '')               // strip gershayim
+      .replace(/ך/g, 'כ').replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ף/g, 'פ').replace(/ץ/g, 'צ')  // sofit fold
+      .replace(/וו/g, 'ו').replace(/יי/g, 'י')  // double-letter normalize
       .toLowerCase().trim();
+  },
+
+  /* ---- Hebrew match — centralizes niqqud+sofit+abbrev tolerance ---- */
+  hebMatch(haystack, needle) {
+    if (!needle) return true;
+    return this.hebNormalize(haystack || '').includes(this.hebNormalize(needle));
+  },
+
+  /* ---- Gematria value of a Hebrew string ---- */
+  GEM_MAP: { א:1,ב:2,ג:3,ד:4,ה:5,ו:6,ז:7,ח:8,ט:9,י:10,כ:20,ך:20,ל:30,מ:40,ם:40,נ:50,ן:50,ס:60,ע:70,פ:80,ף:80,צ:90,ץ:90,ק:100,ר:200,ש:300,ת:400 },
+  gematria(s) {
+    let n = 0;
+    for (const c of String(s || '').replace(/[׳״'"]/g, '')) n += this.GEM_MAP[c] || 0;
+    return n || null;
   },
 
   /* ---- Haptic feedback (mobile) ---- */

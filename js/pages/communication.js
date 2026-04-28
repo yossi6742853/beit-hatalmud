@@ -1606,7 +1606,7 @@ Object.assign(Pages, {
   ai_assistantInit() {
     document.getElementById('ai-input')?.focus();
     try {
-      this._aiHistory = JSON.parse(sessionStorage.getItem('bht_ai_history') || '[]');
+      this._aiHistory = JSON.parse(localStorage.getItem('bht_ai_history') || '[]');
       if (this._aiHistory.length) {
         this._aiRenderAll();
       }

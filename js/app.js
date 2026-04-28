@@ -1192,7 +1192,15 @@ const App = {
   },
 
   clearFormDraft(modalId) {
-    try { localStorage.removeItem('bht_draft_' + modalId); } catch(e) { /* silent */ }
+    try {
+      // Promote draft to "last successful" so the next blank-modal-open can suggest defaults
+      const raw = localStorage.getItem('bht_draft_' + modalId);
+      if (raw) {
+        const v = JSON.parse(raw).v || {};
+        Utils.safeSetItem('bht_last_' + modalId, JSON.stringify({ v, t: Date.now() }));
+      }
+      localStorage.removeItem('bht_draft_' + modalId);
+    } catch (e) { /* silent */ }
   },
 
   // Route progress bar (NProgress-lite) — call on every navigation
@@ -1379,6 +1387,50 @@ const App = {
     const d = new Date(); d.setDate(d.getDate() + daysFromNow);
     el.value = d.toISOString().slice(0, 10);
     el.dispatchEvent(new Event('change', { bubbles: true }));
+  },
+
+  // Text-to-speech for AI responses, route announcements (Hebrew voice)
+  tts(text, opts = {}) {
+    if (!('speechSynthesis' in window)) return;
+    if (localStorage.getItem('bht_tts_off') === '1') return;
+    try {
+      const u = new SpeechSynthesisUtterance(String(text || ''));
+      u.lang = 'he-IL';
+      u.rate = opts.rate || 1;
+      u.pitch = opts.pitch || 1;
+      const heVoice = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith('he'));
+      if (heVoice) u.voice = heVoice;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    } catch (e) { /* silent */ }
+  },
+
+  // Voice command parser — handles "פתח X", "חפש X", default → AI assistant
+  runVoiceCommand(transcript) {
+    const t = String(transcript || '').trim();
+    if (!t) return;
+    const routes = {
+      'דשבורד': 'dashboard', 'בית': 'dashboard', 'לוח': 'dashboard',
+      'תלמידים': 'students', 'נוכחות': 'attendance', 'כספים': 'finance',
+      'משימות': 'tasks', 'דואר': 'email', 'הורים': 'parents',
+      'התנהגות': 'behavior', 'שיעורי בית': 'homework', 'דוחות': 'reports',
+      'צוות': 'staff', 'לוח שנה': 'calendar', 'עוזר': 'ai_assistant'
+    };
+    let m = t.match(/^(?:פתח|פתחי|תפתח|הצג|לך ל|עבור ל)\s+(.+)$/);
+    if (m) {
+      const k = m[1].trim();
+      const route = routes[k] || Object.entries(routes).find(([h]) => k.includes(h))?.[1];
+      if (route) { location.hash = route; this.tts('פותח ' + k); return; }
+    }
+    m = t.match(/^(?:חפש|חפשי|מצא)\s+(.+)$/);
+    if (m) {
+      const s = document.getElementById('global-search');
+      if (s) { s.value = m[1]; s.dispatchEvent(new Event('input')); s.focus(); }
+      return;
+    }
+    // Fallback: send to AI chat
+    sessionStorage.setItem('bht_voice_question', t);
+    location.hash = 'ai_assistant';
   },
 
   // Number counter roll-up (for stat cards). Respects prefers-reduced-motion.
