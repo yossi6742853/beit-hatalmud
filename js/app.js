@@ -265,7 +265,7 @@ const App = {
     if (Pages._gbCharts) { Object.values(Pages._gbCharts).forEach(c => { try { c.destroy(); } catch(e) { /* silent */ } }); Pages._gbCharts = {}; }
 
     this.currentPage = page;
-    this.trackRecentPage(page);
+    this.trackRecentPage(page, param);
     const content = document.getElementById('main-content');
 
     // Show skeleton loader while page renders
@@ -1342,8 +1342,12 @@ const App = {
   /* ==============================
      RECENT PAGES TRACKER
      ============================== */
-  trackRecentPage(page) {
-    if (['student','staff_card','parent_card'].includes(page)) return; // skip sub-pages
+  trackRecentPage(page, param) {
+    // Sub-pages (student/staff/parent cards) feed a separate "recent records" list
+    if (['student','staff_card','parent_card'].includes(page)) {
+      if (param) this.trackRecentRecord(page, param);
+      return;
+    }
     const key = 'bht_recent_pages';
     let recent = [];
     try { recent = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { /* silent */ }
@@ -1352,6 +1356,35 @@ const App = {
     recent = recent.slice(0, 5);
     Utils.safeSetItem(key, JSON.stringify(recent));
     this.renderRecentPages(recent);
+  },
+
+  trackRecentRecord(type, id) {
+    const key = 'bht_recent_records';
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { /* silent */ }
+    recent = recent.filter(r => !(r.type === type && r.id === id));
+    recent.unshift({ type, id, ts: Date.now() });
+    recent = recent.slice(0, 12);
+    Utils.safeSetItem(key, JSON.stringify(recent));
+  },
+
+  // Returns last N visited cards with resolved name/class for the renderer.
+  // Called by dashboard widget / command palette.
+  getRecentRecords(limit = 6) {
+    let recent = [];
+    try { recent = JSON.parse(localStorage.getItem('bht_recent_records') || '[]'); } catch(e) { return []; }
+    if (typeof DATA_CACHE === 'undefined') return [];
+    const sheets = { student: 'תלמידים', staff_card: 'צוות', parent_card: 'הורים' };
+    const idKey = 'מזהה';
+    return recent.slice(0, limit).map(r => {
+      const sheet = sheets[r.type];
+      const rows = DATA_CACHE[sheet] || [];
+      const row = rows.find(x => String(x[idKey]||'') === String(r.id));
+      if (!row) return null;
+      const name = Utils.fullName(row) || row['שם'] || '';
+      const sub = r.type === 'student' ? ('כיתה ' + (row['כיתה']||'')) : r.type === 'staff_card' ? (row['תפקיד']||'') : (row['קשר']||'');
+      return { type: r.type, id: r.id, name, sub, link: '#' + r.type + '/' + r.id, ts: r.ts };
+    }).filter(Boolean);
   },
 
   renderRecentPages(recent) {
