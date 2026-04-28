@@ -1469,7 +1469,12 @@ Object.assign(Pages, {
     } else if (delivery === 'sms') {
       recipients.forEach(t => {
         const phone = t.phone.replace(/[-\s]/g, '');
-        window.open(`sms:${phone}?body=${encodeURIComponent(msg)}`, '_blank');
+        // Personalize: replace {שם_הורה}/{שם_תלמיד}/{שם} placeholders per recipient
+        const personalMsg = String(msg)
+          .replace(/\{שם_הורה\}/g, t.name || '')
+          .replace(/\{שם_תלמיד\}/g, t.studentName || '')
+          .replace(/\{שם\}/g, t.name || '');
+        window.open(`sms:${phone}?body=${encodeURIComponent(personalMsg)}`, '_blank');
         sent++;
       });
     } else if (delivery === 'email') {

@@ -167,6 +167,24 @@ const Utils = {
        </div>`);
   },
 
+  /* ---- Allergy/medical alert banner — high-visibility, escapes content ---- */
+  allergyBanner(allergies) {
+    if (!allergies || (Array.isArray(allergies) && !allergies.length)) return '';
+    const list = Array.isArray(allergies) ? allergies : [allergies];
+    const safe = list.map(a => this.escapeHTML(String(a || '').trim())).filter(Boolean).join(' • ');
+    if (!safe) return '';
+    return `<div class="alert alert-danger fw-bold py-1 px-2 mb-2 d-inline-flex align-items-center gap-2" role="status"><i class="bi bi-exclamation-octagon-fill"></i><span>אלרגיה: ${safe}</span></div>`;
+  },
+
+  /* ---- Personalize message text with recipient placeholders ---- */
+  mergeMessage(template, recipient = {}) {
+    return String(template || '')
+      .replace(/\{שם_הורה\}/g, recipient.name || '')
+      .replace(/\{שם_תלמיד\}/g, recipient.studentName || '')
+      .replace(/\{שם\}/g, recipient.name || '')
+      .replace(/\{כיתה\}/g, recipient.class || '');
+  },
+
   /* ---- Mask Israeli ID — display last 4 only ---- */
   maskTeudat(tz) {
     const d = String(tz || '').replace(/\D/g, '');
