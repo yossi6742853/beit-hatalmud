@@ -219,6 +219,7 @@ const App = {
     if (this._pageTimers) this._pageTimers.forEach(t => clearInterval(t));
     this._pageTimers = [];
 
+    this._showRouteBar();
     const hash = location.hash.slice(1) || 'dashboard';
     const parts = hash.split('/');
     const page = parts[0];
@@ -268,6 +269,7 @@ const App = {
 
     this.currentPage = page;
     this.trackRecentPage(page, param);
+    this._syncBottomNav(page);
     // Update document title (WCAG 2.4.2) + announce to screen readers
     const pageTitles = { dashboard:'לוח בקרה', students:'תלמידים', attendance:'נוכחות', staff:'צוות',
       parents:'הורים', finance:'כספים', behavior:'התנהגות', homework:'שיעורי בית', academics:'מבחנים',
@@ -293,7 +295,7 @@ const App = {
     // Render page (use requestAnimationFrame so skeleton paints first)
     requestAnimationFrame(() => {
       if (Pages[page]) {
-        content.innerHTML = '<div class="fade-in">' + Pages[page](param) + '</div>';
+        content.innerHTML = '<div class="fade-in page-enter">' + Pages[page](param) + '</div>';
         if (Pages[page + 'Init']) {
           try {
             const result = Pages[page + 'Init'](param);
@@ -304,6 +306,7 @@ const App = {
       } else {
         content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
       }
+      this._hideRouteBar();
     });
   },
 
@@ -1100,6 +1103,32 @@ const App = {
     try { localStorage.removeItem('bht_draft_' + modalId); } catch(e) { /* silent */ }
   },
 
+  // Route progress bar (NProgress-lite) — call on every navigation
+  _showRouteBar() {
+    let bar = document.getElementById('route-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'route-bar';
+      document.body.appendChild(bar);
+    }
+    bar.classList.remove('done');
+    bar.style.width = '0';
+    requestAnimationFrame(() => { bar.style.width = '70%'; });
+  },
+  _hideRouteBar() {
+    const bar = document.getElementById('route-bar');
+    if (!bar) return;
+    bar.classList.add('done');
+    setTimeout(() => bar.remove(), 350);
+  },
+
+  // Sync mobile bottom-nav active state on route change
+  _syncBottomNav(page) {
+    document.querySelectorAll('#mobile-bottom-nav a').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === page);
+    });
+  },
+
   // Mobile enhancements: keyboard-aware focus scroll + haptic on critical taps
   initMobileEnhancements() {
     // Scroll focused inputs into view (iOS keyboard hides field otherwise)
@@ -1118,6 +1147,43 @@ const App = {
       const btn = e.target.closest('button[type="submit"], .btn-danger, [data-haptic]');
       if (btn && Utils.haptic) Utils.haptic(8);
     });
+
+    // Button ripple effect (skip btn-link, anchors styled as nav)
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.addEventListener('pointerdown', (e) => {
+        const b = e.target.closest('.btn:not(.btn-link):not(.btn-close)');
+        if (!b) return;
+        const r = b.getBoundingClientRect();
+        const s = Math.max(r.width, r.height);
+        const x = e.clientX - r.left - s / 2;
+        const y = e.clientY - r.top - s / 2;
+        const d = document.createElement('span');
+        d.className = 'ripple';
+        d.style.cssText = `width:${s}px;height:${s}px;left:${x}px;top:${y}px`;
+        b.appendChild(d);
+        setTimeout(() => d.remove(), 550);
+      });
+    }
+  },
+
+  // Number counter roll-up (for stat cards). Respects prefers-reduced-motion.
+  countTo(el, to, ms = 900) {
+    if (!el) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = Number(to).toLocaleString('he-IL');
+      return;
+    }
+    const from = parseFloat(el.dataset.from || '0') || 0;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / ms);
+      const eased = 1 - Math.pow(1 - k, 3);
+      const v = Math.round(from + (to - from) * eased);
+      el.textContent = v.toLocaleString('he-IL');
+      if (k < 1) requestAnimationFrame(tick);
+      else el.dataset.from = String(to);
+    };
+    requestAnimationFrame(tick);
   },
 
   toggleShortcutsOverlay() {
