@@ -648,16 +648,18 @@ Object.assign(Pages, {
     document.getElementById('fin-modal-dyn')?.remove();
     document.body.insertAdjacentHTML('beforeend', html);
 
-    // Populate student list
-    _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
+    // Populate student list (_gc is sync, returns array)
+    {
+      const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       const sel = document.getElementById('ff-student');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
-      if (editing) {
-        const match = students.find(s => Utils.rowId(s) === editing['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']);
-        if (match) sel.value = Utils.rowId(match);
+      if (sel) {
+        sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.rowId(s)}">${Utils.fullName(s)}</option>`).join('');
+        if (editing) {
+          const match = students.find(s => Utils.rowId(s) === editing['\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4']);
+          if (match) sel.value = Utils.rowId(match);
+        }
       }
-    }).catch(() => {});
+    }
 
     // Set defaults or editing values
     const d = new Date();
@@ -789,11 +791,13 @@ Object.assign(Pages, {
     document.getElementById('fin-invoice-modal')?.remove();
     document.body.insertAdjacentHTML('beforeend', html);
 
-    _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD').then(students => {
+    {
+      const students = _gc('\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD');
       const sel = document.getElementById('inv-student');
-      if (!sel) return;
-      sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.fullName(s)}">${Utils.fullName(s)}</option>`).join('');
-    }).catch(() => {});
+      if (sel) {
+        sel.innerHTML = '<option value="">\u05D1\u05D7\u05E8 \u05EA\u05DC\u05DE\u05D9\u05D3</option>' + students.map(s => `<option value="${Utils.fullName(s)}">${Utils.fullName(s)}</option>`).join('');
+      }
+    }
 
     const d = new Date();
     const curM = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;

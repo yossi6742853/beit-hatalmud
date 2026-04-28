@@ -488,7 +488,7 @@ Object.assign(Pages, {
           </div>`).join('')}
         </div>`;
     }
-    document.querySelector('#par-commlog-modal .modal-title').innerHTML = `<i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u2014 ${name}`;
+    { const t = document.querySelector('#par-commlog-modal .modal-title'); if (t) t.innerHTML = `<i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA \u2014 ${Utils.escapeHTML(name||'')}`; }
     new bootstrap.Modal(document.getElementById('par-commlog-modal')).show();
   },
 

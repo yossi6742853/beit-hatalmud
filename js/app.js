@@ -1,4 +1,4 @@
-/* ===== BHT v6.3 — App Core (Router, Auth, Data Layer) ===== */
+/* ===== BHT v6.8 — App Core (Router, Auth, Data Layer) ===== */
 
 const App = {
   /* ---- Config ---- */
@@ -1051,7 +1051,7 @@ const App = {
   // Version check
   checkVersion() {
     const stored = localStorage.getItem('bht_version');
-    const current = 'v6.3';
+    const current = 'v6.8';
     if (stored && stored !== current) {
       // Clear old caches on version change
       Object.keys(localStorage).forEach(k => {

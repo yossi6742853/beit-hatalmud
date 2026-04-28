@@ -3871,7 +3871,7 @@ Object.assign(Pages, {
     this._renderTripScheduleList();
     this._renderTripEquipmentList();
     this._renderTripEmergencyList();
-    document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9';
+    { const t = document.querySelector('#trip-modal .modal-title'); if (t) t.innerHTML = '<i class="bi bi-geo-alt me-2"></i>\u05D8\u05D9\u05D5\u05DC \u05D7\u05D3\u05E9'; }
     // Reset to first tab
     const firstTab = document.querySelector('#trip-form-tabs .nav-link');
     if (firstTab) new bootstrap.Tab(firstTab).show();
@@ -3968,7 +3968,7 @@ Object.assign(Pages, {
     this._renderTripScheduleList();
     this._renderTripEquipmentList();
     this._renderTripEmergencyList();
-    document.querySelector('#trip-modal .modal-title').innerHTML = '<i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05EA \u05D8\u05D9\u05D5\u05DC';
+    { const t = document.querySelector('#trip-modal .modal-title'); if (t) t.innerHTML = '<i class="bi bi-pencil me-2"></i>\u05E2\u05E8\u05D9\u05DB\u05EA \u05D8\u05D9\u05D5\u05DC'; }
     const firstTab = document.querySelector('#trip-form-tabs .nav-link');
     if (firstTab) new bootstrap.Tab(firstTab).show();
     new bootstrap.Modal(document.getElementById('trip-modal')).show();

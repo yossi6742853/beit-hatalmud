@@ -135,6 +135,7 @@ Object.assign(Pages, {
 
   notificationsInit() {
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
+    const _safeTs = (d) => { if (!d) return 0; const t = new Date(d).getTime(); return isNaN(t) ? 0 : t; };
     this._notifFilter = 'all';
     this._notifDetailId = null;
 
@@ -146,7 +147,7 @@ Object.assign(Pages, {
     const att = _gc('\u05E0\u05D5\u05DB\u05D7\u05D5\u05EA');
     att.forEach(row => {
       const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
-      const ts = date ? new Date(date).getTime() : 0;
+      const ts = _safeTs(date);
       if (!ts) return;
       const status = row['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
       const name = row['\u05E9\u05DD'] || '';
@@ -164,7 +165,7 @@ Object.assign(Pages, {
     const beh = _gc('\u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA');
     beh.forEach(row => {
       const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA'] || '';
-      const ts = date ? new Date(date).getTime() : 0;
+      const ts = _safeTs(date);
       const name = row['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '';
       const kind = row['\u05E1\u05D5\u05D2'] || '';
       const severity = row['\u05D7\u05D5\u05DE\u05E8\u05D4'] || '';
@@ -181,7 +182,7 @@ Object.assign(Pages, {
     const fin = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
     fin.forEach(row => {
       const date = row['\u05EA\u05D0\u05E8\u05D9\u05DA_\u05EA\u05E9\u05DC\u05D5\u05DD'] || '';
-      const ts = date ? new Date(date).getTime() : 0;
+      const ts = _safeTs(date);
       const name = row['\u05E9\u05DD'] || '';
       const amount = row['\u05E1\u05DB\u05D5\u05DD'] || '';
       const status = row['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '';
@@ -203,7 +204,7 @@ Object.assign(Pages, {
           id: idCounter++, type: 'parent',
           title: '\u05D3\u05D5\u05D0\u05E8: ' + (e.subject || '\u05DC\u05DC\u05D0 \u05E0\u05D5\u05E9\u05D0'),
           desc: '\u05DE\u05D0\u05EA: ' + senderName.substring(0, 30) + (e.snippet ? ' \u2014 ' + e.snippet.substring(0, 60) + '...' : ''),
-          ts: e.date ? new Date(e.date).getTime() : Date.now(),
+          ts: _safeTs(e.date) || Date.now(),
           read: false, important: true, archived: false
         });
       });

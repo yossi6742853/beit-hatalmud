@@ -483,8 +483,10 @@ Object.assign(Pages, {
 
   /* ---------- Filter students by class ---------- */
   _pcFilterStudents() {
-    const cls = document.getElementById('pc-class').value;
+    const clsEl = document.getElementById('pc-class');
     const sel = document.getElementById('pc-student');
+    if (!sel) return;
+    const cls = clsEl ? clsEl.value : '';
     const filtered = cls ? this._pcStudents.filter(s => s.cls === cls) : this._pcStudents;
     sel.innerHTML = '<option value="">כל התלמידים</option>' +
       filtered.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
