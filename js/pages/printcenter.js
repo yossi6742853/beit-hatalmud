@@ -43,7 +43,7 @@ Object.assign(Pages, {
 
   /* ---------- history persistence ---------- */
   _pcGetHistory() {
-    try { return JSON.parse(localStorage.getItem(this._pcHistoryLS) || '[]'); } catch(e) { return []; }
+    try { return (() => { try { return JSON.parse(localStorage.getItem(this._pcHistoryLS) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })(); } catch(e) { return []; }
   },
   _pcSaveHistory(arr) {
     localStorage.setItem(this._pcHistoryLS, JSON.stringify(arr.slice(0, 100)));

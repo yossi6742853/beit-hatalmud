@@ -148,7 +148,7 @@ Object.assign(Pages, {
   _talaRenderTab(sId, studentName) {
     const key = 'bht_tala_' + sId;
     let data = {};
-    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { /* silent */ }
+    try { data = (() => { try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {} === '{}' ? {} : []; } })(); } catch(e) { /* silent */ }
 
     const fieldsHTML = Pages._talaFields.map(f => {
       const val = data[f.key] || '';
@@ -218,7 +218,7 @@ Object.assign(Pages, {
   _talaPrint(sId) {
     const key = 'bht_tala_' + sId;
     let data = {};
-    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { /* silent */ }
+    try { data = (() => { try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {} === '{}' ? {} : []; } })(); } catch(e) { /* silent */ }
     const studentName = data._studentName || Pages._scStudentName || '\u05EA\u05DC\u05DE\u05D9\u05D3';
 
     const fields = Pages._talaFields;

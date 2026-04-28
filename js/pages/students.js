@@ -1102,7 +1102,7 @@ Object.assign(Pages, {
     // Merge locally uploaded docs from localStorage
     try {
       const localDocsKey = 'bht_student_docs_' + sId;
-      const localDocs = JSON.parse(localStorage.getItem(localDocsKey) || '[]');
+      const localDocs = (() => { try { return JSON.parse(localStorage.getItem(localDocsKey) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
       if (localDocs.length) {
         const mappedLocal = localDocs.map(d => ({
           '\u05E9\u05DD_\u05DE\u05E1\u05DE\u05DA': d.name, name: d.name,
@@ -1445,7 +1445,7 @@ Object.assign(Pages, {
             <button class="btn btn-outline-success btn-sm" onclick="Pages._openCallLogModal('${name}', '${parentPhone}', '${sId}')"><i class="bi bi-plus-lg me-1"></i>\u05E8\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</button>
           </div>
           ${(() => {
-            const allCalls = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+            const allCalls = (() => { try { return JSON.parse(localStorage.getItem('bht_call_log') || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
             const studentCalls = allCalls.filter(c => c.studentId === sId || (c.studentName && c.studentName === name)).slice(0, 3);
             if (!studentCalls.length) return '<div class="text-muted text-center py-2 small">\u05D0\u05D9\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05DE\u05EA\u05D5\u05E2\u05D3\u05D5\u05EA</div>';
             return studentCalls.map(c => `<div class="card p-2 mb-2">
@@ -1945,7 +1945,7 @@ Object.assign(Pages, {
       };
       // Save to localStorage
       const key = 'bht_student_docs_' + this._scStudentId;
-      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      const existing = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
       existing.push(docEntry);
       localStorage.setItem(key, JSON.stringify(existing));
       bootstrap.Modal.getInstance(document.getElementById('sc-modal-container'))?.hide();
@@ -1965,7 +1965,7 @@ Object.assign(Pages, {
   /** View a locally stored document */
   _scViewLocalDoc(localId) {
     const key = 'bht_student_docs_' + this._scStudentId;
-    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const docs = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
     const doc = docs.find(d => d.id === localId);
     if (!doc || !doc.data) { Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
     // Open in new tab
@@ -1984,7 +1984,7 @@ Object.assign(Pages, {
   /** Download a locally stored document */
   _scDownloadLocalDoc(localId) {
     const key = 'bht_student_docs_' + this._scStudentId;
-    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const docs = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
     const doc = docs.find(d => d.id === localId);
     if (!doc || !doc.data) { Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0', 'warning'); return; }
     const a = document.createElement('a');
@@ -1999,7 +1999,7 @@ Object.assign(Pages, {
   async _scDeleteLocalDoc(localId) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05EA \u05DE\u05E1\u05DE\u05DA', '\u05DC\u05DE\u05D7\u05D5\u05E7 \u05D0\u05EA \u05D4\u05DE\u05E1\u05DE\u05DA?')) return;
     const key = 'bht_student_docs_' + this._scStudentId;
-    const docs = JSON.parse(localStorage.getItem(key) || '[]');
+    const docs = (() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
     const filtered = docs.filter(d => d.id !== localId);
     localStorage.setItem(key, JSON.stringify(filtered));
     Utils.toast('\u05DE\u05E1\u05DE\u05DA \u05E0\u05DE\u05D7\u05E7', 'success');
@@ -2163,7 +2163,7 @@ Object.assign(Pages, {
       createdAt: new Date().toISOString()
     };
 
-    const logs = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+    const logs = (() => { try { return JSON.parse(localStorage.getItem('bht_call_log') || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
     logs.unshift(entry);
     // Keep max 500 entries
     if (logs.length > 500) logs.length = 500;
@@ -2178,7 +2178,7 @@ Object.assign(Pages, {
 
   /** Get recent calls from localStorage (used by dashboard too) */
   _getRecentCalls(limit) {
-    const logs = JSON.parse(localStorage.getItem('bht_call_log') || '[]');
+    const logs = (() => { try { return JSON.parse(localStorage.getItem('bht_call_log') || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })();
     return logs.slice(0, limit || 5);
   },
 });

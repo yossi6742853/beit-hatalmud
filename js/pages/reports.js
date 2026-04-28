@@ -53,13 +53,13 @@ Object.assign(Pages, {
   ],
 
   _getReportsHistory() {
-    try { return JSON.parse(localStorage.getItem(this._reportsLS) || '[]'); } catch(e) { return []; }
+    try { return (() => { try { return JSON.parse(localStorage.getItem(this._reportsLS) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })(); } catch(e) { return []; }
   },
   _saveReportsHistory(arr) {
     localStorage.setItem(this._reportsLS, JSON.stringify(arr.slice(0, 50)));
   },
   _getSchedules() {
-    try { return JSON.parse(localStorage.getItem(this._reportsScheduleLS) || '[]'); } catch(e) { return []; }
+    try { return (() => { try { return JSON.parse(localStorage.getItem(this._reportsScheduleLS) || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })(); } catch(e) { return []; }
   },
   _saveSchedules(arr) {
     localStorage.setItem(this._reportsScheduleLS, JSON.stringify(arr));

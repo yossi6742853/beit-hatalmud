@@ -72,7 +72,7 @@ Object.assign(Pages, {
     const max = Math.max(...data);
     const min = Math.min(...data);
     const range = max - min || 1;
-    const step = w / (data.length - 1);
+    const step = data.length > 1 ? w / (data.length - 1) : w;
     const pts = data.map((v, i) => `${i * step},${h - ((v - min) / range) * (h - 4) - 2}`).join(' ');
     return `<svg width="${w}" height="${h}" class="d-inline-block align-middle">
       <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

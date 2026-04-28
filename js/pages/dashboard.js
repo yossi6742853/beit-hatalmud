@@ -640,7 +640,7 @@ Object.assign(Pages, {
     // === 6. Recent Phone Calls from localStorage ===
     const callsEl = document.getElementById('recent-calls');
     if (callsEl) {
-      const recentCalls = JSON.parse(localStorage.getItem('bht_call_log') || '[]').slice(0, 5);
+      const recentCalls = (() => { try { return (() => { try { return JSON.parse(localStorage.getItem('bht_call_log') || '[]'); } catch(e) { return [] === '{}' ? {} : []; } })(); } catch(e) { return [] === '{}' ? {} : []; } })().slice(0, 5);
       if (recentCalls.length === 0) {
         callsEl.innerHTML = '<div class="text-muted text-center py-4"><i class="bi bi-telephone fs-3 d-block mb-2 text-muted"></i>\u05D0\u05D9\u05DF \u05E9\u05D9\u05D7\u05D5\u05EA \u05DE\u05EA\u05D5\u05E2\u05D3\u05D5\u05EA<br><small>\u05DC\u05D7\u05E5 + \u05DB\u05D3\u05D9 \u05DC\u05E8\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4</small></div>';
       } else {
