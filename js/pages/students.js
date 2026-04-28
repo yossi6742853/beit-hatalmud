@@ -559,13 +559,41 @@ Object.assign(Pages, {
     const selected = this._studentsData.filter(s => this._studentsSelected.has(s._id));
     const phones = selected.map(s => s['\u05D8\u05DC\u05E4\u05D5\u05DF']).filter(Boolean);
     if (!phones.length) { Utils.toast('\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF', 'warning'); return; }
-    const names = selected.map(s => s._fullName).join(', ');
-    const msg = prompt(`\u05E9\u05DC\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC-${selected.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD:\n${names}`);
-    if (!msg) return;
-    // Copy message + phone list to clipboard for SMS sending
-    const phoneList = phones.map((ph, i) => `${selected[i]._fullName}: ${ph}`).join('\n');
+    // Store context for _sendBulkMsg
+    this._bulkMsgSelected = selected;
+    this._bulkMsgPhones = phones;
+    document.getElementById('students-msg-modal')?.remove();
+    const names = selected.map(s => `<span class="badge bg-secondary me-1">${s._fullName}</span>`).join('');
+    const html = `<div class="modal fade" id="students-msg-modal" tabindex="-1">
+      <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">\u05E9\u05DC\u05D9\u05D7\u05EA \u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC-${selected.length} \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3"><div class="fw-bold mb-1">\u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D9\u05DD:</div><div class="d-flex flex-wrap gap-1">${names}</div></div>
+          <label class="form-label fw-bold">\u05D4\u05D5\u05D3\u05E2\u05D4:</label>
+          <textarea id="students-msg-text" class="form-control" rows="4" placeholder="\u05DB\u05EA\u05D5\u05D1 \u05DB\u05D0\u05DF \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+          <button class="btn btn-primary" onclick="Pages._sendBulkMsg()">\u05E9\u05DC\u05D7 \u05D5\u05D4\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7</button>
+        </div>
+      </div></div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('students-msg-modal')).show();
+  },
+
+  _sendBulkMsg() {
+    const msg = (document.getElementById('students-msg-text')?.value || '').trim();
+    if (!msg) { Utils.toast('\u05D9\u05E9 \u05DC\u05DB\u05EA\u05D5\u05D1 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    const selected = this._bulkMsgSelected || [];
+    const phones = this._bulkMsgPhones || [];
+    const phoneList = phones.map((ph, i) => `${selected[i]?._fullName || ''}: ${ph}`).join('\n');
     const clipText = `\u05D4\u05D5\u05D3\u05E2\u05D4:\n${msg}\n\n\u05E0\u05DE\u05E2\u05E0\u05D9\u05DD:\n${phoneList}`;
     navigator.clipboard.writeText(clipText).catch(() => {});
+    bootstrap.Modal.getInstance(document.getElementById('students-msg-modal'))?.hide();
     Utils.toast(`\u05D4\u05D5\u05D3\u05E2\u05D4 + ${phones.length} \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD \u05D4\u05D5\u05E2\u05EA\u05E7\u05D5 \u05DC\u05DC\u05D5\u05D7`, 'success');
   },
 
@@ -581,9 +609,41 @@ Object.assign(Pages, {
       return parent ? (parent['\u05D8\u05DC\u05E4\u05D5\u05DF']||'') : '';
     }).filter(Boolean);
     if (!phones.length) { Utils.toast('\u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0\u05D5 \u05D8\u05DC\u05E4\u05D5\u05E0\u05D9\u05DD', 'warning'); return; }
-    // Open SMS with first phone
-    const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05EA SMS:');
-    if (!msg) return;
+    // Store context for _sendBulkSMS
+    this._bulkSMSSelected = selected;
+    this._bulkSMSPhones = phones;
+    document.getElementById('students-sms-modal')?.remove();
+    const phoneItems = selected.map((s, i) => {
+      const ph = phones[i] || '';
+      return ph ? `<div class="d-flex justify-content-between small border-bottom py-1"><span>${s._fullName}</span><span class="text-muted">${ph}</span></div>` : '';
+    }).filter(Boolean).join('');
+    const html = `<div class="modal fade" id="students-sms-modal" tabindex="-1">
+      <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">\u05E9\u05DC\u05D9\u05D7\u05EA SMS \u05DC-${phones.length} \u05DE\u05E1\u05E4\u05E8\u05D9\u05DD</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3"><div class="fw-bold mb-1">\u05DE\u05E1\u05E4\u05E8\u05D9 \u05D8\u05DC\u05E4\u05D5\u05DF:</div><div class="border rounded p-2" style="max-height:140px;overflow-y:auto">${phoneItems}</div></div>
+          <label class="form-label fw-bold">\u05D4\u05D5\u05D3\u05E2\u05EA SMS:</label>
+          <textarea id="students-sms-text" class="form-control" rows="3" placeholder="\u05DB\u05EA\u05D5\u05D1 \u05DB\u05D0\u05DF \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4..."></textarea>
+          ${phones.length > 1 ? `<div class="form-text text-info mt-1"><i class="bi bi-info-circle"></i> SMS \u05D9\u05D9\u05E4\u05EA\u05D7 \u05DC\u05DE\u05E1\u05E4\u05E8 \u05D4\u05E8\u05D0\u05E9\u05D5\u05DF, \u05D4\u05E9\u05D0\u05E8 \u05D9\u05D5\u05E2\u05EA\u05E7\u05D5 \u05DC\u05DC\u05D5\u05D7.</div>` : ''}
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+          <button class="btn btn-success" onclick="Pages._sendBulkSMS()"><i class="bi bi-chat-dots"></i> \u05E9\u05DC\u05D7 SMS</button>
+        </div>
+      </div></div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById('students-sms-modal')).show();
+  },
+
+  _sendBulkSMS() {
+    const msg = (document.getElementById('students-sms-text')?.value || '').trim();
+    if (!msg) { Utils.toast('\u05D9\u05E9 \u05DC\u05DB\u05EA\u05D5\u05D1 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    const phones = this._bulkSMSPhones || [];
+    bootstrap.Modal.getInstance(document.getElementById('students-sms-modal'))?.hide();
     window.open('sms:' + phones[0] + '?body=' + encodeURIComponent(msg));
     if (phones.length > 1) {
       const list = phones.slice(1).join(', ');

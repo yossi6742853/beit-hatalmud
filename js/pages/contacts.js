@@ -134,6 +134,19 @@ Object.assign(Pages, {
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
         <button type="button" class="btn btn-primary" id="ct-import-btn" onclick="Pages._ctDoImport()" disabled><i class="bi bi-check-lg me-1"></i>\u05D9\u05D9\u05D1\u05D0</button>
       </div>
+    </div></div></div>
+
+    <!-- New Group Modal -->
+    <div class="modal fade" id="ct-new-group-modal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-diagram-3 me-2"></i>\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label fw-bold">\u05E9\u05DD \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4</label>
+        <input type="text" class="form-control" id="ct-new-group-name" placeholder="\u05E9\u05DD \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4...">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button>
+        <button type="button" class="btn btn-primary" onclick="Pages._ctAddGroupSave()"><i class="bi bi-check-lg me-1"></i>\u05E6\u05D5\u05E8</button>
+      </div>
     </div></div></div>`;
   },
 
@@ -441,9 +454,18 @@ Object.assign(Pages, {
   },
 
   _ctAddGroup() {
-    const name = prompt('\u05E9\u05DD \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4:');
-    if (!name) return;
+    const nameEl = document.getElementById('ct-new-group-name');
+    if (nameEl) nameEl.value = '';
+    // hide the groups modal temporarily, show new-group modal
+    bootstrap.Modal.getInstance(document.getElementById('ct-groups-modal'))?.hide();
+    new bootstrap.Modal(document.getElementById('ct-new-group-modal')).show();
+  },
+
+  _ctAddGroupSave() {
+    const name = (document.getElementById('ct-new-group-name')?.value || '').trim();
+    if (!name) { Utils.toast('\u05E0\u05D0 \u05DC\u05D4\u05D6\u05D9\u05DF \u05E9\u05DD \u05E7\u05D1\u05D5\u05E6\u05D4', 'warning'); return; }
     this._contactsGroups.push({ id: 'g' + Date.now(), name, members: [] });
+    bootstrap.Modal.getInstance(document.getElementById('ct-new-group-modal'))?.hide();
     this._ctShowGroups();
   },
 

@@ -287,6 +287,17 @@ Object.assign(Pages, {
     <div class="modal fade" id="frm-template-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
       <div class="modal-header bg-info bg-opacity-10"><h5 class="modal-title"><i class="bi bi-file-earmark-plus me-2"></i>בחר תבנית</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body" id="frm-template-body"></div>
+    </div></div></div>
+
+    <!-- Field Edit Modal -->
+    <div class="modal fade" id="ff-edit-modal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>עריכת שדה</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="ff-edit-idx">
+        <div class="mb-3"><label class="form-label fw-bold">שם השדה</label><input type="text" class="form-control" id="ff-edit-name"></div>
+        <div id="ff-edit-opts-row" class="mb-3"><label class="form-label fw-bold">אפשרויות <span class="text-muted fw-normal small">(מופרד בפסיק)</span></label><input type="text" class="form-control" id="ff-edit-opts" placeholder="אפשרות 1, אפשרות 2, ..."></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button><button class="btn btn-primary" onclick="Pages._formEditFieldSave()"><i class="bi bi-check-lg me-1"></i>שמור</button></div>
     </div></div></div>`;
   },
 
@@ -408,14 +419,26 @@ Object.assign(Pages, {
   _formEditField(idx) {
     const f = this._formFields[idx];
     if (!f) return;
-    const newName = prompt('שם השדה:', f.name);
-    if (newName === null) return;
-    if (newName.trim()) f.name = newName.trim();
+    const isSelectable = ['select', 'radio'].includes(f.type);
+    document.getElementById('ff-edit-name').value = f.name;
+    document.getElementById('ff-edit-opts-row').style.display = isSelectable ? '' : 'none';
+    if (isSelectable) document.getElementById('ff-edit-opts').value = (f.options || []).join(', ');
+    document.getElementById('ff-edit-idx').value = idx;
+    new bootstrap.Modal(document.getElementById('ff-edit-modal')).show();
+  },
+
+  _formEditFieldSave() {
+    const idx = +document.getElementById('ff-edit-idx').value;
+    const f = this._formFields[idx];
+    if (!f) return;
+    const newName = document.getElementById('ff-edit-name').value.trim();
+    if (newName) f.name = newName;
     if (['select', 'radio'].includes(f.type)) {
-      const newOpts = prompt('אפשרויות (מופרד בפסיק):', (f.options || []).join(', '));
-      if (newOpts !== null) f.options = newOpts.split(',').map(o => o.trim()).filter(Boolean);
+      const newOpts = document.getElementById('ff-edit-opts').value;
+      f.options = newOpts.split(',').map(o => o.trim()).filter(Boolean);
     }
-    f.required = true; // default to required; user can toggle in form builder
+    f.required = true;
+    bootstrap.Modal.getInstance(document.getElementById('ff-edit-modal'))?.hide();
     this._formRenderFields();
   },
 
@@ -1015,7 +1038,7 @@ Object.assign(Pages, {
     navigator.clipboard.writeText(url).then(() => {
       Utils.toast('הקישור הועתק ללוח', 'success');
     }).catch(() => {
-      prompt('העתק את הקישור:', url);
+      Utils.toast(url, 'info');
     });
   },
 
@@ -1027,7 +1050,7 @@ Object.assign(Pages, {
     navigator.clipboard.writeText(text).then(() => {
       Utils.toast('\u05D4\u05D8\u05E7\u05E1\u05D8 \u05D4\u05D5\u05E2\u05EA\u05E7 \u05DC\u05DC\u05D5\u05D7 - \u05E0\u05D9\u05EA\u05DF \u05DC\u05E9\u05DC\u05D5\u05D7 \u05D1SMS', 'success');
     }).catch(() => {
-      prompt('\u05D4\u05E2\u05EA\u05E7 \u05D0\u05EA \u05D4\u05D8\u05E7\u05E1\u05D8:', text);
+      Utils.toast(text, 'info');
     });
   },
 

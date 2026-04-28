@@ -326,6 +326,18 @@ Object.assign(Pages, {
         <div class="alert alert-info small" id="ts-cost-preview"><i class="bi bi-calculator me-1"></i>עלות משוערת: <strong>80 \u20AA</strong></div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button><button class="btn btn-primary" onclick="Pages._tutorSave()"><i class="bi bi-check-lg me-1"></i>שמור</button></div>
+    </div></div></div>
+
+    <!-- Pay Tutor Modal -->
+    <div class="modal fade" id="tutor-pay-modal" tabindex="-1"><div class="modal-dialog modal-sm"><div class="modal-content">
+      <div class="modal-header bg-success bg-opacity-10"><h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>תשלום למתגבר</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p class="fw-bold mb-1" id="tutor-pay-name"></p>
+        <p class="text-muted small mb-3" id="tutor-pay-debt"></p>
+        <label class="form-label fw-bold">סכום לתשלום (\u20AA)</label>
+        <input type="number" class="form-control" id="tutor-pay-amount" min="1" step="1">
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button><button class="btn btn-success" onclick="Pages._tutorPaySave()"><i class="bi bi-check-lg me-1"></i>אשר תשלום</button></div>
     </div></div></div>`;
   },
 
@@ -459,15 +471,27 @@ Object.assign(Pages, {
     });
   },
 
-  async _tutorPay(tutorId) {
+  _tutorPay(tutorId) {
     const tutor = this._tutors.find(t => t.id === tutorId);
     if (!tutor) return;
     if (tutor.owed <= 0) { Utils.toast('אין חוב למתגבר זה', 'info'); return; }
-    const amount = prompt(`תשלום ל${tutor.name}\nחוב: ${tutor.owed} \u20AA\nכמה לשלם?`, tutor.owed);
+    this._tutorPayId = tutorId;
+    document.getElementById('tutor-pay-name').textContent = `תשלום ל${tutor.name}`;
+    document.getElementById('tutor-pay-debt').textContent = `חוב: ${tutor.owed} \u20AA`;
+    document.getElementById('tutor-pay-amount').value = tutor.owed;
+    new bootstrap.Modal(document.getElementById('tutor-pay-modal')).show();
+  },
+
+  async _tutorPaySave() {
+    const tutorId = this._tutorPayId;
+    const tutor = this._tutors.find(t => t.id === tutorId);
+    if (!tutor) return;
+    const amount = document.getElementById('tutor-pay-amount').value;
     if (!amount) return;
     const pay = Math.min(parseFloat(amount), tutor.owed);
     tutor.paid += pay;
     tutor.owed -= pay;
+    bootstrap.Modal.getInstance(document.getElementById('tutor-pay-modal'))?.hide();
     try { await App.apiCall('update', '\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9_\u05E2\u05D6\u05E8', { id: tutorId, row: tutor }); } catch (e) { /* localStorage fallback */ }
     this._tutorSaveToStorage();
     Utils.toast(`שולם ${pay} \u20AA ל${tutor.name}`, 'success');

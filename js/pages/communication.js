@@ -89,6 +89,44 @@ Object.assign(Pages, {
         <div class="modal-header"><h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>\u05D9\u05D5\u05DE\u05DF \u05EA\u05E7\u05E9\u05D5\u05E8\u05EA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body" id="par-commlog-body"></div>
       </div></div></div>
+
+      <!-- Broadcast SMS Modal -->
+      <div class="modal fade" id="comm-bulk-sms-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-chat-left-text me-2"></i>\u05E9\u05DC\u05D9\u05D7\u05EA SMS \u05E7\u05D1\u05D5\u05E6\u05EA\u05D9\u05EA</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <label class="form-label">\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:</label>
+          <textarea class="form-control" id="bulk-sms-text" rows="4" placeholder="\u05DB\u05EA\u05D1 \u05D0\u05EA \u05D4\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DB\u05D0\u05DF..."></textarea>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-success" onclick="Pages._bulkSMSSend()"><i class="bi bi-send me-1"></i>\u05E9\u05DC\u05D7</button></div>
+      </div></div></div>
+
+      <!-- New Call Log Modal -->
+      <div class="modal fade" id="comm-new-call-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-telephone-plus me-2"></i>\u05E8\u05D9\u05E9\u05D5\u05DD \u05E9\u05D9\u05D7\u05D4 \u05D7\u05D3\u05E9\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"><div class="row g-3">
+          <div class="col-12"><label class="form-label">\u05E9\u05DD \u05D4\u05E0\u05DE\u05E2\u05DF</label><input class="form-control" id="ncl-name" placeholder="\u05E9\u05DD \u05D4\u05D0\u05D3\u05DD \u05E9\u05D0\u05D9\u05EA\u05D5 \u05D3\u05D9\u05D1\u05E8\u05EA\u05DD"></div>
+          <div class="col-12"><label class="form-label">\u05E0\u05D5\u05E9\u05D0 \u05D4\u05E9\u05D9\u05D7\u05D4</label><input class="form-control" id="ncl-subject" placeholder="\u05E0\u05D5\u05E9\u05D0 \u05D4\u05E9\u05D9\u05D7\u05D4"></div>
+          <div class="col-12"><label class="form-label">\u05EA\u05E7\u05E6\u05D9\u05E8 \u05E7\u05E6\u05E8</label><textarea class="form-control" id="ncl-summary" rows="3" placeholder="\u05EA\u05E7\u05E6\u05D9\u05E8 \u05DE\u05D4\u05E9\u05D9\u05D7\u05D4"></textarea></div>
+        </div></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._saveNewCallLog()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div>
+      </div></div></div>
+
+      <!-- Edit Call Log Modal -->
+      <div class="modal fade" id="comm-edit-call-modal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>\u05E2\u05D3\u05DB\u05D5\u05DF \u05E8\u05E9\u05D5\u05DE\u05EA \u05E9\u05D9\u05D7\u05D4</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body"><div class="row g-3">
+          <div class="col-12"><label class="form-label">\u05E1\u05D8\u05D8\u05D5\u05E1</label>
+            <select class="form-select" id="ecl-status">
+              <option value="\u05D1\u05D5\u05E6\u05E2">\u05D1\u05D5\u05E6\u05E2</option>
+              <option value="\u05DC\u05D0 \u05E0\u05E2\u05E0\u05D4">\u05DC\u05D0 \u05E0\u05E2\u05E0\u05D4</option>
+              <option value="\u05D7\u05D6\u05E8\u05D5 \u05D0\u05DC\u05D9">\u05D7\u05D6\u05E8\u05D5 \u05D0\u05DC\u05D9</option>
+              <option value="\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D4">\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D4</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label">\u05EA\u05E7\u05E6\u05D9\u05E8</label><textarea class="form-control" id="ecl-summary" rows="3"></textarea></div>
+        </div></div>
+        <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">\u05D1\u05D9\u05D8\u05D5\u05DC</button><button class="btn btn-primary" onclick="Pages._saveEditCallLog()"><i class="bi bi-check-lg me-1"></i>\u05E9\u05DE\u05D5\u05E8</button></div>
+      </div></div></div>
     `;
   },
 
@@ -595,8 +633,15 @@ Object.assign(Pages, {
   },
 
   bulkSMS() {
-    const msg = prompt('\u05D4\u05D5\u05D3\u05E2\u05D4 \u05DC\u05DB\u05DC \u05D4\u05D4\u05D5\u05E8\u05D9\u05DD:');
-    if (!msg) return;
+    const el = document.getElementById('bulk-sms-text');
+    if (el) el.value = '';
+    new bootstrap.Modal(document.getElementById('comm-bulk-sms-modal')).show();
+  },
+
+  _bulkSMSSend() {
+    const msg = (document.getElementById('bulk-sms-text')?.value || '').trim();
+    if (!msg) { Utils.toast('\u05E0\u05D0 \u05D4\u05D6\u05DF \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    bootstrap.Modal.getInstance(document.getElementById('comm-bulk-sms-modal'))?.hide();
     let sent = 0;
     this._parData.forEach(p => {
       if (!p['\u05D8\u05DC\u05E4\u05D5\u05DF']) return;
@@ -1151,10 +1196,21 @@ Object.assign(Pages, {
   },
 
   _addCallLog() {
-    const name = prompt('\u05E9\u05DD \u05D4\u05E0\u05DE\u05E2\u05DF:');
-    if (!name) return;
-    const subject = prompt('\u05E0\u05D5\u05E9\u05D0 \u05D4\u05E9\u05D9\u05D7\u05D4:') || '';
-    const summary = prompt('\u05EA\u05E7\u05E6\u05D9\u05E8 \u05E7\u05E6\u05E8:') || '';
+    const nEl = document.getElementById('ncl-name');
+    const sEl = document.getElementById('ncl-subject');
+    const smEl = document.getElementById('ncl-summary');
+    if (nEl) nEl.value = '';
+    if (sEl) sEl.value = '';
+    if (smEl) smEl.value = '';
+    new bootstrap.Modal(document.getElementById('comm-new-call-modal')).show();
+  },
+
+  _saveNewCallLog() {
+    const name = (document.getElementById('ncl-name')?.value || '').trim();
+    if (!name) { Utils.toast('\u05E9\u05DD \u05D4\u05E0\u05DE\u05E2\u05DF \u05D4\u05D5\u05D0 \u05E9\u05D3\u05D4 \u05D7\u05D5\u05D1\u05D4', 'warning'); return; }
+    const subject = (document.getElementById('ncl-subject')?.value || '').trim();
+    const summary = (document.getElementById('ncl-summary')?.value || '').trim();
+    bootstrap.Modal.getInstance(document.getElementById('comm-new-call-modal'))?.hide();
     const now = new Date();
     this._commCallLog.unshift({
       '\u05EA\u05D0\u05E8\u05D9\u05DA': now.toLocaleDateString('he-IL'),
@@ -1171,11 +1227,23 @@ Object.assign(Pages, {
   _editCallLog(idx) {
     const log = this._commCallLog[idx];
     if (!log) return;
-    const status = prompt('\u05E1\u05D8\u05D8\u05D5\u05E1 (\u05D1\u05D5\u05E6\u05E2/\u05DC\u05D0 \u05E0\u05E2\u05E0\u05D4/\u05D7\u05D6\u05E8\u05D5 \u05D0\u05DC\u05D9/\u05D4\u05E9\u05D0\u05D9\u05E8\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D4):', log['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '');
-    if (status === null) return;
-    const summary = prompt('\u05EA\u05E7\u05E6\u05D9\u05E8:', log['\u05EA\u05E7\u05E6\u05D9\u05E8'] || '');
-    if (summary !== null) log['\u05EA\u05E7\u05E6\u05D9\u05E8'] = summary;
-    if (status.trim()) log['\u05E1\u05D8\u05D8\u05D5\u05E1'] = status.trim();
+    this._editCallLogIdx = idx;
+    const statusEl = document.getElementById('ecl-status');
+    const summaryEl = document.getElementById('ecl-summary');
+    if (statusEl) statusEl.value = log['\u05E1\u05D8\u05D8\u05D5\u05E1'] || '\u05D1\u05D5\u05E6\u05E2';
+    if (summaryEl) summaryEl.value = log['\u05EA\u05E7\u05E6\u05D9\u05E8'] || '';
+    new bootstrap.Modal(document.getElementById('comm-edit-call-modal')).show();
+  },
+
+  _saveEditCallLog() {
+    const idx = this._editCallLogIdx;
+    const log = this._commCallLog[idx];
+    if (!log) return;
+    const status = (document.getElementById('ecl-status')?.value || '').trim();
+    const summary = (document.getElementById('ecl-summary')?.value || '').trim();
+    if (status) log['\u05E1\u05D8\u05D8\u05D5\u05E1'] = status;
+    log['\u05EA\u05E7\u05E6\u05D9\u05E8'] = summary;
+    bootstrap.Modal.getInstance(document.getElementById('comm-edit-call-modal'))?.hide();
     Utils.toast('\u05E8\u05E9\u05D5\u05DE\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4', 'success');
     this._renderCommCallLog(document.getElementById('comm-content'));
   },
