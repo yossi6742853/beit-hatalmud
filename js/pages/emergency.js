@@ -39,7 +39,7 @@ Object.assign(Pages, {
 
   _emergencyLoadData() {
     const saved = localStorage.getItem('bht_emergency');
-    if (saved) return JSON.parse(saved);
+    if (saved) { try { return JSON.parse(saved); } catch(e) { localStorage.removeItem("bht_emergency"); } }
     if (this._emergencyUseDemo) {
       const def = this._emergencyDefaults();
       localStorage.setItem('bht_emergency', JSON.stringify(def));

@@ -89,7 +89,7 @@ Object.assign(Pages, {
   /* ---- Load checklists from localStorage (with API sync) ---- */
   _clLoad() {
     const raw = localStorage.getItem(this._clKey);
-    if (raw) return JSON.parse(raw);
+    if (raw) { try { return JSON.parse(raw); } catch(e) { localStorage.removeItem(this._CL_KEY); } }
     // First time — return empty state (no auto demo)
     if (this._clUseDemo) {
       const demo = this._clGenerateDemo();
