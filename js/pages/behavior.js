@@ -1002,15 +1002,17 @@ Object.assign(Pages, {
 
     if (!studentId) { Utils.toast('יש לבחור תלמיד', 'danger'); return; }
 
+    const studentClass = studentSel?.selectedOptions[0]?.dataset?.cls || '';
     const row = {
-      תלמיד_מזהה: studentId,
-      שם_תלמיד: studentName,
-      סוג: type,
-      קטגוריה: category,
-      תיאור: desc,
-      נקודות: String(points),
-      צוות: staff,
-      תאריך: Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0, 10)
+      '\u05EA\u05DC\u05DE\u05D9\u05D3_\u05DE\u05D6\u05D4\u05D4': studentId,
+      '\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3': studentName,
+      '\u05DB\u05D9\u05EA\u05D4': studentClass,
+      '\u05E1\u05D5\u05D2': type,
+      '\u05E7\u05D8\u05D2\u05D5\u05E8\u05D9\u05D4': category,
+      '\u05EA\u05D9\u05D0\u05D5\u05E8': desc,
+      '\u05E0\u05E7\u05D5\u05D3\u05D5\u05EA': String(points),
+      '\u05E6\u05D5\u05D5\u05EA': staff,
+      '\u05EA\u05D0\u05E8\u05D9\u05DA': Utils.todayISO ? Utils.todayISO() : new Date().toISOString().slice(0, 10)
     };
 
     try {
