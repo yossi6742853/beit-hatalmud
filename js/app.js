@@ -1240,13 +1240,30 @@ const App = {
   },
 
   // Restore focus to triggering element when modal closes (a11y)
+  // Plus auto-focus first input + Tab focus trap inside modal
   initModalFocusReturn() {
     let lastTrigger = null;
     document.addEventListener('show.bs.modal', () => { lastTrigger = document.activeElement; });
+    document.addEventListener('shown.bs.modal', (e) => {
+      const m = e.target;
+      const first = m.querySelector('input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled])');
+      if (first) try { first.focus(); } catch(_) { /* silent */ }
+    });
     document.addEventListener('hidden.bs.modal', () => {
       if (lastTrigger && document.body.contains(lastTrigger)) {
         try { lastTrigger.focus(); } catch(e) { /* silent */ }
       }
+    });
+    // Tab focus trap inside open modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const m = document.querySelector('.modal.show');
+      if (!m) return;
+      const focusables = m.querySelectorAll('a[href], button:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
   },
 

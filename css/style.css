@@ -5199,6 +5199,15 @@ body.scrolled .topbar { box-shadow: 0 4px 14px rgba(15,23,42,.08); backdrop-filt
   }
 }
 
+/* ===== WCAG AA contrast fixes (Day 4-3) ===== */
+.chip-info { --chip-fg: #1e3a8a; }
+.badge-pending { color: #78350f !important; }
+.att-btn.late { color: #92400e !important; border-color: #92400e !important; }
+.att-btn.present { color: #166534 !important; border-color: #166534 !important; }
+.att-btn.absent { color: #991b1b !important; border-color: #991b1b !important; }
+.breadcrumb-item a { color: #1d4ed8 !important; }
+.breadcrumb-item.active { color: #52596a !important; }
+
 @media (max-width: 991.98px) {
   /* Disable always-on infinite animations (battery + GPU) */
   .login-bg::before, .orb, .pulse-glow, .shimmer,
