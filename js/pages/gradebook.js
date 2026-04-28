@@ -455,7 +455,7 @@ Object.assign(Pages, {
     App.apiCall('add', 'מבחנים', { row: newExam }).catch(e => console.warn('gradebook exam add failed:', e));
     this._populateGbFilters();
     this.renderGradebook();
-    bootstrap.Modal.getInstance(document.getElementById('gb-exam-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('gb-exam-modal'))?.hide();
     Utils.toast('\u05DE\u05D1\u05D7\u05DF \u05E0\u05D5\u05E1\u05E3 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4');
   },
 

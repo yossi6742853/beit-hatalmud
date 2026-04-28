@@ -2991,7 +2991,7 @@ Object.assign(Pages, {
 
       <h6 class="fw-bold mt-3 mb-2"><i class="bi bi-journal-text me-2 text-info"></i>\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D9\u05E9\u05D9\u05D1\u05D5\u05EA (${meetings.length})</h6>
       ${meetings.length ? `<div class="list-group list-group-flush">${meetings.map(mt => `
-        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="cursor:pointer" onclick="Pages.showMeetingMinutes('${mt.id}');bootstrap.Modal.getInstance(document.getElementById('comm-detail-modal')).hide()">
+        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="cursor:pointer" onclick="Pages.showMeetingMinutes('${mt.id}');bootstrap.Modal.getInstance(document.getElementById('comm-detail-modal'))?.hide()">
           <div>
             <strong>${mt.date}</strong> ${mt.time || ''} <span class="text-muted">\u2014 ${mt.location || ''}</span>
             <div class="small text-muted">${mt.agenda || ''}</div>
@@ -3088,7 +3088,7 @@ Object.assign(Pages, {
       }
     } catch(e) { /* demo mode */ }
 
-    bootstrap.Modal.getInstance(document.getElementById('committee-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('committee-modal'))?.hide();
     Utils.toast(this._commSelectedId ? '\u05D5\u05E2\u05D3\u05D4 \u05E2\u05D5\u05D3\u05DB\u05E0\u05D4' : '\u05D5\u05E2\u05D3\u05D4 \u05E0\u05D5\u05E1\u05E4\u05D4');
     this._commSelectedId = null;
     this.renderCommittees();
@@ -3184,7 +3184,7 @@ Object.assign(Pages, {
       c.nextMeeting = date;
     }
 
-    bootstrap.Modal.getInstance(document.getElementById('comm-schedule-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('comm-schedule-modal'))?.hide();
     Utils.toast('\u05D9\u05E9\u05D9\u05D1\u05D4 \u05E0\u05E7\u05D1\u05E2\u05D4');
     this.renderCommittees();
   },
@@ -3904,7 +3904,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', '\u05D8\u05D9\u05D5\u05DC\u05D9\u05DD', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('trip-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('trip-modal'))?.hide();
       Utils.toast('\u05E0\u05E9\u05DE\u05E8');
       this.tripsInit();
     } catch (e) {
@@ -4712,7 +4712,7 @@ Object.assign(Pages, {
     try {
       if (this._instEditId) { await App.apiCall('update', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { id: this._instEditId, row }); }
       else { await App.apiCall('add', '\u05DE\u05E1\u05D2\u05E8\u05D5\u05EA', { row }); }
-      bootstrap.Modal.getInstance(document.getElementById('inst-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('inst-modal'))?.hide();
       Utils.toast(this._instEditId ? '\u05DE\u05D5\u05E1\u05D3 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05DE\u05D5\u05E1\u05D3 \u05E0\u05D5\u05E1\u05E3');
       this._instEditId = null;
       this.institutionsInit();
@@ -4773,7 +4773,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', '\u05DE\u05D9\u05D3\u05E2_\u05E8\u05E4\u05D5\u05D0\u05D9', { row: row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('med-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('med-modal'))?.hide();
       Utils.toast('\u05E0\u05E9\u05DE\u05E8');
       this.medicalInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4', 'danger'); }
@@ -4825,7 +4825,7 @@ Object.assign(Pages, {
   async saveLesson() {
     const row = {'\u05D9\u05D5\u05DD':document.getElementById('schf-day').value,'\u05E9\u05E2\u05D4':document.getElementById('schf-hour').value,'\u05DE\u05E7\u05E6\u05D5\u05E2':document.getElementById('schf-subject').value.trim(),'\u05DE\u05DC\u05DE\u05D3':document.getElementById('schf-teacher').value.trim(),'\u05DB\u05D9\u05EA\u05D4':document.getElementById('schf-class').value.trim(),'\u05D7\u05D3\u05E8':document.getElementById('schf-room').value.trim()};
     if (!row['\u05DE\u05E7\u05E6\u05D5\u05E2']) { Utils.toast('\u05D7\u05E1\u05E8 \u05DE\u05E7\u05E6\u05D5\u05E2','warning'); return; }
-    try { await App.apiCall('add','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('sch-modal')).hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3'); this.scheduleInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
+    try { await App.apiCall('add','\u05DE\u05E2\u05E8\u05DB\u05EA_\u05E9\u05E2\u05D5\u05EA',{row}); bootstrap.Modal.getInstance(document.getElementById('sch-modal'))?.hide(); Utils.toast('\u05E9\u05D9\u05E2\u05D5\u05E8 \u05E0\u05D5\u05E1\u05E3'); this.scheduleInit(); } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },
   async deleteLesson(id) {
     if (!await Utils.confirm('\u05DE\u05D7\u05D9\u05E7\u05D4','\u05DC\u05DE\u05D7\u05D5\u05E7 \u05E9\u05D9\u05E2\u05D5\u05E8 \u05D6\u05D4?')) return;

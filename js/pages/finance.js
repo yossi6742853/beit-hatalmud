@@ -1398,7 +1398,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', '\u05E7\u05D5\u05E4\u05D4_\u05E7\u05D8\u05E0\u05D4', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('pc-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('pc-modal'))?.hide();
       Utils.toast('\u05E0\u05E9\u05DE\u05E8');
       this.pettycashInit();
     } catch(e) {
@@ -2152,7 +2152,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', '\u05EA\u05E7\u05E6\u05D9\u05D1', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('budg-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('budg-modal'))?.hide();
       Utils.toast('\u05E0\u05E9\u05DE\u05E8 \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4');
       this.budgetInit();
     } catch (e) {

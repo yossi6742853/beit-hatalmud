@@ -1902,7 +1902,7 @@ Object.assign(Pages, {
         await App.apiCall('add','\u05DE\u05E9\u05EA\u05DE\u05E9\u05D9\u05DD',{row});
         Utils.toast('\u05DE\u05E9\u05EA\u05DE\u05E9 \u05E0\u05D5\u05E1\u05E3');
       }
-      bootstrap.Modal.getInstance(document.getElementById('um-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('um-modal'))?.hide();
       this.user_managementInit();
     } catch(e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4','danger'); }
   },

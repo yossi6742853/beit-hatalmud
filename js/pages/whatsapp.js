@@ -557,7 +557,7 @@ Object.assign(Pages, {
       icon: 'bi-people-fill',
       color: colors[this._waGroups.length % colors.length]
     });
-    bootstrap.Modal.getInstance(document.getElementById('wa-group-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('wa-group-modal'))?.hide();
     if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E0\u05D5\u05E6\u05E8\u05D4', 'success');
     this.renderWa();
   },

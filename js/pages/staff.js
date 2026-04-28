@@ -488,7 +488,7 @@ Object.assign(Pages, {
     try {
       await App.apiCall('add', 'מסמכי_צוות', { row: { 'מזהה_עובד': sid, 'שם_עובד': name, 'סוג_מסמך': type, 'תאריך': date, 'הערות': notes } });
       Utils.toast('מסמך נוסף');
-      bootstrap.Modal.getInstance(document.getElementById('staff-docs-modal')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('staff-docs-modal'))?.hide();
     } catch (e) { Utils.toast('שגיאה', 'danger'); }
   },
 
@@ -564,7 +564,7 @@ Object.assign(Pages, {
       } else {
         await App.apiCall('add', 'צוות', { row });
       }
-      bootstrap.Modal.getInstance(document.getElementById('staff-modal-dyn')).hide();
+      bootstrap.Modal.getInstance(document.getElementById('staff-modal-dyn'))?.hide();
       Utils.toast(existingId ? 'עודכן' : 'נוסף');
       this.staffInit();
     } catch (e) { Utils.toast('שגיאה', 'danger'); }
@@ -1325,7 +1325,7 @@ Object.assign(Pages, {
 
     const typeLabel = type.replace(/_/g, ' ');
     Utils.toast(`${r['שם']}: ${typeLabel} +${Utils.formatCurrency(amount)}${reason ? ' (' + reason + ')' : ''}`);
-    bootstrap.Modal.getInstance(document.getElementById('sal-bonus-modal')).hide();
+    bootstrap.Modal.getInstance(document.getElementById('sal-bonus-modal'))?.hide();
     this.renderSalary();
   },
 
