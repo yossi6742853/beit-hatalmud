@@ -4675,3 +4675,8 @@ html { scroll-behavior: smooth; }
 [data-theme="dark"] .dialer-grid { gap: 8px; }
 [data-theme="dark"] .dialer-call { background: #059669 !important; }
 [data-theme="dark"] .dialer-delete { background: #334155 !important; color: #94a3b8 !important; }
+
+/* ===== Dark Mode Login Screen ===== */
+[data-theme="dark"] .login-pin-dot { border-color: #475569; background: #0f172a; }
+[data-theme="dark"] .login-pin-dot.filled { background: #3b82f6; border-color: #3b82f6; }
+[data-theme="dark"] .login-error-v2 { color: #fca5a5; }
