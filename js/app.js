@@ -1384,17 +1384,38 @@ const App = {
   updateSyncStatus() {
     const el = document.getElementById('sync-status');
     if (!el) return;
-    // Find most recent cache timestamp
+    // Prefer bundled DATA_CACHE timestamp (set by refresh_data.py); fall back to LS cache age.
     let latest = 0;
-    Object.keys(localStorage).forEach(k => {
-      if (k.startsWith(this.CACHE_PREFIX)) {
-        try { const {ts} = JSON.parse(localStorage.getItem(k)); if (ts > latest) latest = ts; } catch(e) { /* silent */ }
+    let source = '';
+    try {
+      if (typeof DATA_CACHE !== 'undefined' && DATA_CACHE._lastUpdated) {
+        latest = new Date(DATA_CACHE._lastUpdated).getTime();
+        if (!isNaN(latest)) source = 'bundle';
       }
-    });
-    if (latest) {
-      const mins = Math.round((Date.now() - latest) / 60000);
-      el.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i>${mins < 1 ? '\u05E2\u05D5\u05D3\u05DB\u05DF \u05E2\u05DB\u05E9\u05D9\u05D5' : '\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ' + mins + ' \u05D3\u05E7\''}`;
+    } catch(e) { /* silent */ }
+    if (!latest) {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith(this.CACHE_PREFIX)) {
+          try { const {ts} = JSON.parse(localStorage.getItem(k)); if (ts > latest) latest = ts; } catch(e) { /* silent */ }
+        }
+      });
+      if (latest) source = 'ls';
     }
+    if (!latest) return;
+    const ageMs = Date.now() - latest;
+    const mins = Math.round(ageMs / 60000);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    let label;
+    if (mins < 1) label = '\u05E2\u05D5\u05D3\u05DB\u05DF \u05E2\u05DB\u05E9\u05D9\u05D5';
+    else if (mins < 60) label = `\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ${mins} \u05D3\u05E7'`;
+    else if (hrs < 24) label = `\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ${hrs} \u05E9\u05E2'`;
+    else label = `\u05E2\u05D5\u05D3\u05DB\u05DF \u05DC\u05E4\u05E0\u05D9 ${days} \u05D9\u05DE\u05D9\u05DD`;
+    // Color hint: warn if bundle older than 1 day
+    const color = (source === 'bundle' && days >= 1) ? 'text-warning' : 'text-muted';
+    el.className = `small ${color} mt-1`;
+    el.innerHTML = `<i class="bi bi-arrow-repeat me-1"></i>${label}`;
+    el.title = new Date(latest).toLocaleString('he-IL');
   },
 
   /* ==============================
