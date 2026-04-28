@@ -1083,7 +1083,7 @@ Object.assign(Pages, {
       const fullName = firstName + ' ' + famName;
       const fullNameRev = famName + ' ' + firstName;
       // Try multiple lookup patterns: family, full, reversed, partial first name
-      let entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byName[fullNameRev] || DRIVE_CATALOG.byId[studentId] || null;
+      let entry = DRIVE_CATALOG.byName[famName] || DRIVE_CATALOG.byName[fullName] || DRIVE_CATALOG.byName[fullNameRev] || DRIVE_CATALOG.byId[sId] || null;
       // Fuzzy: try matching any folder that contains the family name
       if (!entry && famName.length >= 3) {
         const match = DRIVE_CATALOG.folders.find(f => f.name.includes(famName) || famName.includes(f.name.split(' ')[0]));
@@ -1101,7 +1101,7 @@ Object.assign(Pages, {
     }
     // Merge locally uploaded docs from localStorage
     try {
-      const localDocsKey = 'bht_student_docs_' + studentId;
+      const localDocsKey = 'bht_student_docs_' + sId;
       const localDocs = JSON.parse(localStorage.getItem(localDocsKey) || '[]');
       if (localDocs.length) {
         const mappedLocal = localDocs.map(d => ({

@@ -508,10 +508,11 @@ Object.assign(Pages, {
     // === 5b. Absent Students Alert ===
     const absentAlertEl = document.getElementById('dash-absent-alert');
     if (absentAlertEl) {
-      const absentStudents = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
+      const studentMap = new Map(students.map(s => [(s['מזהה']||''), s]));
+    const absentStudents = todayAtt.filter(a => a['\u05E1\u05D8\u05D8\u05D5\u05E1'] === '\u05D7\u05D9\u05E1\u05D5\u05E8');
       if (absentStudents.length > 0) {
         const absentNames = absentStudents.slice(0, 8).map(a => {
-          const s = students.find(st => (st['\u05DE\u05D6\u05D4\u05D4'] || st._row) === (a['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || a['\u05DE\u05D6\u05D4\u05D4']));
+          const s = studentMap.get(a['מזהה_תלמיד'] || a['מזהה']) || students.find(st => (st['\u05DE\u05D6\u05D4\u05D4'] || st._row) === (a['\u05DE\u05D6\u05D4\u05D4_\u05EA\u05DC\u05DE\u05D9\u05D3'] || a['\u05DE\u05D6\u05D4\u05D4']));
           return s ? Utils.fullName(s) : (a['\u05E9\u05DD'] || a['\u05E9\u05DD_\u05EA\u05DC\u05DE\u05D9\u05D3'] || '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2');
         });
         const moreCount = absentStudents.length > 8 ? absentStudents.length - 8 : 0;
@@ -545,7 +546,7 @@ Object.assign(Pages, {
           const student = students.find(s => (s['\u05DE\u05D6\u05D4\u05D4']||'') === sid);
           const name = student ? Utils.fullName(student) : '\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2';
           const meds = ((m['\u05EA\u05E8\u05D5\u05E4\u05D4_adhd']||'') + ', ' + (m['\u05EA\u05E8\u05D5\u05E4\u05D5\u05EA']||'')).replace(/^,\s*|,\s*$/g, '').trim();
-          return `<span class="badge bg-warning-subtle text-warning border" title="${meds}">${name}</span>`;
+          return `<span class="badge bg-warning-subtle text-warning border" title="${(meds||'').replace(/"/g,'&amp;quot;')}">${name}</span>`;
         });
         medAlertEl.style.display = '';
         medAlertEl.innerHTML = `<div class="alert alert-warning border-0 shadow-sm d-flex align-items-start gap-3 mb-0">

@@ -273,7 +273,7 @@ Object.assign(Pages, {
     try {
       const [inbox, sent] = await Promise.all([
         this._gmailProxy('gmailList', { q: 'in:inbox', max: '50' }).catch(() => []),
-        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' }).catch(() => [])
+        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' }).catch(() => []).catch(() => [])
       ]);
       this._emailApiInbox = Array.isArray(inbox) ? inbox : [];
       this._emailApiSent = Array.isArray(sent) ? sent : [];
@@ -324,8 +324,8 @@ Object.assign(Pages, {
 
     try {
       const [inbox, sent] = await Promise.all([
-        this._gmailProxy('gmailList', { q: 'in:inbox', max: '50' }),
-        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' })
+        this._gmailProxy('gmailList', { q: 'in:inbox', max: '50' }).catch(() => []),
+        this._gmailProxy('gmailList', { q: 'in:sent', max: '30' }).catch(() => [])
       ]);
       this._emailApiInbox = Array.isArray(inbox) ? inbox : [];
       this._emailApiSent = Array.isArray(sent) ? sent : [];

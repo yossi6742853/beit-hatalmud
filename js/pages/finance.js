@@ -182,6 +182,7 @@ Object.assign(Pages, {
   },
 
   financeInit() {
+    this._finUseDemo = false; // Reset demo flag on real load
     const _gc = (s) => (typeof DATA_CACHE !== 'undefined' && DATA_CACHE[s]) ? DATA_CACHE[s] : [];
     try {
       this._finData = _gc('\u05E9\u05DB\u05E8_\u05DC\u05D9\u05DE\u05D5\u05D3');
