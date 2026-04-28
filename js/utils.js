@@ -58,6 +58,39 @@ const Utils = {
     return n + ' ' + plural;
   },
 
+  /* ---- Chart helpers: shared RTL tooltip + empty-state placeholder + a11y table ---- */
+  chartTooltip(mode = 'absolute') {
+    return {
+      rtl: true, textDirection: 'rtl',
+      titleFont: { family: 'Heebo' }, bodyFont: { family: 'Heebo' },
+      padding: 10, cornerRadius: 6, displayColors: true,
+      callbacks: {
+        label: (ctx) => {
+          const v = ctx.parsed?.y ?? ctx.parsed;
+          if (typeof v !== 'number') return ctx.label || '';
+          if (mode === 'currency') return `${ctx.dataset.label || ctx.label}: ${this.formatCurrency(v)}`;
+          if (mode === 'percent') {
+            const total = (ctx.dataset.data || []).reduce((a, b) => a + (+b || 0), 0);
+            return `${ctx.label}: ${v} (${total ? Math.round(v/total*100) : 0}%)`;
+          }
+          return `${ctx.dataset.label || ctx.label}: ${v.toLocaleString('he-IL')}`;
+        }
+      }
+    };
+  },
+  chartEmpty(canvas, msg = 'אין נתונים להצגה', icon = 'bar-chart') {
+    if (!canvas) return;
+    const wrap = canvas.parentElement;
+    if (!wrap || wrap.querySelector('.chart-empty')) return;
+    canvas.style.display = 'none';
+    wrap.insertAdjacentHTML('beforeend',
+      `<div class="chart-empty d-flex flex-column align-items-center justify-content-center text-muted py-5">
+         <i class="bi bi-${icon} display-4 opacity-25 mb-2"></i>
+         <div class="fw-semibold">${this.escapeHTML(msg)}</div>
+         <small class="opacity-75">נתונים יופיעו כאן ברגע שיוזנו</small>
+       </div>`);
+  },
+
   /* ---- Israeli phone: strip non-digits, validate, format ---- */
   normalizePhone(input) {
     if (!input) return '';

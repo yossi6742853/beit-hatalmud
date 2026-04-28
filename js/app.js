@@ -43,9 +43,25 @@ const App = {
      INITIALIZATION
      ============================== */
   init() {
-    // Set Chart.js global defaults for RTL Hebrew labels
+    // Set Chart.js global defaults for RTL Hebrew labels + smooth transitions
     if (typeof Chart !== 'undefined') {
       Chart.defaults.font.family = 'Heebo';
+      Chart.defaults.animation = { duration: 600, easing: 'easeOutQuart' };
+      // Token-based palette read from CSS vars (with sensible fallbacks)
+      const css = getComputedStyle(document.documentElement);
+      this.chartPalette = {
+        ok:    (css.getPropertyValue('--bht-success') || '').trim() || '#10b981',
+        warn:  (css.getPropertyValue('--bht-warning') || '').trim() || '#f59e0b',
+        bad:   (css.getPropertyValue('--bht-danger')  || '').trim() || '#ef4444',
+        brand: (css.getPropertyValue('--bht-primary') || '').trim() || '#3b82f6',
+        info:  '#06b6d4', purple: '#8b5cf6', mute: '#94a3b8',
+        series: ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#06b6d4','#ef4444','#6366f1','#ec4899']
+      };
+      this.chartAlpha = (hex, a) => {
+        if (!hex || !hex.startsWith('#')) return hex;
+        const n = parseInt(hex.slice(1).padStart(6, '0'), 16);
+        return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+      };
     }
     // Global error handler + logging + debounced user toast
     let _errCount = 0, _errTimer = null;
