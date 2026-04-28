@@ -694,6 +694,7 @@ Object.assign(Pages, {
   },
 
   async saveStudent() {
+    if (!Utils.acquireLock('saveStudent')) return;
     const id = document.getElementById('sf-id').value;
     const firstNameEl = document.getElementById('sf-first-name');
     const lastNameEl = document.getElementById('sf-last-name');
@@ -714,11 +715,12 @@ Object.assign(Pages, {
       if (!lastName) missing.push('\u05E9\u05DD \u05DE\u05E9\u05E4\u05D7\u05D4');
       if (!classVal) missing.push('\u05DB\u05D9\u05EA\u05D4');
       Utils.toast('\u05E0\u05D0 \u05DC\u05DE\u05DC\u05D0: ' + missing.join(', '), 'warning');
+      Utils.releaseLock('saveStudent');
       return;
     }
 
     const phone = document.getElementById('sf-phone').value.trim();
-    if (phone && !/^0\d{8,9}$/.test(phone.replace(/[-\s]/g, ''))) { Utils.toast('\u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF', 'warning'); return; }
+    if (phone && !/^0\d{8,9}$/.test(phone.replace(/[-\s]/g, ''))) { Utils.toast('\u05DE\u05E1\u05E4\u05E8 \u05D8\u05DC\u05E4\u05D5\u05DF \u05DC\u05D0 \u05EA\u05E7\u05D9\u05DF', 'warning'); Utils.releaseLock('saveStudent'); return; }
 
     const row = {
       '\u05E9\u05DD_\u05E4\u05E8\u05D8\u05D9': firstName,
@@ -743,6 +745,7 @@ Object.assign(Pages, {
       Utils.toast(id ? '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E2\u05D5\u05D3\u05DB\u05DF' : '\u05EA\u05DC\u05DE\u05D9\u05D3 \u05E0\u05D5\u05E1\u05E3', 'success');
       this.studentsInit();
     } catch (e) { Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger'); }
+    finally { Utils.releaseLock('saveStudent'); }
   },
 
   async deleteStudent(id) {

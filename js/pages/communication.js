@@ -594,6 +594,7 @@ Object.assign(Pages, {
   },
 
   async saveParent() {
+    if (!Utils.acquireLock('saveParent')) return;
     const row = {
       '\u05E9\u05DD': document.getElementById('pf-name').value.trim(),
       '\u05E7\u05E9\u05E8': document.getElementById('pf-relation').value,
@@ -604,7 +605,7 @@ Object.assign(Pages, {
       '\u05DE\u05E9\u05E4\u05D7\u05D4': document.getElementById('pf-family').value.trim(),
       '\u05D4\u05E2\u05E8\u05D5\u05EA': document.getElementById('pf-notes').value.trim()
     };
-    if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); return; }
+    if (!row['\u05E9\u05DD']) { Utils.toast('\u05D7\u05E1\u05E8 \u05E9\u05DD', 'warning'); Utils.releaseLock('saveParent'); return; }
     try {
       if (this._parEditId) {
         await App.apiCall('update', '\u05D4\u05D5\u05E8\u05D9\u05DD', { id: this._parEditId, row });
@@ -618,6 +619,8 @@ Object.assign(Pages, {
       this.parentsInit();
     } catch (e) {
       Utils.toast('\u05E9\u05D2\u05D9\u05D0\u05D4 \u05D1\u05E9\u05DE\u05D9\u05E8\u05D4', 'danger');
+    } finally {
+      Utils.releaseLock('saveParent');
     }
   },
 
@@ -1429,11 +1432,12 @@ Object.assign(Pages, {
 
   /* --- Send message --- */
   async sendComm() {
+    if (!Utils.acquireLock('sendComm', 3000)) return;
     const msg = document.getElementById('comm-msg')?.value?.trim();
-    if (!msg) { Utils.toast('\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); return; }
+    if (!msg) { Utils.toast('\u05D4\u05E7\u05DC\u05D3 \u05D4\u05D5\u05D3\u05E2\u05D4', 'warning'); Utils.releaseLock('sendComm'); return; }
     const subject = document.getElementById('comm-subject')?.value?.trim() || '';
     const recipients = this._getCommRecipients();
-    if (!recipients.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D9\u05DD', 'warning'); return; }
+    if (!recipients.length) { Utils.toast('\u05D0\u05D9\u05DF \u05E0\u05DE\u05E2\u05E0\u05D9\u05DD \u05E0\u05D1\u05D7\u05E8\u05D9\u05DD', 'warning'); Utils.releaseLock('sendComm'); return; }
 
     let sent = 0;
     const delivery = this._commDelivery;
@@ -1492,6 +1496,7 @@ Object.assign(Pages, {
     this._commData.unshift(record);
     this._renderCommStats();
     Utils.toast(`${sent} \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E0\u05E9\u05DC\u05D7\u05D5 \u05D1${delivery === 'phone' ? '\u05D8\u05DC\u05E4\u05D5\u05DF' : delivery === 'sms' ? 'SMS' : '\u05D3\u05D5\u05D0\u05E8'}`);
+    Utils.releaseLock('sendComm');
   },
 
 

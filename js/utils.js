@@ -12,6 +12,16 @@ const Utils = {
     }, 0) % 10 === 0;
   },
 
+  /* ---- Double-submit guard: returns true if currently locked ---- */
+  _saving: {},
+  acquireLock(key, ms = 1500) {
+    const now = Date.now();
+    if (this._saving[key] && (now - this._saving[key]) < ms) return false;
+    this._saving[key] = now;
+    return true;
+  },
+  releaseLock(key) { delete this._saving[key]; },
+
   /* ---- Safe localStorage write with quota handling ---- */
   safeSetItem(key, value) {
     try { localStorage.setItem(key, value); return true; }
