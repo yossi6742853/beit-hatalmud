@@ -6,8 +6,16 @@ PROXY = 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P
 AGENT_TOKEN = 'BHT_AGENT_2026'
 OUTPUT = os.path.join(os.path.dirname(__file__), 'js', 'email-cache.js')
 
-# OAuth
-# OAuth credentials — set via environment variables or .env file
+# OAuth — credentials loaded from sibling .env.local (gitignored) or environment
+def _load_env():
+    p = os.path.join(os.path.dirname(__file__), '.env.local')
+    if os.path.exists(p):
+        for line in open(p, encoding='utf-8'):
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                k, v = line.split('=', 1)
+                os.environ.setdefault(k.strip(), v.strip())
+_load_env()
 CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '')
 REFRESH_TOKEN = os.environ.get('GOOGLE_REFRESH_TOKEN', '')
@@ -17,7 +25,10 @@ def get_token():
         'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET,
         'refresh_token': REFRESH_TOKEN, 'grant_type': 'refresh_token'
     })
-    return r.json()['access_token']
+    j = r.json()
+    if 'access_token' not in j:
+        raise SystemExit(f'OAuth failed (HTTP {r.status_code}): {j}')
+    return j['access_token']
 
 def gmail_proxy(token, action, **params):
     params['agentToken'] = AGENT_TOKEN
