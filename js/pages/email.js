@@ -235,15 +235,15 @@ Object.assign(Pages, {
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
         <div>
           <h1><i class="bi bi-envelope-fill me-2"></i>\u05D3\u05D5\u05D0\u05E8 \u05D0\u05DC\u05E7\u05D8\u05E8\u05D5\u05E0\u05D9</h1>
-          <p class="text-muted mb-0">
-            \u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8:
-            <select id="email-account-switcher" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="Pages._setCurrentAccount(this.value)" aria-label="\u05D1\u05D7\u05E8 \u05D7\u05E9\u05D1\u05D5\u05DF">
-              ${this._getAccounts().map(a => `<option value="${a.id}" ${a.id === this._getCurrentAccount().id ? 'selected' : ''}>${Utils.escapeHTML(a.label)}${a.url ? '' : ' (\u05DC\u05D0 \u05DE\u05D5\u05D2\u05D3\u05E8)'}</option>`).join('')}
-            </select>
-            <button class="btn btn-link btn-sm p-0 ms-2" onclick="Pages._showAccountsModal()" title="\u05E0\u05D9\u05D4\u05D5\u05DC \u05D7\u05E9\u05D1\u05D5\u05E0\u05D5\u05EA"><i class="bi bi-gear"></i></button>
-          </p>
+          <p class="text-muted mb-0">\u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8 6742853@gmail.com</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="https://mail.google.com/mail/?authuser=6787012@gmail.com" target="_blank" rel="noopener" class="btn btn-outline-info btn-sm" title="\u05E4\u05EA\u05D7 Gmail \u05E9\u05DC 6787012 \u05D1\u05DC\u05E9\u05D5\u05E0\u05D9\u05EA \u05D7\u05D3\u05E9\u05D4">
+            <i class="bi bi-box-arrow-up-left me-1"></i>\u05E4\u05EA\u05D7 6787012
+          </a>
+          <a href="https://mail.google.com/mail/?authuser=6742853@gmail.com" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm" title="\u05E4\u05EA\u05D7 Gmail \u05E9\u05DC 6742853 \u05D1\u05DC\u05E9\u05D5\u05E0\u05D9\u05EA \u05D7\u05D3\u05E9\u05D4">
+            <i class="bi bi-box-arrow-up-left me-1"></i>\u05E4\u05EA\u05D7 6742853
+          </a>
           <button class="btn btn-primary btn-sm" onclick="Pages.emailShowCompose()">
             <i class="bi bi-pencil-square me-1"></i>\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D7\u05D3\u05E9\u05D4
           </button>
