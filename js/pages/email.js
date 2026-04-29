@@ -13,19 +13,134 @@ Object.assign(Pages, {
   _emailLoading: false,
   _emailThreadCache: {},
 
-  /* ---- Gmail Proxy Config ---- */
-  _GMAIL_PROXY: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  /* ---- Multi-account Gmail Proxy Config ----
+     Each Gmail account needs its own Apps Script deployment (the script runs
+     under the deployer's identity to access GmailApp). To add a new account:
+     1. Sign in to that Gmail account
+     2. Open script.new (or copy the existing Code.gs)
+     3. Deploy as Web App, anyone with link
+     4. Paste URL into BHT settings → "ניהול חשבונות"
+  */
   _GMAIL_TOKEN: 'BHT_AGENT_2026',
+  _accountsDefaults: [
+    { id: 'main', label: '6742853@gmail.com', url: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec' },
+    { id: 'alt',  label: '6787012@gmail.com', url: '' }  // user must add deployment URL once script is deployed under this account
+  ],
+  _getAccounts() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('bht_email_accounts') || 'null');
+      if (Array.isArray(saved) && saved.length) return saved;
+    } catch(e) { /* silent */ }
+    return this._accountsDefaults;
+  },
+  _saveAccounts(accounts) {
+    try { Utils.safeSetItem('bht_email_accounts', JSON.stringify(accounts)); }
+    catch(e) { /* silent */ }
+  },
+  _getCurrentAccount() {
+    const id = localStorage.getItem('bht_email_current_account') || 'main';
+    return this._getAccounts().find(a => a.id === id) || this._getAccounts()[0];
+  },
+  _setCurrentAccount(id) {
+    localStorage.setItem('bht_email_current_account', id);
+    if (typeof EMAIL_CACHE !== 'undefined') EMAIL_CACHE._scope = id; // mark cache as belonging to this account
+    this._loadedEmails = []; this._emailApiInbox = []; this._emailApiSent = []; this._emailThreadCache = {};
+    if (this.emailRefresh) this.emailRefresh();
+  },
+
+  /* ---- Account-management modal ---- */
+  _showAccountsModal() {
+    const accounts = this._getAccounts();
+    const modalId = 'email-accounts-modal';
+    document.getElementById(modalId)?.remove();
+    const html = `
+      <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="${modalId}-title">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="${modalId}-title"><i class="bi bi-envelope-gear me-2"></i>ניהול חשבונות דואר</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="סגור"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info small">
+                <strong>איך מוסיפים חשבון:</strong>
+                <ol class="mb-0 mt-1">
+                  <li>היכנס ל-Gmail בחשבון שאתה רוצה להוסיף</li>
+                  <li>פתח <a href="https://script.new" target="_blank" rel="noopener">script.new</a> והדבק את אותו <code>Code.gs</code> שיש בחשבון הראשי</li>
+                  <li>לחץ Deploy ← Web app, "Execute as: Me", "Anyone with link"</li>
+                  <li>העתק את ה-URL לכאן ושמור</li>
+                </ol>
+              </div>
+              <div id="acct-list">
+                ${accounts.map((a, i) => `
+                  <div class="card mb-2"><div class="card-body py-2">
+                    <div class="row g-2 align-items-center">
+                      <div class="col-md-3">
+                        <label class="form-label small mb-1">תווית</label>
+                        <input class="form-control form-control-sm" data-acct-field="label" data-acct-idx="${i}" value="${Utils.escapeHTML(a.label || '')}" placeholder="example@gmail.com">
+                      </div>
+                      <div class="col-md-7">
+                        <label class="form-label small mb-1">Apps Script URL</label>
+                        <input class="form-control form-control-sm" data-acct-field="url" data-acct-idx="${i}" value="${Utils.escapeHTML(a.url || '')}" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec">
+                      </div>
+                      <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-outline-danger btn-sm w-100" onclick="Pages._removeAccount(${i})" ${a.id === 'main' ? 'disabled title="לא ניתן למחוק את החשבון הראשי"' : ''}><i class="bi bi-trash"></i> מחק</button>
+                      </div>
+                    </div>
+                  </div></div>
+                `).join('')}
+              </div>
+              <button class="btn btn-outline-primary btn-sm" onclick="Pages._addAccount()"><i class="bi bi-plus-lg me-1"></i>הוסף חשבון נוסף</button>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+              <button class="btn btn-primary" onclick="Pages._saveAccountsModal()">שמור</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+    new bootstrap.Modal(document.getElementById(modalId)).show();
+  },
+
+  _addAccount() {
+    const accounts = this._getAccounts();
+    accounts.push({ id: 'acct_' + Date.now(), label: '', url: '' });
+    this._saveAccounts(accounts);
+    this._showAccountsModal();
+  },
+
+  _removeAccount(idx) {
+    const accounts = this._getAccounts();
+    if (accounts[idx]?.id === 'main') return; // protect main
+    accounts.splice(idx, 1);
+    this._saveAccounts(accounts);
+    this._showAccountsModal();
+  },
+
+  _saveAccountsModal() {
+    const accounts = this._getAccounts();
+    document.querySelectorAll('[data-acct-field]').forEach(el => {
+      const i = parseInt(el.dataset.acctIdx, 10);
+      if (accounts[i]) accounts[i][el.dataset.acctField] = el.value.trim();
+    });
+    this._saveAccounts(accounts);
+    bootstrap.Modal.getInstance(document.getElementById('email-accounts-modal'))?.hide();
+    Utils.toast('חשבונות נשמרו', 'success');
+    // Refresh the email page so the switcher shows new state
+    if (App.currentPage === 'email') App.handleRoute();
+  },
 
   /* ---- Helper: call Gmail proxy (via OAuth or static cache) ---- */
   async _gmailProxy(action, params = {}) {
-    // First try static EMAIL_CACHE
-    if (typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE) {
+    const account = this._getCurrentAccount();
+    const proxyUrl = account.url;
+    // First try static EMAIL_CACHE (only valid for main account — other accounts go straight to live proxy)
+    if (account.id === 'main' && typeof EMAIL_CACHE !== 'undefined' && EMAIL_CACHE && (!EMAIL_CACHE._scope || EMAIL_CACHE._scope === 'main')) {
       if (action === 'gmailList') {
         const q = params.q || '';
         if (q.includes('in:inbox')) return EMAIL_CACHE.inbox || [];
         if (q.includes('in:sent')) return EMAIL_CACHE.sent || [];
-        // Search: filter inbox+sent
         const all = [...(EMAIL_CACHE.inbox || []), ...(EMAIL_CACHE.sent || [])];
         const qLow = q.toLowerCase();
         return all.filter(e => (e.subject||'').toLowerCase().includes(qLow) || (e.from||'').toLowerCase().includes(qLow) || (e.snippet||'').toLowerCase().includes(qLow));
@@ -34,16 +149,24 @@ Object.assign(Pages, {
         return EMAIL_CACHE.threads[params.id];
       }
     }
-    // Fallback: try direct API call (works if user is logged in to Google)
+    // Need a deployment URL for non-cached calls
+    if (!proxyUrl) {
+      Utils.toast(`לחשבון ${account.label} חסר URL של Apps Script — פתח הגדרות → ניהול חשבונות`, 'warning');
+      return [];
+    }
+    // Live proxy call
     try {
-      const url = new URL(this._GMAIL_PROXY);
+      const url = new URL(proxyUrl);
       url.searchParams.set('agentToken', this._GMAIL_TOKEN);
       url.searchParams.set('agentAction', action);
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
       const resp = await fetch(url.toString(), { redirect: 'follow' });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       const text = await resp.text();
-      if (text.includes('<!doctype html>') || text.includes('accounts.google.com')) throw new Error('Auth required');
+      if (text.includes('<!doctype html>') || text.includes('accounts.google.com')) {
+        Utils.toast(`חשבון ${account.label}: יש להיכנס ל-Google ולאשר הרשאות פעם אחת`, 'warning');
+        throw new Error('Auth required');
+      }
       return JSON.parse(text);
     } catch(e) {
       console.warn('Gmail proxy unavailable:', e.message);
@@ -112,7 +235,13 @@ Object.assign(Pages, {
       <div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
         <div>
           <h1><i class="bi bi-envelope-fill me-2"></i>\u05D3\u05D5\u05D0\u05E8 \u05D0\u05DC\u05E7\u05D8\u05E8\u05D5\u05E0\u05D9</h1>
-          <p class="text-muted mb-0">\u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8 6787012@gmail.com</p>
+          <p class="text-muted mb-0">
+            \u05EA\u05D9\u05D1\u05EA \u05D3\u05D5\u05D0\u05E8:
+            <select id="email-account-switcher" class="form-select form-select-sm d-inline-block w-auto ms-1" onchange="Pages._setCurrentAccount(this.value)" aria-label="\u05D1\u05D7\u05E8 \u05D7\u05E9\u05D1\u05D5\u05DF">
+              ${this._getAccounts().map(a => `<option value="${a.id}" ${a.id === this._getCurrentAccount().id ? 'selected' : ''}>${Utils.escapeHTML(a.label)}${a.url ? '' : ' (\u05DC\u05D0 \u05DE\u05D5\u05D2\u05D3\u05E8)'}</option>`).join('')}
+            </select>
+            <button class="btn btn-link btn-sm p-0 ms-2" onclick="Pages._showAccountsModal()" title="\u05E0\u05D9\u05D4\u05D5\u05DC \u05D7\u05E9\u05D1\u05D5\u05E0\u05D5\u05EA"><i class="bi bi-gear"></i></button>
+          </p>
         </div>
         <div class="d-flex gap-2">
           <button class="btn btn-primary btn-sm" onclick="Pages.emailShowCompose()">
