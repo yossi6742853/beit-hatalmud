@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>בית התלמוד Lite</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="../css/vendor/bootstrap.rtl.min.css" rel="stylesheet">
+<link href="../css/vendor/bootstrap-icons.css" rel="stylesheet">
+<style>
+body { font-family:'Heebo',system-ui; background:#f5f7fb; min-height:100vh; padding-bottom:80px; margin:0 }
+.navbar { background:linear-gradient(135deg,#667eea,#764ba2); padding:14px 20px; color:white; position:sticky; top:0; z-index:50; box-shadow:0 2px 12px rgba(0,0,0,0.15) }
+.navbar h1 { font-size:18px; font-weight:700; margin:0; display:flex; align-items:center; gap:8px }
+.tabs { background:white; border-bottom:1px solid #e8e8e8; display:flex; gap:0; overflow-x:auto; padding:0 16px }
+.tab-btn { padding:14px 22px; cursor:pointer; border:0; background:transparent; color:#555; font-weight:500; font-size:15px; border-bottom:3px solid transparent; transition:all .2s }
+.tab-btn.active { color:#667eea; border-bottom-color:#667eea }
+.tab-btn:hover { background:#f5f5fb }
+.tab-pane { display:none; padding:20px }
+.tab-pane.active { display:block }
+.container { max-width:1200px; margin:0 auto }
+.stat-card { padding:20px; border-radius:14px; color:white; box-shadow:0 4px 16px rgba(0,0,0,0.08) }
+.stat-1 { background:linear-gradient(135deg,#667eea,#764ba2) }
+.stat-2 { background:linear-gradient(135deg,#f093fb,#f5576c) }
+.stat-3 { background:linear-gradient(135deg,#4facfe,#00f2fe) }
+.stat-4 { background:linear-gradient(135deg,#43e97b,#38f9d7) }
+.card { border:0; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); background:white }
+.avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); color:white; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; flex-shrink:0 }
+.avatar-l { width:48px; height:48px; font-size:18px }
+.avatar-parent { background:linear-gradient(135deg,#f093fb,#f5576c) }
+.behavior-positive { background:#d1f4d1; color:#1d7a1d }
+.behavior-negative { background:#ffd6d6; color:#a00 }
+.behavior-neutral { background:#e3f2fd; color:#1565c0 }
+.btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); border:0; padding:8px 18px }
+.btn-primary:hover { background:linear-gradient(135deg,#5568d8,#6e408e); border:0 }
+.list-row { padding:12px 14px; border-radius:10px; background:white; margin-bottom:8px; display:flex; align-items:center; gap:12px; box-shadow:0 1px 4px rgba(0,0,0,0.06); cursor:pointer; transition:transform .15s }
+.list-row:hover { transform:translateX(-3px); box-shadow:0 4px 12px rgba(0,0,0,0.1) }
+.search-bar { padding:10px 16px; border-radius:10px; border:1px solid #e0e0e0; background:white; width:100%; max-width:380px; font-size:14px }
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); padding:12px 20px; background:#667eea; color:white; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); z-index:9999; display:none }
+@media (max-width:600px){
+  .stat-card { padding:14px }
+  .stat-card .h2 { font-size:24px !important }
+  .tab-btn { padding:12px 14px; font-size:13px }
+}
+</style>
+</head>
+<body>
+<div class="navbar">
+  <h1><i class="bi bi-book"></i> בית התלמוד Lite</h1>
+  <span style="opacity:0.85;font-size:13px" id="navInfo"></span>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('dashboard',this)"><i class="bi bi-speedometer2"></i> סקירה</button>
+  <button class="tab-btn" onclick="showTab('students',this)"><i class="bi bi-people"></i> תלמידים</button>
+  <button class="tab-btn" onclick="showTab('behavior',this)"><i class="bi bi-stars"></i> התנהגות</button>
+  <button class="tab-btn" onclick="showTab('parents',this)"><i class="bi bi-person-heart"></i> הורים</button>
+</div>
+
+<div class="container">
+  <div id="tab-dashboard" class="tab-pane active">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="stat-card stat-1"><div style="opacity:.85;font-size:13px">תלמידים פעילים</div><div class="h2 mb-0 fw-bold" id="statStudents">-</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card stat-2"><div style="opacity:.85;font-size:13px">הורים</div><div class="h2 mb-0 fw-bold" id="statParents">-</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card stat-3"><div style="opacity:.85;font-size:13px">כיתות</div><div class="h2 mb-0 fw-bold" id="statClasses">-</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card stat-4"><div style="opacity:.85;font-size:13px">רישומי התנהגות</div><div class="h2 mb-0 fw-bold" id="statBehavior">-</div></div></div>
+    </div>
+    <div class="card p-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart"></i> פילוח לפי כיתה</h6>
+      <div id="classBreakdown" class="row g-2"></div>
+    </div>
+  </div>
+
+  <div id="tab-students" class="tab-pane">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2 align-items-center">
+      <input type="text" id="searchStudents" class="search-bar" placeholder="חיפוש תלמיד / כיתה / טלפון..." oninput="renderStudents()">
+      <span class="text-muted small" id="studentsCount">-</span>
+    </div>
+    <div id="studentsList" class="row g-2"></div>
+  </div>
+
+  <div id="tab-behavior" class="tab-pane">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+      <select id="behStudent" class="search-bar" style="max-width:240px" onchange="renderBehavior()"><option value="">כל התלמידים</option></select>
+      <span class="text-muted small" id="behaviorCount">-</span>
+    </div>
+    <div class="card p-3">
+      <p class="text-muted small mb-2"><i class="bi bi-info-circle"></i> לרישום התנהגות חדש - העזר בסוכן AI במייל ("סמן יוסי לוי על שבח לג בעומר")</p>
+      <div id="behaviorList"></div>
+    </div>
+  </div>
+
+  <div id="tab-parents" class="tab-pane">
+    <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+      <input type="text" id="searchParents" class="search-bar" placeholder="חיפוש הורה / טלפון..." oninput="renderParents()">
+      <span class="text-muted small" id="parentsCount">-</span>
+    </div>
+    <div id="parentsList" class="row g-2"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="../js/data-cache.js"></script>
+<script>
+const STUDENTS = (window.DATA_CACHE && window.DATA_CACHE['תלמידים']) || [];
+const PARENTS = (window.DATA_CACHE && window.DATA_CACHE['הורים']) || [];
+const BEHAVIOR = (window.DATA_CACHE && (window.DATA_CACHE['התנהגות'] || window.DATA_CACHE['behavior'])) || [];
+
+function showTab(t, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + t).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (t === 'students') renderStudents();
+  if (t === 'behavior') renderBehavior();
+  if (t === 'parents') renderParents();
+  if (t === 'dashboard') renderDashboard();
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const parts = String(name).trim().split(/\s+/);
+  return (parts[0]?.[0] || '') + (parts[1]?.[0] || '');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2200);
+}
+
+function renderDashboard() {
+  const active = STUDENTS.filter(s => (s.סטטוס || 'פעיל') === 'פעיל');
+  const classes = [...new Set(STUDENTS.map(s => s.כיתה).filter(Boolean))];
+
+  document.getElementById('statStudents').textContent = active.length + (STUDENTS.length > active.length ? '/' + STUDENTS.length : '');
+  document.getElementById('statParents').textContent = PARENTS.length || '-';
+  document.getElementById('statClasses').textContent = classes.length;
+  document.getElementById('statBehavior').textContent = BEHAVIOR.length || '0';
+  document.getElementById('navInfo').textContent = `${STUDENTS.length} תלמידים · ${classes.length} כיתות`;
+
+  // Class breakdown
+  const byClass = {};
+  STUDENTS.forEach(s => {
+    const c = s.כיתה || '?';
+    byClass[c] = (byClass[c] || 0) + 1;
+  });
+  const cb = document.getElementById('classBreakdown');
+  cb.innerHTML = Object.entries(byClass).sort().map(([cls, count]) => {
+    const pct = Math.round(count / STUDENTS.length * 100);
+    return `<div class="col-6 col-md-4 col-lg-3"><div class="d-flex align-items-center gap-2 p-2" style="background:#f5f5fb;border-radius:8px"><b style="font-size:18px;color:#667eea">${cls}</b><div class="flex-grow-1"><div style="font-size:13px">${count} תלמידים</div><div style="background:#e0e0e0;height:4px;border-radius:2px;margin-top:4px"><div style="background:#667eea;height:4px;border-radius:2px;width:${pct}%"></div></div></div></div></div>`;
+  }).join('');
+}
+
+function renderStudents() {
+  const search = document.getElementById('searchStudents').value.trim().toLowerCase();
+  let list = STUDENTS;
+  if (search) list = STUDENTS.filter(s => (s.שם_פרטי + ' ' + s.שם_משפחה + ' ' + s.כיתה + ' ' + (s.טלפון||'')).toLowerCase().includes(search));
+  document.getElementById('studentsCount').textContent = `${list.length} מתוך ${STUDENTS.length}`;
+
+  const el = document.getElementById('studentsList');
+  if (!list.length) { el.innerHTML = '<p class="text-muted text-center py-4">אין תלמידים תואמים</p>'; return; }
+  el.innerHTML = list.map(s => {
+    const fullName = ((s.שם_פרטי || '') + ' ' + (s.שם_משפחה || '')).trim();
+    const score = BEHAVIOR.filter(b => String(b.תלמיד_מזהה || b.תלמיד) === String(s.מזהה)).reduce((sum, b) => sum + (parseInt(b.נקודות) || 0), 0);
+    const sCls = score > 0 ? 'success' : score < 0 ? 'danger' : 'secondary';
+    return `<div class="col-md-6 col-lg-4">
+      <div class="card p-3 list-row" onclick="alert('${fullName.replace(/'/g, '\\\'')}\\n${s.כיתה || ''}\\n${s.טלפון || ''}\\n${s.כתובת || ''}\\nרב: ${s.שם_רב || ''}')">
+        <div class="avatar avatar-l">${initials(fullName)}</div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">${fullName}</div>
+          <div class="small text-muted">${s.כיתה || '-'}${s.טלפון ? ' · ' + s.טלפון : ''}</div>
+        </div>
+        ${score !== 0 ? `<span class="badge bg-${sCls}">${score > 0 ? '+' : ''}${score}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderBehavior() {
+  const sel = document.getElementById('behStudent');
+  if (sel.options.length <= 1) {
+    STUDENTS.forEach(s => {
+      const name = ((s.שם_פרטי || '') + ' ' + (s.שם_משפחה || '')).trim();
+      sel.innerHTML += `<option value="${s.מזהה}">${name}</option>`;
+    });
+  }
+  const filter = sel.value;
+  let list = BEHAVIOR;
+  if (filter) list = BEHAVIOR.filter(b => String(b.תלמיד_מזהה || b.תלמיד) === String(filter));
+  list = list.sort((a, b) => new Date(b.תאריך || 0) - new Date(a.תאריך || 0));
+  document.getElementById('behaviorCount').textContent = `${list.length} רישומים`;
+
+  const el = document.getElementById('behaviorList');
+  if (!list.length) { el.innerHTML = '<p class="text-muted text-center py-4">אין רישומי התנהגות</p>'; return; }
+  el.innerHTML = list.slice(0, 100).map(b => {
+    const stu = STUDENTS.find(s => String(s.מזהה) === String(b.תלמיד_מזהה || b.תלמיד));
+    const stuName = stu ? ((stu.שם_פרטי || '') + ' ' + (stu.שם_משפחה || '')).trim() : ('תלמיד #' + (b.תלמיד_מזהה || b.תלמיד));
+    const cls = b.נקודות > 0 ? 'behavior-positive' : b.נקודות < 0 ? 'behavior-negative' : 'behavior-neutral';
+    return `<div class="list-row">
+      <div class="avatar">${initials(stuName)}</div>
+      <div class="flex-grow-1">
+        <div class="fw-semibold">${stuName} <span class="badge ${cls} ms-1">${b.סוג || ''}</span></div>
+        <div class="small text-muted">${b.תיאור || ''}</div>
+      </div>
+      <div class="text-end small text-muted">${(b.תאריך + '').substring(0, 10)}<br><b>${b.נקודות > 0 ? '+' : ''}${b.נקודות || 0}</b></div>
+    </div>`;
+  }).join('');
+}
+
+function renderParents() {
+  const search = document.getElementById('searchParents').value.trim().toLowerCase();
+  let list = PARENTS;
+  if (search) list = PARENTS.filter(p => ((p.שם || '') + ' ' + (p.טלפון || '')).toLowerCase().includes(search));
+  document.getElementById('parentsCount').textContent = `${list.length} מתוך ${PARENTS.length}`;
+
+  const el = document.getElementById('parentsList');
+  if (!list.length) { el.innerHTML = '<p class="text-muted text-center py-4">אין הורים</p>'; return; }
+  el.innerHTML = list.slice(0, 200).map(p => `
+    <div class="col-md-6 col-lg-4">
+      <div class="card p-3 list-row">
+        <div class="avatar avatar-l avatar-parent">${initials(p.שם)}</div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">${p.שם || '-'}</div>
+          <div class="small text-muted">${p.טלפון ? '<i class="bi bi-telephone"></i> ' + p.טלפון : ''}${p.מייל ? ' · ' + p.מייל : ''}</div>
+        </div>
+        ${p.תלמיד_מזהה ? '<i class="bi bi-people text-muted"></i>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+renderDashboard();
+</script>
+</body>
+</html>
