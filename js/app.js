@@ -87,6 +87,7 @@ const App = {
     });
 
     try {
+      this._markEagerModules();
       this.applyTheme();
       this.bindGlobalEvents();
       this.initAutoRefresh();
@@ -152,6 +153,7 @@ const App = {
     try { this.updateNotifBadgeFromStorage(); } catch(e) { /* silent */ }
     try { this.updateSyncStatus(); } catch(e) { /* silent */ }
     try { this._startPreload(); } catch(e) { /* silent */ }
+    try { this._idlePrefetchModules(); } catch(e) { /* silent */ }
     // Hebrew date in topbar
     try {
       const hd = document.getElementById('topbar-hebrew-date');
@@ -342,21 +344,144 @@ const App = {
     // Show skeleton loader while page renders
     content.innerHTML = this._skeletonHTML();
 
-    // Render page (use requestAnimationFrame so skeleton paints first)
-    requestAnimationFrame(() => {
-      if (Pages[page]) {
-        content.innerHTML = '<div class="fade-in page-enter">' + Pages[page](param) + '</div>';
-        if (Pages[page + 'Init']) {
-          try {
-            const result = Pages[page + 'Init'](param);
-            if (result && result.catch) result.catch(e => console.error('Page init error:', page, e));
-          } catch(e) { console.error('Page init error:', page, e); }
+    // Lazy-load the page module on first navigation (cached after).
+    // If Pages[page] already exists (preloaded or already-loaded module),
+    // _loadPageModule resolves immediately.
+    this._loadPageModule(page).then(() => {
+      requestAnimationFrame(() => {
+        if (Pages[page]) {
+          content.innerHTML = '<div class="fade-in page-enter">' + Pages[page](param) + '</div>';
+          if (Pages[page + 'Init']) {
+            try {
+              const result = Pages[page + 'Init'](param);
+              if (result && result.catch) result.catch(e => console.error('Page init error:', page, e));
+            } catch(e) { console.error('Page init error:', page, e); }
+          }
+          this._enhanceA11y(content);
+        } else {
+          content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
         }
-        this._enhanceA11y(content);
-      } else {
-        content.innerHTML = `<div class="empty-state"><i class="bi bi-question-circle"></i><h4>\u05D3\u05E3 \u05DC\u05D0 \u05E0\u05DE\u05E6\u05D0</h4></div>`;
-      }
+        this._hideRouteBar();
+      });
+    }).catch(err => {
+      console.error('Page module load failed:', page, err);
+      content.innerHTML = `<div class="empty-state"><i class="bi bi-wifi-off"></i><h4>\u05D8\u05E2\u05D9\u05E0\u05EA \u05D4\u05D3\u05E3 \u05E0\u05DB\u05E9\u05DC\u05D4</h4><p class="text-muted">\u05E0\u05E1\u05D4 \u05DC\u05E8\u05E2\u05E0\u05DF \u05D0\u05EA \u05D4\u05D3\u05E3</p><button class="btn btn-primary" onclick="location.reload()">\u05E8\u05E2\u05E0\u05D5\u05DF</button></div>`;
       this._hideRouteBar();
+    });
+  },
+
+  /* ==============================
+     LAZY PAGE MODULE LOADER
+     ==============================
+     Page name (URL hash) \u2192 module file. Multiple page names can share a
+     module (e.g. 'parents' + 'communications' both live in communication.js).
+     Modules use Object.assign(Pages, {...}) so loading them in any order
+     is safe.
+  */
+  PAGE_MODULES: {
+    dashboard: 'dashboard',
+    students: 'students', student: 'students',
+    attendance: 'attendance',
+    staff: 'staff', staff_card: 'staff',
+    parents: 'communication', communications: 'communication', renderComm: 'communication',
+    parent_card: 'communication', ai_assistant: 'communication',
+    forms: 'forms',
+    finance: 'finance', pettycash: 'finance', budget: 'finance',
+    behavior: 'behavior',
+    academics: 'education', mivtza: 'education', rankings: 'education',
+    homework: 'homework',
+    organization: 'organization', calendar: 'organization', tasks: 'organization', trips: 'organization',
+    committees: 'organization', documents: 'organization', institutions: 'organization', schedule: 'organization',
+    medical: 'medical',
+    notifications: 'notifications',
+    bulletin: 'bulletin',
+    drive: 'drive',
+    email: 'email',
+    chavruta: 'chavruta',
+    library: 'library',
+    meals: 'meals',
+    transport: 'transport',
+    admin: 'admin', settings: 'admin', help: 'admin', hub: 'admin',
+    cameras: 'admin', phone: 'admin', user_management: 'admin', activity_log: 'admin',
+    reports: 'reports',
+    gradebook: 'gradebook',
+    timetable: 'timetable',
+    facilitymap: 'facilitymap',
+    checklist: 'checklist',
+    inventory: 'inventory',
+    contacts: 'contacts',
+    certificates: 'certificates',
+    rooms: 'rooms',
+    parentportal: 'parentportal',
+    paymentplans: 'paymentplans',
+    hebrewcal: 'hebrewcal',
+    voting: 'voting',
+    rewards: 'rewards',
+    visits: 'visits',
+    emergency: 'emergency',
+    videos: 'videos',
+    whatsapp: 'whatsapp',
+    analytics: 'analytics',
+    printcenter: 'printcenter',
+    tala: 'tala',
+    donations: 'donations',
+    tutoring: 'tutoring'
+  },
+
+  _moduleLoads: {}, // moduleName \u2192 Promise
+  _MODULE_VERSION: '7.1',
+
+  // Mark eager-loaded modules so the lazy router doesn't re-fetch them.
+  _markEagerModules() {
+    // dashboard.js is loaded eagerly via <script> in index.html
+    this._moduleLoads.dashboard = Promise.resolve();
+  },
+
+  _loadPageModule(page) {
+    const moduleName = this.PAGE_MODULES[page];
+    if (!moduleName) {
+      // Unknown page \u2014 render will fall through to "page not found".
+      return Promise.resolve();
+    }
+
+    // Cached promise \u2014 load only once per session. We always go through this
+    // path (even if Pages[page] is already set) because some page names share
+    // a module (forms.js overrides communication.js's stub forms()).
+    if (this._moduleLoads[moduleName]) return this._moduleLoads[moduleName];
+
+    this._moduleLoads[moduleName] = new Promise((resolve, reject) => {
+      const src = `js/pages/${moduleName}.js?v=${this._MODULE_VERSION}`;
+      // Was this module preloaded with <link rel="prefetch">? It's still in
+      // browser cache so the script tag will load it instantly.
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = false; // preserve global init order
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Failed to load ' + src));
+      document.head.appendChild(s);
+    }).catch(err => {
+      // Drop the cached rejection so the next attempt can retry.
+      delete this._moduleLoads[moduleName];
+      throw err;
+    });
+
+    return this._moduleLoads[moduleName];
+  },
+
+  /* Idle-time prefetch of common modules for instant navigation */
+  _idlePrefetchModules() {
+    const queue = ['students', 'attendance', 'finance', 'staff', 'communication'];
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500));
+    queue.forEach((m, i) => {
+      idle(() => {
+        if (this._moduleLoads[m]) return;
+        // Use rel=prefetch (low-priority cache fill) instead of executing.
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'script';
+        link.href = `js/pages/${m}.js?v=${this._MODULE_VERSION}`;
+        document.head.appendChild(link);
+      }, { timeout: 5000 + i * 500 });
     });
   },
 

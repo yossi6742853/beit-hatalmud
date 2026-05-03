@@ -1333,50 +1333,9 @@
   <script src="js/drive-catalog.js" defer></script>
   <script src="js/email-cache.js" defer></script>
   <script src="js/pages.js" defer></script>
-  <script src="js/pages/dashboard.js" defer></script>
-  <script src="js/pages/students.js" defer></script>
-  <script src="js/pages/attendance.js" defer></script>
-  <script src="js/pages/staff.js" defer></script>
-  <script src="js/pages/finance.js" defer></script>
-  <script src="js/pages/behavior.js" defer></script>
-  <script src="js/pages/education.js" defer></script>
-  <script src="js/pages/homework.js" defer></script>
-  <script src="js/pages/organization.js" defer></script>
-  <script src="js/pages/communication.js" defer></script>
-  <script src="js/pages/admin.js" defer></script>
-  <script src="js/pages/chavruta.js" defer></script>
-  <script src="js/pages/library.js" defer></script>
-  <script src="js/pages/meals.js" defer></script>
-  <script src="js/pages/transport.js" defer></script>
-  <script src="js/pages/bulletin.js" defer></script>
-  <script src="js/pages/email.js" defer></script>
-  <script src="js/pages/drive.js" defer></script>
-  <script src="js/pages/donations.js" defer></script>
-  <script src="js/pages/checklist.js" defer></script>
-  <script src="js/pages/inventory.js" defer></script>
-  <script src="js/pages/facilitymap.js" defer></script>
-  <script src="js/pages/forms.js" defer></script>
-  <script src="js/pages/parentportal.js" defer></script>
-  <script src="js/pages/rooms.js" defer></script>
-  <script src="js/pages/tutoring.js" defer></script>
-  <script src="js/pages/hebrewcal.js" defer></script>
-  <script src="js/pages/voting.js" defer></script>
-  <script src="js/pages/rewards.js" defer></script>
-  <script src="js/pages/visits.js" defer></script>
-  <script src="js/pages/medical.js" defer></script>
-  <script src="js/pages/reports.js" defer></script>
-  <script src="js/pages/emergency.js" defer></script>
-  <script src="js/pages/notifications.js" defer></script>
-  <script src="js/pages/gradebook.js" defer></script>
-  <script src="js/pages/videos.js" defer></script>
-  <script src="js/pages/timetable.js" defer></script>
-  <script src="js/pages/whatsapp.js" defer></script>
-  <script src="js/pages/certificates.js" defer></script>
-  <script src="js/pages/analytics.js" defer></script>
-  <script src="js/pages/paymentplans.js" defer></script>
-  <script src="js/pages/contacts.js" defer></script>
-  <script src="js/pages/printcenter.js" defer></script>
-  <script src="js/pages/tala.js" defer></script>
+  <!-- Eager-load only the initial-route module (dashboard); the rest are
+       lazily injected on first navigation by App._loadPageModule. -->
+  <script src="js/pages/dashboard.js?v=7.1" defer></script>
   <script>
   if('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => {
