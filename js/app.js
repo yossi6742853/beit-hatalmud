@@ -4,7 +4,45 @@ const App = {
   /* ---- Config ---- */
   API_URL: 'https://script.google.com/macros/s/AKfycbx5tzS-Br4F4-JkH2N4qPJ2kA5bNxqqYgzfmvB19YM6NitHFgNziSxhKfZx2gSnX8ySIw/exec',
   API_TOKEN: 'bht2026',
-  CACHE_TTL: 5 * 60 * 1000, // 5 minutes
+  CACHE_TTL: 5 * 60 * 1000, // 5 minutes (default fallback)
+
+  // Per-sheet stratified TTLs.
+  // Rationale: settings/role catalogs change rarely (long TTL), attendance
+  // and homework change multiple times per day (short TTL), tuition records
+  // change weekly (medium TTL). Keeps stale data risk in line with how often
+  // each data set is actually edited.
+  CACHE_TTL_MAP: {
+    // Long: configuration / catalog (rarely edited)
+    'הגדרות':              60 * 60 * 1000,        // settings · 1 שעה
+    'מסגרות':              60 * 60 * 1000,        // institutions · 1 שעה
+    'תוכניות_תשלום':       30 * 60 * 1000,        // payment plans · 30 דק'
+    'מערכת_שעות':          30 * 60 * 1000,        // timetable · 30 דק'
+
+    // Medium: domain records (a few times a day)
+    'תלמידים':             24 * 60 * 60 * 1000,   // students · 24 שעות (rarely changes mid-day)
+    'הורים':               12 * 60 * 60 * 1000,   // parents · 12 שעות
+    'צוות':                12 * 60 * 60 * 1000,   // staff · 12 שעות
+    'מבחנים':              30 * 60 * 1000,        // exams · 30 דק'
+    'ציונים':              30 * 60 * 1000,        // grades · 30 דק'
+    'ועדות':               30 * 60 * 1000,        // committees · 30 דק'
+    'מידע_רפואי':          30 * 60 * 1000,        // medical · 30 דק'
+    'תקציב':               30 * 60 * 1000,        // budget · 30 דק'
+    'שכר_לימוד':           15 * 60 * 1000,        // tuition · 15 דק'
+    'שכר_צוות':            15 * 60 * 1000,        // staff salary · 15 דק'
+    'תקשורת_הורים':        10 * 60 * 1000,        // parent comm · 10 דק'
+
+    // Short: high-churn operational data
+    'נוכחות':              5 * 60 * 1000,         // attendance · 5 דק'
+    'התנהגות':             5 * 60 * 1000,         // behavior · 5 דק'
+    'שיעורי_בית':          5 * 60 * 1000,         // homework · 5 דק'
+    'משימות':              5 * 60 * 1000,         // tasks · 5 דק'
+    'יומן_פעילות':         3 * 60 * 1000,         // activity log · 3 דק'
+    'קופה_קטנה':           5 * 60 * 1000,         // petty cash · 5 דק'
+    'מבצע_לימוד':          5 * 60 * 1000,         // mivtza · 5 דק'
+
+    // Stats endpoint (computed counts)
+    '_stats':              5 * 60 * 1000          // dashboard counts · 5 דק'
+  },
   PIN_KEY: 'bht_pin_hash',
   CACHE_PREFIX: 'bht_cache_',
   THEME_KEY: 'bht_theme',
