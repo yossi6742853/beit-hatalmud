@@ -380,8 +380,8 @@ Object.assign(Pages, {
     this._waSelectedRecipients.forEach(phone => {
       const c = this._waContacts.find(x => x.phone === phone);
       const filledMsg = c ? this._waFillVars(msg, c) : msg;
-      const intlPhone = '972' + phone.replace(/^0/, '');
-      window.open(`sms:${phone}?body=${encodeURIComponent(filledMsg)}`, '_blank');
+      const intlPhone = '972' + phone.replace(/\D/g, '').replace(/^0/, '');
+      window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(filledMsg)}`, '_blank');
       if (c) names.push(c.name);
       sent++;
     });
@@ -426,9 +426,9 @@ Object.assign(Pages, {
     const firstPhone = this._waSelectedRecipients.values().next().value;
     const c = this._waContacts.find(x => x.phone === firstPhone);
     const filledMsg = c ? this._waFillVars(msg, c) : msg;
-    const intlPhone = '972' + firstPhone.replace(/^0/, '');
-    window.open(`sms:${firstPhone}?body=${encodeURIComponent(filledMsg)}`, '_blank');
-    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E0\u05E4\u05EA\u05D7 \u05D7\u05DC\u05D5\u05DF SMS', 'success');
+    const intlPhone = '972' + firstPhone.replace(/\D/g, '').replace(/^0/, '');
+    window.open(`https://wa.me/${intlPhone}?text=${encodeURIComponent(filledMsg)}`, '_blank');
+    if (typeof Utils !== 'undefined' && Utils.toast) Utils.toast('\u05E0\u05E4\u05EA\u05D7 \u05D7\u05DC\u05D5\u05DF \u05D5\u05D5\u05D0\u05D8\u05E1\u05D0\u05E4', 'success');
   },
 
   waClearCompose() {
