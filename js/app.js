@@ -677,6 +677,67 @@ const App = {
     }
   },
 
+  /* ==============================
+     Gemini AI Proxy
+     ==============================
+     Calls server-side proxy on the BHT Sheets Apps Script. The Gemini key
+     lives only on the server (TODO: implement geminiProxy action server-side
+     reading PropertiesService.getScriptProperties().getProperty('GEMINI_KEY')).
+     Falls back to the legacy direct call only if the proxy fails — that path
+     should be removed once the server endpoint is live.
+  */
+  GEMINI_PROXY_URL: 'https://script.google.com/macros/s/AKfycbwIFeKofkqY-VRbth-Sja4IDD6vMi-P5L3C9QsI-k3E/exec',
+  GEMINI_PROXY_TOKEN: 'BHT_AGENT_2026',
+
+  async geminiAsk(prompt, opts) {
+    opts = opts || {};
+    const models = opts.models || ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    const temperature = opts.temperature != null ? opts.temperature : 0.7;
+    const maxOutputTokens = opts.maxOutputTokens || 1024;
+
+    // 1) Try server-side proxy (key stays on server)
+    try {
+      const url = `${this.GEMINI_PROXY_URL}?action=geminiProxy&token=${encodeURIComponent(this.GEMINI_PROXY_TOKEN)}`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoid CORS preflight
+        body: JSON.stringify({ prompt, models, temperature, maxOutputTokens })
+      });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (!json.error && (json.text || json.response)) {
+          return json.text || json.response;
+        }
+      }
+    } catch (e) {
+      console.warn('geminiProxy unavailable, falling back to direct call:', e.message);
+    }
+
+    // 2) Fallback: direct Gemini call (legacy — key exposed in client).
+    // TODO: remove this fallback once the server proxy endpoint is implemented.
+    const fallbackKey = (typeof window !== 'undefined' && window.GEMINI_FALLBACK_KEY) || '';
+    if (!fallbackKey) {
+      throw new Error('שרות AI זמנית לא זמין');
+    }
+    for (const model of models) {
+      try {
+        const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${fallbackKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature, maxOutputTokens }
+          })
+        });
+        if (!resp.ok) continue;
+        const json = await resp.json();
+        const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      } catch (e) { continue; }
+    }
+    throw new Error('לא התקבלה תשובה מ-Gemini');
+  },
+
   /* ---- Cache helpers ---- */
   setCache(key, data) {
     try {

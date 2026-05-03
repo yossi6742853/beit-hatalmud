@@ -1747,26 +1747,15 @@ Object.assign(Pages, {
 
       const context = '\u05D0\u05EA\u05D4 \u05E2\u05D5\u05D6\u05E8 AI \u05E9\u05DC \u05DE\u05D5\u05E1\u05D3 \u05D7\u05D9\u05E0\u05D5\u05DB\u05D9 "\u05D1\u05D9\u05EA \u05D4\u05EA\u05DC\u05DE\u05D5\u05D3". \u05E2\u05E0\u05D4 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA \u05D1\u05E6\u05D5\u05E8\u05D4 \u05DE\u05D5\u05E2\u05D9\u05DC\u05D4 \u05D5\u05EA\u05DE\u05E6\u05D9\u05EA\u05D9\u05EA.\n\u05E0\u05EA\u05D5\u05E0\u05D9\u05DD \u05E2\u05D3\u05DB\u05E0\u05D9\u05D9\u05DD:\n- ' + active.length + ' \u05EA\u05DC\u05DE\u05D9\u05D3\u05D9\u05DD \u05E4\u05E2\u05D9\u05DC\u05D9\u05DD\n- ' + staff.length + ' \u05D0\u05E0\u05E9\u05D9 \u05E6\u05D5\u05D5\u05EA\n- \u05E0\u05D5\u05DB\u05D7\u05D5\u05EA \u05D4\u05D9\u05D5\u05DD: ' + present + '/' + (todayAtt.length || active.length) + ' (' + (todayAtt.length ? Math.round(present/todayAtt.length*100) : 0) + '%)\n- \u05DB\u05E1\u05E4\u05D9\u05DD: \u05E1\u05D4"\u05DB ' + totalFin + ' \u05E9"\u05D7, \u05E0\u05D2\u05D1\u05D4 ' + paidFin + ' \u05E9"\u05D7, \u05D7\u05D5\u05D1 ' + (totalFin-paidFin) + ' \u05E9"\u05D7\n- \u05D4\u05EA\u05E0\u05D4\u05D2\u05D5\u05EA: ' + posB + ' \u05D7\u05D9\u05D5\u05D1\u05D9, ' + negB + ' \u05E9\u05DC\u05D9\u05DC\u05D9\n- \u05DB\u05D9\u05EA\u05D5\u05EA: ' + [...new Set(active.map(s=>s['\u05DB\u05D9\u05EA\u05D4']).filter(Boolean))].join(', ');
 
-      // Call Gemini API
-      const apiKey = 'AIzaSyB4slohbaWuVF1Fb4hUEKxR3Kxu2ItonWY';
-      const models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-pro'];
+      // Call Gemini via App.geminiAsk (server-side proxy keeps key off-client)
       let response = null;
-
-      for (const model of models) {
-        try {
-          const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey, {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-              contents: [{parts:[{text: context + '\n\n\u05E9\u05D0\u05DC\u05EA \u05D4\u05DE\u05E9\u05EA\u05DE\u05E9: ' + q}]}],
-              generationConfig: {temperature:0.7, maxOutputTokens:1024}
-            })
-          });
-          if (!resp.ok) continue;
-          const json = await resp.json();
-          response = json.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (response) break;
-        } catch(e) { continue; }
+      try {
+        response = await App.geminiAsk(
+          context + '\n\n\u05E9\u05D0\u05DC\u05EA \u05D4\u05DE\u05E9\u05EA\u05DE\u05E9: ' + q,
+          { temperature: 0.7, maxOutputTokens: 1024 }
+        );
+      } catch(e) {
+        console.warn('geminiAsk failed:', e.message);
       }
 
       if (!response) response = '\u05DC\u05D0 \u05D4\u05E6\u05DC\u05D7\u05EA\u05D9 \u05DC\u05E7\u05D1\u05DC \u05EA\u05E9\u05D5\u05D1\u05D4. \u05E0\u05E1\u05D4 \u05E9\u05D5\u05D1.';
