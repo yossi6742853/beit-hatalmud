@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'bht-v7.0-0429';
+const CACHE_VERSION = 'bht-v7.1-0503';
 const CACHE_NAME = CACHE_VERSION;
 const MAX_CACHE_ENTRIES = 100;
 
@@ -320,10 +320,14 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // JS files: network-first (pick up updates quickly)
+  // JS files: stale-while-revalidate (serve cached JS immediately, refresh in
+  // background). Page modules now load lazily via App._loadPageModule, so a
+  // fast first paint matters more than picking up a fresh module on the very
+  // first navigation. The version-busting query string (?v=7.1) ensures users
+  // pick up real updates after a deploy.
   if (isJsFile(url)) {
     e.respondWith(
-      networkFirst(e.request).then(resp => {
+      staleWhileRevalidate(e.request).then(resp => {
         if (resp) return resp;
         return caches.match('/_offline');
       })
