@@ -98,6 +98,22 @@ body { font-family:'Heebo',system-ui; background:#f5f7fb; min-height:100vh; padd
   </div>
 </div>
 
+<!-- Detail Modal -->
+<div id="detailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:200;overflow-y:auto" onclick="if(event.target===this)closeModal()">
+  <div style="max-width:680px;margin:30px auto;background:white;border-radius:18px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.3)">
+    <div id="modalHeader" style="padding:24px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;display:flex;align-items:center;gap:14px">
+      <div id="modalAvatar" class="avatar avatar-l" style="width:64px;height:64px;font-size:24px;background:rgba(255,255,255,0.25);border:2px solid white"></div>
+      <div style="flex-grow:1">
+        <h3 id="modalTitle" style="margin:0;font-size:22px"></h3>
+        <p id="modalSubtitle" style="margin:4px 0 0;opacity:0.9;font-size:14px"></p>
+      </div>
+      <button onclick="closeModal()" style="background:transparent;border:0;color:white;font-size:30px;cursor:pointer;padding:0 8px">×</button>
+    </div>
+    <div id="modalBody" style="padding:24px;max-height:60vh;overflow-y:auto"></div>
+    <div id="modalActions" style="padding:14px 24px;background:#f8f9fc;border-top:1px solid #e8e8e8;display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script src="../js/data-cache.js"></script>
@@ -161,12 +177,12 @@ function renderStudents() {
 
   const el = document.getElementById('studentsList');
   if (!list.length) { el.innerHTML = '<p class="text-muted text-center py-4">אין תלמידים תואמים</p>'; return; }
-  el.innerHTML = list.map(s => {
+  el.innerHTML = list.map((s, idx) => {
     const fullName = ((s.שם_פרטי || '') + ' ' + (s.שם_משפחה || '')).trim();
     const score = BEHAVIOR.filter(b => String(b.תלמיד_מזהה || b.תלמיד) === String(s.מזהה)).reduce((sum, b) => sum + (parseInt(b.נקודות) || 0), 0);
     const sCls = score > 0 ? 'success' : score < 0 ? 'danger' : 'secondary';
     return `<div class="col-md-6 col-lg-4">
-      <div class="card p-3 list-row" onclick="alert('${fullName.replace(/'/g, '\\\'')}\\n${s.כיתה || ''}\\n${s.טלפון || ''}\\n${s.כתובת || ''}\\nרב: ${s.שם_רב || ''}')">
+      <div class="card p-3 list-row" onclick="openStudent('${s.מזהה}')">
         <div class="avatar avatar-l">${initials(fullName)}</div>
         <div class="flex-grow-1">
           <div class="fw-semibold">${fullName}</div>
@@ -177,6 +193,76 @@ function renderStudents() {
     </div>`;
   }).join('');
 }
+
+function openStudent(id) {
+  const s = STUDENTS.find(x => String(x.מזהה) === String(id));
+  if (!s) return;
+  const fullName = ((s.שם_פרטי || '') + ' ' + (s.שם_משפחה || '')).trim();
+  const score = BEHAVIOR.filter(b => String(b.תלמיד_מזהה || b.תלמיד) === String(s.מזהה)).reduce((sum, b) => sum + (parseInt(b.נקודות) || 0), 0);
+  const beh = BEHAVIOR.filter(b => String(b.תלמיד_מזהה || b.תלמיד) === String(s.מזהה)).slice(0, 10);
+
+  document.getElementById('modalAvatar').textContent = initials(fullName);
+  document.getElementById('modalTitle').textContent = fullName;
+  document.getElementById('modalSubtitle').innerHTML = `${s.כיתה || ''} · ${s.מסגרת || ''} ${score !== 0 ? `<span style="background:${score>0?'#34a853':'#ea4335'};padding:3px 10px;border-radius:8px;margin-right:8px;font-size:13px">${score>0?'+':''}${score} נקודות</span>` : ''}`;
+
+  // Build detail rows
+  const fields = [
+    ['מזהה', s.מזהה],
+    ['שם פרטי', s.שם_פרטי],
+    ['שם משפחה', s.שם_משפחה],
+    ['כיתה', s.כיתה],
+    ['תאריך לידה', (s.תאריך_לידה + '').substring(0,10)],
+    ['ת"ז', s.תז],
+    ['טלפון', s.טלפון],
+    ['אימייל', s.אימייל],
+    ['כתובת', s.כתובת],
+    ['עיר', s.עיר],
+    ['שכונה', s.שכונה],
+    ['סטטוס', s.סטטוס],
+    ['מסגרת', s.מסגרת],
+    ['יתרה', s.יתרה],
+    ['מיקום במשפחה', s.מיקום_במשפחה],
+    ['כמות ילדים', s.כמות_ילדים],
+    ['בית כנסת', s.בית_כנסת],
+    ['שם רב', s.שם_רב],
+    ['נייד רב', s.נייד_רב],
+    ['שם אב', s.שם_אב],
+    ['נייד אב', s.נייד_אב],
+    ['שם אם', s.שם_אם],
+    ['נייד אם', s.נייד_אם],
+    ['הערות', s.הערות],
+  ];
+  const filled = fields.filter(([k, v]) => v && String(v).trim() !== '' && String(v).trim() !== '0');
+  const body = filled.map(([k, v]) => {
+    let val = String(v);
+    // Make phones clickable
+    if (k.includes('נייד') || k === 'טלפון') val = `<a href="tel:${val.replace(/\D/g,'')}">${val}</a>`;
+    // Make email clickable
+    if (k === 'אימייל') val = `<a href="mailto:${val}">${val}</a>`;
+    return `<div style="display:flex;padding:8px 0;border-bottom:1px solid #f0f0f0"><div style="width:140px;color:#888;font-size:13px">${k}</div><div style="flex-grow:1;font-weight:500">${val}</div></div>`;
+  }).join('');
+
+  let behHtml = '';
+  if (beh.length) {
+    behHtml = `<h6 style="margin-top:20px;color:#667eea">📋 רישומי התנהגות (${beh.length})</h6>` + beh.map(b => {
+      const cls = b.נקודות > 0 ? 'behavior-positive' : b.נקודות < 0 ? 'behavior-negative' : 'behavior-neutral';
+      return `<div style="padding:8px;border:1px solid #eee;border-radius:8px;margin-bottom:6px"><div style="display:flex;justify-content:space-between"><div><span class="badge ${cls}">${b.סוג || ''}</span> <b>${b.נקודות > 0 ? '+' : ''}${b.נקודות || 0}</b></div><div class="small text-muted">${(b.תאריך + '').substring(0,10)}</div></div>${b.תיאור ? `<div class="small mt-1">${b.תיאור}</div>` : ''}</div>`;
+    }).join('');
+  }
+
+  document.getElementById('modalBody').innerHTML = body + behHtml;
+
+  // Action buttons
+  const acts = document.getElementById('modalActions');
+  acts.innerHTML = '';
+  if (s.טלפון) acts.innerHTML += `<a href="tel:${s.טלפון.replace(/\D/g,'')}" class="btn btn-primary"><i class="bi bi-telephone"></i> חייג</a>`;
+  if (s.אימייל) acts.innerHTML += `<a href="mailto:${s.אימייל}" class="btn btn-outline-primary"><i class="bi bi-envelope"></i> מייל</a>`;
+  acts.innerHTML += `<a href="mailto:6742853+ai@gmail.com?subject=${encodeURIComponent('בקשה על ' + fullName)}&body=${encodeURIComponent('בקשה לסוכן AI על תלמיד ' + fullName + ' מזהה ' + s.מזהה + ':\n\n')}" class="btn btn-outline-secondary"><i class="bi bi-robot"></i> שאל את הסוכן</a>`;
+
+  document.getElementById('detailModal').style.display = 'block';
+}
+
+function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
 function renderBehavior() {
   const sel = document.getElementById('behStudent');
