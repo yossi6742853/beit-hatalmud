@@ -22,6 +22,7 @@ const ASSETS = [
   './js/email-cache.js',
   './js/pages.js',
   './js/utils.js',
+  './js/idb.js',
   // Page modules (js/pages/*.js)
   './js/pages/admin.js',
   './js/pages/attendance.js',

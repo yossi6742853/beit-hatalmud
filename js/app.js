@@ -104,6 +104,8 @@ const App = {
         if (e.target?.focus) try { e.target.focus(); } catch(_) { /* silent */ }
       }, true);
       this._enhanceA11yForms(document.body);
+      // Hydrate IDB-backed sheets into in-memory mirror (async, non-blocking)
+      try { this.primeIDBCache(); } catch(e) { /* silent */ }
       this._initDriveCatalogIndex();
     } catch(e) {
       console.error('Init error (non-fatal):', e);
@@ -738,8 +740,39 @@ const App = {
     throw new Error('לא התקבלה תשובה מ-Gemini');
   },
 
-  /* ---- Cache helpers ---- */
+  /* ---- Cache helpers ----
+     Big sheets (תלמידים, התנהגות, נוכחות) → IndexedDB via IDB utility
+     (avoids 5MB localStorage cap and JSON.stringify hot path on every
+     navigation). Small sheets stay in localStorage for synchronous reads.
+  */
+  BIG_SHEETS: new Set([
+    'תלמידים',   // תלמידים
+    'התנהגות',   // התנהגות
+    'נוכחות'          // נוכחות
+  ]),
+  _idbMem: {}, // synchronous read-through cache for IDB-backed sheets
+
+  _isBigCacheKey(key) {
+    if (!key || !key.startsWith(this.CACHE_PREFIX)) return false;
+    const sheet = key.slice(this.CACHE_PREFIX.length);
+    return this.BIG_SHEETS.has(sheet);
+  },
+
+  _ttlFor(key) {
+    if (!key || !key.startsWith(this.CACHE_PREFIX)) return this.CACHE_TTL;
+    const sheet = key.slice(this.CACHE_PREFIX.length);
+    if (this.CACHE_TTL_MAP && this.CACHE_TTL_MAP[sheet] != null) return this.CACHE_TTL_MAP[sheet];
+    return this.CACHE_TTL;
+  },
+
   setCache(key, data) {
+    // Big sheets → IndexedDB (async, fire-and-forget) + in-memory mirror for
+    // synchronous getCache() reads inside the same page session.
+    if (this._isBigCacheKey(key) && typeof IDB !== 'undefined' && IDB.available) {
+      this._idbMem[key] = { data, ts: Date.now() };
+      IDB.set(key, data);
+      return;
+    }
     try {
       localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
     } catch(e) {
@@ -756,13 +789,37 @@ const App = {
   },
 
   getCache(key) {
+    const ttl = this._ttlFor(key);
+    // Big-sheet path: in-memory mirror first (synchronous), else null
+    // (the async IDB priming happens via primeIDBCache() at boot).
+    if (this._isBigCacheKey(key)) {
+      const mem = this._idbMem[key];
+      if (mem && (Date.now() - mem.ts <= ttl)) return mem.data;
+      return null;
+    }
     try {
       const raw = localStorage.getItem(key);
       if (!raw) return null;
       const { data, ts } = JSON.parse(raw);
-      if (Date.now() - ts > this.CACHE_TTL) return null;
+      if (Date.now() - ts > ttl) return null;
       return data;
     } catch(e) { return null; }
+  },
+
+  // Boot-time hydration: pull all big-sheet caches from IndexedDB into
+  // _idbMem so the synchronous getCache() works on the very first render.
+  async primeIDBCache() {
+    if (typeof IDB === 'undefined' || !IDB.available) return;
+    try {
+      const keys = await IDB.keys();
+      for (const key of keys) {
+        if (typeof key !== 'string' || !key.startsWith(this.CACHE_PREFIX)) continue;
+        const entry = await IDB.get(key);
+        if (entry && entry.data != null) {
+          this._idbMem[key] = { data: entry.data, ts: entry.ts || Date.now() };
+        }
+      }
+    } catch(e) { /* IDB unavailable or quota — silent */ }
   },
 
   /* ==============================
