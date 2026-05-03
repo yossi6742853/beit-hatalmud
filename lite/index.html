@@ -114,6 +114,9 @@ body { font-family:'Heebo',system-ui; background:#f5f7fb; min-height:100vh; padd
   </div>
 </div>
 
+<!-- Floating Action Button -->
+<button onclick="quickLog()" style="position:fixed;bottom:20px;left:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:0;box-shadow:0 4px 16px rgba(102,126,234,0.4);font-size:24px;cursor:pointer;z-index:90" title="רישום התנהגות מהיר">+</button>
+
 <div id="toast" class="toast"></div>
 
 <script src="../js/data-cache.js"></script>
@@ -144,6 +147,21 @@ function toast(msg) {
   el.textContent = msg;
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 2200);
+}
+
+// Quick action - new behavior log from anywhere (FAB)
+function quickLog() {
+  if (!STUDENTS.length) { toast('אין תלמידים'); return; }
+  const name = prompt('שם התלמיד:');
+  if (!name) return;
+  const matches = STUDENTS.filter(s => ((s.שם_פרטי || '') + ' ' + (s.שם_משפחה || '')).includes(name));
+  if (!matches.length) { toast('לא נמצא'); return; }
+  const stu = matches[0];
+  const fullName = ((stu.שם_פרטי || '') + ' ' + (stu.שם_משפחה || '')).trim();
+  const type = prompt('סוג: (1) שבח (2) הערה (3) אזהרה (4) הצטיינות', '1');
+  const types = {'1':['שבח',1],'2':['הערה',-1],'3':['אזהרה',-3],'4':['הצטיינות',5]};
+  const [t, pts] = types[type] || ['הערה', 0];
+  logBehavior(stu.מזהה, fullName, pts, t);
 }
 
 function renderDashboard() {
@@ -257,12 +275,26 @@ function openStudent(id) {
   acts.innerHTML = '';
   if (s.טלפון) acts.innerHTML += `<a href="tel:${s.טלפון.replace(/\D/g,'')}" class="btn btn-primary"><i class="bi bi-telephone"></i> חייג</a>`;
   if (s.אימייל) acts.innerHTML += `<a href="mailto:${s.אימייל}" class="btn btn-outline-primary"><i class="bi bi-envelope"></i> מייל</a>`;
-  acts.innerHTML += `<a href="mailto:6742853+ai@gmail.com?subject=${encodeURIComponent('בקשה על ' + fullName)}&body=${encodeURIComponent('בקשה לסוכן AI על תלמיד ' + fullName + ' מזהה ' + s.מזהה + ':\n\n')}" class="btn btn-outline-secondary"><i class="bi bi-robot"></i> שאל את הסוכן</a>`;
+  acts.innerHTML += `
+    <button class="btn btn-success" onclick="logBehavior('${s.מזהה}','${fullName.replace(/'/g,"\\\\'")}',1,'שבח')"><i class="bi bi-plus-circle"></i> שבח (+1)</button>
+    <button class="btn btn-warning" onclick="logBehavior('${s.מזהה}','${fullName.replace(/'/g,"\\\\'")}',-1,'הערה')"><i class="bi bi-exclamation-triangle"></i> הערה (-1)</button>
+    <button class="btn btn-danger" onclick="logBehavior('${s.מזהה}','${fullName.replace(/'/g,"\\\\'")}',-3,'אזהרה')"><i class="bi bi-x-octagon"></i> אזהרה (-3)</button>
+    <a href="mailto:6742853+ai@gmail.com?subject=${encodeURIComponent('בקשה על ' + fullName)}&body=${encodeURIComponent('בקשה לסוכן AI על תלמיד ' + fullName + ' מזהה ' + s.מזהה + ':\n\n')}" class="btn btn-outline-secondary"><i class="bi bi-robot"></i> שאל את הסוכן</a>`;
 
   document.getElementById('detailModal').style.display = 'block';
 }
 
 function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+function logBehavior(stuId, stuName, points, type) {
+  const desc = prompt(`רישום ${type} ל-${stuName}\n${points > 0 ? '+' : ''}${points} נקודות\n\nתיאור (לא חובה):`, '');
+  if (desc === null) return;
+  // Send via mailto: to agent which will update the sheet
+  const subject = `סמן ${type} ל-${stuName}`;
+  const body = `סמן רישום התנהגות:\n\nתלמיד: ${stuName}\nמזהה: ${stuId}\nסוג: ${type}\nנקודות: ${points}\nתיאור: ${desc || '(ללא תיאור)'}\nתאריך: ${new Date().toISOString().substring(0,10)}`;
+  window.open(`mailto:6742853+ai@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+  toast('פותח מייל לסוכן - לחץ "שלח" כדי לרשום');
+}
 
 function renderBehavior() {
   const sel = document.getElementById('behStudent');
